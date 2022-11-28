@@ -1,0 +1,28 @@
+{
+  "name": "data-availability-verifier",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "start": "npm run build && node ./dist/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lens-protocol/data-availability-verifier.git"
+  },
+  "dependencies": {
+    "node-fetch": "^2.6.6"
+  },
+  "devDependencies": {
+    "@types/node-fetch": "^2.6.2",
+    "typescript": "^3.8.3"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lens-protocol/data-availability-verifier/issues"
+  },
+  "homepage": "https://github.com/lens-protocol/data-availability-verifier#readme"
+}
