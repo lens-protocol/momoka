@@ -1,0 +1,10 @@
+schema: https://arweave.net/graphql
+documents: './verifier/graphql/*.graphql'
+generates:
+  ./verifier/graphql/generated.ts:
+    plugins:
+      - typescript
+      - typescript-operations
+      - typed-document-node
+    config:
+      fetcher: fetch
