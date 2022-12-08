@@ -128,6 +128,16 @@ const validateChoosenBlock = async (blockNumber: number, timestamp: number) => {
   if (closestBlock.number !== blockNumber) {
     throw new Error(ClaimableValidatorError.NOT_CLOSEST_BLOCK);
   }
+
+  console.log('compare', {
+    choosenBlock: closestBlock.timestamp,
+    timestamp,
+  });
+
+  // TODO to look at this later!
+  // if (closestBlock.number + 2500 > timestamp) {
+  //   throw new Error(ClaimableValidatorError.BLOCK_TOO_FAR);
+  // }
 };
 
 const checkDASubmisson = async (arweaveId: string) => {
@@ -210,7 +220,9 @@ const verifier = async () => {
   }
 };
 
-verifier().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+// verifier().catch((error) => {
+//   console.error(error);
+//   process.exitCode = 1;
+// });
+
+validateChoosenBlock(29539175, 1670430166098);

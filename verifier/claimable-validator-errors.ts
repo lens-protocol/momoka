@@ -40,4 +40,6 @@ export enum ClaimableValidatorError {
    * This means the block processed against is not the closest block to the timestamp proofs
    */
   NOT_CLOSEST_BLOCK = 'NOT_CLOSEST_BLOCK',
+
+  // BLOCK_TOO_FAR = 'BLOCK_TOO_FAR',
 }
