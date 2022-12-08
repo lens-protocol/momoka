@@ -16,8 +16,9 @@ import {
   DACommentCreatedEventEmittedResponse,
   DAMirrorCreatedEventEmittedResponse,
 } from './data-availability-models/publications/data-availability-structure-publications-events';
-import { executeSimulationTransaction, parseSignature } from './ethereum';
+import { ethereumProvider, executeSimulationTransaction, parseSignature } from './ethereum';
 import { CommentWithSigRequest, MirrorWithSigRequest } from './ethereum-abi-types/LensHub';
+import { deepClone } from './helpers';
 import { checkDAPost, CheckDAPostPublication } from './post';
 
 const sleep = (milliseconds: number): Promise<void> => {
@@ -84,10 +85,48 @@ const checkDAMirror = async (publication: CheckDAMirrorPublication) => {
   );
 };
 
-const getClosestBlock = (blockNumber: number, timestamp: number) => {
-  const blocks = [blockNumber - 1, blockNumber];
-  while (true) {
-    blocks.push(blockNumber - 1);
+const validateChoosenBlock = async (blockNumber: number, timestamp: number) => {
+  // get 5 blocks in front and 5 blocks behind
+  let startForward = deepClone(blockNumber);
+  const blocksInFront = Array(deepClone(startForward) + 5 - startForward)
+    .fill(undefined)
+    .map((_, idx) => startForward + idx);
+
+  const startBack = deepClone(blockNumber) - 5;
+  const blocksBehind = Array(blockNumber - startBack)
+    .fill(undefined)
+    .map((_, idx) => startBack + idx);
+
+  const blockNumbers = [...blocksBehind, ...blocksInFront];
+  const blocks = await Promise.all(
+    blockNumbers.map((blockNumber) => ethereumProvider.getBlock(blockNumber))
+  );
+
+  const closestBlock = blocks
+    // turn to ms!
+    .map((c) => {
+      return {
+        ...c,
+        timestamp: c.timestamp * 1000,
+      };
+    })
+    // nothing before it!
+    .filter((c) => c.timestamp <= timestamp)
+    .reduce((a, b) => {
+      let aDiff = Math.abs(a.timestamp - timestamp);
+      let bDiff = Math.abs(b.timestamp - timestamp);
+
+      if (aDiff == bDiff) {
+        // Choose smallest timestamp
+        return a < b ? a : b;
+      } else {
+        return bDiff < aDiff ? b : a;
+      }
+    });
+
+  // compare block numbers to make sure they are the same
+  if (closestBlock.number !== blockNumber) {
+    throw new Error(ClaimableValidatorError.NOT_CLOSEST_BLOCK);
   }
 };
 
@@ -117,16 +156,16 @@ const checkDASubmisson = async (arweaveId: string) => {
 
   // TODO: insert code here
 
-  // 3. get the closest block to the timestamp
-
-  // TODO: insert code here
-
-  // 4. compare block numbers to make sure they are the same
-
   // the event emitted must match the same timestamp as the block number
   if (daPublication.event.timestamp !== daPublication.chainProofs.thisPublication.blockTimestamp) {
     throw new Error(ClaimableValidatorError.INVALID_EVENT_TIMESTAMP);
   }
+
+  // must be the closest block to the timestamp proofs
+  await validateChoosenBlock(
+    daPublication.chainProofs.thisPublication.blockNumber,
+    daPublication.timestampProofs.response.timestamp
+  );
 
   log('event timestamp matches up the on chain block timestamp');
 

@@ -35,4 +35,9 @@ export enum ClaimableValidatorError {
    * This means the pointer set in the chain proofs is not required but set anyway
    */
   INVALID_POINTER_SET_NOT_NEEDED = 'INVALID_POINTER_SET_NOT_NEEDED',
+
+  /**
+   * This means the block processed against is not the closest block to the timestamp proofs
+   */
+  NOT_CLOSEST_BLOCK = 'NOT_CLOSEST_BLOCK',
 }

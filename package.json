@@ -1,7 +1,7 @@
 {
   "name": "hardhat-project",
   "scripts": {
-    "start": "npx ts-node verifier/main.ts",
+    "start": "npx ts-node verifier/index.ts",
     "generate": "graphql-codegen"
   },
   "devDependencies": {

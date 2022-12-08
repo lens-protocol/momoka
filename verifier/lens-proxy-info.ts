@@ -1198,7 +1198,7 @@ export const lensHubContract: LensHub = new ethers.Contract(
   ethereumProvider
 ) as unknown as LensHub;
 
-export const DAlensHubInterface = new Interface(LENS_PROXY_MUMBAI_CONTRACT);
+export const DAlensHubInterface = new Interface(LENS_PROXY_ABI);
 
 export const getPubCount = (profileId: string, blockNumber: number) => {
   return lensHubContract.getPubCount(profileId, {
