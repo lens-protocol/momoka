@@ -1,5 +1,5 @@
-import { SortOrder, TransactionsDocument } from './graphql/generated';
-import { client } from './graphql/urql.client';
+import { SortOrder, TransactionsDocument } from '../graphql/generated';
+import { client } from '../graphql/urql.client';
 
 // TODO pass in proper tag!
 export const getArweaveTransactionsAPI = async (

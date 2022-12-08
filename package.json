@@ -1,7 +1,7 @@
 {
   "name": "hardhat-project",
   "scripts": {
-    "start": "npx hardhat run verifier/main.ts",
+    "start": "npx ts-node verifier/main.ts",
     "generate": "graphql-codegen"
   },
   "devDependencies": {
@@ -9,12 +9,13 @@
     "@graphql-codegen/typed-document-node": "2.3.2",
     "@graphql-codegen/typescript": "2.7.2",
     "@graphql-codegen/typescript-operations": "2.5.2",
-    "@nomicfoundation/hardhat-toolbox": "^2.0.0",
-    "graphql-codegen": "^0.4.0",
-    "hardhat": "^2.12.2"
+    "ethereum-abi-types-generator": "^1.3.2",
+    "graphql-codegen": "^0.4.0"
   },
   "dependencies": {
+    "@bundlr-network/client": "^0.9.8",
     "@urql/core": "^3.0.5",
+    "ethers": "^5.7.2",
     "graphql": "^16.6.0",
     "node-fetch-commonjs": "^3.2.4"
   }

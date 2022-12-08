@@ -1,6 +1,10 @@
-export const LENS_PROXY_MUMBAI_CONTRACT =
-  '0x60Ae865ee4C725cd04353b5AAb364553f56ceF82';
-export const LENS_PROXY_ABI = [
+import { ethers } from 'ethers';
+import { Interface } from 'ethers/lib/utils';
+import { ethereumProvider } from './ethereum';
+import { LensHub } from './ethereum-abi-types/LensHub';
+
+export const LENS_PROXY_MUMBAI_CONTRACT = '0x60Ae865ee4C725cd04353b5AAb364553f56ceF82';
+const LENS_PROXY_ABI = [
   {
     inputs: [
       { internalType: 'address', name: 'followNFTImpl', type: 'address' },
@@ -541,9 +545,7 @@ export const LENS_PROXY_ABI = [
       { internalType: 'uint256', name: 'pubId', type: 'uint256' },
     ],
     name: 'getPubType',
-    outputs: [
-      { internalType: 'enum DataTypes.PubType', name: '', type: 'uint8' },
-    ],
+    outputs: [{ internalType: 'enum DataTypes.PubType', name: '', type: 'uint8' }],
     stateMutability: 'view',
     type: 'function',
   },
@@ -560,9 +562,7 @@ export const LENS_PROXY_ABI = [
   {
     inputs: [],
     name: 'getState',
-    outputs: [
-      { internalType: 'enum DataTypes.ProtocolState', name: '', type: 'uint8' },
-    ],
+    outputs: [{ internalType: 'enum DataTypes.ProtocolState', name: '', type: 'uint8' }],
     stateMutability: 'view',
     type: 'function',
   },
@@ -588,36 +588,28 @@ export const LENS_PROXY_ABI = [
     type: 'function',
   },
   {
-    inputs: [
-      { internalType: 'address', name: 'collectModule', type: 'address' },
-    ],
+    inputs: [{ internalType: 'address', name: 'collectModule', type: 'address' }],
     name: 'isCollectModuleWhitelisted',
     outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
     stateMutability: 'view',
     type: 'function',
   },
   {
-    inputs: [
-      { internalType: 'address', name: 'followModule', type: 'address' },
-    ],
+    inputs: [{ internalType: 'address', name: 'followModule', type: 'address' }],
     name: 'isFollowModuleWhitelisted',
     outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
     stateMutability: 'view',
     type: 'function',
   },
   {
-    inputs: [
-      { internalType: 'address', name: 'profileCreator', type: 'address' },
-    ],
+    inputs: [{ internalType: 'address', name: 'profileCreator', type: 'address' }],
     name: 'isProfileCreatorWhitelisted',
     outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
     stateMutability: 'view',
     type: 'function',
   },
   {
-    inputs: [
-      { internalType: 'address', name: 'referenceModule', type: 'address' },
-    ],
+    inputs: [{ internalType: 'address', name: 'referenceModule', type: 'address' }],
     name: 'isReferenceModuleWhitelisted',
     outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
     stateMutability: 'view',
@@ -932,9 +924,7 @@ export const LENS_PROXY_ABI = [
     type: 'function',
   },
   {
-    inputs: [
-      { internalType: 'address', name: 'newEmergencyAdmin', type: 'address' },
-    ],
+    inputs: [{ internalType: 'address', name: 'newEmergencyAdmin', type: 'address' }],
     name: 'setEmergencyAdmin',
     outputs: [],
     stateMutability: 'nonpayable',
@@ -1023,9 +1013,7 @@ export const LENS_PROXY_ABI = [
     type: 'function',
   },
   {
-    inputs: [
-      { internalType: 'address', name: 'newGovernance', type: 'address' },
-    ],
+    inputs: [{ internalType: 'address', name: 'newGovernance', type: 'address' }],
     name: 'setGovernance',
     outputs: [],
     stateMutability: 'nonpayable',
@@ -1203,3 +1191,17 @@ export const LENS_PROXY_ABI = [
     type: 'function',
   },
 ];
+
+export const lensHubContract: LensHub = new ethers.Contract(
+  LENS_PROXY_MUMBAI_CONTRACT,
+  LENS_PROXY_ABI,
+  ethereumProvider
+) as unknown as LensHub;
+
+export const DAlensHubInterface = new Interface(LENS_PROXY_MUMBAI_CONTRACT);
+
+export const getPubCount = (profileId: string, blockNumber: number) => {
+  return lensHubContract.getPubCount(profileId, {
+    blockTag: blockNumber,
+  });
+};
