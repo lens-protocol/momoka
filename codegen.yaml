@@ -1,4 +1,4 @@
-schema: https://arweave.net/graphql
+schema: https://node1.bundlr.network/graphql
 documents: './verifier/graphql/*.graphql'
 generates:
   ./verifier/graphql/generated.ts:

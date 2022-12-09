@@ -11,6 +11,11 @@ export enum ClaimableValidatorError {
   TIMESTAMP_PROOF_INVALID_UPLOAD = 'TIMESTAMP_PROOF_INVALID_UPLOAD',
 
   /**
+   * This means the timestamp proof uploaded was not done by a valid submitter
+   */
+  TIMESTAMP_PROOF_NOW_SUBMITTER = 'TIMESTAMP_PROOF_NOW_SUBMITTER',
+
+  /**
    * This means the block stated in the chain proofs are not the closest block to the timstamp
    * proofs
    */

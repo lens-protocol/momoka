@@ -18,12 +18,9 @@ import {
 } from './data-availability-models/publications/data-availability-structure-publications-events';
 import { ethereumProvider, executeSimulationTransaction, parseSignature } from './ethereum';
 import { CommentWithSigRequest, MirrorWithSigRequest } from './ethereum-abi-types/LensHub';
-import { deepClone } from './helpers';
+import { deepClone, sleep } from './helpers';
 import { checkDAPost, CheckDAPostPublication } from './post';
-
-const sleep = (milliseconds: number): Promise<void> => {
-  return new Promise((resolve) => setTimeout(resolve, milliseconds));
-};
+import { isValidTransactionSubmitter } from './submitters';
 
 type CheckDACommentPublication = DAStructurePublication<
   DACommentCreatedEventEmittedResponse,
@@ -162,14 +159,27 @@ const checkDASubmisson = async (arweaveId: string) => {
   log('timestamp proof signature valid');
 
   // 2. fetch the `daPublication.timestampProofs.id` from arweave graphql node, checked `dataAvailabilityId` and type match!
-  // 2. + also check the wallet who uploaded it is within the submittors wallet list
 
   // TODO: insert code here
 
-  // the event emitted must match the same timestamp as the block number
+  // check the wallet who uploaded it is within the submittors wallet list
+  const timestampProofsSubmitter = await isValidTransactionSubmitter(
+    daPublication.timestampProofs.response.id
+  );
+  if (!timestampProofsSubmitter) {
+    log('timestamp proof invalid submitter');
+    throw new Error(ClaimableValidatorError.TIMESTAMP_PROOF_NOW_SUBMITTER);
+  }
+
+  log('timestamp proof valid submitter');
+
   if (daPublication.event.timestamp !== daPublication.chainProofs.thisPublication.blockTimestamp) {
+    log('event timestamp does not match the publication timestamp');
+    // the event emitted must match the same timestamp as the block number
     throw new Error(ClaimableValidatorError.INVALID_EVENT_TIMESTAMP);
   }
+
+  log('event timestamp matches publication timestamp');
 
   // must be the closest block to the timestamp proofs
   await validateChoosenBlock(
@@ -203,6 +213,7 @@ const verifier = async () => {
   // loop forever!
   while (true) {
     console.log('Checking for new submissions');
+    // MUST FILTER ON THE SUBMITTER ADDRESS
     const arweaveTransactions = await getArweaveTransactionsAPI();
     if (!arweaveTransactions?.edges) {
       console.log('No more transactions to check. Sleep for 5 seconds then check again');
@@ -220,9 +231,9 @@ const verifier = async () => {
   }
 };
 
-// verifier().catch((error) => {
-//   console.error(error);
-//   process.exitCode = 1;
-// });
+verifier().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});
 
-validateChoosenBlock(29539175, 1670430166098);
+// validateChoosenBlock(29539175, 1670430166098);

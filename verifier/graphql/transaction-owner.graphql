@@ -1,0 +1,10 @@
+query TransactionOwners($ids: [String!]) {
+  transactions(ids: $ids) {
+    edges {
+      node {
+        id
+        address
+      }
+    }
+  }
+}

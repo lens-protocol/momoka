@@ -1,0 +1,14 @@
+query DataAvailabilityTransactions($owners: [String!], $after: String) {
+  transactions(owners: $owners, limit: 1000, after: $after) {
+    edges {
+      node {
+        id
+        address
+      }
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+  }
+}
