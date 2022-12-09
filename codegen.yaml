@@ -1,7 +1,7 @@
 schema: https://node1.bundlr.network/graphql
 documents: './src/graphql/*.graphql'
 generates:
-  ./verifier/graphql/generated.ts:
+  ./src/graphql/generated.ts:
     plugins:
       - typescript
       - typescript-operations

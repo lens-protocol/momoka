@@ -18,9 +18,6 @@ TODO
 
 ## Unanswered questions:
 
-1) If you comment on a mirror it throws an error saying you can not (because we going to remove it anyway) - fine
-2) If you mirror a mirror it proxies to the main publication and does not store any referral stuff - ??
-   - because this mirror is not on-chain we just use the main pointer so we can submit a transactions nicely
 3) If you try to comment on an on-chain publication it throws an error for now - fine
 4) If you mirror a DA post you run the proofs on the pointer and not the actual mirror itself (as would fail on-chain)
 5) DA comments only work on DA posts/comments
