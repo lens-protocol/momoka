@@ -1,7 +1,8 @@
 {
   "name": "hardhat-project",
   "scripts": {
-    "start": "npx ts-node verifier/index.ts",
+    "build": "tsc",
+    "start": "npx ts-node src/watcher.ts",
     "generate": "graphql-codegen"
   },
   "devDependencies": {

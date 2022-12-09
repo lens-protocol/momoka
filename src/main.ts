@@ -1,6 +1,6 @@
 import Utils from '@bundlr-network/client/build/common/utils';
 import { getArweaveByIdAPI } from './arweave/get-arweave-by-id.api';
-import { getArweaveTransactionsAPI } from './arweave/get-arweave-transactions.api';
+import { getDataAvailabilityTransactionsAPI } from './bundlr/get-data-availability-transactions.api';
 import { ClaimableValidatorError } from './claimable-validator-errors';
 import { DAActionTypes } from './data-availability-models/data-availability-action-types';
 import {
@@ -137,7 +137,7 @@ const validateChoosenBlock = async (blockNumber: number, timestamp: number) => {
   // }
 };
 
-const checkDASubmisson = async (arweaveId: string) => {
+export const checkDASubmisson = async (arweaveId: string) => {
   const log = (message: string, ...optionalParams: any[]) => {
     console.log(`${arweaveId} - ${message}`, ...optionalParams);
   };
@@ -207,33 +207,34 @@ const checkDASubmisson = async (arweaveId: string) => {
   }
 };
 
-const verifier = async () => {
+export const verifierWatcher = async () => {
   console.log('Verify watcher started');
 
-  // loop forever!
+  let cursor: string | null = null;
+
   while (true) {
     console.log('Checking for new submissions');
-    // MUST FILTER ON THE SUBMITTER ADDRESS
-    const arweaveTransactions = await getArweaveTransactionsAPI();
-    if (!arweaveTransactions?.edges) {
+    const arweaveTransactions = await getDataAvailabilityTransactionsAPI(cursor);
+
+    if (arweaveTransactions.pageInfo.hasNextPage) {
+      console.log('Next page found so set the cursor');
+      cursor = arweaveTransactions.pageInfo.endCursor;
+    }
+
+    if (arweaveTransactions.edges.length === 0) {
       console.log('No more transactions to check. Sleep for 5 seconds then check again');
       sleep(5000);
     }
 
-    console.log('Found new submissions', arweaveTransactions!.edges.length);
+    console.log('Found new submissions', arweaveTransactions.edges.length);
 
     for (let i = 0; i < arweaveTransactions!.edges.length; i++) {
       await checkDASubmisson(arweaveTransactions!.edges[i].node.id);
     }
 
+    console.log('Checked all submissons all is well');
+
     // TODO remove this :)
     break;
   }
 };
-
-verifier().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
-
-// validateChoosenBlock(29539175, 1670430166098);
