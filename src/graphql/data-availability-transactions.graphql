@@ -1,10 +1,11 @@
 query DataAvailabilityTransactions($owners: [String!], $after: String) {
-  transactions(owners: $owners, limit: 1000, after: $after) {
+  transactions(owners: $owners, limit: 1000, after: $after, order: ASC) {
     edges {
       node {
         id
         address
       }
+      cursor
     }
     pageInfo {
       endCursor
