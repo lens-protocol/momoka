@@ -1,86 +1,20 @@
 import Utils from '@bundlr-network/client/build/common/utils';
+import { utils } from 'ethers';
 import { getArweaveByIdAPI } from './arweave/get-arweave-by-id.api';
 import { getDataAvailabilityTransactionsAPI } from './bundlr/get-data-availability-transactions.api';
 import { ClaimableValidatorError } from './claimable-validator-errors';
 import { DAActionTypes } from './data-availability-models/data-availability-action-types';
 import {
-  CreateCommentEIP712TypedData,
-  CreateMirrorEIP712TypedData,
-} from './data-availability-models/publications/data-availability-publication-typed-data';
-import {
   DAEventType,
   DAStructurePublication,
   PublicationTypedData,
 } from './data-availability-models/publications/data-availability-structure-publication';
-import {
-  DACommentCreatedEventEmittedResponse,
-  DAMirrorCreatedEventEmittedResponse,
-} from './data-availability-models/publications/data-availability-structure-publications-events';
-import { ethereumProvider, executeSimulationTransaction, parseSignature } from './ethereum';
-import { CommentWithSigRequest, MirrorWithSigRequest } from './ethereum-abi-types/LensHub';
+import { ethereumProvider } from './ethereum';
 import { deepClone, sleep } from './helpers';
-import { checkDAPost, CheckDAPostPublication } from './post';
-import { isValidTransactionSubmitter } from './submitters';
-
-type CheckDACommentPublication = DAStructurePublication<
-  DACommentCreatedEventEmittedResponse,
-  CreateCommentEIP712TypedData
->;
-
-const checkDAComment = async (publication: CheckDACommentPublication) => {
-  const sigRequest: CommentWithSigRequest = {
-    profileId: publication.chainProofs.thisPublication.typedData.value.profileId,
-    contentURI: publication.chainProofs.thisPublication.typedData.value.contentURI,
-    profileIdPointed: publication.chainProofs.thisPublication.typedData.value.profileIdPointed,
-    pubIdPointed: publication.chainProofs.thisPublication.typedData.value.pubIdPointed,
-    referenceModuleData:
-      publication.chainProofs.thisPublication.typedData.value.referenceModuleData,
-    collectModule: publication.chainProofs.thisPublication.typedData.value.collectModule,
-    collectModuleInitData:
-      publication.chainProofs.thisPublication.typedData.value.collectModuleInitData,
-    referenceModule: publication.chainProofs.thisPublication.typedData.value.referenceModule,
-    referenceModuleInitData:
-      publication.chainProofs.thisPublication.typedData.value.referenceModuleInitData,
-    sig: parseSignature(
-      publication.chainProofs.thisPublication.signature,
-      publication.chainProofs.thisPublication.typedData.value.deadline
-    ),
-  };
-
-  await executeSimulationTransaction(
-    'commentWithSig',
-    sigRequest,
-    publication.chainProofs.thisPublication.blockNumber
-  );
-};
-
-type CheckDAMirrorPublication = DAStructurePublication<
-  DAMirrorCreatedEventEmittedResponse,
-  CreateMirrorEIP712TypedData
->;
-
-const checkDAMirror = async (publication: CheckDAMirrorPublication) => {
-  const sigRequest: MirrorWithSigRequest = {
-    profileId: publication.chainProofs.thisPublication.typedData.value.profileId,
-    profileIdPointed: publication.chainProofs.thisPublication.typedData.value.profileIdPointed,
-    pubIdPointed: publication.chainProofs.thisPublication.typedData.value.pubIdPointed,
-    referenceModuleData:
-      publication.chainProofs.thisPublication.typedData.value.referenceModuleData,
-    referenceModule: publication.chainProofs.thisPublication.typedData.value.referenceModule,
-    referenceModuleInitData:
-      publication.chainProofs.thisPublication.typedData.value.referenceModuleInitData,
-    sig: parseSignature(
-      publication.chainProofs.thisPublication.signature,
-      publication.chainProofs.thisPublication.typedData.value.deadline
-    ),
-  };
-
-  await executeSimulationTransaction(
-    'mirrorWithSig',
-    sigRequest,
-    publication.chainProofs.thisPublication.blockNumber
-  );
-};
+import { checkDAComment, CheckDACommentPublication } from './publications/comment';
+import { checkDAMirror, CheckDAMirrorPublication } from './publications/mirror';
+import { checkDAPost, CheckDAPostPublication } from './publications/post';
+import { isValidSubmitter, isValidTransactionSubmitter } from './submitters';
 
 const validateChoosenBlock = async (blockNumber: number, timestamp: number) => {
   // get 5 blocks in front and 5 blocks behind
@@ -137,7 +71,7 @@ const validateChoosenBlock = async (blockNumber: number, timestamp: number) => {
   // }
 };
 
-export const checkDASubmisson = async (arweaveId: string) => {
+export const checkDASubmisson = async (arweaveId: string, verifyPointer = true) => {
   const log = (message: string, ...optionalParams: any[]) => {
     console.log(`${arweaveId} - ${message}`, ...optionalParams);
   };
@@ -148,6 +82,20 @@ export const checkDASubmisson = async (arweaveId: string) => {
     DAStructurePublication<DAEventType, PublicationTypedData>
   >(arweaveId);
   log('getArweaveByIdAPI result', daPublication);
+
+  // check if signature matches!
+
+  let signature = deepClone(daPublication.signature);
+
+  // @ts-ignore
+  delete daPublication.signature;
+
+  const signedAddress = utils.verifyMessage(JSON.stringify(daPublication), signature);
+  log('signedAddress', signedAddress);
+
+  if (!isValidSubmitter(signedAddress)) {
+    throw new Error(ClaimableValidatorError.INVALID_SIGNATURE_SUBMITTER);
+  }
 
   // check if bundlr timestamp proofs are valid and verified against bundlr node
   const valid = await Utils.verifyReceipt(daPublication.timestampProofs.response);
@@ -168,7 +116,7 @@ export const checkDASubmisson = async (arweaveId: string) => {
   );
   if (!timestampProofsSubmitter) {
     log('timestamp proof invalid submitter');
-    throw new Error(ClaimableValidatorError.TIMESTAMP_PROOF_NOW_SUBMITTER);
+    throw new Error(ClaimableValidatorError.TIMESTAMP_PROOF_NOT_SUBMITTER);
   }
 
   log('timestamp proof valid submitter');
@@ -197,10 +145,10 @@ export const checkDASubmisson = async (arweaveId: string) => {
       await checkDAPost(daPublication as CheckDAPostPublication);
       break;
     case DAActionTypes.COMMENT_CREATED:
-      await checkDAComment(daPublication as CheckDACommentPublication);
+      await checkDAComment(daPublication as CheckDACommentPublication, verifyPointer);
       break;
     case DAActionTypes.MIRROR_CREATED:
-      await checkDAMirror(daPublication as CheckDAMirrorPublication);
+      await checkDAMirror(daPublication as CheckDAMirrorPublication, verifyPointer);
       break;
     default:
       throw new Error('Unknown type');

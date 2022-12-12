@@ -15,6 +15,11 @@ export type PublicationTypedData =
   | CreateCommentEIP712TypedData
   | CreateMirrorEIP712TypedData;
 
+export enum DAPublicationPointerType {
+  ON_EVM_CHAIN = 'ON_EVM_CHAIN',
+  ON_DA = 'ON_DA',
+}
+
 interface DAStructurePublicationProofs<TTypedData extends PublicationTypedData> {
   thisPublication: {
     /**
@@ -51,7 +56,16 @@ interface DAStructurePublicationProofs<TTypedData extends PublicationTypedData> 
   /**
    * This is the pointers proofs, if the publication is another DA publication then this will be the proofs of that publication
    */
-  pointer: string | null;
+  pointer: {
+    /**
+     * The location of the pointer
+     */
+    location: string;
+    /**
+     * This maps if the pointer type is a DA publication or on the evm chain
+     */
+    type: DAPublicationPointerType;
+  } | null;
 }
 
 export type DAEventType =

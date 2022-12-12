@@ -8,6 +8,11 @@ export interface DAStructureBase {
   dataAvailabilityId: string;
 
   /**
+   * The signature of the entire payload by the submitter
+   */
+  signature: string;
+
+  /**
    * The DA action type
    */
   type: DAActionTypes;

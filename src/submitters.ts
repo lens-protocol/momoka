@@ -5,7 +5,7 @@ export const getSubmitters = () => {
   return ['0x82478df5a281a486070c11ebf808d3dd874fda86'];
 };
 
-const isValidSubmitter = (address: string) => {
+export const isValidSubmitter = (address: string) => {
   return getSubmitters().includes(address);
 };
 

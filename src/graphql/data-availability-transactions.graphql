@@ -1,5 +1,5 @@
 query DataAvailabilityTransactions($owners: [String!], $after: String) {
-  transactions(owners: $owners, limit: 1000, after: $after, order: ASC) {
+  transactions(owners: $owners, limit: 1000, after: $after, order: ASC, hasTags: true) {
     edges {
       node {
         id

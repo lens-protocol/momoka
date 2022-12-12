@@ -1,10 +1,10 @@
-import { ClaimableValidatorError } from '../claimable-validator-errors';
-import { CreatePostEIP712TypedData } from '../data-availability-models/publications/data-availability-publication-typed-data';
-import { DAStructurePublication } from '../data-availability-models/publications/data-availability-structure-publication';
-import { DAPostCreatedEventEmittedResponse } from '../data-availability-models/publications/data-availability-structure-publications-events';
-import { EMPTY_BYTE, executeSimulationTransaction, parseSignature } from '../ethereum';
-import { PostWithSigRequest } from '../ethereum-abi-types/LensHub';
-import { getPubCount } from '../lens-proxy-info';
+import { ClaimableValidatorError } from '../../claimable-validator-errors';
+import { CreatePostEIP712TypedData } from '../../data-availability-models/publications/data-availability-publication-typed-data';
+import { DAStructurePublication } from '../../data-availability-models/publications/data-availability-structure-publication';
+import { DAPostCreatedEventEmittedResponse } from '../../data-availability-models/publications/data-availability-structure-publications-events';
+import { EMPTY_BYTE, executeSimulationTransaction, parseSignature } from '../../ethereum';
+import { PostWithSigRequest } from '../../ethereum-abi-types/LensHub';
+import { getPubCount } from '../../lens-proxy-info';
 
 export type CheckDAPostPublication = DAStructurePublication<
   DAPostCreatedEventEmittedResponse,
