@@ -1,10 +1,4 @@
-import { ethers } from 'ethers';
-import { Interface } from 'ethers/lib/utils';
-import { ethereumProvider } from './ethereum';
-import { LensHub } from './ethereum-abi-types/LensHub';
-
-export const LENS_PROXY_MUMBAI_CONTRACT = '0x60Ae865ee4C725cd04353b5AAb364553f56ceF82';
-const LENS_PROXY_ABI = [
+export const LENS_HUB_ABI = [
   {
     inputs: [
       { internalType: 'address', name: 'followNFTImpl', type: 'address' },
@@ -16,6 +10,7 @@ const LENS_PROXY_ABI = [
   { inputs: [], name: 'CallerNotCollectNFT', type: 'error' },
   { inputs: [], name: 'CallerNotFollowNFT', type: 'error' },
   { inputs: [], name: 'CannotInitImplementation', type: 'error' },
+  { inputs: [], name: 'DispatcherNotSet', type: 'error' },
   { inputs: [], name: 'EmergencyAdminCannotUnpause', type: 'error' },
   { inputs: [], name: 'InitParamsInvalid', type: 'error' },
   { inputs: [], name: 'Initialized', type: 'error' },
@@ -35,24 +30,9 @@ const LENS_PROXY_ABI = [
   {
     anonymous: false,
     inputs: [
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'owner',
-        type: 'address',
-      },
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'approved',
-        type: 'address',
-      },
-      {
-        indexed: true,
-        internalType: 'uint256',
-        name: 'tokenId',
-        type: 'uint256',
-      },
+      { indexed: true, internalType: 'address', name: 'owner', type: 'address' },
+      { indexed: true, internalType: 'address', name: 'approved', type: 'address' },
+      { indexed: true, internalType: 'uint256', name: 'tokenId', type: 'uint256' },
     ],
     name: 'Approval',
     type: 'event',
@@ -60,18 +40,8 @@ const LENS_PROXY_ABI = [
   {
     anonymous: false,
     inputs: [
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'owner',
-        type: 'address',
-      },
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'operator',
-        type: 'address',
-      },
+      { indexed: true, internalType: 'address', name: 'owner', type: 'address' },
+      { indexed: true, internalType: 'address', name: 'operator', type: 'address' },
       { indexed: false, internalType: 'bool', name: 'approved', type: 'bool' },
     ],
     name: 'ApprovalForAll',
@@ -82,12 +52,7 @@ const LENS_PROXY_ABI = [
     inputs: [
       { indexed: true, internalType: 'address', name: 'from', type: 'address' },
       { indexed: true, internalType: 'address', name: 'to', type: 'address' },
-      {
-        indexed: true,
-        internalType: 'uint256',
-        name: 'tokenId',
-        type: 'uint256',
-      },
+      { indexed: true, internalType: 'uint256', name: 'tokenId', type: 'uint256' },
     ],
     name: 'Transfer',
     type: 'event',
@@ -183,25 +148,13 @@ const LENS_PROXY_ABI = [
         components: [
           { internalType: 'uint256', name: 'profileId', type: 'uint256' },
           { internalType: 'string', name: 'contentURI', type: 'string' },
-          {
-            internalType: 'uint256',
-            name: 'profileIdPointed',
-            type: 'uint256',
-          },
+          { internalType: 'uint256', name: 'profileIdPointed', type: 'uint256' },
           { internalType: 'uint256', name: 'pubIdPointed', type: 'uint256' },
           { internalType: 'bytes', name: 'referenceModuleData', type: 'bytes' },
           { internalType: 'address', name: 'collectModule', type: 'address' },
-          {
-            internalType: 'bytes',
-            name: 'collectModuleInitData',
-            type: 'bytes',
-          },
+          { internalType: 'bytes', name: 'collectModuleInitData', type: 'bytes' },
           { internalType: 'address', name: 'referenceModule', type: 'address' },
-          {
-            internalType: 'bytes',
-            name: 'referenceModuleInitData',
-            type: 'bytes',
-          },
+          { internalType: 'bytes', name: 'referenceModuleInitData', type: 'bytes' },
         ],
         internalType: 'struct DataTypes.CommentData',
         name: 'vars',
@@ -219,25 +172,13 @@ const LENS_PROXY_ABI = [
         components: [
           { internalType: 'uint256', name: 'profileId', type: 'uint256' },
           { internalType: 'string', name: 'contentURI', type: 'string' },
-          {
-            internalType: 'uint256',
-            name: 'profileIdPointed',
-            type: 'uint256',
-          },
+          { internalType: 'uint256', name: 'profileIdPointed', type: 'uint256' },
           { internalType: 'uint256', name: 'pubIdPointed', type: 'uint256' },
           { internalType: 'bytes', name: 'referenceModuleData', type: 'bytes' },
           { internalType: 'address', name: 'collectModule', type: 'address' },
-          {
-            internalType: 'bytes',
-            name: 'collectModuleInitData',
-            type: 'bytes',
-          },
+          { internalType: 'bytes', name: 'collectModuleInitData', type: 'bytes' },
           { internalType: 'address', name: 'referenceModule', type: 'address' },
-          {
-            internalType: 'bytes',
-            name: 'referenceModuleInitData',
-            type: 'bytes',
-          },
+          { internalType: 'bytes', name: 'referenceModuleInitData', type: 'bytes' },
           {
             components: [
               { internalType: 'uint8', name: 'v', type: 'uint8' },
@@ -264,15 +205,46 @@ const LENS_PROXY_ABI = [
     inputs: [
       {
         components: [
+          { internalType: 'uint256', name: 'profileId', type: 'uint256' },
+          { internalType: 'string', name: 'contentURI', type: 'string' },
+          { internalType: 'uint256', name: 'profileIdPointed', type: 'uint256' },
+          { internalType: 'uint256', name: 'pubIdPointed', type: 'uint256' },
+          { internalType: 'bytes', name: 'referenceModuleData', type: 'bytes' },
+          { internalType: 'address', name: 'collectModule', type: 'address' },
+          { internalType: 'bytes', name: 'collectModuleInitData', type: 'bytes' },
+          { internalType: 'address', name: 'referenceModule', type: 'address' },
+          { internalType: 'bytes', name: 'referenceModuleInitData', type: 'bytes' },
+          {
+            components: [
+              { internalType: 'uint8', name: 'v', type: 'uint8' },
+              { internalType: 'bytes32', name: 'r', type: 'bytes32' },
+              { internalType: 'bytes32', name: 's', type: 'bytes32' },
+              { internalType: 'uint256', name: 'deadline', type: 'uint256' },
+            ],
+            internalType: 'struct DataTypes.EIP712Signature',
+            name: 'sig',
+            type: 'tuple',
+          },
+        ],
+        internalType: 'struct DataTypes.CommentWithSigData',
+        name: 'vars',
+        type: 'tuple',
+      },
+    ],
+    name: 'commentWithSig_Dispatcher',
+    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        components: [
           { internalType: 'address', name: 'to', type: 'address' },
           { internalType: 'string', name: 'handle', type: 'string' },
           { internalType: 'string', name: 'imageURI', type: 'string' },
           { internalType: 'address', name: 'followModule', type: 'address' },
-          {
-            internalType: 'bytes',
-            name: 'followModuleInitData',
-            type: 'bytes',
-          },
+          { internalType: 'bytes', name: 'followModuleInitData', type: 'bytes' },
           { internalType: 'string', name: 'followNFTURI', type: 'string' },
         ],
         internalType: 'struct DataTypes.CreateProfileData',
@@ -500,11 +472,7 @@ const LENS_PROXY_ABI = [
     outputs: [
       {
         components: [
-          {
-            internalType: 'uint256',
-            name: 'profileIdPointed',
-            type: 'uint256',
-          },
+          { internalType: 'uint256', name: 'profileIdPointed', type: 'uint256' },
           { internalType: 'uint256', name: 'pubIdPointed', type: 'uint256' },
           { internalType: 'string', name: 'contentURI', type: 'string' },
           { internalType: 'address', name: 'referenceModule', type: 'address' },
@@ -627,19 +595,11 @@ const LENS_PROXY_ABI = [
       {
         components: [
           { internalType: 'uint256', name: 'profileId', type: 'uint256' },
-          {
-            internalType: 'uint256',
-            name: 'profileIdPointed',
-            type: 'uint256',
-          },
+          { internalType: 'uint256', name: 'profileIdPointed', type: 'uint256' },
           { internalType: 'uint256', name: 'pubIdPointed', type: 'uint256' },
           { internalType: 'bytes', name: 'referenceModuleData', type: 'bytes' },
           { internalType: 'address', name: 'referenceModule', type: 'address' },
-          {
-            internalType: 'bytes',
-            name: 'referenceModuleInitData',
-            type: 'bytes',
-          },
+          { internalType: 'bytes', name: 'referenceModuleInitData', type: 'bytes' },
         ],
         internalType: 'struct DataTypes.MirrorData',
         name: 'vars',
@@ -656,19 +616,11 @@ const LENS_PROXY_ABI = [
       {
         components: [
           { internalType: 'uint256', name: 'profileId', type: 'uint256' },
-          {
-            internalType: 'uint256',
-            name: 'profileIdPointed',
-            type: 'uint256',
-          },
+          { internalType: 'uint256', name: 'profileIdPointed', type: 'uint256' },
           { internalType: 'uint256', name: 'pubIdPointed', type: 'uint256' },
           { internalType: 'bytes', name: 'referenceModuleData', type: 'bytes' },
           { internalType: 'address', name: 'referenceModule', type: 'address' },
-          {
-            internalType: 'bytes',
-            name: 'referenceModuleInitData',
-            type: 'bytes',
-          },
+          { internalType: 'bytes', name: 'referenceModuleInitData', type: 'bytes' },
           {
             components: [
               { internalType: 'uint8', name: 'v', type: 'uint8' },
@@ -687,6 +639,38 @@ const LENS_PROXY_ABI = [
       },
     ],
     name: 'mirrorWithSig',
+    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        components: [
+          { internalType: 'uint256', name: 'profileId', type: 'uint256' },
+          { internalType: 'uint256', name: 'profileIdPointed', type: 'uint256' },
+          { internalType: 'uint256', name: 'pubIdPointed', type: 'uint256' },
+          { internalType: 'bytes', name: 'referenceModuleData', type: 'bytes' },
+          { internalType: 'address', name: 'referenceModule', type: 'address' },
+          { internalType: 'bytes', name: 'referenceModuleInitData', type: 'bytes' },
+          {
+            components: [
+              { internalType: 'uint8', name: 'v', type: 'uint8' },
+              { internalType: 'bytes32', name: 'r', type: 'bytes32' },
+              { internalType: 'bytes32', name: 's', type: 'bytes32' },
+              { internalType: 'uint256', name: 'deadline', type: 'uint256' },
+            ],
+            internalType: 'struct DataTypes.EIP712Signature',
+            name: 'sig',
+            type: 'tuple',
+          },
+        ],
+        internalType: 'struct DataTypes.MirrorWithSigData',
+        name: 'vars',
+        type: 'tuple',
+      },
+    ],
+    name: 'mirrorWithSig_Dispatcher',
     outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
     stateMutability: 'nonpayable',
     type: 'function',
@@ -755,17 +739,9 @@ const LENS_PROXY_ABI = [
           { internalType: 'uint256', name: 'profileId', type: 'uint256' },
           { internalType: 'string', name: 'contentURI', type: 'string' },
           { internalType: 'address', name: 'collectModule', type: 'address' },
-          {
-            internalType: 'bytes',
-            name: 'collectModuleInitData',
-            type: 'bytes',
-          },
+          { internalType: 'bytes', name: 'collectModuleInitData', type: 'bytes' },
           { internalType: 'address', name: 'referenceModule', type: 'address' },
-          {
-            internalType: 'bytes',
-            name: 'referenceModuleInitData',
-            type: 'bytes',
-          },
+          { internalType: 'bytes', name: 'referenceModuleInitData', type: 'bytes' },
         ],
         internalType: 'struct DataTypes.PostData',
         name: 'vars',
@@ -784,17 +760,9 @@ const LENS_PROXY_ABI = [
           { internalType: 'uint256', name: 'profileId', type: 'uint256' },
           { internalType: 'string', name: 'contentURI', type: 'string' },
           { internalType: 'address', name: 'collectModule', type: 'address' },
-          {
-            internalType: 'bytes',
-            name: 'collectModuleInitData',
-            type: 'bytes',
-          },
+          { internalType: 'bytes', name: 'collectModuleInitData', type: 'bytes' },
           { internalType: 'address', name: 'referenceModule', type: 'address' },
-          {
-            internalType: 'bytes',
-            name: 'referenceModuleInitData',
-            type: 'bytes',
-          },
+          { internalType: 'bytes', name: 'referenceModuleInitData', type: 'bytes' },
           {
             components: [
               { internalType: 'uint8', name: 'v', type: 'uint8' },
@@ -813,6 +781,38 @@ const LENS_PROXY_ABI = [
       },
     ],
     name: 'postWithSig',
+    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        components: [
+          { internalType: 'uint256', name: 'profileId', type: 'uint256' },
+          { internalType: 'string', name: 'contentURI', type: 'string' },
+          { internalType: 'address', name: 'collectModule', type: 'address' },
+          { internalType: 'bytes', name: 'collectModuleInitData', type: 'bytes' },
+          { internalType: 'address', name: 'referenceModule', type: 'address' },
+          { internalType: 'bytes', name: 'referenceModuleInitData', type: 'bytes' },
+          {
+            components: [
+              { internalType: 'uint8', name: 'v', type: 'uint8' },
+              { internalType: 'bytes32', name: 'r', type: 'bytes32' },
+              { internalType: 'bytes32', name: 's', type: 'bytes32' },
+              { internalType: 'uint256', name: 'deadline', type: 'uint256' },
+            ],
+            internalType: 'struct DataTypes.EIP712Signature',
+            name: 'sig',
+            type: 'tuple',
+          },
+        ],
+        internalType: 'struct DataTypes.PostWithSigData',
+        name: 'vars',
+        type: 'tuple',
+      },
+    ],
+    name: 'postWithSig_Dispatcher',
     outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
     stateMutability: 'nonpayable',
     type: 'function',
@@ -947,11 +947,7 @@ const LENS_PROXY_ABI = [
         components: [
           { internalType: 'uint256', name: 'profileId', type: 'uint256' },
           { internalType: 'address', name: 'followModule', type: 'address' },
-          {
-            internalType: 'bytes',
-            name: 'followModuleInitData',
-            type: 'bytes',
-          },
+          { internalType: 'bytes', name: 'followModuleInitData', type: 'bytes' },
           {
             components: [
               { internalType: 'uint8', name: 'v', type: 'uint8' },
@@ -1058,13 +1054,7 @@ const LENS_PROXY_ABI = [
     type: 'function',
   },
   {
-    inputs: [
-      {
-        internalType: 'enum DataTypes.ProtocolState',
-        name: 'newState',
-        type: 'uint8',
-      },
-    ],
+    inputs: [{ internalType: 'enum DataTypes.ProtocolState', name: 'newState', type: 'uint8' }],
     name: 'setState',
     outputs: [],
     stateMutability: 'nonpayable',
@@ -1191,17 +1181,3 @@ const LENS_PROXY_ABI = [
     type: 'function',
   },
 ];
-
-export const lensHubContract: LensHub = new ethers.Contract(
-  LENS_PROXY_MUMBAI_CONTRACT,
-  LENS_PROXY_ABI,
-  ethereumProvider
-) as unknown as LensHub;
-
-export const DAlensHubInterface = new Interface(LENS_PROXY_ABI);
-
-export const getPubCount = (profileId: string, blockNumber: number) => {
-  return lensHubContract.getPubCount(profileId, {
-    blockTag: blockNumber,
-  });
-};

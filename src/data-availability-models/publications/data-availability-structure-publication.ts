@@ -28,6 +28,11 @@ interface DAStructurePublicationProofs<TTypedData extends PublicationTypedData> 
     signature: string;
 
     /**
+     * The signature has been signed by a delegate/dispatcher
+     */
+    signedByDelegate: boolean;
+
+    /**
      * The signature deadline unix timestamp
      */
     signatureDeadline: number;

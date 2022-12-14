@@ -41,8 +41,7 @@ export interface CreateCommentEIP712TypedData {
   value: CreateCommentEIP712TypedDataValue;
 }
 
-export interface CreateMirrorEIP712TypedDataValue
-  extends EIP712TypedDataValueBase {
+export interface CreateMirrorEIP712TypedDataValue extends EIP712TypedDataValueBase {
   profileId: string;
   profileIdPointed: string;
   pubIdPointed: string;

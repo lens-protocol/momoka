@@ -1,10 +1,10 @@
 import { ethers } from 'ethers';
 import {
-  CommentWithSigRequest,
-  MirrorWithSigRequest,
-  PostWithSigRequest,
-} from './ethereum-abi-types/LensHub';
-import { DAlensHubInterface, lensHubContract, LENS_PROXY_MUMBAI_CONTRACT } from './lens-proxy-info';
+  DAlensHubInterface,
+  lensHubContract,
+  LENS_PROXY_MUMBAI_CONTRACT,
+} from './contract-lens/lens-proxy-info';
+import { PostWithSig_DispatcherRequest } from './ethereum-abi-types/LensHub';
 
 const network = 'https://polygon-mumbai.g.alchemy.com/v2/lYqDZAMIfEqR6I7a6h6DmgkcP2ran6qW';
 
@@ -13,8 +13,8 @@ export const EMPTY_BYTE = '0X';
 export const ethereumProvider = new ethers.providers.StaticJsonRpcProvider(network, 80001);
 
 export const executeSimulationTransaction = async (
-  methodName: 'postWithSig' | 'commentWithSig' | 'mirrorWithSig',
-  sigRequest: PostWithSigRequest | CommentWithSigRequest | MirrorWithSigRequest,
+  methodName: 'postWithSig_Dispatcher',
+  sigRequest: PostWithSig_DispatcherRequest,
   blockNumber: number
 ) => {
   const transaction: ethers.providers.TransactionRequest = {

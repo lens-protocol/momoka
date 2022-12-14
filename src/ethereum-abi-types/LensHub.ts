@@ -47,6 +47,7 @@ export interface ContractCallOverrides {
    * The maximum units of gas for the transaction to use
    */
   gasLimit?: number;
+
   /**
    * The block tag!
    */
@@ -68,6 +69,7 @@ export type LensHubMethodNames =
   | 'collectWithSig'
   | 'comment'
   | 'commentWithSig'
+  | 'commentWithSig_Dispatcher'
   | 'createProfile'
   | 'defaultProfile'
   | 'emitCollectNFTTransferEvent'
@@ -105,12 +107,14 @@ export type LensHubMethodNames =
   | 'mintTimestampOf'
   | 'mirror'
   | 'mirrorWithSig'
+  | 'mirrorWithSig_Dispatcher'
   | 'name'
   | 'ownerOf'
   | 'permit'
   | 'permitForAll'
   | 'post'
   | 'postWithSig'
+  | 'postWithSig_Dispatcher'
   | 'safeTransferFrom'
   | 'safeTransferFrom'
   | 'setApprovalForAll'
@@ -197,6 +201,18 @@ export interface CommentWithSigRequest {
   referenceModuleInitData: Arrayish;
   sig: SigRequest;
 }
+export interface CommentWithSig_DispatcherRequest {
+  profileId: BigNumberish;
+  contentURI: string;
+  profileIdPointed: BigNumberish;
+  pubIdPointed: BigNumberish;
+  referenceModuleData: Arrayish;
+  collectModule: string;
+  collectModuleInitData: Arrayish;
+  referenceModule: string;
+  referenceModuleInitData: Arrayish;
+  sig: SigRequest;
+}
 export interface CreateProfileRequest {
   to: string;
   handle: string;
@@ -263,6 +279,15 @@ export interface MirrorWithSigRequest {
   referenceModuleInitData: Arrayish;
   sig: SigRequest;
 }
+export interface MirrorWithSig_DispatcherRequest {
+  profileId: BigNumberish;
+  profileIdPointed: BigNumberish;
+  pubIdPointed: BigNumberish;
+  referenceModuleData: Arrayish;
+  referenceModule: string;
+  referenceModuleInitData: Arrayish;
+  sig: SigRequest;
+}
 export interface PermitRequest {
   v: BigNumberish;
   r: Arrayish;
@@ -284,6 +309,15 @@ export interface PostRequest {
   referenceModuleInitData: Arrayish;
 }
 export interface PostWithSigRequest {
+  profileId: BigNumberish;
+  contentURI: string;
+  collectModule: string;
+  collectModuleInitData: Arrayish;
+  referenceModule: string;
+  referenceModuleInitData: Arrayish;
+  sig: SigRequest;
+}
+export interface PostWithSig_DispatcherRequest {
   profileId: BigNumberish;
   contentURI: string;
   collectModule: string;
@@ -429,6 +463,17 @@ export interface LensHub {
    */
   commentWithSig(
     vars: CommentWithSigRequest,
+    overrides?: ContractTransactionOverrides
+  ): Promise<ContractTransaction>;
+  /**
+   * Payable: false
+   * Constant: false
+   * StateMutability: nonpayable
+   * Type: function
+   * @param vars Type: tuple, Indexed: false
+   */
+  commentWithSig_Dispatcher(
+    vars: CommentWithSig_DispatcherRequest,
     overrides?: ContractTransactionOverrides
   ): Promise<ContractTransaction>;
   /**
@@ -820,6 +865,17 @@ export interface LensHub {
   ): Promise<ContractTransaction>;
   /**
    * Payable: false
+   * Constant: false
+   * StateMutability: nonpayable
+   * Type: function
+   * @param vars Type: tuple, Indexed: false
+   */
+  mirrorWithSig_Dispatcher(
+    vars: MirrorWithSig_DispatcherRequest,
+    overrides?: ContractTransactionOverrides
+  ): Promise<ContractTransaction>;
+  /**
+   * Payable: false
    * Constant: true
    * StateMutability: view
    * Type: function
@@ -882,6 +938,17 @@ export interface LensHub {
    */
   postWithSig(
     vars: PostWithSigRequest,
+    overrides?: ContractTransactionOverrides
+  ): Promise<ContractTransaction>;
+  /**
+   * Payable: false
+   * Constant: false
+   * StateMutability: nonpayable
+   * Type: function
+   * @param vars Type: tuple, Indexed: false
+   */
+  postWithSig_Dispatcher(
+    vars: PostWithSig_DispatcherRequest,
     overrides?: ContractTransactionOverrides
   ): Promise<ContractTransaction>;
   /**

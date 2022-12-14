@@ -1,10 +1,10 @@
 import { ClaimableValidatorError } from '../../claimable-validator-errors';
+import { getPubCount } from '../../contract-lens/lens-proxy-info';
 import { CreatePostEIP712TypedData } from '../../data-availability-models/publications/data-availability-publication-typed-data';
 import { DAStructurePublication } from '../../data-availability-models/publications/data-availability-structure-publication';
 import { DAPostCreatedEventEmittedResponse } from '../../data-availability-models/publications/data-availability-structure-publications-events';
 import { EMPTY_BYTE, executeSimulationTransaction, parseSignature } from '../../ethereum';
-import { PostWithSigRequest } from '../../ethereum-abi-types/LensHub';
-import { getPubCount } from '../../lens-proxy-info';
+import { PostWithSig_DispatcherRequest } from '../../ethereum-abi-types/LensHub';
 
 export type CheckDAPostPublication = DAStructurePublication<
   DAPostCreatedEventEmittedResponse,
@@ -40,7 +40,7 @@ const crossCheckEvent = async (
 };
 
 export const checkDAPost = async (publication: CheckDAPostPublication) => {
-  const sigRequest: PostWithSigRequest = {
+  const sigRequest: PostWithSig_DispatcherRequest = {
     profileId: publication.chainProofs.thisPublication.typedData.value.profileId,
     contentURI: publication.chainProofs.thisPublication.typedData.value.contentURI,
     collectModule: publication.chainProofs.thisPublication.typedData.value.collectModule,
@@ -58,7 +58,7 @@ export const checkDAPost = async (publication: CheckDAPostPublication) => {
   try {
     // check the signature would of passed using eth_call
     await executeSimulationTransaction(
-      'postWithSig',
+      'postWithSig_Dispatcher',
       sigRequest,
       publication.chainProofs.thisPublication.blockNumber
     );

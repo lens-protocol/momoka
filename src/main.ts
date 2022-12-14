@@ -137,6 +137,15 @@ export const checkDASubmisson = async (arweaveId: string, verifyPointer = true) 
 
   log('event timestamp matches up the on chain block timestamp');
 
+  if (!daPublication.chainProofs.thisPublication.signedByDelegate) {
+    log(
+      'the publication submitted was not signed by delegate which is not submitted at the moment'
+    );
+    throw new Error(ClaimableValidatorError.PUBLICATION_NOT_SIGNED_BY_DELEGATE);
+  }
+
+  log('signedByDelegate is true');
+
   switch (daPublication.type) {
     case DAActionTypes.POST_CREATED:
       if (daPublication.chainProofs.pointer) {
