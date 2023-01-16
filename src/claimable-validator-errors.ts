@@ -26,14 +26,9 @@ export enum ClaimableValidatorError {
   BLOCK_MISMATCH = 'BLOCK_MISMATCH',
 
   /**
-   * This means the publication submitted was not signed by delegate which is not submitted at the moment
-   */
-  PUBLICATION_NOT_SIGNED_BY_DELEGATE = 'PUBLICATION_NOT_SIGNED_BY_DELEGATE',
-
-  /**
    * This means the simulation was not successful and got rejected on-chain
    */
-  SIMULATION_REJECTED = 'SIMULATION_REJECTED',
+  SIMULATION_FAILED = 'SIMULATION_FAILED',
 
   /**
    * This means the event emitted from the simulation does not match the expected event

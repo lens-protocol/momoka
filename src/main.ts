@@ -16,7 +16,11 @@ import { checkDAMirror, CheckDAMirrorPublication } from './publications/mirror';
 import { checkDAPost, CheckDAPostPublication } from './publications/post';
 import { isValidSubmitter, isValidTransactionSubmitter } from './submitters';
 
-const validateChoosenBlock = async (blockNumber: number, timestamp: number) => {
+const validateChoosenBlock = async (
+  blockNumber: number,
+  timestamp: number,
+  log: (message: string, ...optionalParams: any[]) => void
+) => {
   // get 5 blocks in front and 5 blocks behind
   let startForward = deepClone(blockNumber);
   const blocksInFront = Array(deepClone(startForward) + 5 - startForward)
@@ -32,6 +36,13 @@ const validateChoosenBlock = async (blockNumber: number, timestamp: number) => {
   const blocks = await Promise.all(
     blockNumbers.map((blockNumber) => ethereumProvider.getBlock(blockNumber))
   );
+  log(
+    'blocks',
+    blocks.map((c) => {
+      return { time: c.timestamp * 1000, blockNumber: c.number };
+    })
+  );
+  log('timestamp', timestamp);
 
   const closestBlock = blocks
     // turn to ms!
@@ -42,25 +53,24 @@ const validateChoosenBlock = async (blockNumber: number, timestamp: number) => {
       };
     })
     // nothing before it!
-    .filter((c) => c.timestamp <= timestamp)
-    .reduce((a, b) => {
-      let aDiff = Math.abs(a.timestamp - timestamp);
-      let bDiff = Math.abs(b.timestamp - timestamp);
-
-      if (aDiff == bDiff) {
-        // Choose smallest timestamp
-        return a < b ? a : b;
-      } else {
-        return bDiff < aDiff ? b : a;
-      }
+    .filter((c) => timestamp >= c.timestamp)
+    .reduce((prev, curr) => {
+      return Math.abs(curr.timestamp - timestamp) < Math.abs(prev.timestamp - timestamp)
+        ? curr
+        : prev;
     });
 
   // compare block numbers to make sure they are the same
   if (closestBlock.number !== blockNumber) {
+    log('closestBlock failed', {
+      closestBlock: closestBlock.number,
+      submittedBlockNumber: blockNumber,
+      closestBlockFull: closestBlock,
+    });
     throw new Error(ClaimableValidatorError.NOT_CLOSEST_BLOCK);
   }
 
-  console.log('compare', {
+  log('compare done', {
     choosenBlock: closestBlock.timestamp,
     timestamp,
   });
@@ -72,16 +82,20 @@ const validateChoosenBlock = async (blockNumber: number, timestamp: number) => {
 };
 
 export const checkDASubmisson = async (arweaveId: string, verifyPointer = true) => {
+  // pointers have the ar prefix!
+  arweaveId = arweaveId.replace('ar://', '');
   const log = (message: string, ...optionalParams: any[]) => {
-    console.log(`${arweaveId} - ${message}`, ...optionalParams);
+    console.log('\x1b[32m', `${arweaveId} - ${message}`, ...optionalParams);
   };
 
-  log(`Checking for submission - ${arweaveId}`);
+  console.time(arweaveId);
+  log(`Checking the submission`);
 
   const daPublication = await getArweaveByIdAPI<
     DAStructurePublication<DAEventType, PublicationTypedData>
   >(arweaveId);
   log('getArweaveByIdAPI result', daPublication);
+  log('getArweaveByIdAPI typed data', daPublication.chainProofs.thisPublication.typedData);
 
   // check if signature matches!
 
@@ -112,7 +126,8 @@ export const checkDASubmisson = async (arweaveId: string, verifyPointer = true) 
 
   // check the wallet who uploaded it is within the submittors wallet list
   const timestampProofsSubmitter = await isValidTransactionSubmitter(
-    daPublication.timestampProofs.response.id
+    daPublication.timestampProofs.response.id,
+    log
   );
   if (!timestampProofsSubmitter) {
     log('timestamp proof invalid submitter');
@@ -132,45 +147,39 @@ export const checkDASubmisson = async (arweaveId: string, verifyPointer = true) 
   // must be the closest block to the timestamp proofs
   await validateChoosenBlock(
     daPublication.chainProofs.thisPublication.blockNumber,
-    daPublication.timestampProofs.response.timestamp
+    daPublication.timestampProofs.response.timestamp,
+    log
   );
 
   log('event timestamp matches up the on chain block timestamp');
-
-  if (!daPublication.chainProofs.thisPublication.signedByDelegate) {
-    log(
-      'the publication submitted was not signed by delegate which is not submitted at the moment'
-    );
-    throw new Error(ClaimableValidatorError.PUBLICATION_NOT_SIGNED_BY_DELEGATE);
-  }
-
-  log('signedByDelegate is true');
 
   switch (daPublication.type) {
     case DAActionTypes.POST_CREATED:
       if (daPublication.chainProofs.pointer) {
         throw new Error(ClaimableValidatorError.INVALID_POINTER_SET_NOT_NEEDED);
       }
-      await checkDAPost(daPublication as CheckDAPostPublication);
+      await checkDAPost(daPublication as CheckDAPostPublication, log);
       break;
     case DAActionTypes.COMMENT_CREATED:
-      await checkDAComment(daPublication as CheckDACommentPublication, verifyPointer);
+      await checkDAComment(daPublication as CheckDACommentPublication, verifyPointer, log);
       break;
     case DAActionTypes.MIRROR_CREATED:
-      await checkDAMirror(daPublication as CheckDAMirrorPublication, verifyPointer);
+      await checkDAMirror(daPublication as CheckDAMirrorPublication, verifyPointer, log);
       break;
     default:
       throw new Error('Unknown type');
   }
+
+  console.timeEnd(arweaveId);
 };
 
 export const verifierWatcher = async () => {
-  console.log('Verify watcher started');
+  console.log('DA verification watcher started...');
 
   let cursor: string | null = null;
 
   while (true) {
-    console.log('Checking for new submissions');
+    console.log('Checking for new submissions...');
     const arweaveTransactions = await getDataAvailabilityTransactionsAPI(cursor);
 
     if (arweaveTransactions.pageInfo.hasNextPage) {
@@ -179,14 +188,16 @@ export const verifierWatcher = async () => {
     }
 
     if (arweaveTransactions.edges.length === 0) {
-      console.log('No more transactions to check. Sleep for 5 seconds then check again');
+      console.log('No more transactions to check. Sleep for 5 seconds then check again...');
       sleep(5000);
     }
 
-    console.log('Found new submissions', arweaveTransactions.edges.length);
+    console.log('Found new submissions...', arweaveTransactions.edges.length);
 
     for (let i = 0; i < arweaveTransactions!.edges.length; i++) {
+      console.log('Checking submission', arweaveTransactions!.edges[i].node.id);
       await checkDASubmisson(arweaveTransactions!.edges[i].node.id);
+      console.log('Complete checking submission', arweaveTransactions!.edges[i].node.id);
     }
 
     console.log('Checked all submissons all is well');

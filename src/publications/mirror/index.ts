@@ -17,14 +17,18 @@ export type CheckDAMirrorPublication = DAStructurePublication<
 const crossCheckEvent = async (
   event: DAMirrorCreatedEventEmittedResponse,
   typedData: CreateMirrorEIP712TypedData,
-  pubCountAtBlock: string
+  pubCountAtBlock: string,
+  log: (message: string, ...optionalParams: any[]) => void
 ) => {
   // compare all event emitted to typed data value
+  log('cross check event with typed data value');
 
   // check the pub count makes sense from the block!
   if (BigNumber.from(pubCountAtBlock).add(1).toHexString() !== event.pubId) {
     throw new Error(ClaimableValidatorError.EVENT_MISMATCH);
   }
+
+  log('pub count at block is correct');
 
   // compare all others!
   if (
@@ -37,21 +41,29 @@ const crossCheckEvent = async (
   ) {
     throw new Error(ClaimableValidatorError.EVENT_MISMATCH);
   }
+
+  log('cross check event is complete');
 };
 
 export const checkDAMirror = async (
   publication: CheckDAMirrorPublication,
-  verifyPointer: boolean
+  verifyPointer: boolean,
+  log: (message: string, ...optionalParams: any[]) => void
 ) => {
+  log('check DA mirror');
+
   if (!publication.chainProofs.pointer) {
     throw new Error(ClaimableValidatorError.MIRROR_NO_POINTER);
   }
 
+  // only supports mirrors on DA at the moment
   if (publication.chainProofs.pointer.type !== DAPublicationPointerType.ON_DA) {
     throw new Error(ClaimableValidatorError.MIRROR_NONE_DA);
   }
 
   if (verifyPointer) {
+    log('verify pointer first');
+
     // check the pointer!
     await checkDASubmisson(publication.chainProofs.pointer.location, false);
   }
@@ -79,5 +91,7 @@ export const checkDAMirror = async (
     throw new Error(ClaimableValidatorError.MIRROR_SIGNER_NOT_ALLOWED);
   }
 
-  await crossCheckEvent(publication.event, typedData, details.currentPublicationId);
+  await crossCheckEvent(publication.event, typedData, details.currentPublicationId, log);
+
+  log('finished checking DA mirror');
 };

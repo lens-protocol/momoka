@@ -1,5 +1,5 @@
-query TransactionOwners($ids: [String!]) {
-  transactions(ids: $ids) {
+query TransactionOwners($id: String!) {
+  transactions(ids: [$id]) {
     edges {
       node {
         id

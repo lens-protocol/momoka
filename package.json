@@ -3,6 +3,7 @@
   "scripts": {
     "build": "tsc",
     "start": "npx ts-node src/watcher.ts",
+    "start2": "node ./lib/watcher.js",
     "generate": "graphql-codegen"
   },
   "devDependencies": {

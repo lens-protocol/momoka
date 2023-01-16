@@ -14,15 +14,20 @@ export type CheckDAPostPublication = DAStructurePublication<
 const crossCheckEvent = async (
   event: DAPostCreatedEventEmittedResponse,
   typedData: CreatePostEIP712TypedData,
-  blockNumber: number
+  blockNumber: number,
+  log: (message: string, ...optionalParams: any[]) => void
 ) => {
   // compare all event emitted to typed data value
+  log('cross check event with typed data value');
 
   // check the pub count makes sense from the block!
   const pubCountAtBlock = await getPubCount(typedData.value.profileId, blockNumber);
+  log('get pub count at block', pubCountAtBlock.toHexString());
   if (pubCountAtBlock.add(1).toHexString() !== event.pubId) {
     throw new Error(ClaimableValidatorError.EVENT_MISMATCH);
   }
+
+  log('pub count at block is correct');
 
   // compare all others!
   if (
@@ -37,9 +42,16 @@ const crossCheckEvent = async (
   ) {
     throw new Error(ClaimableValidatorError.EVENT_MISMATCH);
   }
+
+  log('cross check event is complete');
 };
 
-export const checkDAPost = async (publication: CheckDAPostPublication) => {
+export const checkDAPost = async (
+  publication: CheckDAPostPublication,
+  log: (message: string, ...optionalParams: any[]) => void
+) => {
+  log('check DA post');
+
   const sigRequest: PostWithSig_DispatcherRequest = {
     profileId: publication.chainProofs.thisPublication.typedData.value.profileId,
     contentURI: publication.chainProofs.thisPublication.typedData.value.contentURI,
@@ -55,21 +67,30 @@ export const checkDAPost = async (publication: CheckDAPostPublication) => {
     ),
   };
 
+  log('signature simulation checking!');
+
   try {
     // check the signature would of passed using eth_call
     await executeSimulationTransaction(
-      'postWithSig_Dispatcher',
+      publication.chainProofs.thisPublication.signedByDelegate
+        ? 'postWithSig_Dispatcher'
+        : 'postWithSig',
       sigRequest,
       publication.chainProofs.thisPublication.blockNumber
     );
   } catch (error) {
-    throw new Error(ClaimableValidatorError.SIMULATION_REJECTED);
+    throw new Error(ClaimableValidatorError.SIMULATION_FAILED);
   }
+
+  log('signature simulation passed!');
 
   // cross check event and typed data values
   await crossCheckEvent(
     publication.event,
     publication.chainProofs.thisPublication.typedData,
-    publication.chainProofs.thisPublication.blockNumber
+    publication.chainProofs.thisPublication.blockNumber,
+    log
   );
+
+  log('finished checking DA post');
 };
