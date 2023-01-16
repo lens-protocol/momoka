@@ -17,14 +17,18 @@ export type CheckDACommentPublication = DAStructurePublication<
 const crossCheckEvent = async (
   event: DACommentCreatedEventEmittedResponse,
   typedData: CreateCommentEIP712TypedData,
-  pubCountAtBlock: string
+  pubCountAtBlock: string,
+  log: (message: string, ...optionalParams: any[]) => void
 ) => {
   // compare all event emitted to typed data value
+  log('cross check event with typed data value');
 
   // check the pub count makes sense from the block!
   if (BigNumber.from(pubCountAtBlock).add(1).toHexString() !== event.pubId) {
     throw new Error(ClaimableValidatorError.EVENT_MISMATCH);
   }
+
+  log('pub count at block is correct');
 
   // compare all others!
   if (
@@ -41,12 +45,17 @@ const crossCheckEvent = async (
   ) {
     throw new Error(ClaimableValidatorError.EVENT_MISMATCH);
   }
+
+  log('cross check event is complete');
 };
 
 export const checkDAComment = async (
   publication: CheckDACommentPublication,
-  verifyPointer: boolean
+  verifyPointer: boolean,
+  log: (message: string, ...optionalParams: any[]) => void
 ) => {
+  log('check DA comment');
+
   if (!publication.chainProofs.pointer) {
     throw new Error(ClaimableValidatorError.COMMENT_NO_POINTER);
   }
@@ -56,6 +65,8 @@ export const checkDAComment = async (
   }
 
   if (verifyPointer) {
+    log('verify pointer first');
+
     // check the pointer!
     await checkDASubmisson(publication.chainProofs.pointer.location, false);
   }
@@ -83,5 +94,7 @@ export const checkDAComment = async (
     throw new Error(ClaimableValidatorError.COMMENT_SIGNER_NOT_ALLOWED);
   }
 
-  await crossCheckEvent(publication.event, typedData, details.currentPublicationId);
+  await crossCheckEvent(publication.event, typedData, details.currentPublicationId, log);
+
+  log('finished checking DA comment');
 };

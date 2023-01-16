@@ -1,19 +1,19 @@
 import { ethers } from 'ethers';
 import {
   DAlensHubInterface,
-  lensHubContract,
+  getLensHubContract,
   LENS_PROXY_MUMBAI_CONTRACT,
 } from './contract-lens/lens-proxy-info';
 import { PostWithSig_DispatcherRequest } from './ethereum-abi-types/LensHub';
 
 const network = 'https://polygon-mumbai.g.alchemy.com/v2/lYqDZAMIfEqR6I7a6h6DmgkcP2ran6qW';
 
-export const EMPTY_BYTE = '0X';
+export const EMPTY_BYTE = '0x';
 
 export const ethereumProvider = new ethers.providers.StaticJsonRpcProvider(network, 80001);
 
 export const executeSimulationTransaction = async (
-  methodName: 'postWithSig_Dispatcher',
+  methodName: 'postWithSig_Dispatcher' | 'postWithSig',
   sigRequest: PostWithSig_DispatcherRequest,
   blockNumber: number
 ) => {
@@ -46,6 +46,7 @@ export const getOnChainProfileDetails = async (
   dispatcherAddress: string;
   ownerOfAddress: string;
 }> => {
+  const lensHubContract = getLensHubContract();
   // get the current sig nonce of signed by address
   // get the current publication count
   // get the current dispatcher address

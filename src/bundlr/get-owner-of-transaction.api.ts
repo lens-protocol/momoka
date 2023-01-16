@@ -1,42 +1,18 @@
 import { TransactionOwnersDocument } from '../graphql/generated';
 import { client } from '../graphql/urql.client';
 
-export interface getOwnerOfTransactionAPIResponse {
-  id: string;
-  address: string | null;
-}
-
-const mapToUnknown = (arweaveIds: string[]) => {
-  return arweaveIds.map((a) => {
-    return {
-      id: a,
-      address: null,
-    };
-  });
-};
-
-export const getOwnerOfTransactionsAPI = async (
-  arweaveIds: string[]
-): Promise<getOwnerOfTransactionAPIResponse[]> => {
+export const getOwnerOfTransactionAPI = async (arweaveId: string): Promise<string | null> => {
   const result = await client
     .query(TransactionOwnersDocument, {
-      ids: arweaveIds,
+      id: arweaveId,
     })
     .toPromise();
 
-  console.log('result', result);
+  // console.log('result', result);
 
   if (!result.data?.transactions?.edges) {
-    return mapToUnknown(arweaveIds);
+    return null;
   }
 
-  // get the first address
-  const knownTransactions = result.data.transactions.edges.map((a) => {
-    return {
-      id: a!.node.id,
-      address: a!.node.address,
-    };
-  });
-
-  return [...mapToUnknown(arweaveIds), ...knownTransactions];
+  return result.data.transactions.edges[0]?.node.address || null;
 };
