@@ -91,4 +91,9 @@ export enum ClaimableValidatorError {
    * This means the comment submisson was signed by a wallet that is not allowed
    */
   COMMENT_SIGNER_NOT_ALLOWED = 'COMMENT_SIGNER_NOT_ALLOWED',
+
+  /**
+   * unknown error should not happen but catch all
+   */
+  UNKNOWN = 'UNKNOWN',
 }

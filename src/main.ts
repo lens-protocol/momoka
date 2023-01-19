@@ -3,12 +3,14 @@ import { utils } from 'ethers';
 import { getArweaveByIdAPI } from './arweave/get-arweave-by-id.api';
 import { getDataAvailabilityTransactionsAPI } from './bundlr/get-data-availability-transactions.api';
 import { ClaimableValidatorError } from './claimable-validator-errors';
+import { failure, PromiseResult, success } from './da-result';
 import { DAActionTypes } from './data-availability-models/data-availability-action-types';
 import {
   DAEventType,
   DAStructurePublication,
   PublicationTypedData,
 } from './data-availability-models/publications/data-availability-structure-publication';
+import { existsDb, putDb, successDb } from './db';
 import { ethereumProvider } from './ethereum';
 import { deepClone, sleep } from './helpers';
 import { checkDAComment, CheckDACommentPublication } from './publications/comment';
@@ -20,7 +22,7 @@ const validateChoosenBlock = async (
   blockNumber: number,
   timestamp: number,
   log: (message: string, ...optionalParams: any[]) => void
-) => {
+): PromiseResult => {
   // get 5 blocks in front and 5 blocks behind
   let startForward = deepClone(blockNumber);
   const blocksInFront = Array(deepClone(startForward) + 5 - startForward)
@@ -62,12 +64,24 @@ const validateChoosenBlock = async (
 
   // compare block numbers to make sure they are the same
   if (closestBlock.number !== blockNumber) {
-    log('closestBlock failed', {
+    log('closestBlock does not match', {
       closestBlock: closestBlock.number,
       submittedBlockNumber: blockNumber,
       closestBlockFull: closestBlock,
     });
-    throw new Error(ClaimableValidatorError.NOT_CLOSEST_BLOCK);
+
+    if (closestBlock.number === deepClone(blockNumber) + 1) {
+      log(
+        `
+        Due to latency with nodes we allow the next block to be accepted as the closest.
+        When you do a request over the wire the node provider may not of broadcasted yet,
+        this means you may have 100-300ms latency which can not be avoided. The signature still
+        needs to conform to the past block so its still very valid.
+        `
+      );
+    } else {
+      return failure(ClaimableValidatorError.NOT_CLOSEST_BLOCK);
+    }
   }
 
   log('compare done', {
@@ -79,11 +93,14 @@ const validateChoosenBlock = async (
   // if (closestBlock.number + 2500 > timestamp) {
   //   throw new Error(ClaimableValidatorError.BLOCK_TOO_FAR);
   // }
+
+  return success();
 };
 
-export const checkDASubmisson = async (arweaveId: string, verifyPointer = true) => {
+export const checkDASubmisson = async (arweaveId: string, verifyPointer = true): PromiseResult => {
   // pointers have the ar prefix!
   arweaveId = arweaveId.replace('ar://', '');
+
   const log = (message: string, ...optionalParams: any[]) => {
     console.log('\x1b[32m', `${arweaveId} - ${message}`, ...optionalParams);
   };
@@ -95,7 +112,9 @@ export const checkDASubmisson = async (arweaveId: string, verifyPointer = true) 
     DAStructurePublication<DAEventType, PublicationTypedData>
   >(arweaveId);
   log('getArweaveByIdAPI result', daPublication);
-  log('getArweaveByIdAPI typed data', daPublication.chainProofs.thisPublication.typedData);
+  // log('getArweaveByIdAPI typed data', daPublication.chainProofs.thisPublication.typedData);
+
+  console.log(JSON.stringify(daPublication.chainProofs.thisPublication.typedData, null, 4));
 
   // check if signature matches!
 
@@ -108,14 +127,14 @@ export const checkDASubmisson = async (arweaveId: string, verifyPointer = true) 
   log('signedAddress', signedAddress);
 
   if (!isValidSubmitter(signedAddress)) {
-    throw new Error(ClaimableValidatorError.INVALID_SIGNATURE_SUBMITTER);
+    return failure(ClaimableValidatorError.INVALID_SIGNATURE_SUBMITTER);
   }
 
   // check if bundlr timestamp proofs are valid and verified against bundlr node
   const valid = await Utils.verifyReceipt(daPublication.timestampProofs.response);
   if (!valid) {
     log('timestamp proof invalid signature');
-    throw new Error(ClaimableValidatorError.TIMESTAMP_PROOF_INVALID_SIGNATURE);
+    return failure(ClaimableValidatorError.TIMESTAMP_PROOF_INVALID_SIGNATURE);
   }
 
   log('timestamp proof signature valid');
@@ -131,7 +150,7 @@ export const checkDASubmisson = async (arweaveId: string, verifyPointer = true) 
   );
   if (!timestampProofsSubmitter) {
     log('timestamp proof invalid submitter');
-    throw new Error(ClaimableValidatorError.TIMESTAMP_PROOF_NOT_SUBMITTER);
+    return failure(ClaimableValidatorError.TIMESTAMP_PROOF_NOT_SUBMITTER);
   }
 
   log('timestamp proof valid submitter');
@@ -139,24 +158,28 @@ export const checkDASubmisson = async (arweaveId: string, verifyPointer = true) 
   if (daPublication.event.timestamp !== daPublication.chainProofs.thisPublication.blockTimestamp) {
     log('event timestamp does not match the publication timestamp');
     // the event emitted must match the same timestamp as the block number
-    throw new Error(ClaimableValidatorError.INVALID_EVENT_TIMESTAMP);
+    return failure(ClaimableValidatorError.INVALID_EVENT_TIMESTAMP);
   }
 
   log('event timestamp matches publication timestamp');
 
   // must be the closest block to the timestamp proofs
-  await validateChoosenBlock(
+  const validateBlockResult = await validateChoosenBlock(
     daPublication.chainProofs.thisPublication.blockNumber,
     daPublication.timestampProofs.response.timestamp,
     log
   );
+
+  if (validateBlockResult.isFailure()) {
+    return validateBlockResult;
+  }
 
   log('event timestamp matches up the on chain block timestamp');
 
   switch (daPublication.type) {
     case DAActionTypes.POST_CREATED:
       if (daPublication.chainProofs.pointer) {
-        throw new Error(ClaimableValidatorError.INVALID_POINTER_SET_NOT_NEEDED);
+        return failure(ClaimableValidatorError.INVALID_POINTER_SET_NOT_NEEDED);
       }
       await checkDAPost(daPublication as CheckDAPostPublication, log);
       break;
@@ -167,10 +190,12 @@ export const checkDASubmisson = async (arweaveId: string, verifyPointer = true) 
       await checkDAMirror(daPublication as CheckDAMirrorPublication, verifyPointer, log);
       break;
     default:
-      throw new Error('Unknown type');
+      return failure(ClaimableValidatorError.UNKNOWN);
   }
 
   console.timeEnd(arweaveId);
+
+  return success();
 };
 
 export const verifierWatcher = async () => {
@@ -195,9 +220,21 @@ export const verifierWatcher = async () => {
     console.log('Found new submissions...', arweaveTransactions.edges.length);
 
     for (let i = 0; i < arweaveTransactions!.edges.length; i++) {
-      console.log('Checking submission', arweaveTransactions!.edges[i].node.id);
-      await checkDASubmisson(arweaveTransactions!.edges[i].node.id);
-      console.log('Complete checking submission', arweaveTransactions!.edges[i].node.id);
+      const nodeId = arweaveTransactions!.edges[i].node.id;
+      console.log('Checking submission', nodeId);
+
+      // no need to recheck something already processed
+      const alreadyChecked = await existsDb(nodeId);
+      if (alreadyChecked) {
+        console.log('Already checked submission', nodeId);
+        continue;
+      }
+
+      const result = await checkDASubmisson(nodeId);
+      // write to the database!
+      await putDb(nodeId, result.isFailure() ? result.failure! : successDb);
+
+      console.log('Complete checking submission', nodeId);
     }
 
     console.log('Checked all submissons all is well');

@@ -1,5 +1,6 @@
 import { ClaimableValidatorError } from '../../claimable-validator-errors';
 import { getPubCount } from '../../contract-lens/lens-proxy-info';
+import { failure, PromiseResult, success } from '../../da-result';
 import { CreatePostEIP712TypedData } from '../../data-availability-models/publications/data-availability-publication-typed-data';
 import { DAStructurePublication } from '../../data-availability-models/publications/data-availability-structure-publication';
 import { DAPostCreatedEventEmittedResponse } from '../../data-availability-models/publications/data-availability-structure-publications-events';
@@ -16,7 +17,7 @@ const crossCheckEvent = async (
   typedData: CreatePostEIP712TypedData,
   blockNumber: number,
   log: (message: string, ...optionalParams: any[]) => void
-) => {
+): PromiseResult => {
   // compare all event emitted to typed data value
   log('cross check event with typed data value');
 
@@ -24,7 +25,7 @@ const crossCheckEvent = async (
   const pubCountAtBlock = await getPubCount(typedData.value.profileId, blockNumber);
   log('get pub count at block', pubCountAtBlock.toHexString());
   if (pubCountAtBlock.add(1).toHexString() !== event.pubId) {
-    throw new Error(ClaimableValidatorError.EVENT_MISMATCH);
+    return failure(ClaimableValidatorError.EVENT_MISMATCH);
   }
 
   log('pub count at block is correct');
@@ -40,10 +41,12 @@ const crossCheckEvent = async (
     typedData.value.referenceModuleInitData !== EMPTY_BYTE ||
     event.referenceModuleReturnData !== EMPTY_BYTE
   ) {
-    throw new Error(ClaimableValidatorError.EVENT_MISMATCH);
+    return failure(ClaimableValidatorError.EVENT_MISMATCH);
   }
 
   log('cross check event is complete');
+
+  return success();
 };
 
 export const checkDAPost = async (
@@ -79,13 +82,13 @@ export const checkDAPost = async (
       publication.chainProofs.thisPublication.blockNumber
     );
   } catch (error) {
-    throw new Error(ClaimableValidatorError.SIMULATION_FAILED);
+    return failure(ClaimableValidatorError.SIMULATION_FAILED);
   }
 
   log('signature simulation passed!');
 
   // cross check event and typed data values
-  await crossCheckEvent(
+  const eventResult = await crossCheckEvent(
     publication.event,
     publication.chainProofs.thisPublication.typedData,
     publication.chainProofs.thisPublication.blockNumber,
@@ -93,4 +96,6 @@ export const checkDAPost = async (
   );
 
   log('finished checking DA post');
+
+  return eventResult;
 };
