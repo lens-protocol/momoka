@@ -28,7 +28,5 @@ export const getDataAvailabilityTransactionsAPI = async (
     })
     .toPromise();
 
-  // console.log('result', result);
-
   return result.data!.transactions as getDataAvailabilityTransactionsAPIResponse;
 };

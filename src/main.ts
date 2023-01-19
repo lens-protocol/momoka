@@ -14,9 +14,10 @@ import {
   DAStructurePublication,
   PublicationTypedData,
 } from './data-availability-models/publications/data-availability-structure-publication';
-import { existsDb, putDb, successDb } from './db';
-import { ethereumProvider } from './ethereum';
+import { getBlockDb, saveBlockDb, saveTxDb, txSuccessDb } from './db';
+import { ethereumProvider, getBlockWithRetries } from './ethereum';
 import { deepClone, sleep } from './helpers';
+import { consoleLog } from './logger';
 import { checkDAComment, CheckDACommentPublication } from './publications/comment';
 import { checkDAMirror, CheckDAMirrorPublication } from './publications/mirror';
 import { checkDAPost, CheckDAPostPublication } from './publications/post';
@@ -27,78 +28,91 @@ export const validateChoosenBlock = async (
   timestamp: number,
   log: (message: string, ...optionalParams: any[]) => void
 ): PromiseResult => {
-  // get 5 blocks in front and 5 blocks behind
-  let startForward = deepClone(blockNumber);
-  const blocksInFront = Array(deepClone(startForward) + 5 - startForward)
-    .fill(undefined)
-    .map((_, idx) => startForward + idx);
+  try {
+    // got the current block the previous block and the block in the future!
+    const blockNumbers = [
+      deepClone(blockNumber) - 1,
+      deepClone(blockNumber),
+      deepClone(blockNumber) + 1,
+    ];
 
-  const startBack = deepClone(blockNumber) - 5;
-  const blocksBehind = Array(blockNumber - startBack)
-    .fill(undefined)
-    .map((_, idx) => startBack + idx);
+    const blocks = await Promise.all(
+      blockNumbers.map(async (blockNumber) => {
+        const cachedBlock = await getBlockDb(blockNumber);
+        if (cachedBlock) {
+          return cachedBlock;
+        }
 
-  const blockNumbers = [...blocksBehind, ...blocksInFront];
-  const blocks = await Promise.all(
-    blockNumbers.map((blockNumber) => ethereumProvider.getBlock(blockNumber))
-  );
-  log(
-    'blocks',
-    blocks.map((c) => {
-      return { time: c.timestamp * 1000, blockNumber: c.number };
-    })
-  );
-  log('timestamp', timestamp);
+        const block = await getBlockWithRetries(blockNumber);
 
-  const closestBlock = blocks
-    // turn to ms!
-    .map((c) => {
-      return {
-        ...c,
-        timestamp: c.timestamp * 1000,
-      };
-    })
-    // nothing before it!
-    .filter((c) => timestamp >= c.timestamp)
-    .reduce((prev, curr) => {
-      return Math.abs(curr.timestamp - timestamp) < Math.abs(prev.timestamp - timestamp)
-        ? curr
-        : prev;
-    });
+        // fire and forget!
+        saveBlockDb(block);
 
-  // compare block numbers to make sure they are the same
-  if (closestBlock.number !== blockNumber) {
-    log('closestBlock does not match', {
-      closestBlock: closestBlock.number,
-      submittedBlockNumber: blockNumber,
-      closestBlockFull: closestBlock,
-    });
+        return block;
+      })
+    );
 
-    if (closestBlock.number === deepClone(blockNumber) + 1) {
-      log(
-        `
+    log(
+      'blocks',
+      blocks.map((c) => {
+        return { time: c.timestamp * 1000, blockNumber: c.number };
+      })
+    );
+    log('timestamp', timestamp);
+
+    const closestBlock = blocks
+      // turn to ms!
+      .map((c) => {
+        return {
+          ...c,
+          timestamp: c.timestamp * 1000,
+        };
+      })
+      // nothing before it!
+      .filter((c) => timestamp >= c.timestamp)
+      .reduce((prev, curr) => {
+        return Math.abs(curr.timestamp - timestamp) < Math.abs(prev.timestamp - timestamp)
+          ? curr
+          : prev;
+      });
+
+    // compare block numbers to make sure they are the same
+    if (closestBlock.number !== blockNumber) {
+      log('closestBlock does not match', {
+        closestBlock: closestBlock.number,
+        submittedBlockNumber: blockNumber,
+        closestBlockFull: closestBlock,
+      });
+
+      if (closestBlock.number === deepClone(blockNumber) + 1) {
+        log(
+          `
         Due to latency with nodes we allow the next block to be accepted as the closest.
         When you do a request over the wire the node provider may not of broadcasted yet,
         this means you may have 100-300ms latency which can not be avoided. The signature still
         needs to conform to the past block so its still very valid.
         `
-      );
-    } else {
-      return failure(ClaimableValidatorError.NOT_CLOSEST_BLOCK);
+        );
+      } else {
+        return failure(ClaimableValidatorError.NOT_CLOSEST_BLOCK);
+      }
     }
+
+    log('compare done', {
+      choosenBlock: closestBlock.timestamp,
+      timestamp,
+    });
+
+    // T-139 to look at this later!
+    // if (closestBlock.number + 2500 > timestamp) {
+    //   throw new Error(ClaimableValidatorError.BLOCK_TOO_FAR);
+    // }
+
+    return success();
+  } catch (e) {
+    log('validateChoosenBlock error', e);
+    return failure(ClaimableValidatorError.UNKNOWN);
   }
-
-  log('compare done', {
-    choosenBlock: closestBlock.timestamp,
-    timestamp,
-  });
-
-  // TODO to look at this later!
-  // if (closestBlock.number + 2500 > timestamp) {
-  //   throw new Error(ClaimableValidatorError.BLOCK_TOO_FAR);
-  // }
-
-  return success();
 };
 
 export const checkDASubmisson = async (
@@ -111,11 +125,11 @@ export const checkDASubmisson = async (
   log(`Checking the submission`);
 
   // no need to recheck something already processed
-  const alreadyChecked = await existsDb(txId);
-  if (alreadyChecked) {
-    log('Already checked submission');
-    return success();
-  }
+  // const alreadyChecked = await existsDb(txId, DbRefernece.tx);
+  // if (alreadyChecked) {
+  //   log('Already checked submission');
+  //   return success();
+  // }
 
   const daPublication = await getArweaveByIdAPI<
     DAStructurePublication<DAEventType, PublicationTypedData>
@@ -174,15 +188,15 @@ export const checkDASubmisson = async (
   log('event timestamp matches publication timestamp');
 
   // // must be the closest block to the timestamp proofs
-  // const validateBlockResult = await validateChoosenBlock(
-  //   daPublication.chainProofs.thisPublication.blockNumber,
-  //   daPublication.timestampProofs.response.timestamp,
-  //   log
-  // );
+  const validateBlockResult = await validateChoosenBlock(
+    daPublication.chainProofs.thisPublication.blockNumber,
+    daPublication.timestampProofs.response.timestamp,
+    log
+  );
 
-  // if (validateBlockResult.isFailure()) {
-  //   return validateBlockResult;
-  // }
+  if (validateBlockResult.isFailure()) {
+    return validateBlockResult;
+  }
 
   log('event timestamp matches up the on chain block timestamp');
 
@@ -206,14 +220,14 @@ export const checkDASubmisson = async (
   return success();
 };
 
-export const checkDABatch = async (
+const checkDABatch = async (
   arweaveTransactions: getDataAvailabilityTransactionsAPIResponse
 ): Promise<void> => {
   await Promise.all(
     arweaveTransactions!.edges.map(async (edge) => {
       const txId = edge.node.id;
       const log = (message: string, ...optionalParams: any[]) => {
-        console.log('\x1b[32m', `LENS VERIFICATION NODE - ${txId} - ${message}`, ...optionalParams);
+        consoleLog('\x1b[32m', `LENS VERIFICATION NODE - ${txId} - ${message}`, ...optionalParams);
       };
 
       try {
@@ -221,7 +235,7 @@ export const checkDABatch = async (
 
         const result = await checkDASubmisson(txId, { verifyPointer: true, log: () => {} });
         // write to the database!
-        await putDb(txId, result.isFailure() ? result.failure! : successDb);
+        await saveTxDb(txId, result.isFailure() ? result.failure! : txSuccessDb);
 
         log(
           `${
@@ -231,53 +245,81 @@ export const checkDABatch = async (
           }`
         );
       } catch (e) {
-        await putDb(txId, ClaimableValidatorError.UNKNOWN);
+        await saveTxDb(txId, ClaimableValidatorError.UNKNOWN);
         log('FAILED: the checking has flagged invalid DA publication', e);
       }
     })
   );
 
-  console.log('Checked all submissons all is well');
+  consoleLog('Checked all submissons all is well');
+};
+
+const watchBlocks = async () => {
+  consoleLog('LENS VERIFICATION NODE - started up block watching...');
+
+  let blockNumber = 0;
+  while (true) {
+    try {
+      const latestBlock = await ethereumProvider.getBlock('latest');
+      if (latestBlock.number > blockNumber) {
+        blockNumber = latestBlock.number;
+
+        // save block fire and forget!
+        saveBlockDb(latestBlock);
+        consoleLog('LENS VERIFICATION NODE - New block found and saved', blockNumber);
+      }
+    } catch (error) {
+      consoleLog('LENS VERIFICATION NODE - Error getting latest block try again in 100ms', error);
+    }
+
+    sleep(100);
+  }
 };
 
 export const verifierWatcher = async () => {
-  console.log('LENS VERIFICATION NODE - DA verification watcher started...');
+  consoleLog('LENS VERIFICATION NODE - DA verification watcher started...');
+
+  watchBlocks();
 
   let cursor: string | null = null;
   let noNextPage: undefined | boolean;
+  let lastEdgeCount: undefined | number;
 
   while (true) {
-    console.log('LENS VERIFICATION NODE - Checking for new submissions...');
+    consoleLog('LENS VERIFICATION NODE - Checking for new submissions...');
 
     const arweaveTransactions: getDataAvailabilityTransactionsAPIResponse =
       await getDataAvailabilityTransactionsAPI(cursor);
 
-    // console.log('arweaveTransactions', arweaveTransactions);
+    // consoleLog('arweaveTransactions', arweaveTransactions);
 
-    if (!arweaveTransactions.pageInfo.hasNextPage && noNextPage === false) {
-      console.log(
-        'LENS VERIFICATION NODE - No next page found so sleep for 500 milliseconds then check again...'
+    if (
+      !arweaveTransactions.pageInfo.hasNextPage &&
+      noNextPage === false &&
+      lastEdgeCount === arweaveTransactions.edges.length
+    ) {
+      consoleLog(
+        'LENS VERIFICATION NODE - No next page found or new items in that page found so sleep for 500 milliseconds then check again...'
       );
       sleep(500);
     } else {
       if (arweaveTransactions.pageInfo.hasNextPage) {
-        console.log('LENS VERIFICATION NODE - Next page found so set the cursor');
+        consoleLog('LENS VERIFICATION NODE - Next page found so set the cursor');
         cursor = arweaveTransactions.pageInfo.endCursor;
         noNextPage = true;
       } else {
         noNextPage = false;
       }
 
-      if (arweaveTransactions.edges.length === 0) {
-        console.log(
+      lastEdgeCount = arweaveTransactions.edges.length;
+
+      if (lastEdgeCount === 0) {
+        consoleLog(
           'LENS VERIFICATION NODE - No more transactions to check. Sleep for 500 milliseconds then check again...'
         );
         sleep(500);
       } else {
-        console.log(
-          'LENS VERIFICATION NODE - Found new submissions...',
-          arweaveTransactions.edges.length
-        );
+        consoleLog('LENS VERIFICATION NODE - Found new submissions...', lastEdgeCount);
 
         // fire and forget so we can process as many as we can in concurrently!
         checkDABatch(arweaveTransactions);

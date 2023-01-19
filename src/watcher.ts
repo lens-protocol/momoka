@@ -30,7 +30,10 @@ verifierWatcher().catch((error) => {
 // dispatcher mirror success - lrvtJYAuraMbzED9qTti3W22p5qKI1Vn-9QioV3jitQ
 // typed data mirror success - bke-jGxoWefl_V_6AdbnCk6_IJh7KpatBzYQ_SALcu0
 
-// checkDASubmisson('mSZx475FUMRHLmVf6hjjubtGpFru7amlqQuaerZbED0').catch((error) => {
+// checkDASubmisson('rb6chDZAaIEmDXpGkofdi120iH1exX8XPRnk1KmtIbU', {
+//   log: consoleLog,
+//   verifyPointer: true,
+// }).catch((error) => {
 //   console.error(error);
 //   process.exitCode = 1;
 // });

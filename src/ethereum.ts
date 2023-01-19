@@ -1,3 +1,4 @@
+import { Block } from '@ethersproject/abstract-provider';
 import { ethers } from 'ethers';
 import {
   DAlensHubInterface,
@@ -5,12 +6,13 @@ import {
   LENS_PROXY_MUMBAI_CONTRACT,
 } from './contract-lens/lens-proxy-info';
 import { PostWithSig_DispatcherRequest } from './ethereum-abi-types/LensHub';
+import { sleep } from './helpers';
 
 const network = 'https://polygon-mumbai.g.alchemy.com/v2/lYqDZAMIfEqR6I7a6h6DmgkcP2ran6qW';
 
 export const EMPTY_BYTE = '0x';
 
-const MAIN_NODE_TIMEOUT = 5 * 1000;
+const MAIN_NODE_TIMEOUT = 2 * 1000;
 
 export const ethereumProvider = new ethers.providers.StaticJsonRpcProvider(
   {
@@ -74,4 +76,22 @@ export const getOnChainProfileDetails = async (
     dispatcherAddress,
     ownerOfAddress,
   };
+};
+
+const MAX_BLOCK_RETRIES = 3;
+
+export const getBlockWithRetries = async (
+  blockNumber: number,
+  attempt: number = 0
+): Promise<Block> => {
+  try {
+    return await ethereumProvider.getBlock(blockNumber);
+  } catch (e) {
+    if (attempt < MAX_BLOCK_RETRIES) {
+      sleep(100);
+      return getBlockWithRetries(attempt + 1);
+    } else {
+      throw e;
+    }
+  }
 };

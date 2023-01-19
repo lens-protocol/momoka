@@ -8,8 +8,6 @@ export const getOwnerOfTransactionAPI = async (arweaveId: string): Promise<strin
     })
     .toPromise();
 
-  // console.log('result', result);
-
   if (!result.data?.transactions?.edges) {
     return null;
   }
