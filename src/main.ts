@@ -14,7 +14,7 @@ import {
   DAStructurePublication,
   PublicationTypedData,
 } from './data-availability-models/publications/data-availability-structure-publication';
-import { getBlockDb, saveBlockDb, saveTxDb, txSuccessDb } from './db';
+import { getBlockDb, saveBlockDb, saveTxDb, txExistsDb, txSuccessDb } from './db';
 import { ethereumProvider, getBlockWithRetries } from './ethereum';
 import { deepClone, sleep } from './helpers';
 import { consoleLog } from './logger';
@@ -125,11 +125,11 @@ export const checkDASubmisson = async (
   log(`Checking the submission`);
 
   // no need to recheck something already processed
-  // const alreadyChecked = await existsDb(txId, DbRefernece.tx);
-  // if (alreadyChecked) {
-  //   log('Already checked submission');
-  //   return success();
-  // }
+  const alreadyChecked = await txExistsDb(txId);
+  if (alreadyChecked) {
+    log('Already checked submission');
+    return success();
+  }
 
   const daPublication = await getArweaveByIdAPI<
     DAStructurePublication<DAEventType, PublicationTypedData>
@@ -233,7 +233,7 @@ const checkDABatch = async (
       try {
         log('Checking submission');
 
-        const result = await checkDASubmisson(txId, { verifyPointer: true, log: () => {} });
+        const result = await checkDASubmisson(txId, { verifyPointer: true, log });
         // write to the database!
         await saveTxDb(txId, result.isFailure() ? result.failure! : txSuccessDb);
 
