@@ -1,5 +1,10 @@
 export enum ClaimableValidatorError {
   /**
+   * This means the main signature has not been attached to the payload
+   */
+  NO_SIGNATURE_SUBMITTER = 'NO_SIGNATURE_SUBMITTER',
+
+  /**
    * This means the main signature has not been signed by the same payload as the data itself
    */
   INVALID_SIGNATURE_SUBMITTER = 'INVALID_SIGNATURE_SUBMITTER',

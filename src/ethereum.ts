@@ -10,7 +10,17 @@ const network = 'https://polygon-mumbai.g.alchemy.com/v2/lYqDZAMIfEqR6I7a6h6Dmgk
 
 export const EMPTY_BYTE = '0x';
 
-export const ethereumProvider = new ethers.providers.StaticJsonRpcProvider(network, 80001);
+const MAIN_NODE_TIMEOUT = 5 * 1000;
+
+export const ethereumProvider = new ethers.providers.StaticJsonRpcProvider(
+  {
+    url: network,
+    // timeout after MAIN_NODE_TIMEOUT
+    timeout: MAIN_NODE_TIMEOUT,
+    throttleLimit: MAIN_NODE_TIMEOUT,
+  },
+  80001
+);
 
 export const executeSimulationTransaction = async (
   methodName: 'postWithSig_Dispatcher' | 'postWithSig',

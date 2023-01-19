@@ -19,7 +19,6 @@
     "@urql/core": "^3.0.5",
     "ethers": "^5.7.2",
     "graphql": "^16.6.0",
-    "level": "^8.0.0",
     "node-fetch-commonjs": "^3.2.4"
   }
 }

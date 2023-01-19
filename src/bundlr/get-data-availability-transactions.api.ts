@@ -24,10 +24,11 @@ export const getDataAvailabilityTransactionsAPI = async (
     .query(DataAvailabilityTransactionsDocument, {
       owners: submitters,
       after: cursor,
+      limit: 1000,
     })
     .toPromise();
 
-  console.log('result', result);
+  // console.log('result', result);
 
   return result.data!.transactions as getDataAvailabilityTransactionsAPIResponse;
 };

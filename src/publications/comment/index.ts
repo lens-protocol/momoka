@@ -71,7 +71,10 @@ export const checkDAComment = async (
     log('verify pointer first');
 
     // check the pointer!
-    const pointerResult = await checkDASubmisson(publication.chainProofs.pointer.location, false);
+    const pointerResult = await checkDASubmisson(publication.chainProofs.pointer.location, {
+      verifyPointer: false,
+      log,
+    });
     if (pointerResult.isFailure()) {
       return pointerResult;
     }

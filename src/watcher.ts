@@ -1,9 +1,9 @@
-import { checkDASubmisson } from './main';
+import { verifierWatcher } from './main';
 
-// verifierWatcher().catch((error) => {
-//   console.error(error);
-//   process.exitCode = 1;
-// });
+verifierWatcher().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});
 
 // dispatcher post success - r3UOSyjBXWkYGV6SXJpBWo3uD9qeh9yuHxPA8T1eoyA
 // typed data post success - mYHhpnLGF-lFB2s7zPVmH1RFQLi_oEz1F4bW7e3hOMw
@@ -30,7 +30,7 @@ import { checkDASubmisson } from './main';
 // dispatcher mirror success - lrvtJYAuraMbzED9qTti3W22p5qKI1Vn-9QioV3jitQ
 // typed data mirror success - bke-jGxoWefl_V_6AdbnCk6_IJh7KpatBzYQ_SALcu0
 
-checkDASubmisson('mSZx475FUMRHLmVf6hjjubtGpFru7amlqQuaerZbED0').catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+// checkDASubmisson('mSZx475FUMRHLmVf6hjjubtGpFru7amlqQuaerZbED0').catch((error) => {
+//   console.error(error);
+//   process.exitCode = 1;
+// });

@@ -1,7 +1,11 @@
 import Utils from '@bundlr-network/client/build/common/utils';
 import { utils } from 'ethers';
 import { getArweaveByIdAPI } from './arweave/get-arweave-by-id.api';
-import { getDataAvailabilityTransactionsAPI } from './bundlr/get-data-availability-transactions.api';
+import {
+  getDataAvailabilityTransactionsAPI,
+  getDataAvailabilityTransactionsAPIResponse,
+} from './bundlr/get-data-availability-transactions.api';
+import { CheckDASubmissionOptions } from './check-da-submisson-options';
 import { ClaimableValidatorError } from './claimable-validator-errors';
 import { failure, PromiseResult, success } from './da-result';
 import { DAActionTypes } from './data-availability-models/data-availability-action-types';
@@ -18,7 +22,7 @@ import { checkDAMirror, CheckDAMirrorPublication } from './publications/mirror';
 import { checkDAPost, CheckDAPostPublication } from './publications/post';
 import { isValidSubmitter, isValidTransactionSubmitter } from './submitters';
 
-const validateChoosenBlock = async (
+export const validateChoosenBlock = async (
   blockNumber: number,
   timestamp: number,
   log: (message: string, ...optionalParams: any[]) => void
@@ -97,32 +101,38 @@ const validateChoosenBlock = async (
   return success();
 };
 
-export const checkDASubmisson = async (arweaveId: string, verifyPointer = true): PromiseResult => {
+export const checkDASubmisson = async (
+  txId: string,
+  { log, verifyPointer }: CheckDASubmissionOptions
+): PromiseResult => {
   // pointers have the ar prefix!
-  arweaveId = arweaveId.replace('ar://', '');
+  txId = txId.replace('ar://', '');
 
-  const log = (message: string, ...optionalParams: any[]) => {
-    console.log('\x1b[32m', `${arweaveId} - ${message}`, ...optionalParams);
-  };
-
-  console.time(arweaveId);
   log(`Checking the submission`);
+
+  // no need to recheck something already processed
+  const alreadyChecked = await existsDb(txId);
+  if (alreadyChecked) {
+    log('Already checked submission');
+    return success();
+  }
 
   const daPublication = await getArweaveByIdAPI<
     DAStructurePublication<DAEventType, PublicationTypedData>
-  >(arweaveId);
+  >(txId);
   log('getArweaveByIdAPI result', daPublication);
   // log('getArweaveByIdAPI typed data', daPublication.chainProofs.thisPublication.typedData);
 
-  console.log(JSON.stringify(daPublication.chainProofs.thisPublication.typedData, null, 4));
-
-  // check if signature matches!
+  if (!daPublication.signature) {
+    return failure(ClaimableValidatorError.NO_SIGNATURE_SUBMITTER);
+  }
 
   let signature = deepClone(daPublication.signature);
 
   // @ts-ignore
   delete daPublication.signature;
 
+  // check if signature matches!
   const signedAddress = utils.verifyMessage(JSON.stringify(daPublication), signature);
   log('signedAddress', signedAddress);
 
@@ -163,16 +173,16 @@ export const checkDASubmisson = async (arweaveId: string, verifyPointer = true):
 
   log('event timestamp matches publication timestamp');
 
-  // must be the closest block to the timestamp proofs
-  const validateBlockResult = await validateChoosenBlock(
-    daPublication.chainProofs.thisPublication.blockNumber,
-    daPublication.timestampProofs.response.timestamp,
-    log
-  );
+  // // must be the closest block to the timestamp proofs
+  // const validateBlockResult = await validateChoosenBlock(
+  //   daPublication.chainProofs.thisPublication.blockNumber,
+  //   daPublication.timestampProofs.response.timestamp,
+  //   log
+  // );
 
-  if (validateBlockResult.isFailure()) {
-    return validateBlockResult;
-  }
+  // if (validateBlockResult.isFailure()) {
+  //   return validateBlockResult;
+  // }
 
   log('event timestamp matches up the on chain block timestamp');
 
@@ -193,53 +203,85 @@ export const checkDASubmisson = async (arweaveId: string, verifyPointer = true):
       return failure(ClaimableValidatorError.UNKNOWN);
   }
 
-  console.timeEnd(arweaveId);
-
   return success();
 };
 
+export const checkDABatch = async (
+  arweaveTransactions: getDataAvailabilityTransactionsAPIResponse
+): Promise<void> => {
+  await Promise.all(
+    arweaveTransactions!.edges.map(async (edge) => {
+      const txId = edge.node.id;
+      const log = (message: string, ...optionalParams: any[]) => {
+        console.log('\x1b[32m', `LENS VERIFICATION NODE - ${txId} - ${message}`, ...optionalParams);
+      };
+
+      try {
+        log('Checking submission');
+
+        const result = await checkDASubmisson(txId, { verifyPointer: true, log: () => {} });
+        // write to the database!
+        await putDb(txId, result.isFailure() ? result.failure! : successDb);
+
+        log(
+          `${
+            result.isFailure()
+              ? `FAILED - ${result.failure!}: the checking has flagged invalid DA publication`
+              : 'SUCCESS: the checkes have all passed.'
+          }`
+        );
+      } catch (e) {
+        await putDb(txId, ClaimableValidatorError.UNKNOWN);
+        log('FAILED: the checking has flagged invalid DA publication', e);
+      }
+    })
+  );
+
+  console.log('Checked all submissons all is well');
+};
+
 export const verifierWatcher = async () => {
-  console.log('DA verification watcher started...');
+  console.log('LENS VERIFICATION NODE - DA verification watcher started...');
 
   let cursor: string | null = null;
+  let noNextPage: undefined | boolean;
 
   while (true) {
-    console.log('Checking for new submissions...');
-    const arweaveTransactions = await getDataAvailabilityTransactionsAPI(cursor);
+    console.log('LENS VERIFICATION NODE - Checking for new submissions...');
 
-    if (arweaveTransactions.pageInfo.hasNextPage) {
-      console.log('Next page found so set the cursor');
-      cursor = arweaveTransactions.pageInfo.endCursor;
-    }
+    const arweaveTransactions: getDataAvailabilityTransactionsAPIResponse =
+      await getDataAvailabilityTransactionsAPI(cursor);
 
-    if (arweaveTransactions.edges.length === 0) {
-      console.log('No more transactions to check. Sleep for 5 seconds then check again...');
-      sleep(5000);
-    }
+    // console.log('arweaveTransactions', arweaveTransactions);
 
-    console.log('Found new submissions...', arweaveTransactions.edges.length);
-
-    for (let i = 0; i < arweaveTransactions!.edges.length; i++) {
-      const nodeId = arweaveTransactions!.edges[i].node.id;
-      console.log('Checking submission', nodeId);
-
-      // no need to recheck something already processed
-      const alreadyChecked = await existsDb(nodeId);
-      if (alreadyChecked) {
-        console.log('Already checked submission', nodeId);
-        continue;
+    if (!arweaveTransactions.pageInfo.hasNextPage && noNextPage === false) {
+      console.log(
+        'LENS VERIFICATION NODE - No next page found so sleep for 500 milliseconds then check again...'
+      );
+      sleep(500);
+    } else {
+      if (arweaveTransactions.pageInfo.hasNextPage) {
+        console.log('LENS VERIFICATION NODE - Next page found so set the cursor');
+        cursor = arweaveTransactions.pageInfo.endCursor;
+        noNextPage = true;
+      } else {
+        noNextPage = false;
       }
 
-      const result = await checkDASubmisson(nodeId);
-      // write to the database!
-      await putDb(nodeId, result.isFailure() ? result.failure! : successDb);
+      if (arweaveTransactions.edges.length === 0) {
+        console.log(
+          'LENS VERIFICATION NODE - No more transactions to check. Sleep for 500 milliseconds then check again...'
+        );
+        sleep(500);
+      } else {
+        console.log(
+          'LENS VERIFICATION NODE - Found new submissions...',
+          arweaveTransactions.edges.length
+        );
 
-      console.log('Complete checking submission', nodeId);
+        // fire and forget so we can process as many as we can in concurrently!
+        checkDABatch(arweaveTransactions);
+      }
     }
-
-    console.log('Checked all submissons all is well');
-
-    // TODO remove this :)
-    break;
   }
 };
