@@ -10,6 +10,7 @@ export interface getDataAvailabilityTransactionsAPIResponse {
       id: string;
       address: string;
     };
+    cursor: string;
   }[];
   pageInfo: {
     hasNextPage: boolean;

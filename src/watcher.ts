@@ -1,11 +1,11 @@
-import { verifierFailedSubmissionsWatcher } from './main';
+import { verifierWatcher } from './main';
 
 // verifierWatcher().catch((error) => {
 //   console.error(error);
 //   process.exitCode = 1;
 // });
 
-verifierFailedSubmissionsWatcher().catch((error) => {
+verifierWatcher().catch((error) => {
   console.error(error);
   process.exitCode = 1;
 });

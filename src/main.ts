@@ -313,54 +313,104 @@ const watchBlocks = async () => {
   }
 };
 
+// export const verifierWatcher2 = async () => {
+//   consoleLog('LENS VERIFICATION NODE - DA verification watcher started...');
+
+//   watchBlocks();
+
+//   let endCursor: string | null = null;
+//   let hasNextPage: undefined | boolean;
+//   let lastEdgeCount: number = 0;
+
+//   while (true) {
+//     consoleLog('LENS VERIFICATION NODE - Checking for new submissions...');
+
+//     const arweaveTransactions: getDataAvailabilityTransactionsAPIResponse =
+//       await getDataAvailabilityTransactionsAPI(endCursor);
+
+//     consoleLog('arweaveTransactions', arweaveTransactions);
+
+//     if (
+//       !arweaveTransactions.pageInfo.hasNextPage &&
+//       hasNextPage === false &&
+//       lastEdgeCount === arweaveTransactions.edges.length
+//     ) {
+//       consoleLog(
+//         'LENS VERIFICATION NODE - No next page found or new items in that page found so sleep for 500 milliseconds then check again...',
+//         { lastEdgeCount, realEdgeCount: arweaveTransactions.edges.length }
+//       );
+//       await sleep(500);
+//     } else {
+//       // clear up any same cursor just added to the max limit
+//       // aka say we processed 224 and then limit is 1000 and then 2 new one comes in
+//       // we do not want to process all 224 again only the new ones
+//       console.log('blah', { cursor, real: arweaveTransactions.pageInfo.endCursor });
+//       if (cursor === arweaveTransactions.pageInfo.endCursor) {
+//         const newEdges = arweaveTransactions.edges.length - lastEdgeCount;
+//         console.log('newEdges', newEdges);
+//         if (newEdges > 0) {
+//           consoleLog('LENS VERIFICATION NODE - found new tx in the same edge...', {
+//             edges: newEdges,
+//           });
+//           arweaveTransactions.edges = arweaveTransactions.edges.slice(deepClone(lastEdgeCount) - 1);
+//         }
+//       }
+
+//       if (arweaveTransactions.pageInfo.hasNextPage) {
+//         consoleLog('LENS VERIFICATION NODE - Next page found so set the cursor');
+//         cursor = arweaveTransactions.pageInfo.endCursor;
+//         hasNextPage = true;
+//       } else {
+//         hasNextPage = false;
+//       }
+
+//       lastEdgeCount = arweaveTransactions.edges.length;
+
+//       if (lastEdgeCount === 0) {
+//         consoleLog(
+//           'LENS VERIFICATION NODE - No more transactions to check. Sleep for 500 milliseconds then check again...'
+//         );
+//         await sleep(500);
+//       } else {
+//         consoleLog('LENS VERIFICATION NODE - Found new submissions...', lastEdgeCount);
+
+//         // fire and forget so we can process as many as we can in concurrently!
+//         // checkDABatch(arweaveTransactions);
+//       }
+//     }
+//   }
+// };
+
 export const verifierWatcher = async () => {
   consoleLog('LENS VERIFICATION NODE - DA verification watcher started...');
 
   watchBlocks();
 
-  let cursor: string | null = null;
-  let noNextPage: undefined | boolean;
-  let lastEdgeCount: undefined | number;
+  let endCursor: string | null = null;
 
   while (true) {
     consoleLog('LENS VERIFICATION NODE - Checking for new submissions...');
 
     const arweaveTransactions: getDataAvailabilityTransactionsAPIResponse =
-      await getDataAvailabilityTransactionsAPI(cursor);
+      await getDataAvailabilityTransactionsAPI(endCursor);
 
     // consoleLog('arweaveTransactions', arweaveTransactions);
 
-    if (
-      !arweaveTransactions.pageInfo.hasNextPage &&
-      noNextPage === false &&
-      lastEdgeCount === arweaveTransactions.edges.length
-    ) {
-      consoleLog(
-        'LENS VERIFICATION NODE - No next page found or new items in that page found so sleep for 500 milliseconds then check again...'
-      );
+    if (arweaveTransactions.edges.length === 0) {
+      consoleLog('LENS VERIFICATION NODE - No new items found..');
       await sleep(500);
     } else {
-      if (arweaveTransactions.pageInfo.hasNextPage) {
-        consoleLog('LENS VERIFICATION NODE - Next page found so set the cursor');
-        cursor = arweaveTransactions.pageInfo.endCursor;
-        noNextPage = true;
-      } else {
-        noNextPage = false;
-      }
+      consoleLog(
+        'LENS VERIFICATION NODE - Found new submissions...',
+        arweaveTransactions.edges.length
+      );
 
-      lastEdgeCount = arweaveTransactions.edges.length;
+      endCursor = arweaveTransactions.pageInfo.endCursor;
 
-      if (lastEdgeCount === 0) {
-        consoleLog(
-          'LENS VERIFICATION NODE - No more transactions to check. Sleep for 500 milliseconds then check again...'
-        );
-        await sleep(500);
-      } else {
-        consoleLog('LENS VERIFICATION NODE - Found new submissions...', lastEdgeCount);
+      // fire and forget so we can process as many as we can in concurrently!
+      checkDABatch(arweaveTransactions);
 
-        // fire and forget so we can process as many as we can in concurrently!
-        checkDABatch(arweaveTransactions);
-      }
+      await sleep(500);
     }
   }
 };
