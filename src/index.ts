@@ -1,1 +1,1 @@
-export { checkDASubmisson, verifierWatcher } from './main';
+export { checkDASubmisson, verifierFailedSubmissionsWatcher, verifierWatcher } from './main';
