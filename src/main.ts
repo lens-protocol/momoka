@@ -14,7 +14,16 @@ import {
   DAStructurePublication,
   PublicationTypedData,
 } from './data-availability-models/publications/data-availability-structure-publication';
-import { getBlockDb, saveBlockDb, saveTxDb, txExistsDb, txSuccessDb } from './db';
+import {
+  FailedTransactionsDb,
+  getBlockDb,
+  getFailedTransactionsDb,
+  saveBlockDb,
+  saveFailedTransactionDb,
+  saveTxDb,
+  txExistsDb,
+  txSuccessDb,
+} from './db';
 import { ethereumProvider, getBlockWithRetries } from './ethereum';
 import { deepClone, sleep } from './helpers';
 import { consoleLog } from './logger';
@@ -23,7 +32,7 @@ import { checkDAMirror, CheckDAMirrorPublication } from './publications/mirror';
 import { checkDAPost, CheckDAPostPublication } from './publications/post';
 import { isValidSubmitter, isValidTransactionSubmitter } from './submitters';
 
-export const validateChoosenBlock = async (
+const validateChoosenBlock = async (
   blockNumber: number,
   timestamp: number,
   log: (message: string, ...optionalParams: any[]) => void
@@ -117,7 +126,7 @@ export const validateChoosenBlock = async (
 
 export const checkDASubmisson = async (
   txId: string,
-  { log, verifyPointer }: CheckDASubmissionOptions
+  { log, verifyPointer }: CheckDASubmissionOptions = { log: consoleLog, verifyPointer: true }
 ): PromiseResult => {
   // pointers have the ar prefix!
   txId = txId.replace('ar://', '');
@@ -220,6 +229,29 @@ export const checkDASubmisson = async (
   return success();
 };
 
+let _lock = false;
+const processFailedSubmissions = async (
+  txId: string,
+  reason: ClaimableValidatorError,
+  log: (message: string, ...optionalParams: any[]) => void
+) => {
+  while (true) {
+    if (_lock) {
+      log('process failed submissions already writing, await for the unlock');
+
+      await sleep(100);
+    }
+
+    _lock = true;
+
+    await saveFailedTransactionDb({ txId, reason });
+    log('process failed submissions saved to db');
+
+    _lock = false;
+    break;
+  }
+};
+
 const checkDABatch = async (
   arweaveTransactions: getDataAvailabilityTransactionsAPIResponse
 ): Promise<void> => {
@@ -236,6 +268,11 @@ const checkDABatch = async (
         const result = await checkDASubmisson(txId, { verifyPointer: true, log });
         // write to the database!
         await saveTxDb(txId, result.isFailure() ? result.failure! : txSuccessDb);
+
+        if (result.isFailure()) {
+          // fire and forget
+          processFailedSubmissions(txId, result.failure!, log);
+        }
 
         log(
           `${
@@ -272,7 +309,7 @@ const watchBlocks = async () => {
       consoleLog('LENS VERIFICATION NODE - Error getting latest block try again in 100ms', error);
     }
 
-    sleep(100);
+    await sleep(100);
   }
 };
 
@@ -301,7 +338,7 @@ export const verifierWatcher = async () => {
       consoleLog(
         'LENS VERIFICATION NODE - No next page found or new items in that page found so sleep for 500 milliseconds then check again...'
       );
-      sleep(500);
+      await sleep(500);
     } else {
       if (arweaveTransactions.pageInfo.hasNextPage) {
         consoleLog('LENS VERIFICATION NODE - Next page found so set the cursor');
@@ -317,7 +354,7 @@ export const verifierWatcher = async () => {
         consoleLog(
           'LENS VERIFICATION NODE - No more transactions to check. Sleep for 500 milliseconds then check again...'
         );
-        sleep(500);
+        await sleep(500);
       } else {
         consoleLog('LENS VERIFICATION NODE - Found new submissions...', lastEdgeCount);
 
@@ -325,5 +362,38 @@ export const verifierWatcher = async () => {
         checkDABatch(arweaveTransactions);
       }
     }
+  }
+};
+
+export const verifierFailedSubmissionsWatcher = async () => {
+  consoleLog('LENS VERIFICATION NODE - started up failed submisson watcher...');
+
+  let seenFailedSubmissions: FailedTransactionsDb[] = [];
+  while (true) {
+    try {
+      const failed = await getFailedTransactionsDb();
+
+      const unseenFailedSubmissions = failed.filter(
+        (f) => !seenFailedSubmissions.find((s) => s.txId === f.txId)
+      );
+
+      if (unseenFailedSubmissions.length > 0) {
+        consoleLog('LENS VERIFICATION NODE - ERROR FOUND', {
+          publicationFailed: unseenFailedSubmissions,
+        });
+      }
+
+      const merged = [...seenFailedSubmissions, ...failed];
+      seenFailedSubmissions = [...new Map(merged.map((item) => [item.txId, item])).values()];
+
+      consoleLog('LENS VERIFICATION NODE - finished failed watcher check again in 5 seconds');
+    } catch (error) {
+      consoleLog(
+        'LENS VERIFICATION NODE - verifier failed watcher failed try again in 5 seconds',
+        error
+      );
+    }
+
+    await sleep(5000);
   }
 };

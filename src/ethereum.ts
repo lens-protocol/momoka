@@ -88,7 +88,7 @@ export const getBlockWithRetries = async (
     return await ethereumProvider.getBlock(blockNumber);
   } catch (e) {
     if (attempt < MAX_BLOCK_RETRIES) {
-      sleep(100);
+      await sleep(100);
       return getBlockWithRetries(attempt + 1);
     } else {
       throw e;
