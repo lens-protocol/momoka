@@ -1,7 +1,7 @@
 import { ClaimableValidatorError } from './claimable-validator-errors';
 
-class DAResult {
-  constructor(public failure?: ClaimableValidatorError) {}
+class DAResult<TSuccessResult> {
+  constructor(public failure?: ClaimableValidatorError, public successResult?: TSuccessResult) {}
 
   public isSuccess(): boolean {
     return this.failure === undefined;
@@ -12,8 +12,9 @@ class DAResult {
   }
 }
 
-export type PromiseResult = Promise<DAResult>;
-export type Result = DAResult;
+export type PromiseResult<TSuccessResult = void> = Promise<DAResult<TSuccessResult>>;
+export type Result<TSuccessResult = void> = DAResult<TSuccessResult>;
 
-export const success = (): Result => new DAResult();
-export const failure = (failure: ClaimableValidatorError): DAResult => new DAResult(failure);
+export const success = <TResult = void>(result?: TResult): DAResult<TResult> =>
+  new DAResult<TResult>(undefined, result);
+export const failure = (failure: ClaimableValidatorError): DAResult<void> => new DAResult(failure);

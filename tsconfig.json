@@ -19,5 +19,6 @@
     "sourceMap": true,
     "resolveJsonModule": true,
     "skipLibCheck": true
-  }
+  },
+  "exclude": ["node_modules", "src/__TESTS__"]
 }

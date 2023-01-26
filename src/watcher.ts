@@ -1,14 +1,15 @@
-import { verifierWatcher } from './main';
+import { consoleLog } from './logger';
+import { checkDAProof } from './main';
 
 // verifierWatcher().catch((error) => {
 //   console.error(error);
 //   process.exitCode = 1;
 // });
 
-verifierWatcher().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+// startDAVerifierNode().catch((error) => {
+//   console.error(error);
+//   process.exitCode = 1;
+// });
 
 // dispatcher post success - r3UOSyjBXWkYGV6SXJpBWo3uD9qeh9yuHxPA8T1eoyA
 // typed data post success - mYHhpnLGF-lFB2s7zPVmH1RFQLi_oEz1F4bW7e3hOMw
@@ -35,10 +36,10 @@ verifierWatcher().catch((error) => {
 // dispatcher mirror success - lrvtJYAuraMbzED9qTti3W22p5qKI1Vn-9QioV3jitQ
 // typed data mirror success - bke-jGxoWefl_V_6AdbnCk6_IJh7KpatBzYQ_SALcu0
 
-// checkDASubmisson('rb6chDZAaIEmDXpGkofdi120iH1exX8XPRnk1KmtIbU', {
-//   log: consoleLog,
-//   verifyPointer: true,
-// }).catch((error) => {
-//   console.error(error);
-//   process.exitCode = 1;
-// });
+checkDAProof('d9TUG-jz5q-sa-58tE_JKMbGNwpurlJMOaYKXOrwPmc', {
+  log: consoleLog,
+  verifyPointer: true,
+}).catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});

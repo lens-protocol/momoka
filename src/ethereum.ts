@@ -1,11 +1,8 @@
 import { Block } from '@ethersproject/abstract-provider';
 import { ethers } from 'ethers';
-import {
-  DAlensHubInterface,
-  getLensHubContract,
-  LENS_PROXY_MUMBAI_CONTRACT,
-} from './contract-lens/lens-proxy-info';
-import { PostWithSig_DispatcherRequest } from './ethereum-abi-types/LensHub';
+import { ClaimableValidatorError } from './claimable-validator-errors';
+import { getLensHubContract, LENS_PROXY_MUMBAI_CONTRACT } from './contract-lens/lens-proxy-info';
+import { failure, PromiseResult, success } from './da-result';
 import { sleep } from './helpers';
 
 const network = 'https://polygon-mumbai.g.alchemy.com/v2/lYqDZAMIfEqR6I7a6h6DmgkcP2ran6qW';
@@ -25,17 +22,21 @@ export const ethereumProvider = new ethers.providers.StaticJsonRpcProvider(
 );
 
 export const executeSimulationTransaction = async (
-  methodName: 'postWithSig_Dispatcher' | 'postWithSig',
-  sigRequest: PostWithSig_DispatcherRequest,
+  data: string,
   blockNumber: number
-) => {
-  const transaction: ethers.providers.TransactionRequest = {
-    to: LENS_PROXY_MUMBAI_CONTRACT,
-    data: DAlensHubInterface.encodeFunctionData(methodName, [sigRequest]),
-  };
+): PromiseResult<string | void> => {
+  try {
+    const transaction: ethers.providers.TransactionRequest = {
+      to: LENS_PROXY_MUMBAI_CONTRACT,
+      data,
+    };
 
-  // will throw if it did not work!
-  await ethereumProvider.call(transaction, blockNumber);
+    const result = await ethereumProvider.call(transaction, blockNumber);
+
+    return success(result);
+  } catch (_error) {
+    return failure(ClaimableValidatorError.SIMULATION_NODE_COULD_NOT_RUN);
+  }
 };
 
 export const parseSignature = (signature: string, deadline: number) => {

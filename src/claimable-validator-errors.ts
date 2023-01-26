@@ -8,6 +8,7 @@ export enum ClaimableValidatorError {
    * This means the main signature has not been signed by the same payload as the data itself
    */
   INVALID_SIGNATURE_SUBMITTER = 'INVALID_SIGNATURE_SUBMITTER',
+
   /**
    * This means the submitted timestamp proof does not have a valid timestamp proof signature
    */
@@ -17,7 +18,7 @@ export enum ClaimableValidatorError {
    * This means the submitted timestamp proof does not match up to the `dataAvailabilityId`
    * or `type` or not uploaded from the submittor whitelisted wallet
    */
-  TIMESTAMP_PROOF_INVALID_UPLOAD = 'TIMESTAMP_PROOF_INVALID_UPLOAD',
+  // TIMESTAMP_PROOF_INVALID_UPLOAD = 'TIMESTAMP_PROOF_INVALID_UPLOAD',
 
   /**
    * This means the timestamp proof uploaded was not done by a valid submitter
@@ -28,10 +29,22 @@ export enum ClaimableValidatorError {
    * This means the block stated in the chain proofs are not the closest block to the timstamp
    * proofs
    */
-  BLOCK_MISMATCH = 'BLOCK_MISMATCH',
+  // BLOCK_MISMATCH = 'BLOCK_MISMATCH',
+
+  /**
+   * This the typed data format is invalid (aka a invalid address type etc)
+   */
+  INVALID_FORMATTED_TYPED_DATA = 'INVALID_FORMATTED_TYPED_DATA',
+
+  /**
+   * This means the simulation was not able to be ran on the node, this does not mean
+   * that it would fail on chain, it means the nodes may of been down and needs rechecking
+   */
+  SIMULATION_NODE_COULD_NOT_RUN = 'SIMULATION_NODE_COULD_NOT_RUN',
 
   /**
    * This means the simulation was not successful and got rejected on-chain
+   * or the result from the simulation did not match the expected result
    */
   SIMULATION_FAILED = 'SIMULATION_FAILED',
 
@@ -55,47 +68,27 @@ export enum ClaimableValidatorError {
    */
   NOT_CLOSEST_BLOCK = 'NOT_CLOSEST_BLOCK',
 
-  // BLOCK_TOO_FAR = 'BLOCK_TOO_FAR',
+  /**
+   * This means the publication submitted does not have a valid pointer
+   * and a pointer is required
+   */
+  PUBLICATION_NO_POINTER = 'PUBLICATION_NO_POINTER',
 
   /**
-   * This means the mirror property submitted does not have a valid pointer
+   * Some publications (comment and mirror) for now can only be on another
+   * DA publication not on evm chain publications
    */
-  MIRROR_NO_POINTER = 'MIRROR_NO_POINTER',
+  PUBLICATION_NONE_DA = 'PUBLICATION_NONE_DA',
 
   /**
-   * Mirror for now can only mirror another DA publication not on evm chain publications
+   * This means the publication nonce is invalid at the time of submission
    */
-  MIRROR_NONE_DA = 'MIRROR_NONE_DA',
+  PUBLICATION_NONCE_INVALID = 'PUBLICATION_NONCE_INVALID',
 
   /**
-   * This means the mirror nonce is invalid at the time of submission
+   * This means the publication submisson was signed by a wallet that is not allowed
    */
-  MIRROR_NONCE_INVALID = 'MIRROR_NONCE_INVALID',
-
-  /**
-   * This means the mirror submisson was signed by a wallet that is not allowed
-   */
-  MIRROR_SIGNER_NOT_ALLOWED = 'MIRROR_SIGNER_NOT_ALLOWED',
-
-  /**
-   * This means the comment property submitted does not have a valid pointer
-   */
-  COMMENT_NO_POINTER = 'COMMENT_NO_POINTER',
-
-  /**
-   * Comment for now can only comment on another DA publication not on evm chain publications
-   */
-  COMMENT_NONE_DA = 'COMMENT_NONE_DA',
-
-  /**
-   * This means the comment nonce is invalid at the time of submission
-   */
-  COMMENT_NONCE_INVALID = 'COMMENT_NONCE_INVALID',
-
-  /**
-   * This means the comment submisson was signed by a wallet that is not allowed
-   */
-  COMMENT_SIGNER_NOT_ALLOWED = 'COMMENT_SIGNER_NOT_ALLOWED',
+  PUBLICATION_SIGNER_NOT_ALLOWED = 'PUBLICATION_SIGNER_NOT_ALLOWED',
 
   /**
    * unknown error should not happen but catch all

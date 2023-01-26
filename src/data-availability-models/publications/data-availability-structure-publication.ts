@@ -91,4 +91,9 @@ export interface DAStructurePublication<
    * The proofs that can be verified on the blockchain.
    */
   chainProofs: DAStructurePublicationProofs<TTypedData>;
+
+  /**
+   * The unquie publication id if you wished to saved it on a server somewhere
+   */
+  publicationId: string;
 }

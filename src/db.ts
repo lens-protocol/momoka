@@ -4,9 +4,9 @@ import path from 'path';
 import { ClaimableValidatorError } from './claimable-validator-errors';
 
 const dbPath = path.join(__dirname, '..', 'database');
-const db = new Level(dbPath);
+export const db = new Level(dbPath);
 
-enum DbRefernece {
+export enum DbRefernece {
   block = 'block',
   tx = 'tx',
 }

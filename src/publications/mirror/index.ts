@@ -1,4 +1,4 @@
-import { BigNumber, utils } from 'ethers';
+import { BigNumber } from 'ethers';
 import { ClaimableValidatorError } from '../../claimable-validator-errors';
 import { failure, PromiseResult, success } from '../../da-result';
 import { CreateMirrorEIP712TypedData } from '../../data-availability-models/publications/data-availability-publication-typed-data';
@@ -8,7 +8,8 @@ import {
 } from '../../data-availability-models/publications/data-availability-structure-publication';
 import { DAMirrorCreatedEventEmittedResponse } from '../../data-availability-models/publications/data-availability-structure-publications-events';
 import { EMPTY_BYTE, getOnChainProfileDetails } from '../../ethereum';
-import { checkDASubmisson } from '../../main';
+import { checkDAProof } from '../../main';
+import { whoSignedTypedData } from '../publication.base';
 
 export type CheckDAMirrorPublication = DAStructurePublication<
   DAMirrorCreatedEventEmittedResponse,
@@ -37,7 +38,6 @@ const crossCheckEvent = async (
     typedData.value.profileIdPointed !== event.profileIdPointed ||
     typedData.value.pubIdPointed !== event.pubIdPointed ||
     typedData.value.referenceModule !== event.referenceModule ||
-    typedData.value.referenceModuleInitData !== EMPTY_BYTE ||
     event.referenceModuleReturnData !== EMPTY_BYTE
   ) {
     return failure(ClaimableValidatorError.EVENT_MISMATCH);
@@ -56,19 +56,19 @@ export const checkDAMirror = async (
   log('check DA mirror');
 
   if (!publication.chainProofs.pointer) {
-    return failure(ClaimableValidatorError.MIRROR_NO_POINTER);
+    return failure(ClaimableValidatorError.PUBLICATION_NO_POINTER);
   }
 
   // only supports mirrors on DA at the moment
   if (publication.chainProofs.pointer.type !== DAPublicationPointerType.ON_DA) {
-    return failure(ClaimableValidatorError.MIRROR_NONE_DA);
+    return failure(ClaimableValidatorError.PUBLICATION_NONE_DA);
   }
 
   if (verifyPointer) {
     log('verify pointer first');
 
     // check the pointer!
-    const pointerResult = await checkDASubmisson(publication.chainProofs.pointer.location, {
+    const pointerResult = await checkDAProof(publication.chainProofs.pointer.location, {
       verifyPointer: false,
       log,
     });
@@ -79,12 +79,20 @@ export const checkDAMirror = async (
 
   const typedData = publication.chainProofs.thisPublication.typedData;
 
-  const whoSigned = utils.verifyTypedData(
+  const whoSignedResult = whoSignedTypedData(
     typedData.domain,
     typedData.types,
     typedData.value,
     publication.chainProofs.thisPublication.signature
   );
+
+  if (whoSignedResult.isFailure()) {
+    return failure(whoSignedResult.failure!);
+  }
+
+  const whoSigned = whoSignedResult.successResult!;
+
+  log('who signed', whoSigned);
 
   const details = await getOnChainProfileDetails(
     publication.chainProofs.thisPublication.blockNumber,
@@ -93,11 +101,11 @@ export const checkDAMirror = async (
   );
 
   if (details.sigNonce !== typedData.value.nonce) {
-    return failure(ClaimableValidatorError.MIRROR_NONCE_INVALID);
+    return failure(ClaimableValidatorError.PUBLICATION_NONCE_INVALID);
   }
 
   if (details.dispatcherAddress !== whoSigned && details.ownerOfAddress !== whoSigned) {
-    return failure(ClaimableValidatorError.MIRROR_SIGNER_NOT_ALLOWED);
+    return failure(ClaimableValidatorError.PUBLICATION_SIGNER_NOT_ALLOWED);
   }
 
   const eventResult = await crossCheckEvent(

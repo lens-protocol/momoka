@@ -10,8 +10,11 @@ export interface BundlrUploadResponse {
   public: string;
   // The signature of this receipt
   signature: string;
+  // response version
+  version: '1.0.0';
   // the maximum expected Arweave block height for transaction inclusion
   block: number;
+  deadlineHeight: number;
   // List of validator signatures
   validatorSignatures: { address: string; signature: string }[];
   // The UNIX (MS precision) timestamp of when the node received the Tx. Only optional if the upload receives a `201` error in response to a duplicate transaction upload.

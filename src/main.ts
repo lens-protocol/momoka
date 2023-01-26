@@ -124,7 +124,7 @@ const validateChoosenBlock = async (
   }
 };
 
-export const checkDASubmisson = async (
+export const checkDAProof = async (
   txId: string,
   { log, verifyPointer }: CheckDASubmissionOptions = { log: consoleLog, verifyPointer: true }
 ): PromiseResult => {
@@ -144,7 +144,7 @@ export const checkDASubmisson = async (
     DAStructurePublication<DAEventType, PublicationTypedData>
   >(txId);
   log('getArweaveByIdAPI result', daPublication);
-  // log('getArweaveByIdAPI typed data', daPublication.chainProofs.thisPublication.typedData);
+  // log('getArweaveByIdAPI typed data', daPublication);
 
   if (!daPublication.signature) {
     return failure(ClaimableValidatorError.NO_SIGNATURE_SUBMITTER);
@@ -196,7 +196,6 @@ export const checkDASubmisson = async (
 
   log('event timestamp matches publication timestamp');
 
-  // // must be the closest block to the timestamp proofs
   const validateBlockResult = await validateChoosenBlock(
     daPublication.chainProofs.thisPublication.blockNumber,
     daPublication.timestampProofs.response.timestamp,
@@ -214,19 +213,14 @@ export const checkDASubmisson = async (
       if (daPublication.chainProofs.pointer) {
         return failure(ClaimableValidatorError.INVALID_POINTER_SET_NOT_NEEDED);
       }
-      await checkDAPost(daPublication as CheckDAPostPublication, log);
-      break;
+      return await checkDAPost(daPublication as CheckDAPostPublication, log);
     case DAActionTypes.COMMENT_CREATED:
-      await checkDAComment(daPublication as CheckDACommentPublication, verifyPointer, log);
-      break;
+      return await checkDAComment(daPublication as CheckDACommentPublication, verifyPointer, log);
     case DAActionTypes.MIRROR_CREATED:
-      await checkDAMirror(daPublication as CheckDAMirrorPublication, verifyPointer, log);
-      break;
+      return await checkDAMirror(daPublication as CheckDAMirrorPublication, verifyPointer, log);
     default:
       return failure(ClaimableValidatorError.UNKNOWN);
   }
-
-  return success();
 };
 
 let _lock = false;
@@ -252,7 +246,7 @@ const processFailedSubmissions = async (
   }
 };
 
-const checkDABatch = async (
+const checkDAProofsBatch = async (
   arweaveTransactions: getDataAvailabilityTransactionsAPIResponse
 ): Promise<void> => {
   await Promise.all(
@@ -265,7 +259,7 @@ const checkDABatch = async (
       try {
         log('Checking submission');
 
-        const result = await checkDASubmisson(txId, { verifyPointer: true, log });
+        const result = await checkDAProof(txId, { verifyPointer: true, log });
         // write to the database!
         await saveTxDb(txId, result.isFailure() ? result.failure! : txSuccessDb);
 
@@ -313,109 +307,7 @@ const watchBlocks = async () => {
   }
 };
 
-// export const verifierWatcher2 = async () => {
-//   consoleLog('LENS VERIFICATION NODE - DA verification watcher started...');
-
-//   watchBlocks();
-
-//   let endCursor: string | null = null;
-//   let hasNextPage: undefined | boolean;
-//   let lastEdgeCount: number = 0;
-
-//   while (true) {
-//     consoleLog('LENS VERIFICATION NODE - Checking for new submissions...');
-
-//     const arweaveTransactions: getDataAvailabilityTransactionsAPIResponse =
-//       await getDataAvailabilityTransactionsAPI(endCursor);
-
-//     consoleLog('arweaveTransactions', arweaveTransactions);
-
-//     if (
-//       !arweaveTransactions.pageInfo.hasNextPage &&
-//       hasNextPage === false &&
-//       lastEdgeCount === arweaveTransactions.edges.length
-//     ) {
-//       consoleLog(
-//         'LENS VERIFICATION NODE - No next page found or new items in that page found so sleep for 500 milliseconds then check again...',
-//         { lastEdgeCount, realEdgeCount: arweaveTransactions.edges.length }
-//       );
-//       await sleep(500);
-//     } else {
-//       // clear up any same cursor just added to the max limit
-//       // aka say we processed 224 and then limit is 1000 and then 2 new one comes in
-//       // we do not want to process all 224 again only the new ones
-//       console.log('blah', { cursor, real: arweaveTransactions.pageInfo.endCursor });
-//       if (cursor === arweaveTransactions.pageInfo.endCursor) {
-//         const newEdges = arweaveTransactions.edges.length - lastEdgeCount;
-//         console.log('newEdges', newEdges);
-//         if (newEdges > 0) {
-//           consoleLog('LENS VERIFICATION NODE - found new tx in the same edge...', {
-//             edges: newEdges,
-//           });
-//           arweaveTransactions.edges = arweaveTransactions.edges.slice(deepClone(lastEdgeCount) - 1);
-//         }
-//       }
-
-//       if (arweaveTransactions.pageInfo.hasNextPage) {
-//         consoleLog('LENS VERIFICATION NODE - Next page found so set the cursor');
-//         cursor = arweaveTransactions.pageInfo.endCursor;
-//         hasNextPage = true;
-//       } else {
-//         hasNextPage = false;
-//       }
-
-//       lastEdgeCount = arweaveTransactions.edges.length;
-
-//       if (lastEdgeCount === 0) {
-//         consoleLog(
-//           'LENS VERIFICATION NODE - No more transactions to check. Sleep for 500 milliseconds then check again...'
-//         );
-//         await sleep(500);
-//       } else {
-//         consoleLog('LENS VERIFICATION NODE - Found new submissions...', lastEdgeCount);
-
-//         // fire and forget so we can process as many as we can in concurrently!
-//         // checkDABatch(arweaveTransactions);
-//       }
-//     }
-//   }
-// };
-
-export const verifierWatcher = async () => {
-  consoleLog('LENS VERIFICATION NODE - DA verification watcher started...');
-
-  watchBlocks();
-
-  let endCursor: string | null = null;
-
-  while (true) {
-    consoleLog('LENS VERIFICATION NODE - Checking for new submissions...');
-
-    const arweaveTransactions: getDataAvailabilityTransactionsAPIResponse =
-      await getDataAvailabilityTransactionsAPI(endCursor);
-
-    // consoleLog('arweaveTransactions', arweaveTransactions);
-
-    if (arweaveTransactions.edges.length === 0) {
-      consoleLog('LENS VERIFICATION NODE - No new items found..');
-      await sleep(500);
-    } else {
-      consoleLog(
-        'LENS VERIFICATION NODE - Found new submissions...',
-        arweaveTransactions.edges.length
-      );
-
-      endCursor = arweaveTransactions.pageInfo.endCursor;
-
-      // fire and forget so we can process as many as we can in concurrently!
-      checkDABatch(arweaveTransactions);
-
-      await sleep(500);
-    }
-  }
-};
-
-export const verifierFailedSubmissionsWatcher = async () => {
+const verifierFailedSubmissionsWatcher = async () => {
   consoleLog('LENS VERIFICATION NODE - started up failed submisson watcher...');
 
   let seenFailedSubmissions: FailedTransactionsDb[] = [];
@@ -445,5 +337,40 @@ export const verifierFailedSubmissionsWatcher = async () => {
     }
 
     await sleep(5000);
+  }
+};
+
+export const startDAVerifierNode = async () => {
+  consoleLog('LENS VERIFICATION NODE - DA verification watcher started...');
+
+  watchBlocks();
+  verifierFailedSubmissionsWatcher();
+
+  let endCursor: string | null = null;
+
+  while (true) {
+    consoleLog('LENS VERIFICATION NODE - Checking for new submissions...');
+
+    const arweaveTransactions: getDataAvailabilityTransactionsAPIResponse =
+      await getDataAvailabilityTransactionsAPI(endCursor);
+
+    // consoleLog('arweaveTransactions', arweaveTransactions);
+
+    if (arweaveTransactions.edges.length === 0) {
+      consoleLog('LENS VERIFICATION NODE - No new items found..');
+      await sleep(500);
+    } else {
+      consoleLog(
+        'LENS VERIFICATION NODE - Found new submissions...',
+        arweaveTransactions.edges.length
+      );
+
+      endCursor = arweaveTransactions.pageInfo.endCursor;
+
+      // fire and forget so we can process as many as we can in concurrently!
+      checkDAProofsBatch(arweaveTransactions);
+
+      await sleep(500);
+    }
   }
 };

@@ -1,7 +1,7 @@
 import { getOwnerOfTransactionAPI } from './bundlr/get-owner-of-transaction.api';
 
 export const getSubmitters = () => {
-  // this will come from a smart contract!
+  // this will come from a smart contract later on!
   return ['0x82478df5a281a486070c11ebf808d3dd874fda86'.toLowerCase()];
 };
 

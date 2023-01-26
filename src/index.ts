@@ -1,1 +1,1 @@
-export { checkDASubmisson, verifierFailedSubmissionsWatcher, verifierWatcher } from './main';
+export { checkDAProof, startDAVerifierNode } from './main';
