@@ -1,5 +1,5 @@
+import { checkDAProof } from './';
 import { consoleLog } from './logger';
-import { checkDAProof } from './main';
 
 // verifierWatcher().catch((error) => {
 //   console.error(error);

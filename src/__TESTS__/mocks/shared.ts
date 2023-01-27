@@ -1,3 +1,4 @@
+import { checkDAProof } from '../../';
 import * as getArweaveByIdAPIDefault from '../../arweave/get-arweave-by-id.api';
 import { ClaimableValidatorError } from '../../claimable-validator-errors';
 import {
@@ -6,7 +7,6 @@ import {
   PublicationTypedData,
 } from '../../data-availability-models/publications/data-availability-structure-publication';
 import * as database from '../../db';
-import { checkDAProof } from '../../main';
 import * as submittors from '../../submitters';
 
 export const mockTxExistsDb = database.txExistsDb as jest.MockedFunction<

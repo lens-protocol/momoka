@@ -1,4 +1,5 @@
 import { BigNumber } from 'ethers';
+import { checkDAProof } from '../../';
 import { ClaimableValidatorError } from '../../claimable-validator-errors';
 import { failure, PromiseResult, success } from '../../da-result';
 import { CreateMirrorEIP712TypedData } from '../../data-availability-models/publications/data-availability-publication-typed-data';
@@ -8,7 +9,6 @@ import {
 } from '../../data-availability-models/publications/data-availability-structure-publication';
 import { DAMirrorCreatedEventEmittedResponse } from '../../data-availability-models/publications/data-availability-structure-publications-events';
 import { EMPTY_BYTE, getOnChainProfileDetails } from '../../ethereum';
-import { checkDAProof } from '../../main';
 import { whoSignedTypedData } from '../publication.base';
 
 export type CheckDAMirrorPublication = DAStructurePublication<
