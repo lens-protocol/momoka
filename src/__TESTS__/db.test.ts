@@ -75,6 +75,7 @@ describe('db', () => {
       const failedTx: FailedTransactionsDb = {
         txId: random(),
         reason: ClaimableValidatorError.EVENT_MISMATCH,
+        submitter: random(),
       };
 
       await saveFailedTransactionDb(failedTx);
