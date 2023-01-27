@@ -4,7 +4,7 @@ import {
   getDataAvailabilityTransactionsAPIResponse,
 } from '../bundlr/get-data-availability-transactions.api';
 import { ClaimableValidatorError } from '../claimable-validator-errors';
-import { saveFailedTransactionDb, saveTxDb, txSuccessDb } from '../db';
+import { saveFailedTransactionDb, saveTxDb, startDb, txSuccessDb } from '../db';
 import { sleep } from '../helpers';
 import { consoleLog } from '../logger';
 import { watchBlocks } from './block.watcher';
@@ -74,6 +74,8 @@ const checkDAProofsBatch = async (
 
 export const startDAVerifierNode = async () => {
   consoleLog('LENS VERIFICATION NODE - DA verification watcher started...');
+
+  startDb();
 
   watchBlocks();
   verifierFailedSubmissionsWatcher();

@@ -137,7 +137,7 @@ export const mockIsValidTransactionSubmitter =
 mockIsValidTransactionSubmitter.mockImplementation(() => Promise.resolve(true));
 
 export const callCheckDAProof = () => {
-  return checkDAProof('mocked_tx_id', { log: jest.fn(), verifyPointer: true });
+  return checkDAProof('mocked_tx_id', { log: console.log, verifyPointer: true });
 };
 
 export const checkAndValidateDAProof = async (expectedError: ClaimableValidatorError) => {

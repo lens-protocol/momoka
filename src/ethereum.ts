@@ -21,9 +21,12 @@ export const ethereumProvider = new ethers.providers.StaticJsonRpcProvider(
   80001
 );
 
+const MAX_RETRIES_SIMULATION = 3;
+
 export const executeSimulationTransaction = async (
   data: string,
-  blockNumber: number
+  blockNumber: number,
+  attempt = 0
 ): PromiseResult<string | void> => {
   try {
     const transaction: ethers.providers.TransactionRequest = {
@@ -35,6 +38,10 @@ export const executeSimulationTransaction = async (
 
     return success(result);
   } catch (_error) {
+    if (attempt < MAX_RETRIES_SIMULATION) {
+      await sleep(100);
+      return executeSimulationTransaction(data, blockNumber, attempt + 1);
+    }
     return failure(ClaimableValidatorError.SIMULATION_NODE_COULD_NOT_RUN);
   }
 };
@@ -79,18 +86,19 @@ export const getOnChainProfileDetails = async (
   };
 };
 
-const MAX_BLOCK_RETRIES = 3;
+const DEFAULT_MAX_BLOCK_RETRIES = 3;
 
-export const getBlockWithRetries = async (
-  blockNumber: number,
+export const getBlock = async (
+  blockHashOrBlockTag: ethers.providers.BlockTag,
+  maxRetries: number = DEFAULT_MAX_BLOCK_RETRIES,
   attempt: number = 0
 ): Promise<Block> => {
   try {
-    return await ethereumProvider.getBlock(blockNumber);
+    return await ethereumProvider.getBlock(blockHashOrBlockTag);
   } catch (e) {
-    if (attempt < MAX_BLOCK_RETRIES) {
+    if (attempt < DEFAULT_MAX_BLOCK_RETRIES) {
       await sleep(100);
-      return getBlockWithRetries(attempt + 1);
+      return getBlock(blockHashOrBlockTag, maxRetries, attempt + 1);
     } else {
       throw e;
     }

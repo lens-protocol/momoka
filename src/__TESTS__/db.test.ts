@@ -1,19 +1,24 @@
 import { ClaimableValidatorError } from '../claimable-validator-errors';
 import {
-  db,
   DbRefernece,
+  deleteDb,
   FailedTransactionsDb,
   getBlockDb,
   getFailedTransactionsDb,
   saveBlockDb,
   saveFailedTransactionDb,
   saveTxDb,
+  startDb,
   txExistsDb,
   txSuccessDb,
 } from '../db';
 import { random } from './shared-helpers';
 
 describe('db', () => {
+  beforeEach(() => {
+    startDb();
+  });
+
   describe('txExistsDb', () => {
     test('should return back false if tx does not exist', async () => {
       const txId = random();
@@ -58,14 +63,14 @@ describe('db', () => {
 
   describe('getFailedTransactionsDb + saveFailedTransactionDb', () => {
     test('should return empty array if nothing found', async () => {
-      await db.del(`${DbRefernece.block}:failed`);
+      await deleteDb(`${DbRefernece.block}:failed`);
 
       const result = await getFailedTransactionsDb();
       expect(result).toEqual([]);
     });
 
     test('should return value if found', async () => {
-      await db.del(`${DbRefernece.block}:failed`);
+      await deleteDb(`${DbRefernece.block}:failed`);
 
       const failedTx: FailedTransactionsDb = {
         txId: random(),

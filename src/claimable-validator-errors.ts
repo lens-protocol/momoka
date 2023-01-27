@@ -26,6 +26,11 @@ export enum ClaimableValidatorError {
   TIMESTAMP_PROOF_NOT_SUBMITTER = 'TIMESTAMP_PROOF_NOT_SUBMITTER',
 
   /**
+   * This means it can not read the block from the node
+   */
+  BLOCK_CANT_BE_READ_FROM_NODE = 'BLOCK_CANT_BE_READ_FROM_NODE',
+
+  /**
    * This means the block stated in the chain proofs are not the closest block to the timstamp
    * proofs
    */

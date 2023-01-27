@@ -1,5 +1,5 @@
 import { saveBlockDb } from '../db';
-import { ethereumProvider } from '../ethereum';
+import { getBlock } from '../ethereum';
 import { sleep } from '../helpers';
 import { consoleLog } from '../logger';
 
@@ -9,7 +9,7 @@ export const watchBlocks = async () => {
   let blockNumber = 0;
   while (true) {
     try {
-      const latestBlock = await ethereumProvider.getBlock('latest');
+      const latestBlock = await getBlock('latest', 1);
       if (latestBlock.number > blockNumber) {
         blockNumber = latestBlock.number;
 

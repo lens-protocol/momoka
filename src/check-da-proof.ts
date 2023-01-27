@@ -1,4 +1,5 @@
 import Utils from '@bundlr-network/client/build/common/utils';
+import { Block } from '@ethersproject/abstract-provider';
 import { utils } from 'ethers';
 import { getArweaveByIdAPI } from './arweave/get-arweave-by-id.api';
 import { CheckDASubmissionOptions } from './check-da-submisson-options';
@@ -11,13 +12,52 @@ import {
   PublicationTypedData,
 } from './data-availability-models/publications/data-availability-structure-publication';
 import { getBlockDb, saveBlockDb, txExistsDb } from './db';
-import { getBlockWithRetries } from './ethereum';
+import { getBlock } from './ethereum';
 import { deepClone } from './helpers';
 import { consoleLog } from './logger';
 import { checkDAComment, CheckDACommentPublication } from './publications/comment';
 import { checkDAMirror, CheckDAMirrorPublication } from './publications/mirror';
 import { checkDAPost, CheckDAPostPublication } from './publications/post';
 import { isValidSubmitter, isValidTransactionSubmitter } from './submitters';
+
+const getClosestBlock = (blocks: Block[], timestamp: number): Block => {
+  return blocks
+    .map((c) => ({
+      ...c,
+      // turn to ms!
+      timestamp: c.timestamp * 1000,
+    }))
+    .filter((c) => timestamp >= c.timestamp)
+    .reduce((prev, curr) => {
+      return Math.abs(curr.timestamp - timestamp) < Math.abs(prev.timestamp - timestamp)
+        ? curr
+        : prev;
+    });
+};
+
+const getBlockRange = async (blockNumbers: number[]): PromiseResult<Block[] | void> => {
+  try {
+    const blocks = await Promise.all(
+      blockNumbers.map(async (blockNumber) => {
+        const cachedBlock = await getBlockDb(blockNumber);
+        if (cachedBlock) {
+          return cachedBlock;
+        }
+
+        const block = await getBlock(blockNumber);
+
+        // fire and forget!
+        saveBlockDb(block);
+
+        return block;
+      })
+    );
+
+    return success(blocks);
+  } catch (error) {
+    return failure(ClaimableValidatorError.BLOCK_CANT_BE_READ_FROM_NODE);
+  }
+};
 
 const validateChoosenBlock = async (
   blockNumber: number,
@@ -32,45 +72,20 @@ const validateChoosenBlock = async (
       deepClone(blockNumber) + 1,
     ];
 
-    const blocks = await Promise.all(
-      blockNumbers.map(async (blockNumber) => {
-        const cachedBlock = await getBlockDb(blockNumber);
-        if (cachedBlock) {
-          return cachedBlock;
-        }
+    const blocksResult = await getBlockRange(blockNumbers);
+    if (blocksResult.isFailure()) {
+      return failure(blocksResult.failure!);
+    }
 
-        const block = await getBlockWithRetries(blockNumber);
-
-        // fire and forget!
-        saveBlockDb(block);
-
-        return block;
-      })
-    );
+    const blocks = blocksResult.successResult!;
 
     log(
       'blocks',
-      blocks.map((c) => {
-        return { time: c.timestamp * 1000, blockNumber: c.number };
-      })
+      blocks.map((c) => ({ time: c.timestamp * 1000, blockNumber: c.number }))
     );
     log('timestamp', timestamp);
 
-    const closestBlock = blocks
-      // turn to ms!
-      .map((c) => {
-        return {
-          ...c,
-          timestamp: c.timestamp * 1000,
-        };
-      })
-      // nothing before it!
-      .filter((c) => timestamp >= c.timestamp)
-      .reduce((prev, curr) => {
-        return Math.abs(curr.timestamp - timestamp) < Math.abs(prev.timestamp - timestamp)
-          ? curr
-          : prev;
-      });
+    const closestBlock = getClosestBlock(blocks, timestamp);
 
     // compare block numbers to make sure they are the same
     if (closestBlock.number !== blockNumber) {
@@ -113,7 +128,10 @@ const validateChoosenBlock = async (
 
 export const checkDAProof = async (
   txId: string,
-  { log, verifyPointer }: CheckDASubmissionOptions = { log: consoleLog, verifyPointer: true }
+  { log, verifyPointer }: CheckDASubmissionOptions = {
+    log: consoleLog,
+    verifyPointer: true,
+  }
 ): PromiseResult => {
   // pointers have the ar prefix!
   txId = txId.replace('ar://', '');
@@ -159,8 +177,6 @@ export const checkDAProof = async (
   log('timestamp proof signature valid');
 
   // 2. fetch the `daPublication.timestampProofs.id` from arweave graphql node, checked `dataAvailabilityId` and type match!
-
-  // T-199 insert code here
 
   // check the wallet who uploaded it is within the submittors wallet list
   const timestampProofsSubmitter = await isValidTransactionSubmitter(

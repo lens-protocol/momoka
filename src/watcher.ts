@@ -1,10 +1,10 @@
-import { checkDAProof } from './';
+import { checkDAProof, startDAVerifierNode } from './';
 import { consoleLog } from './logger';
 
-// verifierWatcher().catch((error) => {
-//   console.error(error);
-//   process.exitCode = 1;
-// });
+startDAVerifierNode().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});
 
 // startDAVerifierNode().catch((error) => {
 //   console.error(error);
