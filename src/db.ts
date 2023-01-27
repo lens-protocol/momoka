@@ -69,6 +69,7 @@ export const saveBlockDb = async (block: Block): Promise<void> => {
 export interface FailedTransactionsDb {
   txId: string;
   reason: ClaimableValidatorError;
+  submitter: string;
 }
 
 export const getFailedTransactionsDb = async (): Promise<FailedTransactionsDb[]> => {

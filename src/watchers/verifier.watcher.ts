@@ -4,7 +4,13 @@ import {
   getDataAvailabilityTransactionsAPIResponse,
 } from '../bundlr/get-data-availability-transactions.api';
 import { ClaimableValidatorError } from '../claimable-validator-errors';
-import { saveFailedTransactionDb, saveTxDb, startDb, txSuccessDb } from '../db';
+import {
+  FailedTransactionsDb,
+  saveFailedTransactionDb,
+  saveTxDb,
+  startDb,
+  txSuccessDb,
+} from '../db';
 import { sleep } from '../helpers';
 import { consoleLog } from '../logger';
 import { watchBlocks } from './block.watcher';
@@ -12,8 +18,7 @@ import { verifierFailedSubmissionsWatcher } from './failed-submissons.watcher';
 
 let _lock = false;
 const processFailedSubmissions = async (
-  txId: string,
-  reason: ClaimableValidatorError,
+  failedTransaction: FailedTransactionsDb,
   log: (message: string, ...optionalParams: any[]) => void
 ) => {
   while (true) {
@@ -25,7 +30,7 @@ const processFailedSubmissions = async (
 
     _lock = true;
 
-    await saveFailedTransactionDb({ txId, reason });
+    await saveFailedTransactionDb(failedTransaction);
     log('process failed submissions saved to db');
 
     _lock = false;
@@ -52,7 +57,10 @@ const checkDAProofsBatch = async (
 
         if (result.isFailure()) {
           // fire and forget
-          processFailedSubmissions(txId, result.failure!, log);
+          processFailedSubmissions(
+            { txId, reason: result.failure!, submitter: edge.node.address },
+            log
+          );
         }
 
         log(
@@ -72,6 +80,8 @@ const checkDAProofsBatch = async (
   consoleLog('Checked all submissons all is well');
 };
 
+// stream: () => void;
+
 export const startDAVerifierNode = async () => {
   consoleLog('LENS VERIFICATION NODE - DA verification watcher started...');
 
@@ -87,8 +97,6 @@ export const startDAVerifierNode = async () => {
 
     const arweaveTransactions: getDataAvailabilityTransactionsAPIResponse =
       await getDataAvailabilityTransactionsAPI(endCursor);
-
-    // consoleLog('arweaveTransactions', arweaveTransactions);
 
     if (arweaveTransactions.edges.length === 0) {
       consoleLog('LENS VERIFICATION NODE - No new items found..');

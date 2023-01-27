@@ -64,6 +64,12 @@ export enum ClaimableValidatorError {
   INVALID_EVENT_TIMESTAMP = 'INVALID_EVENT_TIMESTAMP',
 
   /**
+   * This means the generated publication id for the generic id does not match
+   * what it should be
+   */
+  GENERATED_PUBLICATION_ID_MISMATCH = 'GENERATED_PUBLICATION_ID_MISMATCH',
+
+  /**
    * This means the pointer set in the chain proofs is not required but set anyway
    */
   INVALID_POINTER_SET_NOT_NEEDED = 'INVALID_POINTER_SET_NOT_NEEDED',

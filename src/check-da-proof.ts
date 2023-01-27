@@ -126,6 +126,14 @@ const validateChoosenBlock = async (
   }
 };
 
+const generatePublicationId = (
+  daPublication: DAStructurePublication<DAEventType, PublicationTypedData>
+): string => {
+  return `${daPublication.event.profileId}-${daPublication.event.pubId}-DA-${
+    daPublication.dataAvailabilityId.split('-')[0]
+  }`;
+};
+
 export const checkDAProof = async (
   txId: string,
   { log, verifyPointer }: CheckDASubmissionOptions = {
@@ -148,7 +156,7 @@ export const checkDAProof = async (
   const daPublication = await getArweaveByIdAPI<
     DAStructurePublication<DAEventType, PublicationTypedData>
   >(txId);
-  log('getArweaveByIdAPI result', daPublication);
+  // log('getArweaveByIdAPI result', daPublication);
 
   if (!daPublication.signature) {
     return failure(ClaimableValidatorError.NO_SIGNATURE_SUBMITTER);
@@ -209,6 +217,12 @@ export const checkDAProof = async (
   }
 
   log('event timestamp matches up the on chain block timestamp');
+
+  const generatedPublicationId = generatePublicationId(daPublication);
+  if (generatedPublicationId !== daPublication.publicationId) {
+    log('publicationId does not match the generated one');
+    return failure(ClaimableValidatorError.GENERATED_PUBLICATION_ID_MISMATCH);
+  }
 
   switch (daPublication.type) {
     case DAActionTypes.POST_CREATED:

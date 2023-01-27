@@ -81,11 +81,6 @@ export const checkDAComment = async (
 
   const typedData = publication.chainProofs.thisPublication.typedData;
 
-  log('typed data - domain', typedData.domain);
-  log('typed data - types', typedData.types);
-  log('typed data - value', typedData.value);
-  log('typed data - signature', publication.chainProofs.thisPublication.signature);
-
   const whoSignedResult = whoSignedTypedData(
     typedData.domain,
     typedData.types,
