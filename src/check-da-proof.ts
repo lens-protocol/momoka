@@ -131,7 +131,6 @@ export const checkDAProof = async (
     DAStructurePublication<DAEventType, PublicationTypedData>
   >(txId);
   log('getArweaveByIdAPI result', daPublication);
-  // log('getArweaveByIdAPI typed data', daPublication);
 
   if (!daPublication.signature) {
     return failure(ClaimableValidatorError.NO_SIGNATURE_SUBMITTER);
