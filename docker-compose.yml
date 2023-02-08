@@ -1,0 +1,11 @@
+version: '3.8'
+services:
+  verifier:
+    build:
+      context: ./
+    working_dir: /app
+    volumes:
+      - .:/src
+    command: npm run start
+    ports:
+      - "3000:3000"
