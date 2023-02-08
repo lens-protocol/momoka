@@ -1,6 +1,6 @@
 import { ClaimableValidatorError } from './claimable-validator-errors';
 
-class DAResult<TSuccessResult> {
+export class DAResult<TSuccessResult> {
   constructor(public failure?: ClaimableValidatorError, public successResult?: TSuccessResult) {}
 
   public isSuccess(): boolean {

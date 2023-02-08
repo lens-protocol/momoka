@@ -11,7 +11,13 @@ import {
   DAStructurePublication,
   PublicationTypedData,
 } from './data-availability-models/publications/data-availability-structure-publication';
-import { getBlockDb, saveBlockDb, txExistsDb } from './db';
+import {
+  getBlockDb,
+  getTxDb,
+  saveBlockDb,
+  TxValidatedFailureResult,
+  TxValidatedSuccessResult,
+} from './db';
 import { getBlock } from './ethereum';
 import { deepClone } from './helpers';
 import { consoleLog } from './logger';
@@ -134,23 +140,46 @@ const generatePublicationId = (
   }`;
 };
 
+const checkDAPublication = async (
+  daPublication: DAStructurePublication<DAEventType, PublicationTypedData>,
+  { log, verifyPointer }: CheckDASubmissionOptions
+): PromiseResult => {
+  switch (daPublication.type) {
+    case DAActionTypes.POST_CREATED:
+      if (daPublication.chainProofs.pointer) {
+        return failure(ClaimableValidatorError.INVALID_POINTER_SET_NOT_NEEDED);
+      }
+      return await checkDAPost(daPublication as CheckDAPostPublication, log);
+    case DAActionTypes.COMMENT_CREATED:
+      return await checkDAComment(daPublication as CheckDACommentPublication, verifyPointer, log);
+    case DAActionTypes.MIRROR_CREATED:
+      return await checkDAMirror(daPublication as CheckDAMirrorPublication, verifyPointer, log);
+    default:
+      return failure(ClaimableValidatorError.UNKNOWN);
+  }
+};
+
 export const checkDAProof = async (
   txId: string,
   { log, verifyPointer }: CheckDASubmissionOptions = {
     log: consoleLog,
     verifyPointer: true,
   }
-): PromiseResult => {
+): PromiseResult<DAStructurePublication<DAEventType, PublicationTypedData> | void> => {
   // pointers have the ar prefix!
   txId = txId.replace('ar://', '');
 
   log(`Checking the submission`);
 
   // no need to recheck something already processed
-  const alreadyChecked = await txExistsDb(txId);
-  if (alreadyChecked) {
+  const dbResult = await getTxDb(txId);
+  if (dbResult) {
     log('Already checked submission');
-    return success();
+    if (dbResult.success) {
+      return success((<TxValidatedSuccessResult>dbResult).dataAvailabilityResult);
+    }
+
+    return failure((<TxValidatedFailureResult>dbResult).failureReason);
   }
 
   const daPublication = await getArweaveByIdAPI<
@@ -218,23 +247,16 @@ export const checkDAProof = async (
 
   log('event timestamp matches up the on chain block timestamp');
 
+  const daResult = await checkDAPublication(daPublication, { log, verifyPointer });
+  if (daResult.isFailure()) {
+    return daResult;
+  }
+
   const generatedPublicationId = generatePublicationId(daPublication);
   if (generatedPublicationId !== daPublication.publicationId) {
     log('publicationId does not match the generated one');
     return failure(ClaimableValidatorError.GENERATED_PUBLICATION_ID_MISMATCH);
   }
 
-  switch (daPublication.type) {
-    case DAActionTypes.POST_CREATED:
-      if (daPublication.chainProofs.pointer) {
-        return failure(ClaimableValidatorError.INVALID_POINTER_SET_NOT_NEEDED);
-      }
-      return await checkDAPost(daPublication as CheckDAPostPublication, log);
-    case DAActionTypes.COMMENT_CREATED:
-      return await checkDAComment(daPublication as CheckDACommentPublication, verifyPointer, log);
-    case DAActionTypes.MIRROR_CREATED:
-      return await checkDAMirror(daPublication as CheckDAMirrorPublication, verifyPointer, log);
-    default:
-      return failure(ClaimableValidatorError.UNKNOWN);
-  }
+  return daResult;
 };

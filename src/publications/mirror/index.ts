@@ -73,7 +73,7 @@ export const checkDAMirror = async (
       log,
     });
     if (pointerResult.isFailure()) {
-      return pointerResult;
+      return failure(pointerResult.failure!);
     }
   }
 

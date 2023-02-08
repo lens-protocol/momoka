@@ -10,6 +10,7 @@ import { deepClone } from '../helpers';
 import { commentCreatedDelegateArweaveResponse } from './mocks/comment/comment-created-delegate-arweave-response.mock';
 import { commentCreatedWithoutDelegateArweaveResponse } from './mocks/comment/comment-created-without-delegate-arweave-response.mock';
 import * as sharedMocks from './mocks/shared';
+import { mockTxValidationResult } from './mocks/shared';
 
 describe('comment', () => {
   describe('with delegate', () => {
@@ -28,7 +29,7 @@ describe('comment', () => {
       });
 
       test('txExists in the db already', async () => {
-        sharedMocks.mockTxExistsDb.mockImplementationOnce(async () => true);
+        sharedMocks.mockGetTxDb.mockImplementationOnce(async () => null);
         const result = await sharedMocks.callCheckDAProof();
         expect(result.isSuccess()).toBe(true);
       });
@@ -277,7 +278,7 @@ describe('comment', () => {
       });
 
       test('txExists in the db already', async () => {
-        sharedMocks.mockTxExistsDb.mockImplementationOnce(async () => true);
+        sharedMocks.mockGetTxDb.mockImplementationOnce(async () => mockTxValidationResult);
         const result = await sharedMocks.callCheckDAProof();
         expect(result.isSuccess()).toBe(true);
       });

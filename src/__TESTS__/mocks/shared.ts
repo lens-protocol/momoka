@@ -9,10 +9,8 @@ import {
 import * as database from '../../db';
 import * as submittors from '../../submitters';
 
-export const mockTxExistsDb = database.txExistsDb as jest.MockedFunction<
-  typeof database.txExistsDb
->;
-mockTxExistsDb.mockImplementation(async () => false);
+export const mockGetTxDb = database.getTxDb as jest.MockedFunction<typeof database.getTxDb>;
+mockGetTxDb.mockImplementation(async () => null);
 
 export const mockGetArweaveByIdAPI =
   getArweaveByIdAPIDefault.getArweaveByIdAPI as jest.MockedFunction<
@@ -137,7 +135,7 @@ export const mockIsValidTransactionSubmitter =
 mockIsValidTransactionSubmitter.mockImplementation(() => Promise.resolve(true));
 
 export const callCheckDAProof = () => {
-  return checkDAProof('mocked_tx_id', { log: console.log, verifyPointer: true });
+  return checkDAProof('mocked_tx_id', { log: jest.fn(), verifyPointer: true });
 };
 
 export const checkAndValidateDAProof = async (expectedError: ClaimableValidatorError) => {
@@ -147,3 +145,9 @@ export const checkAndValidateDAProof = async (expectedError: ClaimableValidatorE
 };
 
 export const random = () => (Math.random() + 1).toString(36).substring(7);
+
+export const mockTxValidationResult = {
+  success: true,
+  proofTxId: random(),
+  failureReason: ClaimableValidatorError.BLOCK_CANT_BE_READ_FROM_NODE,
+};

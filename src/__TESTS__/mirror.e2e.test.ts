@@ -12,6 +12,7 @@ import { mirrorCreatedDelegatePostArweaveResponse } from './mocks/mirror/mirror-
 import { mirrorCreatedWithoutDelegateCommentArweaveResponse } from './mocks/mirror/mirror-created-without-delegate-comment-arweave-response.mock';
 import { mirrorCreatedWithoutDelegatePostArweaveResponse } from './mocks/mirror/mirror-created-without-delegate-post-arweave-response.mock';
 import * as sharedMocks from './mocks/shared';
+import { mockTxValidationResult } from './mocks/shared';
 
 describe('mirror', () => {
   describe('post', () => {
@@ -31,7 +32,7 @@ describe('mirror', () => {
         });
 
         test('txExists in the db already', async () => {
-          sharedMocks.mockTxExistsDb.mockImplementationOnce(async () => true);
+          sharedMocks.mockGetTxDb.mockImplementationOnce(async () => mockTxValidationResult);
           const result = await sharedMocks.callCheckDAProof();
           expect(result.isSuccess()).toBe(true);
         });
@@ -242,7 +243,7 @@ describe('mirror', () => {
         });
 
         test('txExists in the db already', async () => {
-          sharedMocks.mockTxExistsDb.mockImplementationOnce(async () => true);
+          sharedMocks.mockGetTxDb.mockImplementationOnce(async () => mockTxValidationResult);
           const result = await sharedMocks.callCheckDAProof();
           expect(result.isSuccess()).toBe(true);
         });
@@ -455,7 +456,7 @@ describe('mirror', () => {
         });
 
         test('txExists in the db already', async () => {
-          sharedMocks.mockTxExistsDb.mockImplementationOnce(async () => true);
+          sharedMocks.mockGetTxDb.mockImplementationOnce(async () => mockTxValidationResult);
           const result = await sharedMocks.callCheckDAProof();
           expect(result.isSuccess()).toBe(true);
         });
@@ -666,7 +667,7 @@ describe('mirror', () => {
         });
 
         test('txExists in the db already', async () => {
-          sharedMocks.mockTxExistsDb.mockImplementationOnce(async () => true);
+          sharedMocks.mockGetTxDb.mockImplementationOnce(async () => mockTxValidationResult);
           const result = await sharedMocks.callCheckDAProof();
           expect(result.isSuccess()).toBe(true);
         });

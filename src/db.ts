@@ -1,12 +1,31 @@
 import { Block } from '@ethersproject/abstract-provider';
 import { Level } from 'level';
 import { ClaimableValidatorError } from './claimable-validator-errors';
+import {
+  DAEventType,
+  DAStructurePublication,
+  PublicationTypedData,
+} from './data-availability-models/publications/data-availability-structure-publication';
 
 let db: Level | undefined;
 
 export enum DbRefernece {
   block = 'block',
   tx = 'tx',
+}
+
+export type TxValidatedResult = TxValidatedFailureResult | TxValidatedSuccessResult;
+
+export interface TxValidatedFailureResult {
+  proofTxId: string;
+  success: boolean;
+  failureReason: ClaimableValidatorError;
+}
+
+export interface TxValidatedSuccessResult {
+  proofTxId: string;
+  success: boolean;
+  dataAvailabilityResult: DAStructurePublication<DAEventType, PublicationTypedData>;
 }
 
 export const startDb = () => {
@@ -22,26 +41,20 @@ export const deleteDb = (key: string) => {
   return db.del(key);
 };
 
-export const txExistsDb = async (txId: string): Promise<boolean> => {
-  if (!db) return false;
+export const getTxDb = async (txId: string): Promise<TxValidatedResult | null> => {
+  if (!db) return null;
   try {
-    await db.get(`${DbRefernece.tx}:${txId}`);
-    return true;
+    const result = await db.get(`${DbRefernece.tx}:${txId}`);
+    return JSON.parse(result) as TxValidatedResult;
   } catch (e) {
-    return false;
+    return null;
   }
 };
 
-export const txSuccessDb = 'success';
-type TxSuccessDb = 'success';
-
-export const saveTxDb = async (
-  txId: string,
-  value: ClaimableValidatorError | TxSuccessDb
-): Promise<void> => {
+export const saveTxDb = async (txId: string, result: TxValidatedResult): Promise<void> => {
   if (!db) return;
   try {
-    await db.put(`${DbRefernece.tx}:${txId}`, value);
+    await db.put(`${DbRefernece.tx}:${txId}`, JSON.stringify(result));
   } catch (error) {
     throw new Error('Could not write to into the db - critical error!');
   }

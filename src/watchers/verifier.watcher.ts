@@ -4,17 +4,24 @@ import {
   getDataAvailabilityTransactionsAPIResponse,
 } from '../bundlr/get-data-availability-transactions.api';
 import { ClaimableValidatorError } from '../claimable-validator-errors';
+import { DAResult } from '../da-result';
+import {
+  DAEventType,
+  DAStructurePublication,
+  PublicationTypedData,
+} from '../data-availability-models/publications/data-availability-structure-publication';
 import {
   FailedTransactionsDb,
   saveFailedTransactionDb,
   saveTxDb,
   startDb,
-  txSuccessDb,
+  TxValidatedResult,
 } from '../db';
 import { sleep } from '../helpers';
 import { consoleLog } from '../logger';
 import { watchBlocks } from './block.watcher';
 import { verifierFailedSubmissionsWatcher } from './failed-submissons.watcher';
+import { StreamCallback } from './stream.type';
 
 let _lock = false;
 const processFailedSubmissions = async (
@@ -38,8 +45,29 @@ const processFailedSubmissions = async (
   }
 };
 
+const buildTxValidationResult = (
+  txId: string,
+  result: DAResult<void | DAStructurePublication<DAEventType, PublicationTypedData>>
+): TxValidatedResult => {
+  const success = result.isSuccess();
+  if (success) {
+    return {
+      proofTxId: txId,
+      success,
+      dataAvailabilityResult: result.successResult!,
+    } as TxValidatedResult;
+  }
+
+  return {
+    proofTxId: txId,
+    success,
+    failureReason: result.failure!,
+  };
+};
+
 const checkDAProofsBatch = async (
-  arweaveTransactions: getDataAvailabilityTransactionsAPIResponse
+  arweaveTransactions: getDataAvailabilityTransactionsAPIResponse,
+  stream?: StreamCallback
 ): Promise<void> => {
   await Promise.all(
     arweaveTransactions!.edges.map(async (edge) => {
@@ -52,8 +80,11 @@ const checkDAProofsBatch = async (
         log('Checking submission');
 
         const result = await checkDAProof(txId, { verifyPointer: true, log });
+
+        const txValidatedResult: TxValidatedResult = buildTxValidationResult(txId, result);
+
         // write to the database!
-        await saveTxDb(txId, result.isFailure() ? result.failure! : txSuccessDb);
+        await saveTxDb(txId, txValidatedResult);
 
         if (result.isFailure()) {
           // fire and forget
@@ -61,6 +92,11 @@ const checkDAProofsBatch = async (
             { txId, reason: result.failure!, submitter: edge.node.address },
             log
           );
+        }
+
+        if (stream) {
+          // stream the result to the callback defined
+          stream(txValidatedResult);
         }
 
         log(
@@ -71,7 +107,11 @@ const checkDAProofsBatch = async (
           }`
         );
       } catch (e) {
-        await saveTxDb(txId, ClaimableValidatorError.UNKNOWN);
+        await saveTxDb(txId, {
+          proofTxId: txId,
+          success: false,
+          failureReason: ClaimableValidatorError.UNKNOWN,
+        });
         log('FAILED: the checking has flagged invalid DA publication', e);
       }
     })
@@ -80,9 +120,7 @@ const checkDAProofsBatch = async (
   consoleLog('Checked all submissons all is well');
 };
 
-// stream: () => void;
-
-export const startDAVerifierNode = async () => {
+export const startDAVerifierNode = async (stream?: StreamCallback | undefined) => {
   consoleLog('LENS VERIFICATION NODE - DA verification watcher started...');
 
   startDb();
@@ -110,7 +148,7 @@ export const startDAVerifierNode = async () => {
       endCursor = arweaveTransactions.pageInfo.endCursor;
 
       // fire and forget so we can process as many as we can in concurrently!
-      checkDAProofsBatch(arweaveTransactions);
+      checkDAProofsBatch(arweaveTransactions, stream);
 
       await sleep(500);
     }

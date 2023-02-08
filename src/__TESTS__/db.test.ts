@@ -5,12 +5,12 @@ import {
   FailedTransactionsDb,
   getBlockDb,
   getFailedTransactionsDb,
+  getTxDb,
   saveBlockDb,
   saveFailedTransactionDb,
   saveTxDb,
   startDb,
-  txExistsDb,
-  txSuccessDb,
+  TxValidatedResult,
 } from '../db';
 import { random } from './shared-helpers';
 
@@ -19,27 +19,33 @@ describe('db', () => {
     startDb();
   });
 
-  describe('txExistsDb', () => {
+  const txValidatedResult: TxValidatedResult = {
+    success: true,
+    proofTxId: random(),
+    failureReason: ClaimableValidatorError.BLOCK_CANT_BE_READ_FROM_NODE,
+  };
+
+  describe('getTxDb', () => {
     test('should return back false if tx does not exist', async () => {
       const txId = random();
-      const result = await txExistsDb(txId);
-      expect(result).toBe(false);
+      const result = await getTxDb(txId);
+      expect(result).toEqual(null);
     });
 
     test('should return back true if tx exists', async () => {
       const txId = random();
-      await saveTxDb(txId, txSuccessDb);
-      const result = await txExistsDb(txId);
-      expect(result).toBe(true);
+      await saveTxDb(txId, txValidatedResult);
+      const result = await getTxDb(txId);
+      expect(result).toEqual(txValidatedResult);
     });
   });
 
   describe('saveTxDb', () => {
     test('should save to db', async () => {
       const txId = random();
-      await saveTxDb(txId, txSuccessDb);
-      const result = await txExistsDb(txId);
-      expect(result).toBe(true);
+      await saveTxDb(txId, txValidatedResult);
+      const result = await getTxDb(txId);
+      expect(result).toEqual(txValidatedResult);
     });
   });
 
