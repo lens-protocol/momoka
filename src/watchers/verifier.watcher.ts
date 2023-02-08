@@ -124,7 +124,6 @@ export const startDAVerifierNode = async (stream?: StreamCallback | undefined) =
   consoleLog('LENS VERIFICATION NODE - DA verification watcher started...');
 
   startDb();
-
   watchBlocks();
   verifierFailedSubmissionsWatcher();
 

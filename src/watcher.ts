@@ -1,15 +1,10 @@
-import { checkDAProof, startDAVerifierNode } from './';
-import { consoleLog } from './logger';
+import { startDAVerifierNode } from './';
+
+// const stream = (h: any) => {
+//   console.log('YES BABY', h);
+// };
 
 startDAVerifierNode().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
-
-checkDAProof('d9TUG-jz5q-sa-58tE_JKMbGNwpurlJMOaYKXOrwPmc', {
-  log: consoleLog,
-  verifyPointer: true,
-}).catch((error) => {
-  console.error(error);
+  console.error('DA verifier node failed to startup', error);
   process.exitCode = 1;
 });
