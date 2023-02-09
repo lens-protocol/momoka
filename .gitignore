@@ -4,3 +4,4 @@ coverage
 coverage.json
 lib/
 database/*
+.DS_Store
