@@ -1,68 +1,68 @@
 # Data availability verifier
 
-This allows you to run a trustless verifier node which checks in realtime LENS DA publications being submitted. On top of this you can use this as an indexer and stream the data if you wish to index it yourself. This is all open and only uses software you can run yourself without a dependency on LENS. This means if LENS ever went away you would still have all your content, you would still have the ability to prove that you own it and you would still have the ability to use it, all stored in a decentralised data availability storage layer.
+Data availability verifier allows you to run a trustless verifier node that checks in real-time the submitted LENS DA publications. On top of this, you can use this as an indexer and stream the data if you wish to index it yourself. The code is all open and only uses software you can run yourself without a dependency on LENS. It means if LENS ever went away, you would still have all your content; you would still have the ability to prove that you own it. You would still be able to use it, all stored in a decentralised data availability storage layer.
 
-If you wish to know how to run this software please see the [How to run](#running) section.
+Please see the [How to run](#running) section if you wish to know how to run this software.
 
 ## What is DA
 
-DA stands for Data Availability. It is a concept of storing the data in an availability decentraslied layer which is a lot cheaper then storing it on an EVM chain. Right now we use `arweave` and `bundlr` to do this. Arweave is a decentralised DA storage provider which has over 300 nodes running on it, instagram and a lot of NFT projects are starting to use them. `bundlr` allows you to use EVM wallets to save DA logic and is a very powerful tool to easy push data to arweave. DA can store any actions like posts, comments, mirrors and others, for now we are starting with publications. The idea is that you can store the DA layer which is cheaper, scalable and you can still verify the transactions on-chain using EVM simulations.
+DA stands for Data Availability. It is a concept of storing the data in a decentralised availability layer, which is much cheaper than keeping it on an EVM chain. We use Arweave and Bundlr to do this. Arweave is a decentralised permanent storage network with over 300 nodes running on it; Instagram and many NFT projects are starting to use them. Bundlr scales Arweave while providing DA guarantees, allowing you to use EVM wallets to save DA logic and is a tool to push data to arweave quickly. DA could be used to store actions like posts, comments, mirrors and others; for now, we are starting with publications. The idea is that you can keep the DA layer cheaper and scalable and still verify the transactions on polygon using EVM simulations.
 
-If you want to verify that a certain action would have been executed on-chain, you can use this software to verify it. The idea is that you do the same signing actions as you would on an EVM chain but you never actually send the transaction (the part which costs gas to store it in the EVM state). You instead build up a DA standard and save it on a DA layer which has proofs and all the information you need. This then allows ANYONE to cross check the information, doing so allows you to 100% prove that this action must of been actioned by someone who could create the transaction signature and submit it as you can prove it by simulating the transaction. This allows LENS to scale but still have the core message of "ownership" and "trust" which the blockchain provides.
+If you want to verify that a particular action would have been executed on-chain, you can use this software to prove it. The idea is that you do the same signing actions as you would on an EVM chain, but you never actually send the transaction (the part which costs gas to store in the EVM state). Instead, you build up a DA standard and save it on a DA layer with proofs and all the information you need. You can then allow ANYONE to cross-check the data; doing so will enable you to 100% prove that this action must have been actioned by someone who could create the transaction signature and submit it as you can prove it by simulating the transaction. All of the above allows LENS to scale but still have the core message of "ownership" and "trust", which the blockchain provides.
 
 ## Why does this need to be done
 
-EVM can store state forever but it comes at a price, blockchains was built for transactional trustless systems. EVM are secured by the network and mined into the chain, the idea is that you can trust the data on-chain as it is immutable and you can verify this anytime. The problem is that the data is expensive to store on-chain and also in the EVM machines it can only accept a certain amount of transactions per block based on the gas limits maxs. Right now on polygon it is a shared block space and if you wanted to scale more then 50TPS you would struggle. With block times being 2 seconds you always has some form of latency and with the max gas limits per block scaling is hard/impossible. For context twitter does 25,000TPS in peak, not saying LENS needs this now but it needs to think about how it could work. This is why we have DA layers, they are cheaper and allow you to store the data with a one off payment, this is backed by math and history of hardware price decreases over the years. Even more so these DA layers are decentralised meaning you do not lose that part when using them. DA allows you to scale passed 25,000TPS and even more, if we going to change the world of core social ownership we need to scale.
+EVM can store state forever, but it comes at a price; blockchains were built for transactional trustless systems. EVM is secured by the network and mined into the chain; the idea is that you can trust the data on-chain as it is immutable, and you can verify this anytime. The problem is that the data is expensive to store on-chain, and also, the EVM machines can only accept a certain amount of transactions per block based on the maximum gas limits. Polygon is a shared block space; if you wanted to scale more than 50-100tps, it wouldn't be possible. With block times being 2 seconds, you always have some form of latency, and with the max gas limits per block, scaling is hard/impossible. For context, Twitter does 25,000TPS in peak; not saying LENS needs this now, but it needs to think about how it could work. This is why we have DA layers; they are cheaper and allow you to store the data with a one-off payment; this is backed up by math and a history of hardware price decreases over the years. Even more so, these DA layers are decentralised, meaning you do not lose that part when using them. DA allows you to scale passed 25,000TPS and even more; if we are going to change the world of core social ownership, we need to scale.
 
 ## What are transaction on EVM machines
 
-A transaction is something which changes some form of state, it is signed by the wallets private key and then sent to the network. The network then verifies the signature and executes the transaction, the transaction contains logic to execute which can revert or suceed, if it reverts then it is not included in the new block but if it passes it is included in the new block and then checked by other miners which is called confirmations. This is done by the miners and they are incentivised to do so. Now it makes you think that here you can not "fake" transactions because they require being signed by something which would pass on-chain, with this also a key which you should only own (the whole ethos of blockchain). On top of this a transaction can either pass or not, nothing more nothing less, as EVM moves block by block which updates the state each time it makes you think that on stuff which does not need to have a form of funds changing hands or trustless executions by others what happens if you did not send the transaction but did everything else?
+A transaction changes some form of state; the wallet's private key signs it and then sends it to the network. The network then verifies the signature and executes the transaction; the transaction contains logic to run which can revert or succeed; if it reverts, then it is not included in the new block, but if it passes, it is included in the new block and then confirmed by other miners; The miners that do this are incentivised to do so. Now it makes you think that here you can not "fake" transactions because they require being signed by something which would pass on-chain, with this also a key you should only own or trust (the whole ethos of blockchain). On top of this, a transaction can either succeed or revert, nothing more, nothing less, as EVM moves block by block, which updates the state each time it makes you think that on stuff which does not need to have a form of funds changing hands or trustless executions by others what happens if you did not send the transaction but did everything else?
 
 ## How could DA and EVM work together
 
-Well LENS is deployed on polygon and that is an EVM machine, with that every post, comment, mirror, follow, collect etc is a transaction which is sent and stored on the EVM machine, the transactions are assembled and sent. Here we still assemble the transaction and still requires a signature from a wallet which would pass the state on-chain but it does not actually send it, it assembles the transaction and then builds up the DA metadata. This metadata is then sent to a DA layer which contains stuff like `blockNumber`, `signedTypedData`, `transaction signature` and other important things. This data is built up in a way which is fully verifiable on-chain by the EVM machine, let me explain that part.
+Well, LENS is deployed on Polygon, and that is an EVM machine; with that, every post, comment, mirror, follow, collect etc., is a transaction which is sent and stored on the EVM machine; the transactions are built up, signed and sent. Here we still build up the transactions and still require a signature from a wallet which would pass the state on-chain, but it does not actually send it; it passes the signature of the transaction and typed data and then builds up the DA metadata. This metadata is then sent to a DA layer which contains stuff like block number, signed typed data, transaction signature and other important things. This data is built up in a way which is fully verifiable on-chain by the EVM machine; let me explain that part.
 
-EVM machines is just a big state machine, in the EVM jsonrpc methods you have ability to simulate transaction using `eth_call` this actually allows you to know the outcome of a transaction WITHOUT sending it. You can give it a `blockNumber` and the signed typed data transaction using the `typedData`, we can do this with every `withSig` methods on the LENS contracts. With just a polygon node anyone can prove that what is on the DA layer is true and would of passed at that point of time. As the `typedData` has expiry times and nonces etc it is all provable in a safe manner and can not be submitted by anyone else. 
+EVM machines are just big state machines; in the EVM JSON-RPC methods, you have the ability to simulate transactions using `eth_call`. This actually allows you to know the outcome of a transaction WITHOUT sending it. You can define a block number for it to run on and the signed typed data transaction using the typed data; we can do this with every `withSig` method on the LENS contracts. With just a polygon node, anyone can prove that what is on the DA layer is true and would have passed at that point in time. As the typed data has expiry times and nonces etc., it is all provable in a safe manner and can not be submitted by anyone else. 
 
-The beauty of this is its saved on a decentralised layer no centralised entity is storing the content, this means the user still owns all their publications, if any part of LENS went away tomorrow all that data is verifiable, fetchable, and can be used by anyone. This is the power of decentralisation, you can not take away the data from the user.
+The beauty of this is it's saved on a decentralised layer. No centralised entity is storing the content; this means the user still owns all their publications; if any part of LENS went away tomorrow, all that data would be verifiable, fetchable, and can be used by anyone. This is the power of decentralisation; you can not take away the data from the user.
 
 ## What does this mean
 
-It means LENS could scale to 25,000TPS+ which would not be possible at the current time with an EVM chain and it is a much cheaper approach. This can be done without hurting the core ownership of the social graph. This can be indexed just as if you were watching out for blockchain events so the learning curve is nothing new. This is an app and persons choice to use it, if you do not want to use it then you do not have to, they can have everything stored on polygon if they wish, but if the publication does not need the power of trustless executional layer then why does it need to use the EVM state? it does not.
+It means LENS could scale to 25,000TPS+, which would not be possible at the current time with an EVM chain, and it is a much cheaper approach. This can be done without hurting the core ownership of the social graph. This can be indexed just as if you were watching out for blockchain events, so the learning curve is nothing new. This is an app developer and person's choice to use it; if you do not want to use it, then you do not have to; they can have everything stored on polygon if they wish, but if the publication does not need the power of trustless execution layer then why does it need to use the EVM state? It does not.
 
 ## Submitters
 
-Anything which has some form of "trust" needs some form of "slashing" if they act badly. Our submitters will start as an whitelisted array of addresses, for now this will just be one address LENS owns. Once proven later down the line this can be opened up to anyone to be a submitter with incentives but also ability to lose something if they are a bad actor. If the submitters have nothing to lose then they can flood the system with invalid submissions, this also means the verifier has no incentives to prove the submitters wrong. Of course they can't make up signatures but they could DDOS the entire system by submitting a lot of invalid data making it hard to catch up, lagging the system. Our submitter will be accountable for any mistakes and a bug bounty will be paid out if someone finds a bad submission. This whole system could be decentralised over time. For now we see this as beta approach of scaling, when i say beta it doesnt mean it would ever go away its just our first stab on how we can scale using a hybrid module model.
+Anything which has some form of "trust" needs some form of "slashing" if they act badly. Our submitters will start as a whitelisted array of addresses; for now, this will just be one address LENS owns. Once this approach is proven and later down the line, this can be opened up to anyone to be a submitter with incentives but also the ability to lose something if they are a bad actor. If the submitters have nothing to lose, then they can flood the system with invalid submissions; this also means the verifier has no incentives to prove the submitters wrong. Of course, they can't make up signatures, but they could DDOS the entire system by submitting a lot of invalid data making it hard to catch up and lagging the system. Our submitter will be accountable for any mistakes, and a bug bounty will be paid out if someone finds a bad submission. This whole system could be decentralised over time. For now, we see this as a beta approach to scaling; when I say beta, it doesn't mean it will ever go away. It's just our first stab at how we can scale using a hybrid module model.
 
-Its the submitters job to validate, build up the DA metadata and submit this to `arweave/bundlr`. Once the proofs have been generated with the DA submission it is uploaded to `arweave` via `bundlr` which responses instantly, we will run through the entire flow shortly. It is the submitters job to give back proofs which anyone can contest. The submitters are whitelisted so the verifier software listens out for all DA publications sent from those addresses and verifies it is a valid submission.
+It's the submitter's job to validate, build up the DA metadata and submit this to Arweave/Bundlr. Once the proofs have been generated with the DA submission, it is uploaded to Aarweave via Bundlr, which response is instant; we will run through the entire flow shortly. It is the submitter's job to give back proofs that anyone can contest. The submitters are whitelisted, so the verifier software listens out for all DA publications sent from those addresses and verifies it is a valid submissions.
 
 ## Verifiers
 
-The verifiers job is to listen out for all DA publications sent from the submitters and verify it is a valid submission. It has a certain amount of criteria it must check when the publications come in, its sole purpose is to just prove the submitter is telling the truth. Anyone can run a verifier, its just open source software which can be ran in a few commands. The verifier uses `leveldb` to store passed results allowing it to be very fast.
+The verifier's job is to listen out for all DA publications sent from the submitters and verify it is a valid submissions. It has a certain amount of criteria it must check when the publications come in; its sole purpose is to just prove the submitter is telling the truth. Anyone can run a verifier; it's just open-source software which can be run with a few commands. The verifier uses leveldb to store passed results allowing it to be very fast.
 
 ## Current restrictions with DA publications
 
 - DA publications must have `RevertCollectModule` and no `ReferenceModule` set. We will look at handling that in a later release.
-- DA comments only work on other DA publications and can not mix for now. This is again something we look at after v1 launch.
-- DA mirrors can only mirror DA publications and can not mirror polygon publications. This is again something we will look at solving after v1 launch.
-- When you do a DA publication on another DA publication that is not provable on polygon so you can not run a simulation on it but you can still prove the signatures and transaction are valid.
-- When you verify a submission it always checks the pointer as well, it only checks the first pointer and not unlimited pointers as the other checks would of been done by the verifier. Also it would never complete.
+- DA comments only work on other DA publications and can not mix for now. This is, again, something we look at after the v1 launch.
+- DA mirrors can only mirror DA publications and can not mirror Polygon publications. This is, again, something we will look at solving after the v1 launch.
+- When you do a DA publication on another DA publication that is not provable on Polygon so you can not run a simulation on it, but you can still prove the signatures and transaction are valid.
+- When you verify a submission, it always checks the pointer as well; it only checks the first pointer and not unlimited pointers, as the other checks would have been done by the verifier. 
 
 ## Does it work with signature free
 
-Throughout building LENS we know how important a top class UX is for users. Image when you used twitter and you had to confirm everything all the time, on every action, it would be painful. DA publications work with dispatcher, as the dispatcher can post/mirror/comment on your behalf anyway if enabled it would pass the state checks. State is state and if the dispatcher signs on your behalf it would be a valid transaction and pass. If the user does not want to trust the dispatcher they can still just sign the typed data with their wallet and send through the submitter. 
+Throughout building LENS, we know how important a top-class UX is for users. Image when you used Twitter, and you had to confirm everything all the time, on every action, it would be painful. DA publications work with the dispatcher, as the dispatcher can post/mirror/comment on your behalf anyway. If enabled, it would pass the state checks. The logic on the LENS contract states that if the dispatcher signs on your behalf, it would be a valid transaction and pass. If the user does not want to trust the dispatcher, they can still just sign the typed data with their wallet and send it through the submitter. This is the same flow as you do now, but instead of sending it to the submitter, you would send it to a Polygon node.
 
 ## Gasless
 
-As no gas is involved in this doing DA operations it is free for anyone to use. The metadata will be pinned and storage paid for by the submitter but as the storage is on arweave/bundlr it is very very cheap (1000x cheaper then EVM gas prices).
+As no gas is involved in this DA operation, it is free for anyone to use. The metadata will be pinned and storage paid for by the submitter, but as the storage is on Arweave/Bundlr, it is very, very cheap (1000x cheaper than EVM gas prices).
 
 ## Timestamp proofs for picking the block number
 
-You may be thinking well a submitter could lie about which block to submit on but that's where bundlr timestamp proofs come in, on top of this each signature has a deadline which would be a timestamp of a block which has already been mined meaning the signature would not be valid if sent. Bundlr allow you to request timestamp proof where they just return the current timestamp but store it so anyone can verify the time was generated by them. This is now our source of truth for which block number we should use, we should use the closest block number to the timestamp generated by bundlr. Bare in mind latency will always happen down to node software so if it picks a block number and on verification it is one behind then we see this as a threshold we are ok to accept. As its even more in the past, the main thing is it will never accept a block in the future.
+You may be thinking, well, a submitter could lie about which block to submit on, but that's where bundlr timestamp proofs come in; on top of this, each signature has a deadline which would be a timestamp of a block which has already been mined meaning the signature would not be valid if sent. Bundlr allows you to request timestamp proof where they just return the current timestamp but store it so anyone can verify the time was generated by them. This is now our source of truth for which block number we should use; we should use the closest block number to the timestamp generated by bundlr. Bear in mind latency will always happen down to node software, so if it picks a block number and, on verification, it is one behind, then we see this as a threshold we are ok to accept. As it's even more in the past, the main thing is it will never accept a block in the future.
 
 ## DA publication metadata
 
-We will show you a few examples of the `DA` metadata and then explain each field
+We will show you a few examples of the `DA` metadata and then explain each field.
 
 ### Post example
 
@@ -402,11 +402,11 @@ We will show you a few examples of the `DA` metadata and then explain each field
 
 ### Metadata breakdown:
 
-- `dataAvailabilityId` - the id of the publication on the data availability layer it is just a guid
+- `dataAvailabilityId` - the id of the publication on the data availability layer; it is just a GUID
 - `signature` - the signature of the entire payload signed by the submitter
 - `type` - `POST_CREATED`, `COMMENT_CREATED`, `MIRROR_CREATED` the DA action type which has been submitted
 - `timestampProofs` - bundlr gives us a timestamp proof
-    - `type` - who has supplied us the timestamp proofs
+    - `type` - who has supplied us with the timestamp proofs
     - `timestamp` - the timestamp
     - `version`, `public`, `signature`, `deadlineHeight`, `block`, `validatorSignatures` - the metadata to allow you to prove the `type` did it when you recheck on the verifier
 - `chainProofs` - the proofs for the publication
@@ -414,55 +414,55 @@ We will show you a few examples of the `DA` metadata and then explain each field
         - `signature` - the transaction signature
         - `signedByDelegate` - if the signature was signed by a delegate/dispatcher
         - `signatureDeadline` - the deadline of the signature in unix form
-        - `typedData` - the typed data of the transaction this uses the signed typed data spec
+        - `typedData` - the typed data of the transaction; this uses the signed typed data spec
             - `domain` - the domain of the transaction
             - `types` - the types of the transaction
             - `value` - the value of the transaction
         - `blockHash` - the block hash the submitter simulated this transaction on
         - `blockNumber` - the block number the submitter simulated this transaction on
         - `blockTimestamp` - the block timestamp of the simulated transaction
-- `pointer` - the pointer this publications is referencing, saying its a comment or a mirror. Post will never have a pointer
+- `pointer` - the pointer this publication is referencing, saying it's a comment or a mirror. Post will never have a pointer
     - `location` - the location of the publication on the data availability layer
     - `type` - the type of the publication on the data availability layer `ON_DA` or `ON_EVM_CHAIN`
-        - for now it will always be `ON-DA` as it can not be mixed and matched
-- `publicationId` - the id of the publication which is built up of the profileId + pubId + `DA` + first 8 chars of the dataAvailabilityId (so it will always be unique)
+        - for now, it will always be `ON-DA` as it can not be mixed and matched
+- `publicationId` - the id of the publication, which is built up of the profileId + pubId + `DA` + first eight chars of the dataAvailabilityId (so it will always be unique)
 - `event` - this is trying to shape what you would get within an `EVM` event so you can easily parse it and understand it. This will always be identical to the EVM event data structure.
 
 ## Validation checks flows
 
-Here is the steps to make it easier to understand how the verifier works, of course the code is all open source so you can check. We have full coverage as well.
+Here are the steps to make it easier to understand how the verifier works; of course, the code is all open source, so you can check. We have full coverage as well.
 
-1) Fetches the DA metadata from `bundlr`
-2) Checks the `signature` is defined - if not returns `ClaimableValidatorError.NO_SIGNATURE_SUBMITTER`
-3) Verifies the `signature` with the `metadata` has been signed by the submitter - if not return `ClaimableValidatorError.INVALID_SIGNATURE_SUBMITTER`
-4) Check the timestamp proofs with `bundlr` - if not return `ClaimableValidatorError.TIMESTAMP_PROOF_INVALID_SIGNATURE`
-5) Check if the timestamp proofs submitter is a valid submitter - if not return `ClaimableValidatorError.TIMESTAMP_PROOF_INVALID_SUBMITTER`
-6) Check if the event `timestamp` is equal to the publication submitted `blockTimestamp` - if not return `ClaimableValidatorError.INVALID_EVENT_TIMESTAMP`
-7) Check that the block number in the publication submission is closest to the timestamp proofs - if not return `ClaimableValidatorError.NOT_CLOSEST_BLOCK`
+1) Fetches the DA metadata from Bundlr
+2) Checks the `signature` is defined - if not, returns `ClaimableValidatorError.NO_SIGNATURE_SUBMITTER`
+3) Verifies the `signature` with the `metadata` has been signed by the submitter - if not, return `ClaimableValidatorError.INVALID_SIGNATURE_SUBMITTER`
+4) Check the timestamp proofs with `bundlr` - if not, return `ClaimableValidatorError.TIMESTAMP_PROOF_INVALID_SIGNATURE`
+5) Check if the timestamp proofs submitter is a valid submitter - if not, return `ClaimableValidatorError.TIMESTAMP_PROOF_INVALID_SUBMITTER`
+6) Check if the event `timestamp` is equal to the publication submitted `blockTimestamp` - if not, return `ClaimableValidatorError.INVALID_EVENT_TIMESTAMP`
+7) Check that the block number in the publication submission is closest to the timestamp proofs - if not, return `ClaimableValidatorError.NOT_CLOSEST_BLOCK`
 8) Check that the pointer is defined or not 
     - if it is set and a `POST` return `ClaimableValidatorError.INVALID_POINTER_SET_NOT_NEEDED`
     - if it is not set and is a `MIRROR` or `COMMENT` return `ClaimableValidatorError.INVALID_POINTER_NOT_SET`
-        8.1) Check the pointer type is `ON_DA` - if not return `PUBLICATION_NONE_DA`
-9) If the pointer is defined then do verification on the pointer which follows these flows from step 1 again - if fails return the step error 
-10) Check that the formatted typed data is valid - if not return `ClaimableValidatorError.INVALID_FORMATTED_TYPED_DATA`
-11) a. If `POST` simulate the transaction using eth_call method with the block number 
-    - If node throws an error not due to failed submission return `ClaimableValidatorError.SIMULATION_NODE_COULD_NOT_RUN`, this means the node has errors and is an inconclusive result
+        8.1) Check the pointer type is `ON_DA` - if not, return `PUBLICATION_NONE_DA`
+9) If the pointer is defined, then do verification on the pointer, which follows these flows from step 1 again - if it fails, return the step error 
+10) Check that the formatted typed data is valid - if not, return `ClaimableValidatorError.INVALID_FORMATTED_TYPED_DATA`
+11) a. If `POST` simulate the transaction using the eth_call method with the block number 
+    - If the node throws an error, not due to failed submission return `ClaimableValidatorError.SIMULATION_NODE_COULD_NOT_RUN`, this means the node has errors and is an inconclusive result
     - Get the publication count state the wallet was in on the block number submitted and add 1 to it to get the expected publication result
-    - Check the expected result equal the simulated result - if not return `ClaimableValidatorError.SIMULATION_FAILED`
-    b. If `COMMENT` or `MIRROR` do some different checks as these can only be done on other DA publications
+    - Check the expected result equals the simulated result - if not, return `ClaimableValidatorError.SIMULATION_FAILED`
+    b. If `COMMENT` or `MIRROR` do some different checks, as these can only be done on other DA publications
        - Recover who signed the transaction using the typedData and the signature
        - Get the on-chain profile and nonce information from the recovered signed address on the block number submitted
          - `sigNonces`, `getPubCount`, `getDispatcher`, `ownerOf`
-       - Check the `sigNonces` is equal to the nonce of the typed data - if not return `ClaimableValidatorError.PUBLICATION_NONCE_INVALID`
-       - Check the dispatcher OR the ownerOf is equal to the recovered address - if not return `ClaimableValidatorError.PUBLICATION_SIGNER_NOT_ALLOWED`
-12) Cross check the typed data values with the `event` object to make sure it all matches up - if not return `ClaimableValidatorError.EVENT_MISMATCH`
-13) Check the `publicationId` generated matches the publication ID it should of generated - if not return `ClaimableValidatorError.GENERATED_PUBLICATION_ID_MISMATCH`
+       - Check the `sigNonces` is equal to the nonce of the typed data - if not, return `ClaimableValidatorError.PUBLICATION_NONCE_INVALID`
+       - Check the dispatcher OR the ownerOf is equal to the recovered address - if not, return `ClaimableValidatorError.PUBLICATION_SIGNER_NOT_ALLOWED`
+12) Cross-check the typed data values with the `event` object to make sure it all matches up - if not, return `ClaimableValidatorError.EVENT_MISMATCH`
+13) Check the `publicationId` generated matches the publication ID it should have generated - if not, return `ClaimableValidatorError.GENERATED_PUBLICATION_ID_MISMATCH`
 
-At this point you done all the checks needed and this is a valid submisson! As you see using signatures and EVM calls we can verify the data is correct and the submitter is correct without any other third party.
+At this point, you have done all the checks needed, and this is a valid submission! As you see, using signatures and EVM calls, we can verify the data is correct and the submitter is correct without any other third party.
 
 ### Validation error checks types and messages
 
-The summary in the code should explain what is being checked for and what it would fail out if it doesnt match. Below is the full list of error cases.
+The summary in the code should explain what is being checked for and what it would fail out if it doesn't match. Below is the full list of error cases
 
 ```ts
 export enum ClaimableValidatorError {
@@ -577,13 +577,13 @@ export enum ClaimableValidatorError {
 
 ## Submitter flow
 
-The flow diagram show the submitter flows in detail, the first submitter will be within the LENS API to allow for easy integration for all. 
+The flow diagram shows the submitter flows in detail; the first submitter will be within the LENS API to allow for easy integration for all. 
 
 <img src="./images/submitter-flows.png">
 
 ## Future of decentralised submitters
 
-This is a rough look on how this could work in the future in a trustless manner. This is not the final solution but a rough idea of how it could work on a very high level vision.
+This is a rough look at how this could work in the future in a trustless manner. This is not the final solution but a rough idea of how it could work on a very high-level vision.
 
 <img src="./images/submitters-later-vision.png">
 
@@ -591,7 +591,7 @@ This is a rough look on how this could work in the future in a trustless manner.
 
 ### Package
 
-This is built in node and this means it can be ran on the client as well as a server, it wont use the DB on the client but can mean you can run proof checks in runtime which is super powerful.
+This is a built-in node, and this means it can be run on the client as well as a server; it won't use the DB on the client but can mean you can run proof checks in runtime, which is super powerful.
 
 ```bash
 $ npm i @lens-protocol/data-availability-verifier
@@ -599,7 +599,7 @@ $ npm i @lens-protocol/data-availability-verifier
 
 #### checkDAProof
 
-The `checkDAProof` will return you a failure reason of enum `ClaimableValidatorError` and if success you be returned the entire `DAStructurePublication`.
+The `checkDAProof` will return you a failure reason of the enum `ClaimableValidatorError`, and if successful, you be returned the entire `DAStructurePublication`.
 
 ```ts
 import { checkDAProof } from '@lens-protocol/data-availability-verifier';
@@ -616,7 +616,7 @@ console.error('proof invalid do something', result.errorResult!)
 
 #### startDAVerifierNode
 
-This is a start watching all the DA items coming in and logging it all out in your terminal. You can use the `docker-compose up` to just run it or you can install the package and run it on your own server.
+This is a start watching all the DA items coming in and logging it all out in your terminal. You can use the `docker-compose up` to just run it, or you can install the package and run it on your own server.
 
 ```ts
 import { startDAVerifierNode } from '@lens-protocol/data-availability-verifier';
@@ -627,7 +627,7 @@ startDAVerifierNode();
 
 ##### Stream
 
-If you wish to index the data yourself you can use the `startDAVerifierNode` and stream the data out to your own DB using the `StreamCallback`
+If you wish to index the data yourself, you can use the `startDAVerifierNode` and stream the data out to your own DB using the `StreamCallback`:
 
 
 ```ts
@@ -653,7 +653,7 @@ startDAVerifierNode(stream);
 
 ### Running standalone
 
-If you wish to just run it on its own you can just run:
+If you wish to just run it on its own, you can just run:
 
 ```bash
 $ npm i
@@ -662,7 +662,7 @@ $ npm run start
 
 #### Docker
 
-To run the docker file just run:
+To run the docker file, just run the following:
 
 ```bash
 $ docker-compose up
