@@ -1,8 +1,7 @@
+import { Environment } from '../environment';
 import { DataAvailabilityTransactionsDocument } from '../graphql/generated';
 import { client } from '../graphql/urql.client';
 import { getSubmitters } from '../submitters';
-
-const submitters = getSubmitters();
 
 export interface getDataAvailabilityTransactionsAPIResponse {
   edges: {
@@ -19,11 +18,12 @@ export interface getDataAvailabilityTransactionsAPIResponse {
 }
 
 export const getDataAvailabilityTransactionsAPI = async (
+  environment: Environment,
   cursor: string | null
 ): Promise<getDataAvailabilityTransactionsAPIResponse> => {
   const result = await client
     .query(DataAvailabilityTransactionsDocument, {
-      owners: submitters,
+      owners: getSubmitters(environment),
       after: cursor,
       limit: 1000,
     })

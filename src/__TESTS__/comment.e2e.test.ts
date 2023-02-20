@@ -9,8 +9,8 @@ import { DAPublicationPointerType } from '../data-availability-models/publicatio
 import { deepClone } from '../helpers';
 import { commentCreatedDelegateArweaveResponse } from './mocks/comment/comment-created-delegate-arweave-response.mock';
 import { commentCreatedWithoutDelegateArweaveResponse } from './mocks/comment/comment-created-without-delegate-arweave-response.mock';
-import * as sharedMocks from './mocks/shared';
-import { mockTxValidationResult } from './mocks/shared';
+import * as sharedMocks from './mocks/shared.mock';
+import { mockTxValidationResult } from './mocks/shared.mock';
 
 describe('comment', () => {
   describe('with delegate', () => {

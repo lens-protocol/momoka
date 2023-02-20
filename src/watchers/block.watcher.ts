@@ -1,15 +1,15 @@
 import { saveBlockDb } from '../db';
-import { getBlock } from '../ethereum';
+import { EthereumNode, getBlock } from '../ethereum';
 import { sleep } from '../helpers';
 import { consoleLog } from '../logger';
 
-export const watchBlocks = async () => {
+export const watchBlocks = async (ethereumNode: EthereumNode) => {
   consoleLog('LENS VERIFICATION NODE - started up block watching...');
 
   let blockNumber = 0;
   while (true) {
     try {
-      const latestBlock = await getBlock('latest', 1);
+      const latestBlock = await getBlock('latest', ethereumNode, 1);
       if (latestBlock.number > blockNumber) {
         blockNumber = latestBlock.number;
 

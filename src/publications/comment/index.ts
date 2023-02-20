@@ -8,7 +8,7 @@ import {
   DAStructurePublication,
 } from '../../data-availability-models/publications/data-availability-structure-publication';
 import { DACommentCreatedEventEmittedResponse } from '../../data-availability-models/publications/data-availability-structure-publications-events';
-import { EMPTY_BYTE, getOnChainProfileDetails } from '../../ethereum';
+import { EMPTY_BYTE, EthereumNode, getOnChainProfileDetails } from '../../ethereum';
 import { whoSignedTypedData } from '../publication.base';
 
 export type CheckDACommentPublication = DAStructurePublication<
@@ -54,6 +54,7 @@ const crossCheckEvent = async (
 export const checkDAComment = async (
   publication: CheckDACommentPublication,
   verifyPointer: boolean,
+  ethereumNode: EthereumNode,
   log: (message: string, ...optionalParams: any[]) => void
 ): PromiseResult => {
   log('check DA comment');
@@ -70,10 +71,14 @@ export const checkDAComment = async (
     log('verify pointer first');
 
     // check the pointer!
-    const pointerResult = await checkDAProof(publication.chainProofs.pointer.location, {
-      verifyPointer: false,
-      log,
-    });
+    const pointerResult = await checkDAProof(
+      publication.chainProofs.pointer.location,
+      ethereumNode,
+      {
+        verifyPointer: false,
+        log,
+      }
+    );
     if (pointerResult.isFailure()) {
       return failure(pointerResult.failure!);
     }
@@ -99,7 +104,8 @@ export const checkDAComment = async (
   const details = await getOnChainProfileDetails(
     publication.chainProofs.thisPublication.blockNumber,
     typedData.value.profileId,
-    whoSigned
+    whoSigned,
+    ethereumNode
   );
 
   if (details.sigNonce !== typedData.value.nonce) {

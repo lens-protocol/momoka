@@ -8,8 +8,8 @@ import { ClaimableValidatorError } from '../claimable-validator-errors';
 import { deepClone } from '../helpers';
 import { postCreatedDelegateArweaveResponse } from './mocks/post/post-created-delegate-arweave-response.mock';
 import { postCreatedWithoutDelegateArweaveResponse } from './mocks/post/post-created-without-delegate-arweave-response.mock';
-import * as sharedMocks from './mocks/shared';
-import { mockTxValidationResult } from './mocks/shared';
+import * as sharedMocks from './mocks/shared.mock';
+import { mockTxValidationResult } from './mocks/shared.mock';
 
 describe('post', () => {
   describe('with delegate', () => {

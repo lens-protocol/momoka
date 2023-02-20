@@ -18,7 +18,7 @@ import {
   TxValidatedFailureResult,
   TxValidatedSuccessResult,
 } from './db';
-import { getBlock } from './ethereum';
+import { EthereumNode, getBlock } from './ethereum';
 import { deepClone } from './helpers';
 import { consoleLog } from './logger';
 import { checkDAComment, CheckDACommentPublication } from './publications/comment';
@@ -41,7 +41,10 @@ const getClosestBlock = (blocks: Block[], timestamp: number): Block => {
     });
 };
 
-const getBlockRange = async (blockNumbers: number[]): PromiseResult<Block[] | void> => {
+const getBlockRange = async (
+  blockNumbers: number[],
+  ethereumNode: EthereumNode
+): PromiseResult<Block[] | void> => {
   try {
     const blocks = await Promise.all(
       blockNumbers.map(async (blockNumber) => {
@@ -50,7 +53,7 @@ const getBlockRange = async (blockNumbers: number[]): PromiseResult<Block[] | vo
           return cachedBlock;
         }
 
-        const block = await getBlock(blockNumber);
+        const block = await getBlock(blockNumber, ethereumNode);
 
         // fire and forget!
         saveBlockDb(block);
@@ -68,6 +71,7 @@ const getBlockRange = async (blockNumbers: number[]): PromiseResult<Block[] | vo
 const validateChoosenBlock = async (
   blockNumber: number,
   timestamp: number,
+  ethereumNode: EthereumNode,
   log: (message: string, ...optionalParams: any[]) => void
 ): PromiseResult => {
   try {
@@ -78,7 +82,7 @@ const validateChoosenBlock = async (
       deepClone(blockNumber) + 1,
     ];
 
-    const blocksResult = await getBlockRange(blockNumbers);
+    const blocksResult = await getBlockRange(blockNumbers, ethereumNode);
     if (blocksResult.isFailure()) {
       return failure(blocksResult.failure!);
     }
@@ -142,6 +146,7 @@ const generatePublicationId = (
 
 const checkDAPublication = async (
   daPublication: DAStructurePublication<DAEventType, PublicationTypedData>,
+  ethereumNode: EthereumNode,
   { log, verifyPointer }: CheckDASubmissionOptions
 ): PromiseResult => {
   switch (daPublication.type) {
@@ -149,11 +154,21 @@ const checkDAPublication = async (
       if (daPublication.chainProofs.pointer) {
         return failure(ClaimableValidatorError.INVALID_POINTER_SET_NOT_NEEDED);
       }
-      return await checkDAPost(daPublication as CheckDAPostPublication, log);
+      return await checkDAPost(daPublication as CheckDAPostPublication, ethereumNode, log);
     case DAActionTypes.COMMENT_CREATED:
-      return await checkDAComment(daPublication as CheckDACommentPublication, verifyPointer, log);
+      return await checkDAComment(
+        daPublication as CheckDACommentPublication,
+        verifyPointer,
+        ethereumNode,
+        log
+      );
     case DAActionTypes.MIRROR_CREATED:
-      return await checkDAMirror(daPublication as CheckDAMirrorPublication, verifyPointer, log);
+      return await checkDAMirror(
+        daPublication as CheckDAMirrorPublication,
+        verifyPointer,
+        ethereumNode,
+        log
+      );
     default:
       return failure(ClaimableValidatorError.UNKNOWN);
   }
@@ -161,6 +176,7 @@ const checkDAPublication = async (
 
 export const checkDAProof = async (
   txId: string,
+  ethereumNode: EthereumNode,
   { log, verifyPointer }: CheckDASubmissionOptions = {
     log: consoleLog,
     verifyPointer: true,
@@ -200,7 +216,7 @@ export const checkDAProof = async (
   const signedAddress = utils.verifyMessage(JSON.stringify(daPublication), signature);
   log('signedAddress', signedAddress);
 
-  if (!isValidSubmitter(signedAddress)) {
+  if (!isValidSubmitter(ethereumNode.environment, signedAddress)) {
     return failure(ClaimableValidatorError.INVALID_SIGNATURE_SUBMITTER);
   }
 
@@ -217,6 +233,7 @@ export const checkDAProof = async (
 
   // check the wallet who uploaded it is within the submittors wallet list
   const timestampProofsSubmitter = await isValidTransactionSubmitter(
+    ethereumNode.environment,
     daPublication.timestampProofs.response.id,
     log
   );
@@ -238,6 +255,7 @@ export const checkDAProof = async (
   const validateBlockResult = await validateChoosenBlock(
     daPublication.chainProofs.thisPublication.blockNumber,
     daPublication.timestampProofs.response.timestamp,
+    ethereumNode,
     log
   );
 
@@ -247,7 +265,7 @@ export const checkDAProof = async (
 
   log('event timestamp matches up the on chain block timestamp');
 
-  const daResult = await checkDAPublication(daPublication, { log, verifyPointer });
+  const daResult = await checkDAPublication(daPublication, ethereumNode, { log, verifyPointer });
   if (daResult.isFailure()) {
     return daResult;
   }

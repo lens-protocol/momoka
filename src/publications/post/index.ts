@@ -5,7 +5,12 @@ import { failure, PromiseResult, Result, success } from '../../da-result';
 import { CreatePostEIP712TypedData } from '../../data-availability-models/publications/data-availability-publication-typed-data';
 import { DAStructurePublication } from '../../data-availability-models/publications/data-availability-structure-publication';
 import { DAPostCreatedEventEmittedResponse } from '../../data-availability-models/publications/data-availability-structure-publications-events';
-import { EMPTY_BYTE, executeSimulationTransaction, parseSignature } from '../../ethereum';
+import {
+  EMPTY_BYTE,
+  EthereumNode,
+  executeSimulationTransaction,
+  parseSignature,
+} from '../../ethereum';
 import { PostWithSig_DispatcherRequest } from '../../ethereum-abi-types/LensHub';
 
 export type CheckDAPostPublication = DAStructurePublication<
@@ -56,13 +61,18 @@ const generateSimulationData = (
   }
 };
 
-const getExpectedResult = async (profileId: string, blockNumber: number) => {
-  const publicationCount = await getPubCount(profileId, blockNumber);
+const getExpectedResult = async (
+  profileId: string,
+  blockNumber: number,
+  ethereumNode: EthereumNode
+) => {
+  const publicationCount = await getPubCount(profileId, blockNumber, ethereumNode);
   return publicationCount.add(1);
 };
 
 export const checkDAPost = async (
   publication: CheckDAPostPublication,
+  ethereumNode: EthereumNode,
   log: (message: string, ...optionalParams: any[]) => void
 ): PromiseResult => {
   log('check DA post');
@@ -101,11 +111,13 @@ export const checkDAPost = async (
   const [simulatedResult, expectedResult] = await Promise.all([
     executeSimulationTransaction(
       simulationData.successResult!,
-      publication.chainProofs.thisPublication.blockNumber
+      publication.chainProofs.thisPublication.blockNumber,
+      ethereumNode
     ),
     getExpectedResult(
       publication.chainProofs.thisPublication.typedData.value.profileId,
-      publication.chainProofs.thisPublication.blockNumber
+      publication.chainProofs.thisPublication.blockNumber,
+      ethereumNode
     ),
   ]);
 

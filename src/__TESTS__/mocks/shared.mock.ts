@@ -1,4 +1,4 @@
-import { checkDAProof } from '../../';
+import { checkDAProof, EthereumNode } from '../..';
 import * as getArweaveByIdAPIDefault from '../../arweave/get-arweave-by-id.api';
 import { ClaimableValidatorError } from '../../claimable-validator-errors';
 import {
@@ -7,6 +7,8 @@ import {
   PublicationTypedData,
 } from '../../data-availability-models/publications/data-availability-structure-publication';
 import * as database from '../../db';
+import { Environment } from '../../environment';
+import { getParamOrExit } from '../../helpers';
 import * as submittors from '../../submitters';
 
 export const mockGetTxDb = database.getTxDb as jest.MockedFunction<typeof database.getTxDb>;
@@ -134,8 +136,13 @@ export const mockIsValidTransactionSubmitter =
   >;
 mockIsValidTransactionSubmitter.mockImplementation(() => Promise.resolve(true));
 
+const ethereumNode: EthereumNode = {
+  environment: getParamOrExit('ETHEREUM_NETWORK') as Environment,
+  nodeUrl: getParamOrExit('NODE_URL'),
+};
+
 export const callCheckDAProof = () => {
-  return checkDAProof('mocked_tx_id', { log: jest.fn(), verifyPointer: true });
+  return checkDAProof('mocked_tx_id', ethereumNode, { log: jest.fn(), verifyPointer: true });
 };
 
 export const checkAndValidateDAProof = async (expectedError: ClaimableValidatorError) => {

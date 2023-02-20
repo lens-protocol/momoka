@@ -602,9 +602,14 @@ $ npm i @lens-protocol/data-availability-verifier
 The `checkDAProof` will return you a failure reason of the enum `ClaimableValidatorError`, and if successful, you be returned the entire `DAStructurePublication`.
 
 ```ts
-import { checkDAProof } from '@lens-protocol/data-availability-verifier';
+import { checkDAProof, EthereumNode, Environment } from '@lens-protocol/data-availability-verifier';
 
-const result = await checkDAProof(PROOF_ID);
+const ethereumNode: EthereumNode = {
+  environment: Environment.POLYGON,
+  nodeUrl: YOUR_NODE_URL,
+};
+
+const result = await checkDAProof(PROOF_ID, ethereumNode);
 if (result.isSuccess()) {
     console.log('proof valid', result.successResult!)
     return; // all is well!
@@ -621,8 +626,13 @@ This is a start watching all the DA items coming in and logging it all out in yo
 ```ts
 import { startDAVerifierNode } from '@lens-protocol/data-availability-verifier';
 
+const ethereumNode: EthereumNode = {
+  environment: Environment.POLYGON,
+  nodeUrl: YOUR_NODE_URL,
+};
+
 // it run forever and log out to the terminal
-startDAVerifierNode();
+startDAVerifierNode(ethereumNode);
 ```
 
 ##### Stream
@@ -647,8 +657,13 @@ const stream = (result: StreamResult) => {
   // insert into your DB or do something with it!
 };
 
+const ethereumNode: EthereumNode = {
+  environment: Environment.POLYGON,
+  nodeUrl: YOUR_NODE_URL,
+};
+
 // it run forever and log out to the terminal
-startDAVerifierNode(stream);
+startDAVerifierNode(ethereumNode, stream);
 ```
 
 ### Running standalone

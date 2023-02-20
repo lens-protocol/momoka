@@ -17,6 +17,7 @@ import {
   startDb,
   TxValidatedResult,
 } from '../db';
+import { EthereumNode } from '../ethereum';
 import { sleep } from '../helpers';
 import { consoleLog } from '../logger';
 import { watchBlocks } from './block.watcher';
@@ -67,6 +68,7 @@ const buildTxValidationResult = (
 
 const checkDAProofsBatch = async (
   arweaveTransactions: getDataAvailabilityTransactionsAPIResponse,
+  ethereumNode: EthereumNode,
   stream?: StreamCallback
 ): Promise<void> => {
   await Promise.all(
@@ -79,7 +81,7 @@ const checkDAProofsBatch = async (
       try {
         log('Checking submission');
 
-        const result = await checkDAProof(txId, { verifyPointer: true, log });
+        const result = await checkDAProof(txId, ethereumNode, { verifyPointer: true, log });
 
         const txValidatedResult: TxValidatedResult = buildTxValidationResult(txId, result);
 
@@ -120,11 +122,14 @@ const checkDAProofsBatch = async (
   consoleLog('Checked all submissons all is well');
 };
 
-export const startDAVerifierNode = async (stream?: StreamCallback | undefined) => {
+export const startDAVerifierNode = async (
+  ethereumNode: EthereumNode,
+  stream?: StreamCallback | undefined
+) => {
   consoleLog('LENS VERIFICATION NODE - DA verification watcher started...');
 
   startDb();
-  watchBlocks();
+  watchBlocks(ethereumNode);
   verifierFailedSubmissionsWatcher();
 
   let endCursor: string | null = null;
@@ -133,7 +138,7 @@ export const startDAVerifierNode = async (stream?: StreamCallback | undefined) =
     consoleLog('LENS VERIFICATION NODE - Checking for new submissions...');
 
     const arweaveTransactions: getDataAvailabilityTransactionsAPIResponse =
-      await getDataAvailabilityTransactionsAPI(endCursor);
+      await getDataAvailabilityTransactionsAPI(ethereumNode.environment, endCursor);
 
     if (arweaveTransactions.edges.length === 0) {
       consoleLog('LENS VERIFICATION NODE - No new items found..');
@@ -147,7 +152,7 @@ export const startDAVerifierNode = async (stream?: StreamCallback | undefined) =
       endCursor = arweaveTransactions.pageInfo.endCursor;
 
       // fire and forget so we can process as many as we can in concurrently!
-      checkDAProofsBatch(arweaveTransactions, stream);
+      checkDAProofsBatch(arweaveTransactions, ethereumNode, stream);
 
       await sleep(500);
     }
