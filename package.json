@@ -1,11 +1,25 @@
 {
-  "name": "hardhat-project",
+  "name": "@lens-protocol/data-availability-verifier",
+  "version": "0.0.1",
+  "description": "Data availability verifier for the Lens protocol",
+  "main": "lib/index.js",
+  "types": "./lib/index.d.ts",
+  "files": [
+    "lib/**/*",
+    "mocks",
+    "README.md",
+    "images/**/*"
+  ],
   "scripts": {
-    "build": "tsc",
+    "build": "tsc --declaration",
     "start": "env-cmd -f .env ts-node src/watcher.ts",
     "start:native": "node ./lib/watcher.js",
     "generate": "graphql-codegen",
-    "test": "env-cmd -f .env jest"
+    "test": "env-cmd -f .env jest",
+    "lint": "npm run prettier && npm run tsc",
+    "lint:fix": "npm run prettier:fix && npm run tsc",
+    "prettier:fix": "prettier --write .",
+    "prettier": "prettier --check ."
   },
   "devDependencies": {
     "@graphql-codegen/cli": "2.11.3",
@@ -27,5 +41,10 @@
     "graphql": "^16.6.0",
     "level": "^8.0.0",
     "node-fetch-commonjs": "^3.2.4"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/lens-protocol/data-availability-verifier.git"
   }
 }

@@ -531,6 +531,11 @@ export enum ClaimableValidatorError {
   INVALID_EVENT_TIMESTAMP = 'INVALID_EVENT_TIMESTAMP',
 
   /**
+   * This means the deadline set in the typed data is not correct
+   */
+  INVALID_TYPED_DATA_DEADLINE_TIMESTAMP = 'INVALID_TYPED_DATA_DEADLINE_TIMESTAMP',
+
+  /**
    * This means the generated publication id for the generic id does not match
    * what it should be
    */
@@ -683,3 +688,10 @@ To run the docker file, just run the following:
 $ docker-compose up
 ```
 
+
+# what can i do!
+
+- steal the timestamp proofs + data availability id from 1st Jan
+- pick another typed data signature from 5th Feb
+- submit it using the submitter
+- could pass but it looks like it happened in the past aka before!
