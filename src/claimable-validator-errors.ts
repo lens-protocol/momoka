@@ -64,6 +64,11 @@ export enum ClaimableValidatorError {
   INVALID_EVENT_TIMESTAMP = 'INVALID_EVENT_TIMESTAMP',
 
   /**
+   * This means the deadline set in the typed data is not correct
+   */
+  INVALID_TYPED_DATA_DEADLINE_TIMESTAMP = 'INVALID_TYPED_DATA_DEADLINE_TIMESTAMP',
+
+  /**
    * This means the generated publication id for the generic id does not match
    * what it should be
    */

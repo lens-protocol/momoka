@@ -250,6 +250,15 @@ export const checkDAProof = async (
     return failure(ClaimableValidatorError.INVALID_EVENT_TIMESTAMP);
   }
 
+  if (
+    daPublication.chainProofs.thisPublication.typedData.value.deadline !==
+    daPublication.chainProofs.thisPublication.blockNumber
+  ) {
+    log('typed data timestamp does not match the publication timestamp');
+    // the event emitted must match the same timestamp as the block number
+    return failure(ClaimableValidatorError.INVALID_TYPED_DATA_DEADLINE_TIMESTAMP);
+  }
+
   log('event timestamp matches publication timestamp');
 
   const validateBlockResult = await validateChoosenBlock(

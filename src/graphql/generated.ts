@@ -53,14 +53,12 @@ export type Query = {
   transactions?: Maybe<TransactionConnection>;
 };
 
-
 export type QueryAccountArgs = {
   address: Scalars['String'];
   after?: InputMaybe<Scalars['String']>;
   currency: Scalars['String'];
   limit?: InputMaybe<Scalars['Int']>;
 };
-
 
 export type QueryTransactionsArgs = {
   after?: InputMaybe<Scalars['String']>;
@@ -73,7 +71,7 @@ export type QueryTransactionsArgs = {
 
 export enum SortOrder {
   Asc = 'ASC',
-  Desc = 'DESC'
+  Desc = 'DESC',
 }
 
 export type Transaction = {
@@ -106,16 +104,204 @@ export type DataAvailabilityTransactionsQueryVariables = Exact<{
   after?: InputMaybe<Scalars['String']>;
 }>;
 
-
-export type DataAvailabilityTransactionsQuery = { __typename?: 'Query', transactions?: { __typename?: 'TransactionConnection', edges?: Array<{ __typename?: 'TransactionEdge', cursor: string, node: { __typename?: 'Transaction', id: string, address: string } } | null> | null, pageInfo?: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean } | null } | null };
+export type DataAvailabilityTransactionsQuery = {
+  __typename?: 'Query';
+  transactions?: {
+    __typename?: 'TransactionConnection';
+    edges?: Array<{
+      __typename?: 'TransactionEdge';
+      cursor: string;
+      node: { __typename?: 'Transaction'; id: string; address: string };
+    } | null> | null;
+    pageInfo?: { __typename?: 'PageInfo'; endCursor?: string | null; hasNextPage: boolean } | null;
+  } | null;
+};
 
 export type TransactionOwnersQueryVariables = Exact<{
   id: Scalars['String'];
 }>;
 
+export type TransactionOwnersQuery = {
+  __typename?: 'Query';
+  transactions?: {
+    __typename?: 'TransactionConnection';
+    edges?: Array<{
+      __typename?: 'TransactionEdge';
+      node: { __typename?: 'Transaction'; id: string; address: string };
+    } | null> | null;
+  } | null;
+};
 
-export type TransactionOwnersQuery = { __typename?: 'Query', transactions?: { __typename?: 'TransactionConnection', edges?: Array<{ __typename?: 'TransactionEdge', node: { __typename?: 'Transaction', id: string, address: string } } | null> | null } | null };
-
-
-export const DataAvailabilityTransactionsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"DataAvailabilityTransactions"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"owners"}},"type":{"kind":"ListType","type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"limit"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"after"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"transactions"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"owners"},"value":{"kind":"Variable","name":{"kind":"Name","value":"owners"}}},{"kind":"Argument","name":{"kind":"Name","value":"limit"},"value":{"kind":"Variable","name":{"kind":"Name","value":"limit"}}},{"kind":"Argument","name":{"kind":"Name","value":"after"},"value":{"kind":"Variable","name":{"kind":"Name","value":"after"}}},{"kind":"Argument","name":{"kind":"Name","value":"order"},"value":{"kind":"EnumValue","value":"ASC"}},{"kind":"Argument","name":{"kind":"Name","value":"hasTags"},"value":{"kind":"BooleanValue","value":true}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"edges"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"node"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"address"}}]}},{"kind":"Field","name":{"kind":"Name","value":"cursor"}}]}},{"kind":"Field","name":{"kind":"Name","value":"pageInfo"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"endCursor"}},{"kind":"Field","name":{"kind":"Name","value":"hasNextPage"}}]}}]}}]}}]} as unknown as DocumentNode<DataAvailabilityTransactionsQuery, DataAvailabilityTransactionsQueryVariables>;
-export const TransactionOwnersDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"TransactionOwners"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"transactions"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"ids"},"value":{"kind":"ListValue","values":[{"kind":"Variable","name":{"kind":"Name","value":"id"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"edges"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"node"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"address"}}]}}]}}]}}]}}]} as unknown as DocumentNode<TransactionOwnersQuery, TransactionOwnersQueryVariables>;
+export const DataAvailabilityTransactionsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'DataAvailabilityTransactions' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'owners' } },
+          type: {
+            kind: 'ListType',
+            type: {
+              kind: 'NonNullType',
+              type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+            },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'limit' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'after' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'transactions' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'owners' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'owners' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'limit' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'limit' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'after' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'after' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'order' },
+                value: { kind: 'EnumValue', value: 'ASC' },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'hasTags' },
+                value: { kind: 'BooleanValue', value: true },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'edges' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'node' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'address' } },
+                          ],
+                        },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'cursor' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'pageInfo' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'endCursor' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'hasNextPage' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  DataAvailabilityTransactionsQuery,
+  DataAvailabilityTransactionsQueryVariables
+>;
+export const TransactionOwnersDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'TransactionOwners' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'transactions' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'ids' },
+                value: {
+                  kind: 'ListValue',
+                  values: [{ kind: 'Variable', name: { kind: 'Name', value: 'id' } }],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'edges' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'node' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'address' } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<TransactionOwnersQuery, TransactionOwnersQueryVariables>;
