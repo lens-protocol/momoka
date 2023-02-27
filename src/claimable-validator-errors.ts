@@ -15,6 +15,18 @@ export enum ClaimableValidatorError {
   TIMESTAMP_PROOF_INVALID_SIGNATURE = 'TIMESTAMP_PROOF_INVALID_SIGNATURE',
 
   /**
+   * This means the type in the timestamp proofs do not match
+   * timestamp proofs are not portable
+   */
+  TIMESTAMP_PROOF_INVALID_TYPE = 'TIMESTAMP_PROOF_INVALID_TYPE',
+
+  /**
+   * This means the da id in the timestamp proofs do not match up
+   * timestamp proofs are not portable
+   */
+  TIMESTAMP_PROOF_INVALID_DA_ID = 'TIMESTAMP_PROOF_INVALID_DA_ID',
+
+  /**
    * This means the submitted timestamp proof does not match up to the `dataAvailabilityId`
    * or `type` or not uploaded from the submittor whitelisted wallet
    */

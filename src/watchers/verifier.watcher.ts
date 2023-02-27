@@ -138,7 +138,11 @@ export const startDAVerifierNode = async (
     consoleLog('LENS VERIFICATION NODE - Checking for new submissions...');
 
     const arweaveTransactions: getDataAvailabilityTransactionsAPIResponse =
-      await getDataAvailabilityTransactionsAPI(ethereumNode.environment, endCursor);
+      await getDataAvailabilityTransactionsAPI(
+        ethereumNode.environment,
+        ethereumNode.isStaging || false,
+        endCursor
+      );
 
     if (arweaveTransactions.edges.length === 0) {
       consoleLog('LENS VERIFICATION NODE - No new items found..');

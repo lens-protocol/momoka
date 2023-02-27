@@ -602,6 +602,8 @@ This is a built-in node, and this means it can be run on the client as well as a
 $ npm i @lens-protocol/data-availability-verifier
 ```
 
+please note if you wish to use staging you will need to make sure you put `isStaging: true` in the `EthereumNode` object. This for most will not be the case
+
 #### checkDAProof
 
 The `checkDAProof` will return you a failure reason of the enum `ClaimableValidatorError`, and if successful, you be returned the entire `DAStructurePublication`.
@@ -695,3 +697,11 @@ $ docker-compose up
 - pick another typed data signature from 5th Feb
 - submit it using the submitter
 - could pass but it looks like it happened in the past aka before!
+
+
+# submitters can do:
+
+- not broadcast the proof to arweave
+
+
+

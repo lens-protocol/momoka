@@ -9,6 +9,11 @@ import { sleep } from './helpers';
 export interface EthereumNode {
   environment: Environment;
   nodeUrl: string;
+  /**
+   * Only used for the staging environment can ignore this
+   * only use this if you know what you are doing!
+   */
+  isStaging?: boolean | undefined;
 }
 
 export const EMPTY_BYTE = '0x';

@@ -216,7 +216,7 @@ export const checkDAProof = async (
   const signedAddress = utils.verifyMessage(JSON.stringify(daPublication), signature);
   log('signedAddress', signedAddress);
 
-  if (!isValidSubmitter(ethereumNode.environment, signedAddress)) {
+  if (!isValidSubmitter(ethereumNode.environment, signedAddress, ethereumNode.isStaging || false)) {
     return failure(ClaimableValidatorError.INVALID_SIGNATURE_SUBMITTER);
   }
 
@@ -230,12 +230,27 @@ export const checkDAProof = async (
   log('timestamp proof signature valid');
 
   // 2. fetch the `daPublication.timestampProofs.id` from arweave graphql node, checked `dataAvailabilityId` and type match!
+  const timestampProofsPayload = await getArweaveByIdAPI<{
+    type: DAActionTypes;
+    dataAvailabilityId: string;
+  }>(daPublication.timestampProofs.response.id);
+
+  if (timestampProofsPayload.type !== daPublication.type) {
+    log('timestamp proof type mismatch');
+    return failure(ClaimableValidatorError.TIMESTAMP_PROOF_INVALID_TYPE);
+  }
+
+  if (timestampProofsPayload.dataAvailabilityId !== daPublication.dataAvailabilityId) {
+    log('timestamp proof da id mismatch');
+    return failure(ClaimableValidatorError.TIMESTAMP_PROOF_INVALID_DA_ID);
+  }
 
   // check the wallet who uploaded it is within the submittors wallet list
   const timestampProofsSubmitter = await isValidTransactionSubmitter(
     ethereumNode.environment,
     daPublication.timestampProofs.response.id,
-    log
+    log,
+    ethereumNode.isStaging || false
   );
   if (!timestampProofsSubmitter) {
     log('timestamp proof invalid submitter');
@@ -252,7 +267,7 @@ export const checkDAProof = async (
 
   if (
     daPublication.chainProofs.thisPublication.typedData.value.deadline !==
-    daPublication.chainProofs.thisPublication.blockNumber
+    daPublication.chainProofs.thisPublication.blockTimestamp
   ) {
     log('typed data timestamp does not match the publication timestamp');
     // the event emitted must match the same timestamp as the block number

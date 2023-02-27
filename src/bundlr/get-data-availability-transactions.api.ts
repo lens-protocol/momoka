@@ -19,11 +19,12 @@ export interface getDataAvailabilityTransactionsAPIResponse {
 
 export const getDataAvailabilityTransactionsAPI = async (
   environment: Environment,
+  isStaging: boolean,
   cursor: string | null
 ): Promise<getDataAvailabilityTransactionsAPIResponse> => {
   const result = await client
     .query(DataAvailabilityTransactionsDocument, {
-      owners: getSubmitters(environment),
+      owners: getSubmitters(environment, isStaging),
       after: cursor,
       limit: 1000,
     })

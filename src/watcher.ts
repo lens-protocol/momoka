@@ -4,6 +4,7 @@ import { getParamOrExit } from './helpers';
 const ethereumNode: EthereumNode = {
   environment: getParamOrExit('ETHEREUM_NETWORK') as Environment,
   nodeUrl: getParamOrExit('NODE_URL'),
+  isStaging: getParamOrExit('STAGING') === 'true',
 };
 
 startDAVerifierNode(ethereumNode).catch((error) => {
