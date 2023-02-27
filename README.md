@@ -623,7 +623,7 @@ if (result.isSuccess()) {
 }
 
 // it failed!
-console.error('proof invalid do something', result.errorResult!)
+console.error('proof invalid do something', result.failure!)
 ```
 
 #### startDAVerifierNode

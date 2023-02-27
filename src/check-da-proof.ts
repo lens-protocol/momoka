@@ -20,7 +20,6 @@ import {
 } from './db';
 import { EthereumNode, getBlock } from './ethereum';
 import { deepClone } from './helpers';
-import { consoleLog } from './logger';
 import { checkDAComment, CheckDACommentPublication } from './publications/comment';
 import { checkDAMirror, CheckDAMirrorPublication } from './publications/mirror';
 import { checkDAPost, CheckDAPostPublication } from './publications/post';
@@ -178,7 +177,7 @@ export const checkDAProof = async (
   txId: string,
   ethereumNode: EthereumNode,
   { log, verifyPointer }: CheckDASubmissionOptions = {
-    log: consoleLog,
+    log: () => {},
     verifyPointer: true,
   }
 ): PromiseResult<DAStructurePublication<DAEventType, PublicationTypedData> | void> => {
