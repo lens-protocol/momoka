@@ -592,7 +592,7 @@ This is a rough look at how this could work in the future in a trustless manner.
 
 <img src="./images/submitters-later-vision.png">
 
-## Running the code
+## Running
 
 ### Package
 
@@ -689,19 +689,3 @@ To run the docker file, just run the following:
 ```bash
 $ docker-compose up
 ```
-
-
-# what can i do!
-
-- steal the timestamp proofs + data availability id from 1st Jan
-- pick another typed data signature from 5th Feb
-- submit it using the submitter
-- could pass but it looks like it happened in the past aka before!
-
-
-# submitters can do:
-
-- not broadcast the proof to arweave
-
-
-

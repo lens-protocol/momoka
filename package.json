@@ -1,6 +1,6 @@
 {
   "name": "@lens-protocol/data-availability-verifier",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Data availability verifier for the Lens protocol",
   "main": "lib/index.js",
   "types": "./lib/index.d.ts",
@@ -18,7 +18,8 @@
     "lint": "npm run prettier && npm run tsc",
     "lint:fix": "npm run prettier:fix && npm run tsc",
     "prettier:fix": "prettier --write .",
-    "prettier": "prettier --check ."
+    "prettier": "prettier --check .",
+    "prepublishOnly": "npm run build"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "2.11.3",
