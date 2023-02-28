@@ -93,7 +93,8 @@ export interface DAStructurePublication<
   chainProofs: DAStructurePublicationProofs<TTypedData>;
 
   /**
-   * The unquie publication id if you wished to saved it on a server somewhere
+   * The unquie publication id should be used as the primary key in the database
+   * and should be a build up of data availability id and the publication id
    */
   publicationId: string;
 }

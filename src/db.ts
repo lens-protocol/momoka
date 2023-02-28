@@ -18,13 +18,14 @@ export type TxValidatedResult = TxValidatedFailureResult | TxValidatedSuccessRes
 
 export interface TxValidatedFailureResult {
   proofTxId: string;
-  success: boolean;
+  success: false;
   failureReason: ClaimableValidatorError;
+  dataAvailabilityResult: DAStructurePublication<DAEventType, PublicationTypedData>;
 }
 
 export interface TxValidatedSuccessResult {
   proofTxId: string;
-  success: boolean;
+  success: true;
   dataAvailabilityResult: DAStructurePublication<DAEventType, PublicationTypedData>;
 }
 

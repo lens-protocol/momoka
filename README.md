@@ -631,7 +631,7 @@ console.error('proof invalid do something', result.failure!)
 This is a start watching all the DA items coming in and logging it all out in your terminal. You can use the `docker-compose up` to just run it, or you can install the package and run it on your own server.
 
 ```ts
-import { startDAVerifierNode } from '@lens-protocol/data-availability-verifier';
+import { startDAVerifierNode, EthereumNode } from '@lens-protocol/data-availability-verifier';
 
 const ethereumNode: EthereumNode = {
   environment: Environment.POLYGON,
@@ -648,7 +648,7 @@ If you wish to index the data yourself, you can use the `startDAVerifierNode` an
 
 
 ```ts
-import { startDAVerifierNode, StreamResult } from '@lens-protocol/data-availability-verifier';
+import { startDAVerifierNode, StreamResult, EthereumNode } from '@lens-protocol/data-availability-verifier';
 
 const stream = (result: StreamResult) => {
   console.log('streamed publication', result);
