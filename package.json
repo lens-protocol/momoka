@@ -46,6 +46,6 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git://github.com/lens-protocol/data-availability-verifier.git"
+    "url": "git+https://github.com/lens-protocol/data-availability-verifier.git"
   }
 }
