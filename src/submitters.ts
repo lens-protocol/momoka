@@ -1,43 +1,67 @@
 import { getOwnerOfTransactionAPI } from './bundlr/get-owner-of-transaction.api';
-import { Environment } from './environment';
+import { Deployment, Environment } from './environment';
 
-export const getSubmitters = (environment: Environment, isStaging: boolean) => {
+export const getSubmitters = (
+  environment: Environment,
+  deployment: Deployment = Deployment.PRODUCTION
+) => {
   // this will come from a smart contract later on!
 
-  if (!isStaging) {
+  if (deployment === Deployment.PRODUCTION) {
     switch (environment) {
       case Environment.POLYGON:
         throw new Error('Not implemented yet');
       case Environment.MUMBAI:
-        return ['0x82478df5a281a486070c11ebf808d3dd874fda86'.toLowerCase()];
-      case Environment.SANDBOX:
-        throw new Error('Not implemented yet');
-      default:
-        throw new Error('Invalid environment');
-    }
-  } else {
-    switch (environment) {
-      case Environment.POLYGON:
-        throw new Error('Not implemented yet');
-      case Environment.MUMBAI:
-        return ['0x82478df5a281a486070c11ebf808d3dd874fda86'.toLowerCase()];
+        return ['0x886Bb211aC324dAF3744b2AB0eF20C0aCf73eA59'.toLowerCase()];
       case Environment.SANDBOX:
         throw new Error('Not implemented yet');
       default:
         throw new Error('Invalid environment');
     }
   }
+
+  if (deployment === Deployment.STAGING) {
+    switch (environment) {
+      case Environment.POLYGON:
+        throw new Error('Not implemented yet');
+      case Environment.MUMBAI:
+        return ['0x886Bb211aC324dAF3744b2AB0eF20C0aCf73eA59'.toLowerCase()];
+      case Environment.SANDBOX:
+        throw new Error('Not implemented yet');
+      default:
+        throw new Error('Invalid environment');
+    }
+  }
+
+  if (deployment === Deployment.LOCAL) {
+    switch (environment) {
+      case Environment.POLYGON:
+        throw new Error('Not implemented yet');
+      case Environment.MUMBAI:
+        return ['0x8Fc176aA6FC843D3422f0C1832f1b9E17be00C1c'.toLowerCase()];
+      case Environment.SANDBOX:
+        throw new Error('Not implemented yet');
+      default:
+        throw new Error('Invalid environment');
+    }
+  }
+
+  throw new Error('Invalid deployment');
 };
 
-export const isValidSubmitter = (environment: Environment, address: string, isStaging: boolean) => {
-  return getSubmitters(environment, isStaging).includes(address.toLowerCase());
+export const isValidSubmitter = (
+  environment: Environment,
+  address: string,
+  deployment?: Deployment
+) => {
+  return getSubmitters(environment, deployment).includes(address.toLowerCase());
 };
 
 export const isValidTransactionSubmitter = async (
   environment: Environment,
   arweaveId: string,
   log: (message: string, ...optionalParams: any[]) => void,
-  isStaging: boolean
+  deployment?: Deployment
 ) => {
   const owner = await getOwnerOfTransactionAPI(arweaveId);
   log('owner result', owner);
@@ -45,5 +69,5 @@ export const isValidTransactionSubmitter = async (
     return false;
   }
 
-  return isValidSubmitter(environment, owner, isStaging);
+  return isValidSubmitter(environment, owner, deployment);
 };

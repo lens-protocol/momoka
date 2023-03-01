@@ -48,7 +48,10 @@ const processFailedSubmissions = async (
 
 const buildTxValidationResult = (
   txId: string,
-  result: DAResult<void | DAStructurePublication<DAEventType, PublicationTypedData>>
+  result: DAResult<
+    void | DAStructurePublication<DAEventType, PublicationTypedData>,
+    DAStructurePublication<DAEventType, PublicationTypedData>
+  >
 ): TxValidatedResult => {
   const success = result.isSuccess();
   if (success) {
@@ -63,6 +66,7 @@ const buildTxValidationResult = (
     proofTxId: txId,
     success,
     failureReason: result.failure!,
+    dataAvailabilityResult: result.context!,
   };
 };
 
@@ -113,6 +117,7 @@ const checkDAProofsBatch = async (
           proofTxId: txId,
           success: false,
           failureReason: ClaimableValidatorError.UNKNOWN,
+          dataAvailabilityResult: undefined,
         });
         log('FAILED: the checking has flagged invalid DA publication', e);
       }
@@ -140,7 +145,7 @@ export const startDAVerifierNode = async (
     const arweaveTransactions: getDataAvailabilityTransactionsAPIResponse =
       await getDataAvailabilityTransactionsAPI(
         ethereumNode.environment,
-        ethereumNode.isStaging || false,
+        ethereumNode.deployment,
         endCursor
       );
 

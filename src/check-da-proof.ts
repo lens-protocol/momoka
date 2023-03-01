@@ -4,20 +4,21 @@ import { utils } from 'ethers';
 import { getArweaveByIdAPI } from './arweave/get-arweave-by-id.api';
 import { CheckDASubmissionOptions } from './check-da-submisson-options';
 import { ClaimableValidatorError } from './claimable-validator-errors';
-import { failure, PromiseResult, success } from './da-result';
+import {
+  failure,
+  failureWithContext,
+  PromiseResult,
+  PromiseWithContextResult,
+  success,
+  successWithContext,
+} from './da-result';
 import { DAActionTypes } from './data-availability-models/data-availability-action-types';
 import {
   DAEventType,
   DAStructurePublication,
   PublicationTypedData,
 } from './data-availability-models/publications/data-availability-structure-publication';
-import {
-  getBlockDb,
-  getTxDb,
-  saveBlockDb,
-  TxValidatedFailureResult,
-  TxValidatedSuccessResult,
-} from './db';
+import { getBlockDb, getTxDb, saveBlockDb, TxValidatedFailureResult } from './db';
 import { EthereumNode, getBlock } from './ethereum';
 import { deepClone } from './helpers';
 import { checkDAComment, CheckDACommentPublication } from './publications/comment';
@@ -180,7 +181,10 @@ export const checkDAProof = async (
     log: () => {},
     verifyPointer: true,
   }
-): PromiseResult<DAStructurePublication<DAEventType, PublicationTypedData> | void> => {
+): PromiseWithContextResult<
+  DAStructurePublication<DAEventType, PublicationTypedData> | void,
+  DAStructurePublication<DAEventType, PublicationTypedData>
+> => {
   // pointers have the ar prefix!
   txId = txId.replace('ar://', '');
 
@@ -191,10 +195,13 @@ export const checkDAProof = async (
   if (dbResult) {
     log('Already checked submission');
     if (dbResult.success) {
-      return success((<TxValidatedSuccessResult>dbResult).dataAvailabilityResult);
+      return successWithContext(dbResult.dataAvailabilityResult);
     }
 
-    return failure((<TxValidatedFailureResult>dbResult).failureReason);
+    return failureWithContext(
+      (<TxValidatedFailureResult>dbResult).failureReason,
+      dbResult.dataAvailabilityResult!
+    );
   }
 
   const daPublication = await getArweaveByIdAPI<
@@ -203,7 +210,7 @@ export const checkDAProof = async (
   // log('getArweaveByIdAPI result', daPublication);
 
   if (!daPublication.signature) {
-    return failure(ClaimableValidatorError.NO_SIGNATURE_SUBMITTER);
+    return failureWithContext(ClaimableValidatorError.NO_SIGNATURE_SUBMITTER, daPublication);
   }
 
   let signature = deepClone(daPublication.signature);
@@ -215,15 +222,18 @@ export const checkDAProof = async (
   const signedAddress = utils.verifyMessage(JSON.stringify(daPublication), signature);
   log('signedAddress', signedAddress);
 
-  if (!isValidSubmitter(ethereumNode.environment, signedAddress, ethereumNode.isStaging || false)) {
-    return failure(ClaimableValidatorError.INVALID_SIGNATURE_SUBMITTER);
+  if (!isValidSubmitter(ethereumNode.environment, signedAddress, ethereumNode.deployment)) {
+    return failureWithContext(ClaimableValidatorError.INVALID_SIGNATURE_SUBMITTER, daPublication);
   }
 
   // check if bundlr timestamp proofs are valid and verified against bundlr node
   const valid = await Utils.verifyReceipt(daPublication.timestampProofs.response);
   if (!valid) {
     log('timestamp proof invalid signature');
-    return failure(ClaimableValidatorError.TIMESTAMP_PROOF_INVALID_SIGNATURE);
+    return failureWithContext(
+      ClaimableValidatorError.TIMESTAMP_PROOF_INVALID_SIGNATURE,
+      daPublication
+    );
   }
 
   log('timestamp proof signature valid');
@@ -236,12 +246,12 @@ export const checkDAProof = async (
 
   if (timestampProofsPayload.type !== daPublication.type) {
     log('timestamp proof type mismatch');
-    return failure(ClaimableValidatorError.TIMESTAMP_PROOF_INVALID_TYPE);
+    return failureWithContext(ClaimableValidatorError.TIMESTAMP_PROOF_INVALID_TYPE, daPublication);
   }
 
   if (timestampProofsPayload.dataAvailabilityId !== daPublication.dataAvailabilityId) {
     log('timestamp proof da id mismatch');
-    return failure(ClaimableValidatorError.TIMESTAMP_PROOF_INVALID_DA_ID);
+    return failureWithContext(ClaimableValidatorError.TIMESTAMP_PROOF_INVALID_DA_ID, daPublication);
   }
 
   // check the wallet who uploaded it is within the submittors wallet list
@@ -249,11 +259,11 @@ export const checkDAProof = async (
     ethereumNode.environment,
     daPublication.timestampProofs.response.id,
     log,
-    ethereumNode.isStaging || false
+    ethereumNode.deployment
   );
   if (!timestampProofsSubmitter) {
     log('timestamp proof invalid submitter');
-    return failure(ClaimableValidatorError.TIMESTAMP_PROOF_NOT_SUBMITTER);
+    return failureWithContext(ClaimableValidatorError.TIMESTAMP_PROOF_NOT_SUBMITTER, daPublication);
   }
 
   log('timestamp proof valid submitter');
@@ -261,7 +271,7 @@ export const checkDAProof = async (
   if (daPublication.event.timestamp !== daPublication.chainProofs.thisPublication.blockTimestamp) {
     log('event timestamp does not match the publication timestamp');
     // the event emitted must match the same timestamp as the block number
-    return failure(ClaimableValidatorError.INVALID_EVENT_TIMESTAMP);
+    return failureWithContext(ClaimableValidatorError.INVALID_EVENT_TIMESTAMP, daPublication);
   }
 
   if (
@@ -270,7 +280,10 @@ export const checkDAProof = async (
   ) {
     log('typed data timestamp does not match the publication timestamp');
     // the event emitted must match the same timestamp as the block number
-    return failure(ClaimableValidatorError.INVALID_TYPED_DATA_DEADLINE_TIMESTAMP);
+    return failureWithContext(
+      ClaimableValidatorError.INVALID_TYPED_DATA_DEADLINE_TIMESTAMP,
+      daPublication
+    );
   }
 
   log('event timestamp matches publication timestamp');
@@ -283,21 +296,24 @@ export const checkDAProof = async (
   );
 
   if (validateBlockResult.isFailure()) {
-    return validateBlockResult;
+    return failureWithContext(validateBlockResult.failure!, daPublication);
   }
 
   log('event timestamp matches up the on chain block timestamp');
 
   const daResult = await checkDAPublication(daPublication, ethereumNode, { log, verifyPointer });
   if (daResult.isFailure()) {
-    return daResult;
+    return failureWithContext(daResult.failure!, daPublication);
   }
 
   const generatedPublicationId = generatePublicationId(daPublication);
   if (generatedPublicationId !== daPublication.publicationId) {
     log('publicationId does not match the generated one');
-    return failure(ClaimableValidatorError.GENERATED_PUBLICATION_ID_MISMATCH);
+    return failureWithContext(
+      ClaimableValidatorError.GENERATED_PUBLICATION_ID_MISMATCH,
+      daPublication
+    );
   }
 
-  return daResult;
+  return successWithContext(daPublication);
 };

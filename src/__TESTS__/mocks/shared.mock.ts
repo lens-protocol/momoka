@@ -1,4 +1,4 @@
-import { checkDAProof, EthereumNode } from '../..';
+import { checkDAProof, EthereumNode, TxValidatedResult } from '../..';
 import * as getArweaveByIdAPIDefault from '../../arweave/get-arweave-by-id.api';
 import { ClaimableValidatorError } from '../../claimable-validator-errors';
 import {
@@ -10,6 +10,7 @@ import * as database from '../../db';
 import { Environment } from '../../environment';
 import { getParamOrExit } from '../../helpers';
 import * as submittors from '../../submitters';
+import { postCreatedDelegateArweaveResponse } from './post/post-created-delegate-arweave-response.mock';
 
 export const mockGetTxDb = database.getTxDb as jest.MockedFunction<typeof database.getTxDb>;
 mockGetTxDb.mockImplementation(async () => null);
@@ -153,8 +154,8 @@ export const checkAndValidateDAProof = async (expectedError: ClaimableValidatorE
 
 export const random = () => (Math.random() + 1).toString(36).substring(7);
 
-export const mockTxValidationResult = {
+export const mockTxValidationResult: TxValidatedResult = {
   success: true,
   proofTxId: random(),
-  failureReason: ClaimableValidatorError.BLOCK_CANT_BE_READ_FROM_NODE,
+  dataAvailabilityResult: postCreatedDelegateArweaveResponse,
 };

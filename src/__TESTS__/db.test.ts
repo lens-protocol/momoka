@@ -20,9 +20,10 @@ describe('db', () => {
   });
 
   const txValidatedResult: TxValidatedResult = {
-    success: true,
+    success: false,
     proofTxId: random(),
     failureReason: ClaimableValidatorError.BLOCK_CANT_BE_READ_FROM_NODE,
+    dataAvailabilityResult: undefined,
   };
 
   describe('getTxDb', () => {

@@ -1,4 +1,4 @@
-import { Environment } from '../environment';
+import { Deployment, Environment } from '../environment';
 import { DataAvailabilityTransactionsDocument } from '../graphql/generated';
 import { client } from '../graphql/urql.client';
 import { getSubmitters } from '../submitters';
@@ -19,12 +19,12 @@ export interface getDataAvailabilityTransactionsAPIResponse {
 
 export const getDataAvailabilityTransactionsAPI = async (
   environment: Environment,
-  isStaging: boolean,
+  deployment: Deployment | undefined,
   cursor: string | null
 ): Promise<getDataAvailabilityTransactionsAPIResponse> => {
   const result = await client
     .query(DataAvailabilityTransactionsDocument, {
-      owners: getSubmitters(environment, isStaging),
+      owners: getSubmitters(environment, deployment),
       after: cursor,
       limit: 1000,
     })

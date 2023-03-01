@@ -3,17 +3,22 @@ import { ethers } from 'ethers';
 import { ClaimableValidatorError } from './claimable-validator-errors';
 import { getLensHubContract } from './contract-lens/lens-proxy-info';
 import { failure, PromiseResult, success } from './da-result';
-import { Environment, environmentToChainId, environmentToLensHubContract } from './environment';
+import {
+  Deployment,
+  Environment,
+  environmentToChainId,
+  environmentToLensHubContract,
+} from './environment';
 import { sleep } from './helpers';
 
 export interface EthereumNode {
   environment: Environment;
   nodeUrl: string;
   /**
-   * Only used for the staging environment can ignore this
+   * Only if you want to use staging/local environment
    * only use this if you know what you are doing!
    */
-  isStaging?: boolean | undefined;
+  deployment?: Deployment | undefined;
 }
 
 export const EMPTY_BYTE = '0x';

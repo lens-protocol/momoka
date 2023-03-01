@@ -16,18 +16,22 @@ export enum DbRefernece {
 
 export type TxValidatedResult = TxValidatedFailureResult | TxValidatedSuccessResult;
 
-export interface TxValidatedFailureResult {
+interface TxValidatedResultBase<TSuccess extends boolean, TDAStructurePublication> {
   proofTxId: string;
-  success: false;
-  failureReason: ClaimableValidatorError;
-  dataAvailabilityResult: DAStructurePublication<DAEventType, PublicationTypedData>;
+  success: TSuccess;
+  dataAvailabilityResult: TDAStructurePublication;
 }
 
-export interface TxValidatedSuccessResult {
-  proofTxId: string;
-  success: true;
-  dataAvailabilityResult: DAStructurePublication<DAEventType, PublicationTypedData>;
+export interface TxValidatedFailureResult
+  extends TxValidatedResultBase<
+    false,
+    DAStructurePublication<DAEventType, PublicationTypedData> | undefined
+  > {
+  failureReason: ClaimableValidatorError;
 }
+
+export interface TxValidatedSuccessResult
+  extends TxValidatedResultBase<true, DAStructurePublication<DAEventType, PublicationTypedData>> {}
 
 export const startDb = () => {
   if (db) return;

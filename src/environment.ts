@@ -4,6 +4,12 @@ export enum Environment {
   SANDBOX = 'SANDBOX',
 }
 
+export enum Deployment {
+  PRODUCTION = 'PRODUCTION',
+  STAGING = 'STAGING',
+  LOCAL = 'LOCAL',
+}
+
 export const environmentToChainId = (environment: Environment) => {
   switch (environment) {
     case Environment.POLYGON:
