@@ -400,37 +400,855 @@ We will show you a few examples of the `DA` metadata and then explain each field
 }
 ```
 
-### Metadata breakdown:
+### Metadata breakdown
 
-- `dataAvailabilityId` - the id of the publication on the data availability layer; it is just a GUID
-- `signature` - the signature of the entire payload signed by the submitter
-- `type` - `POST_CREATED`, `COMMENT_CREATED`, `MIRROR_CREATED` the DA action type which has been submitted
-- `timestampProofs` - bundlr gives us a timestamp proof
-    - `type` - who has supplied us with the timestamp proofs
-    - `timestamp` - the timestamp
-    - `version`, `public`, `signature`, `deadlineHeight`, `block`, `validatorSignatures` - the metadata to allow you to prove the `type` did it when you recheck on the verifier
-- `chainProofs` - the proofs for the publication
-    - `thisPublication` - the publication being submitted
-        - `signature` - the transaction signature
-        - `signedByDelegate` - if the signature was signed by a delegate/dispatcher
-        - `signatureDeadline` - the deadline of the signature in unix form
-        - `typedData` - the typed data of the transaction; this uses the signed typed data spec
-            - `domain` - the domain of the transaction
-            - `types` - the types of the transaction
-            - `value` - the value of the transaction
-        - `blockHash` - the block hash the submitter simulated this transaction on
-        - `blockNumber` - the block number the submitter simulated this transaction on
-        - `blockTimestamp` - the block timestamp of the simulated transaction
-- `pointer` - the pointer this publication is referencing, saying it's a comment or a mirror. Post will never have a pointer
-    - `location` - the location of the publication on the data availability layer
-    - `type` - the type of the publication on the data availability layer `ON_DA` or `ON_EVM_CHAIN`
-        - for now, it will always be `ON-DA` as it can not be mixed and matched
-- `publicationId` - the id of the publication, which is built up of the profileId + pubId + `DA` + first eight chars of the dataAvailabilityId (so it will always be unique)
-- `event` - this is trying to shape what you would get within an `EVM` event so you can easily parse it and understand it. This will always be identical to the EVM event data structure.
+This will explain in json schema terms what a DA publication metadata holds.
+
+#### POST_CREATED
+
+This is a DA post.
+
+```json
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/lens-protocol/data-availability-verifier/blob/master/src/__TESTS__/mocks/post/post-created-delegate-arweave-response.mock.ts#L10",
+  "title": "The data availability layer schema",
+  "description": "The data availability layer schema",
+  "type": "object",
+  "properties": {
+    "dataAvailabilityId": {
+      "description": "The id of the publication on the data availability layer; it is just a GUID",
+      "type": "guid"
+    },
+    "signature": {
+      "description": "The signature of the entire payload signed by the submitter",
+      "type": "string"
+    },
+    "type": {
+      "description": "`POST_CREATED`, `COMMENT_CREATED`, `MIRROR_CREATED` the DA action type which has been submitted",
+      "type": "POST_CREATED",
+    },
+    "timestampProofs": {
+      "description": "Details for the timestamp proofs",
+      "type": "object",
+      "properties": {
+        "type": {
+          "description": "`BUNDLR` - who has supplied us with the timestamp proofs",
+          "type": "string"
+        },
+        "hashPrefix": {
+          "description": "The timestamp proof hash prefix",
+          "type": "number"
+        },
+        "response": {
+          "description": "The response from the timestamp proof provider",
+          "type": "object",
+          "properties": { 
+            "id": {
+              "description": "The id of the timestamp proof",
+              "type": "string"
+            },
+            "timestamp": {
+              "description": "The timestamp date in milliseconds",
+              "type": "number"
+            },
+            "version": {
+              "description": "The version of the timestamp proof",
+              "type": "string"
+            },
+            "public": {
+              "description": "The public key used sign for the timestamp proofs",
+              "type": "string"
+            },
+            "signature": {
+              "description": "The signature for the timestamp proofs",
+              "type": "string"
+            },
+            "deadlineHeight": {
+              "description": "Internal deadline height for the timestamp proof",
+              "type": "string"
+            },
+            "block": {
+              "description": "Internal block for the timestamp proof (this is not an evm block)",
+              "type": "number"
+            },
+            "validatorSignatures": {
+              "description": "Internal validator signatures for the timestamp proof (this will always be an empty array for now until bundlr is decentralised)",
+              "type": "array",
+               "items": {
+                "type": "string"
+              }
+            }
+           },
+           "required": [ "id", "timestamp", "version", "public", "signature", "deadlineHeight", "block", "validatorSignatures" ]
+        }
+      },
+      "required": [ "type", "hashPrefix", "response" ]
+    },
+    "chainProofs": {
+      "description": "The proofs",
+      "type": "object",
+      "properties": {
+        "thisPublication": {
+          "description": "The publication being submitted",
+          "type": "object",
+          "properties": {
+            "signature": {
+              "description": "The transaction signature",
+              "type": "string"
+            },
+            "signedByDelegate": {
+              "description": "If the signature was signed by a delegate/dispatcher",
+              "type": "boolean"
+            },
+            "signatureDeadline": {
+              "description": "The deadline of the signature in unix form",
+              "type": "number"
+            },
+            "typedData": {
+              "description": "The typed data of the transaction; this uses the signed typed data spec",
+              "type": "object",
+              "properties": {
+                "types": {
+                  "description": "The types of the signed typed data",
+                  "type": "object",
+                  "properties": {
+                    "PostWithSig": {
+                      "description": "The properties of the typed data",
+                      "type": "array",
+                      "items": {
+                        "description": "The name and type of the property",
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "description": "The name of typed data",
+                            "type": "string",
+                          },
+                          "type": {
+                            "description": "The type typed data",
+                            "type": "string",
+                          }
+                        },
+                        "required": ["name", "type"]
+                      }
+                    },
+                  },
+                  "required": ["types"]
+                },
+                "domain": {
+                  "description": "The domain of the signed typed data",
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "description": "The name of the signed typed data",
+                      "type": "string",
+                    },
+                    "version": {
+                      "description": "The version of the signed typed data",
+                      "type": "string",
+                    },
+                    "chainId": {
+                      "description": "The chain id of the signed typed data",
+                      "type": "number",
+                    },
+                    "verifyingContract": {
+                      "description": "The verifying contract",
+                      "type": "string",
+                    }
+                  },
+                  "required": ["name", "version", "chainId", "verifyingContract"]
+                },
+                "value": {
+                  "description": "The value of the signed typed data",
+                  "type": "object",
+                  "properties": {
+                    "profileId": {
+                      "description": "The profile id doing the publication",
+                      "type": "string",
+                    },
+                    "contentURI": {
+                      "description": "The content metadata URI",
+                      "type": "string",
+                    },
+                    "collectModule": {
+                      "description": "The collect module address - will always be a revert collect module at the moment",
+                      "type": "string",
+                    },
+                    "collectModuleInitData": {
+                      "description": "The collect module init data - will always be empty bytes for now",
+                      "type": "string",
+                    },
+                    "referenceModule": {
+                      "description": "The reference module will always be address(0) for now",
+                      "type": "string",
+                    },
+                    "referenceModuleInitData": {
+                      "description": "The reference module init data will - will always be empty bytes for now",
+                      "type": "string",
+                    },
+                    "nonce": {
+                      "description": "The signature nonce",
+                      "type": "number",
+                    },
+                    "deadline": {
+                      "description": "The signature deadline in unix form",
+                      "type": "number",
+                    }
+                  },
+                  "required": ["profileId", "contentURI", "collectModule", "collectModuleInitData", "referenceModule", "referenceModuleInitData", "nonce", "deadline"]
+                }
+              },
+              "required": ["types", "domain", "value"]
+            },
+            "blockHash": {
+              "description": "The block hash the submitter simulated this transaction on",
+              "type": "string"
+            },
+            "blockNumber": {
+              "description": "The block number the submitter simulated this transaction on",
+              "type": "number"
+            },
+            "blockNumber": {
+              "description": "The block unix timestamp of the simulated transaction",
+              "type": "number"
+            }
+          },
+          "required": ["signature", "signedByDelegate", "signatureDeadline", "typedData", "blockHash", "blockNumber", "blockTimestamp"]
+        }
+      },
+       "required": [ "thisPublication" ]
+    },
+    "publicationId": {
+      "description": "The id of the publication, which is built up of the profileId + pubId + `DA` + first eight chars of the dataAvailabilityId (so it will always be unique)",
+      "type": "string"
+    },
+    "event": {
+      "description": "This is trying to shape what you would get within an `EVM` event so you can easily parse it and understand it. This will always be identical to the EVM event data structure.",
+      "type": "object",
+      "properties": {
+        "profileId": {
+          "description": "The profileId which did the publication",
+          "type": "string"
+        },
+        "pubId": {
+          "description": "The pubId for the publication",
+          "type": "string"
+        },
+        "contentURI": {
+          "description": "The contentURI aka metadata for the publication",
+          "type": "string"
+        },
+        "collectModule": {
+          "description": "The collect module, for now it will always be revert module",
+          "type": "string"
+        },
+        "collectModuleReturnData": {
+          "description": "The collect module return data, will always for now be empty byte",
+          "type": "string"
+        },
+        "referenceModule": {
+          "description": "The reference module, will always be address(0) for now",
+          "type": "string"
+        },
+        "referenceModuleReturnData": {
+          "description": "The reference module return data, will always for now be empty byte",
+          "type": "string"
+        },
+        "timestamp": {
+          "description": "The timestamp date in milliseconds",
+          "type": "number"
+        }
+      },
+      "required": [ "profileId", "pubId", "contentURI", "collectModule", "collectModuleReturnData", "referenceModule", "referenceModuleReturnData", "timestamp" ]
+    }
+  },
+  "required": [ "dataAvailabilityId", "type", "timestampProofs", "chainProofs", "publicationId", "event" ]
+}
+```
+
+#### COMMENT_CREATED
+
+This is a DA comment. Very similar to DA post minus the `type`, `typedData` and some `events` properties
+
+```json
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/lens-protocol/data-availability-verifier/blob/master/src/__TESTS__/mocks/comment/comment-created-delegate-arweave-response.mock.ts#L14",
+  "title": "The data availability layer schema",
+  "description": "The data availability layer schema",
+  "type": "object",
+  "properties": {
+    "dataAvailabilityId": {
+      "description": "The id of the publication on the data availability layer; it is just a GUID",
+      "type": "guid"
+    },
+    "signature": {
+      "description": "The signature of the entire payload signed by the submitter",
+      "type": "string"
+    },
+    "type": {
+      "description": "`POST_CREATED`, `COMMENT_CREATED`, `MIRROR_CREATED` the DA action type which has been submitted",
+      "type": "COMMENT_CREATED",
+    },
+    "timestampProofs": {
+      "description": "Details for the timestamp proofs",
+      "type": "object",
+      "properties": {
+        "type": {
+          "description": "`BUNDLR` - who has supplied us with the timestamp proofs",
+          "type": "string"
+        },
+        "hashPrefix": {
+          "description": "The timestamp proof hash prefix",
+          "type": "number"
+        },
+        "response": {
+          "description": "The response from the timestamp proof provider",
+          "type": "object",
+          "properties": { 
+            "id": {
+              "description": "The id of the timestamp proof",
+              "type": "string"
+            },
+            "timestamp": {
+              "description": "The timestamp date in milliseconds",
+              "type": "number"
+            },
+            "version": {
+              "description": "The version of the timestamp proof",
+              "type": "string"
+            },
+            "public": {
+              "description": "The public key used sign for the timestamp proofs",
+              "type": "string"
+            },
+            "signature": {
+              "description": "The signature for the timestamp proofs",
+              "type": "string"
+            },
+            "deadlineHeight": {
+              "description": "Internal deadline height for the timestamp proof",
+              "type": "string"
+            },
+            "block": {
+              "description": "Internal block for the timestamp proof (this is not an evm block)",
+              "type": "number"
+            },
+            "validatorSignatures": {
+              "description": "Internal validator signatures for the timestamp proof (this will always be an empty array for now until bundlr is decentralised)",
+              "type": "array",
+               "items": {
+                "type": "string"
+              }
+            }
+           },
+           "required": [ "id", "timestamp", "version", "public", "signature", "deadlineHeight", "block", "validatorSignatures" ]
+        }
+      },
+      "required": [ "type", "hashPrefix", "response" ]
+    },
+    "chainProofs": {
+      "description": "The proofs",
+      "type": "object",
+      "properties": {
+        "thisPublication": {
+          "description": "The publication being submitted",
+          "type": "object",
+          "properties": {
+            "signature": {
+              "description": "The transaction signature",
+              "type": "string"
+            },
+            "signedByDelegate": {
+              "description": "If the signature was signed by a delegate/dispatcher",
+              "type": "boolean"
+            },
+            "signatureDeadline": {
+              "description": "The deadline of the signature in unix form",
+              "type": "number"
+            },
+            "typedData": {
+              "description": "The typed data of the transaction; this uses the signed typed data spec",
+              "type": "object",
+              "properties": {
+                "types": {
+                  "description": "The types of the signed typed data",
+                  "type": "object",
+                  "properties": {
+                    "CommentWithSig": {
+                      "description": "The properties of the typed data",
+                      "type": "array",
+                      "items": {
+                        "description": "The name and type of the property",
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "description": "The name of typed data",
+                            "type": "string",
+                          },
+                          "type": {
+                            "description": "The type typed data",
+                            "type": "string",
+                          }
+                        },
+                        "required": ["name", "type"]
+                      }
+                    },
+                  },
+                  "required": ["types"]
+                },
+                "domain": {
+                  "description": "The domain of the signed typed data",
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "description": "The name of the signed typed data",
+                      "type": "string",
+                    },
+                    "version": {
+                      "description": "The version of the signed typed data",
+                      "type": "string",
+                    },
+                    "chainId": {
+                      "description": "The chain id of the signed typed data",
+                      "type": "number",
+                    },
+                    "verifyingContract": {
+                      "description": "The verifying contract",
+                      "type": "string",
+                    }
+                  },
+                  "required": ["name", "version", "chainId", "verifyingContract"]
+                },
+                "value": {
+                  "description": "The value of the signed typed data",
+                  "type": "object",
+                  "properties": {
+                    "profileId": {
+                      "description": "The profile id doing the comment",
+                      "type": "string",
+                    },
+                    "profileIdPointed": {
+                      "description": "The profile id which the comment is being made on",
+                      "type": "string",
+                    },
+                    "pubIdPointed": {
+                      "description": "The publication id which the comment is being made on",
+                      "type": "string",
+                    },
+                    "contentURI": {
+                      "description": "The content metadata URI",
+                      "type": "string",
+                    },
+                    "collectModule": {
+                      "description": "The collect module address - will always be a revert collect module at the moment",
+                      "type": "string",
+                    },
+                    "collectModuleInitData": {
+                      "description": "The collect module init data - will always be empty bytes for now",
+                      "type": "string",
+                    },
+                    "referenceModule": {
+                      "description": "The reference module will always be address(0) for now",
+                      "type": "string",
+                    },
+                    "referenceModuleData": {
+                      "description": "The reference module data - will always be empty bytes for now",
+                      "type": "string",
+                    },
+                    "referenceModuleInitData": {
+                      "description": "The reference module init data - will always be empty bytes for now",
+                      "type": "string",
+                    },
+                    "nonce": {
+                      "description": "The signature nonce",
+                      "type": "number",
+                    },
+                    "deadline": {
+                      "description": "The signature deadline in unix form",
+                      "type": "number",
+                    }
+                  },
+                  "required": ["profileId", "profileIdPointed", "pubIdPointed", "contentURI", "collectModule", "collectModuleInitData", "referenceModule", "referenceModuleInitData", "referenceModuleData", "nonce", "deadline"]
+                }
+              },
+              "required": ["types", "domain", "value"]
+            },
+            "blockHash": {
+              "description": "The block hash the submitter simulated this transaction on",
+              "type": "string"
+            },
+            "blockNumber": {
+              "description": "The block number the submitter simulated this transaction on",
+              "type": "number"
+            },
+            "blockNumber": {
+              "description": "The block unix timestamp of the simulated transaction",
+              "type": "number"
+            }
+          },
+          "required": ["signature", "signedByDelegate", "signatureDeadline", "typedData", "blockHash", "blockNumber", "blockTimestamp"]
+        },
+        "pointer": {
+          "description": "The pointer this publication is referencing",
+          "type": "object",
+          "properties": { 
+            "location": {
+              "description": "The location of the pointer publication proofs on the data availability layer",
+              "type": "string"
+            },
+            "type": {
+              "description": "the type of the publication on the data availability layer `ON_DA` or `ON_EVM_CHAIN` - for now you can not do a DA publication on a on-chain publication so will always be `ON_DA`",
+              "type": "string"
+            }
+          },
+          "required": [ "location", "type" ]
+        }
+      },
+      "required": [ "thisPublication", "pointer" ]
+    },
+    "publicationId": {
+      "description": "The id of the publication, which is built up of the profileId + pubId + `DA` + first eight chars of the dataAvailabilityId (so it will always be unique)",
+      "type": "string"
+    },
+    "event": {
+      "description": "This is trying to shape what you would get within an `EVM` event so you can easily parse it and understand it. This will always be identical to the EVM event data structure.",
+      "type": "object",
+      "properties": {
+        "profileId": {
+          "description": "The profileId which did the publication",
+          "type": "string"
+        },
+        "pubId": {
+          "description": "The pubId for the publication",
+          "type": "string"
+        },
+        "contentURI": {
+          "description": "The contentURI aka metadata for the publication",
+          "type": "string"
+        },
+        "profileIdPointed": {
+          "description": "The profile id of the comment is being made on",
+          "type": "string"
+        },
+        "pubIdPointed": {
+          "description": "The pub id which the comment is being made on",
+          "type": "string"
+        },
+        "referenceModuleData": {
+          "description": "The reference module data - will always be empty hex for now",
+          "type": "string"
+        },
+        "collectModule": {
+          "description": "The collect module, for now it will always be revert module",
+          "type": "string"
+        },
+        "collectModuleReturnData": {
+          "description": "The collect module return data, will always for now be empty byte",
+          "type": "string"
+        },
+        "referenceModule": {
+          "description": "The reference module, will always be address(0) for now",
+          "type": "string"
+        },
+        "referenceModuleReturnData": {
+          "description": "The reference module return data, will always for now be empty byte",
+          "type": "string"
+        },
+        "timestamp": {
+          "description": "The timestamp date in milliseconds",
+          "type": "number"
+        }
+      },
+      "required": [ "profileId", "pubId", "contentURI", "profileIdPointed", "pubIdPointed", "referenceModuleData", "collectModule", "collectModuleReturnData", "referenceModule", "referenceModuleReturnData", "timestamp" ]
+    }
+  },
+  "required": [ "dataAvailabilityId", "type", "timestampProofs", "chainProofs", "publicationId", "event" ]
+}
+```
+
+#### MIRROR_CREATED
+
+This is a DA mirror. Very similar to DA post/comment minus the `type`, `typedData` and some `events` properties
+
+```json
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/lens-protocol/data-availability-verifier/blob/master/src/__TESTS__/mocks/mirror/mirror-created-without-delegate-comment-arweave-response.mock.ts#L13",
+  "title": "The data availability layer schema",
+  "description": "The data availability layer schema",
+  "type": "object",
+  "properties": {
+    "dataAvailabilityId": {
+      "description": "The id of the publication on the data availability layer; it is just a GUID",
+      "type": "guid"
+    },
+    "signature": {
+      "description": "The signature of the entire payload signed by the submitter",
+      "type": "string"
+    },
+    "type": {
+      "description": "`POST_CREATED`, `COMMENT_CREATED`, `MIRROR_CREATED` the DA action type which has been submitted",
+      "type": "COMMENT_CREATED",
+    },
+    "timestampProofs": {
+      "description": "Details for the timestamp proofs",
+      "type": "object",
+      "properties": {
+        "type": {
+          "description": "`BUNDLR` - who has supplied us with the timestamp proofs",
+          "type": "string"
+        },
+        "hashPrefix": {
+          "description": "The timestamp proof hash prefix",
+          "type": "number"
+        },
+        "response": {
+          "description": "The response from the timestamp proof provider",
+          "type": "object",
+          "properties": { 
+            "id": {
+              "description": "The id of the timestamp proof",
+              "type": "string"
+            },
+            "timestamp": {
+              "description": "The timestamp date in milliseconds",
+              "type": "number"
+            },
+            "version": {
+              "description": "The version of the timestamp proof",
+              "type": "string"
+            },
+            "public": {
+              "description": "The public key used sign for the timestamp proofs",
+              "type": "string"
+            },
+            "signature": {
+              "description": "The signature for the timestamp proofs",
+              "type": "string"
+            },
+            "deadlineHeight": {
+              "description": "Internal deadline height for the timestamp proof",
+              "type": "string"
+            },
+            "block": {
+              "description": "Internal block for the timestamp proof (this is not an evm block)",
+              "type": "number"
+            },
+            "validatorSignatures": {
+              "description": "Internal validator signatures for the timestamp proof (this will always be an empty array for now until bundlr is decentralised)",
+              "type": "array",
+               "items": {
+                "type": "string"
+              }
+            }
+           },
+           "required": [ "id", "timestamp", "version", "public", "signature", "deadlineHeight", "block", "validatorSignatures" ]
+        }
+      },
+      "required": [ "type", "hashPrefix", "response" ]
+    },
+    "chainProofs": {
+      "description": "The proofs",
+      "type": "object",
+      "properties": {
+        "thisPublication": {
+          "description": "The publication being submitted",
+          "type": "object",
+          "properties": {
+            "signature": {
+              "description": "The transaction signature",
+              "type": "string"
+            },
+            "signedByDelegate": {
+              "description": "If the signature was signed by a delegate/dispatcher",
+              "type": "boolean"
+            },
+            "signatureDeadline": {
+              "description": "The deadline of the signature in unix form",
+              "type": "number"
+            },
+            "typedData": {
+              "description": "The typed data of the transaction; this uses the signed typed data spec",
+              "type": "object",
+              "properties": {
+                "types": {
+                  "description": "The types of the signed typed data",
+                  "type": "object",
+                  "properties": {
+                    "MirrorWithSig": {
+                      "description": "The properties of the typed data",
+                      "type": "array",
+                      "items": {
+                        "description": "The name and type of the property",
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "description": "The name of typed data",
+                            "type": "string",
+                          },
+                          "type": {
+                            "description": "The type typed data",
+                            "type": "string",
+                          }
+                        },
+                        "required": ["name", "type"]
+                      }
+                    },
+                  },
+                  "required": ["types"]
+                },
+                "domain": {
+                  "description": "The domain of the signed typed data",
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "description": "The name of the signed typed data",
+                      "type": "string",
+                    },
+                    "version": {
+                      "description": "The version of the signed typed data",
+                      "type": "string",
+                    },
+                    "chainId": {
+                      "description": "The chain id of the signed typed data",
+                      "type": "number",
+                    },
+                    "verifyingContract": {
+                      "description": "The verifying contract",
+                      "type": "string",
+                    }
+                  },
+                  "required": ["name", "version", "chainId", "verifyingContract"]
+                },
+                "value": {
+                  "description": "The value of the signed typed data",
+                  "type": "object",
+                  "properties": {
+                    "profileId": {
+                      "description": "The profile id doing the comment",
+                      "type": "string",
+                    },
+                    "profileIdPointed": {
+                      "description": "The profile id which the comment is being made on",
+                      "type": "string",
+                    },
+                    "pubIdPointed": {
+                      "description": "The publication id which the comment is being made on",
+                      "type": "string",
+                    },
+                    "referenceModule": {
+                      "description": "The reference module will always be address(0) for now",
+                      "type": "string",
+                    },
+                    "referenceModuleData": {
+                      "description": "The reference module data - will always be empty bytes for now",
+                      "type": "string",
+                    },
+                    "referenceModuleInitData": {
+                      "description": "The reference module init data - will always be empty bytes for now",
+                      "type": "string",
+                    },
+                    "nonce": {
+                      "description": "The signature nonce",
+                      "type": "number",
+                    },
+                    "deadline": {
+                      "description": "The signature deadline in unix form",
+                      "type": "number",
+                    }
+                  },
+                  "required": ["profileId", "profileIdPointed", "pubIdPointed", "referenceModule", "referenceModuleInitData", "referenceModuleData", "nonce", "deadline"]
+                }
+              },
+              "required": ["types", "domain", "value"]
+            },
+            "blockHash": {
+              "description": "The block hash the submitter simulated this transaction on",
+              "type": "string"
+            },
+            "blockNumber": {
+              "description": "The block number the submitter simulated this transaction on",
+              "type": "number"
+            },
+            "blockNumber": {
+              "description": "The block unix timestamp of the simulated transaction",
+              "type": "number"
+            }
+          },
+          "required": ["signature", "signedByDelegate", "signatureDeadline", "typedData", "blockHash", "blockNumber", "blockTimestamp"]
+        },
+        "pointer": {
+          "description": "The pointer this publication is referencing",
+          "type": "object",
+          "properties": { 
+            "location": {
+              "description": "The location of the pointer publication proofs on the data availability layer",
+              "type": "string"
+            },
+            "type": {
+              "description": "the type of the publication on the data availability layer `ON_DA` or `ON_EVM_CHAIN` - for now you can not do a DA publication on a on-chain publication so will always be `ON_DA`",
+              "type": "string"
+            }
+          },
+          "required": [ "location", "type" ]
+        }
+      },
+      "required": [ "thisPublication", "pointer" ]
+    },
+    "publicationId": {
+      "description": "The id of the publication, which is built up of the profileId + pubId + `DA` + first eight chars of the dataAvailabilityId (so it will always be unique)",
+      "type": "string"
+    },
+    "event": {
+      "description": "This is trying to shape what you would get within an `EVM` event so you can easily parse it and understand it. This will always be identical to the EVM event data structure.",
+      "type": "object",
+      "properties": {
+        "profileId": {
+          "description": "The profileId which did the mirror",
+          "type": "string"
+        },
+        "pubId": {
+          "description": "The pubId for the mirror",
+          "type": "string"
+        },
+        "profileIdPointed": {
+          "description": "The profile id of the mirror is being made on",
+          "type": "string"
+        },
+        "pubIdPointed": {
+          "description": "The pub id which the mirror is being made on",
+          "type": "string"
+        },
+        "referenceModuleData": {
+          "description": "The reference module data - will always be empty hex for now",
+          "type": "string"
+        },
+        "referenceModule": {
+          "description": "The reference module, will always be address(0) for now",
+          "type": "string"
+        },
+        "referenceModuleReturnData": {
+          "description": "The reference module return data, will always for now be empty byte",
+          "type": "string"
+        },
+        "timestamp": {
+          "description": "The timestamp date in milliseconds",
+          "type": "number"
+        }
+      },
+      "required": [ "profileId", "pubId", "profileIdPointed", "pubIdPointed", "referenceModuleData", "referenceModule", "referenceModuleReturnData", "timestamp" ]
+    }
+  },
+  "required": [ "dataAvailabilityId", "type", "timestampProofs", "chainProofs", "publicationId", "event" ]
+}
+```
 
 ## Validation checks flows
 
-Here are the steps to make it easier to understand how the verifier works; of course, the code is all open source, so you can check. We have full coverage as well.
+Here are the steps to make it easier to understand how the verifier works; of course, the code is all open source, so you can check. 
+
+It is easier to explain this in steps then a diagram:
 
 1) Fetches the DA metadata from Bundlr
 2) Checks the `signature` is defined - if not, returns `ClaimableValidatorError.NO_SIGNATURE_SUBMITTER`
@@ -602,7 +1420,9 @@ This is a built-in node, and this means it can be run on the client as well as a
 $ npm i @lens-protocol/data-availability-verifier
 ```
 
-please note if you wish to use staging you will need to make sure you put `isStaging: true` in the `EthereumNode` object. This for most will not be the case
+<b>Do not use if you do not know what you are doing the basic config works for all production apps</b>
+
+please note if you wish to use a different deployment then `production` you will need to make sure you put `deployment: STAGING` or `deployment: LOCAL` in the `EthereumNode` object. This for most will not be the case.
 
 #### checkDAProof
 
