@@ -1,13 +1,12 @@
 {
   "name": "@lens-protocol/data-availability-verifier",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "Data availability verifier for the Lens protocol",
   "main": "lib/index.js",
   "types": "./lib/index.d.ts",
   "files": [
     "lib/**/*",
-    "README.md",
-    "images/**/*"
+    "README.md"
   ],
   "scripts": {
     "build": "tsc --declaration",
