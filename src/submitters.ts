@@ -1,5 +1,6 @@
 import { getOwnerOfTransactionAPI } from './bundlr/get-owner-of-transaction.api';
 import { Deployment, Environment } from './environment';
+import { TimeoutError, TIMEOUT_ERROR } from './fetch-with-timeout';
 
 export const getSubmitters = (
   environment: Environment,
@@ -62,8 +63,12 @@ export const isValidTransactionSubmitter = async (
   arweaveId: string,
   log: (message: string, ...optionalParams: any[]) => void,
   deployment?: Deployment
-) => {
+): Promise<boolean | TimeoutError> => {
   const owner = await getOwnerOfTransactionAPI(arweaveId);
+  if (owner === TIMEOUT_ERROR) {
+    return TIMEOUT_ERROR;
+  }
+
   log('owner result', owner);
   if (!owner) {
     return false;

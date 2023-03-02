@@ -49,6 +49,11 @@ export enum ClaimableValidatorError {
   // BLOCK_MISMATCH = 'BLOCK_MISMATCH',
 
   /**
+   * We tried to call them 5 times and its errored out - this is not a bad proof but bundlr/arweave are having issues
+   */
+  CAN_NOT_CONNECT_TO_ARWEAVE = 'CAN_NOT_CONNECT_TO_ARWEAVE',
+
+  /**
    * This the typed data format is invalid (aka a invalid address type etc)
    */
   INVALID_FORMATTED_TYPED_DATA = 'INVALID_FORMATTED_TYPED_DATA',

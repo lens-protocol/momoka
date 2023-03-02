@@ -20,6 +20,7 @@ import {
 } from './data-availability-models/publications/data-availability-structure-publication';
 import { getBlockDb, getTxDb, saveBlockDb, TxValidatedFailureResult } from './db';
 import { EthereumNode, getBlock } from './ethereum';
+import { TIMEOUT_ERROR } from './fetch-with-timeout';
 import { deepClone } from './helpers';
 import { checkDAComment, CheckDACommentPublication } from './publications/comment';
 import { checkDAMirror, CheckDAMirrorPublication } from './publications/mirror';
@@ -209,6 +210,10 @@ export const checkDAProof = async (
   >(txId);
   // log('getArweaveByIdAPI result', daPublication);
 
+  if (daPublication === TIMEOUT_ERROR) {
+    return failureWithContext(ClaimableValidatorError.CAN_NOT_CONNECT_TO_ARWEAVE, undefined as any);
+  }
+
   if (!daPublication.signature) {
     return failureWithContext(ClaimableValidatorError.NO_SIGNATURE_SUBMITTER, daPublication);
   }
@@ -245,6 +250,10 @@ export const checkDAProof = async (
     dataAvailabilityId: string;
   }>(daPublication.timestampProofs.response.id);
 
+  if (timestampProofsPayload === TIMEOUT_ERROR) {
+    return failureWithContext(ClaimableValidatorError.CAN_NOT_CONNECT_TO_ARWEAVE, undefined as any);
+  }
+
   if (timestampProofsPayload.type !== daPublication.type) {
     log('timestamp proof type mismatch');
     return failureWithContext(ClaimableValidatorError.TIMESTAMP_PROOF_INVALID_TYPE, daPublication);
@@ -262,6 +271,11 @@ export const checkDAProof = async (
     log,
     ethereumNode.deployment
   );
+
+  if (timestampProofsSubmitter === TIMEOUT_ERROR) {
+    return failureWithContext(ClaimableValidatorError.CAN_NOT_CONNECT_TO_ARWEAVE, undefined as any);
+  }
+
   if (!timestampProofsSubmitter) {
     log('timestamp proof invalid submitter');
     return failureWithContext(ClaimableValidatorError.TIMESTAMP_PROOF_NOT_SUBMITTER, daPublication);

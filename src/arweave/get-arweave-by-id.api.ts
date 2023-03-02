@@ -1,8 +1,9 @@
 import { getBundlrByIdAPI } from '../bundlr/get-bundlr-by-id.api';
+import { fetchWithTimeout, TimeoutError } from '../fetch-with-timeout';
 
-export const getArweaveByIdAPI = async <T>(txId: string): Promise<T> => {
+export const getArweaveByIdAPI = async <T>(txId: string): Promise<T | TimeoutError> => {
   try {
-    const metadata = await fetch(`https://arweave.net/${txId}`);
+    const metadata = await fetchWithTimeout(`https://arweave.net/${txId}`);
 
     const result: T = (await metadata.json()) as T;
 

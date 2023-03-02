@@ -142,27 +142,32 @@ export const startDAVerifierNode = async (
   while (true) {
     consoleLog('LENS VERIFICATION NODE - Checking for new submissions...');
 
-    const arweaveTransactions: getDataAvailabilityTransactionsAPIResponse =
-      await getDataAvailabilityTransactionsAPI(
-        ethereumNode.environment,
-        ethereumNode.deployment,
-        endCursor
-      );
+    try {
+      const arweaveTransactions: getDataAvailabilityTransactionsAPIResponse =
+        await getDataAvailabilityTransactionsAPI(
+          ethereumNode.environment,
+          ethereumNode.deployment,
+          endCursor
+        );
 
-    if (arweaveTransactions.edges.length === 0) {
-      consoleLog('LENS VERIFICATION NODE - No new items found..');
-      await sleep(500);
-    } else {
-      consoleLog(
-        'LENS VERIFICATION NODE - Found new submissions...',
-        arweaveTransactions.edges.length
-      );
+      if (arweaveTransactions.edges.length === 0) {
+        consoleLog('LENS VERIFICATION NODE - No new items found..');
+        await sleep(500);
+      } else {
+        consoleLog(
+          'LENS VERIFICATION NODE - Found new submissions...',
+          arweaveTransactions.edges.length
+        );
 
-      endCursor = arweaveTransactions.pageInfo.endCursor;
+        endCursor = arweaveTransactions.pageInfo.endCursor;
 
-      // fire and forget so we can process as many as we can in concurrently!
-      checkDAProofsBatch(arweaveTransactions, ethereumNode, stream);
+        // fire and forget so we can process as many as we can in concurrently!
+        checkDAProofsBatch(arweaveTransactions, ethereumNode, stream);
 
+        await sleep(500);
+      }
+    } catch (error) {
+      consoleLog('LENS VERIFICATION NODE - Error while checking for new submissions', error);
       await sleep(500);
     }
   }
