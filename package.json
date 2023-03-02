@@ -12,7 +12,7 @@
   "scripts": {
     "build": "tsc --declaration",
     "start": "env-cmd -f .env ts-node src/watcher.ts",
-    "start:native": "node ./lib/watcher.js",
+    "start:native": "env-cmd -f .env node ./lib/watcher.js",
     "generate": "graphql-codegen",
     "test": "env-cmd -f .env jest",
     "lint": "npm run prettier && npm run tsc",

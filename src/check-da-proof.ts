@@ -227,7 +227,8 @@ export const checkDAProof = async (
   }
 
   // check if bundlr timestamp proofs are valid and verified against bundlr node
-  const valid = await Utils.verifyReceipt(daPublication.timestampProofs.response);
+  // bundlr typings are Required<Proofs> but they are sharing the response and request
+  const valid = await Utils.verifyReceipt(daPublication.timestampProofs.response as any);
   if (!valid) {
     log('timestamp proof invalid signature');
     return failureWithContext(

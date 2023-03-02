@@ -1448,7 +1448,7 @@ console.error('proof invalid do something', result.failure!)
 
 #### startDAVerifierNode
 
-This is a start watching all the DA items coming in and logging it all out in your terminal. You can use the `docker-compose up` to just run it, or you can install the package and run it on your own server.
+This is a start watching all the DA items coming in and logging it all out in your terminal. You can use the docker to just run it, or you can install the package and run it on your own server.
 
 ```ts
 import { startDAVerifierNode, EthereumNode } from '@lens-protocol/data-availability-verifier';
@@ -1504,8 +1504,23 @@ $ npm run start
 
 #### Docker
 
-To run the docker file, just run the following:
+To run the docker first build it:
 
 ```bash
-$ docker-compose up
+$ docker build -t da-service .
 ```
+
+Then run it:
+
+```bash
+$ docker run -d -p 3008:3008 da-service
+```
+
+This will return an docker id.
+
+Then to listen to the logs you can:
+
+```bash
+docker logs <id>
+```
+
