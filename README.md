@@ -1474,14 +1474,14 @@ const stream = (result: StreamResult) => {
   console.log('streamed publication', result);
 
   if(result.success) {
-    // success
-    console.log('reason', result.dataAvailabilityResult)
+    // success - insert into your db here if you wish
+    console.log('success', result.dataAvailabilityResult)
   } else {
-    // failure
-    console.log('reason', result.failureReason)
+    // failure reason
+    console.log('reason', result.failureReason);
+    // this will expose the submisson if it could be read
+    console.log('submisson', result.dataAvailabilityResult)
   }
-
-  // insert into your DB or do something with it!
 };
 
 const ethereumNode: EthereumNode = {

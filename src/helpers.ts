@@ -14,3 +14,11 @@ export const getParamOrExit = (name: string): string => {
   }
   return param;
 };
+
+export const getParam = (name: string): string | null => {
+  const param = process.env[name];
+  if (!param) {
+    return null;
+  }
+  return param;
+};

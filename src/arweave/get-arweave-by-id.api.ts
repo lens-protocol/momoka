@@ -1,4 +1,3 @@
-import fetch from 'node-fetch-commonjs';
 import { getBundlrByIdAPI } from '../bundlr/get-bundlr-by-id.api';
 
 export const getArweaveByIdAPI = async <T>(txId: string): Promise<T> => {

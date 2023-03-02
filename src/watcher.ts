@@ -1,11 +1,11 @@
 import { Environment, EthereumNode, startDAVerifierNode } from './';
 import { Deployment } from './environment';
-import { getParamOrExit } from './helpers';
+import { getParam, getParamOrExit } from './helpers';
 
 const ethereumNode: EthereumNode = {
   environment: getParamOrExit('ETHEREUM_NETWORK') as Environment,
   nodeUrl: getParamOrExit('NODE_URL'),
-  deployment: getParamOrExit('DEPLOYMENT') as Deployment,
+  deployment: (getParam('DEPLOYMENT') as Deployment) || Deployment.PRODUCTION,
 };
 
 startDAVerifierNode(ethereumNode).catch((error) => {
