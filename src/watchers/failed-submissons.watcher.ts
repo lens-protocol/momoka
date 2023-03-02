@@ -2,10 +2,10 @@ import { FailedTransactionsDb, getFailedTransactionsDb, startDb } from '../db';
 import { sleep } from '../helpers';
 import { consoleLog } from '../logger';
 
-export const verifierFailedSubmissionsWatcher = async () => {
+export const verifierFailedSubmissionsWatcher = async (dbLocationFolder: string) => {
   consoleLog('LENS VERIFICATION NODE - started up failed submisson watcher...');
 
-  startDb();
+  startDb(dbLocationFolder);
 
   let seenFailedSubmissions: FailedTransactionsDb[] = [];
   while (true) {

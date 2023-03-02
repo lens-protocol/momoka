@@ -32,7 +32,7 @@ It means LENS could scale to 25,000TPS+, which would not be possible at the curr
 
 ## Submitters
 
-Anything which has some form of "trust" needs some form of "slashing" if they act badly. Our submitters will start as a whitelisted array of addresses; for now, this will just be one address LENS owns. Once this approach is proven and later down the line, this can be opened up to anyone to be a submitter with incentives but also the ability to lose something if they are a bad actor. If the submitters have nothing to lose, then they can flood the system with invalid submissions; this also means the verifier has no incentives to prove the submitters wrong. Of course, they can't make up signatures, but they could DDOS the entire system by submitting a lot of invalid data making it hard to catch up and lagging the system. Our submitter will be accountable for any mistakes, and a bug bounty will be paid out if someone finds a bad submission once we are out of beta. A note on this `CAN_NOT_CONNECT_TO_ARWEAVE` and `BLOCK_CANT_BE_READ_FROM_NODE` can be issues due to other software being down so not critical errors. The verifier will retry them later on to see if it still passes. This whole system could be decentralised over time. For now, we see this as a beta approach to scaling; when I say beta, it doesn't mean it will ever go away. It's just our first stab at how we can scale using a hybrid module model.
+Anything which has some form of "trust" needs some form of "slashing" if they act badly. Our submitters will start as a whitelisted array of addresses; for now, this will just be one address LENS owns. Once this approach is proven and later down the line, this can be opened up to anyone to be a submitter with incentives but also the ability to lose something if they are a bad actor. If the submitters have nothing to lose, then they can flood the system with invalid submissions; this also means the verifier has no incentives to prove the submitters wrong. Of course, they can't make up signatures, but they could DDOS the entire system by submitting a lot of invalid data making it hard to catch up and lagging the system. Our submitter will be accountable for any mistakes, and a bug bounty will be paid out if someone finds a bad submission once we are out of beta. A note on this `CAN_NOT_CONNECT_TO_ARWEAVE` and `BLOCK_CANT_BE_READ_FROM_NODE` can be issues due to other third party software being down so not classed as a verifier critical errors. The verifier will retry them later on to see if it still passes. This whole system could be decentralised over time. For now, we see this as a beta approach to scaling; when I say beta, it doesn't mean it will ever go away. It's just our first stab at how we can scale using a hybrid module model.
 
 It's the submitter's job to validate, build up the DA metadata and submit this to Arweave/Bundlr. Once the proofs have been generated with the DA submission, it is uploaded to Aarweave via Bundlr, which response is instant; we will run through the entire flow shortly. It is the submitter's job to give back proofs that anyone can contest. The submitters are whitelisted, so the verifier software listens out for all DA publications sent from those addresses and verifies it is a valid submissions.
 
@@ -1495,10 +1495,27 @@ const ethereumNode: EthereumNode = {
 };
 
 // it run forever and log out to the terminal
-startDAVerifierNode(ethereumNode, stream);
+// DB_LOCATION_FOLDER_PATH = the path to the folder where you want to store the DB, if folder does not exist it will create it. We suggest putting it as close to this code as possible.
+startDAVerifierNode(ethereumNode, DB_LOCATION_FOLDER_PATH, stream);
 ```
 
 ### Running standalone
+
+#### ENV setup
+
+for this to run you need to create a `.env` (or copy the template `cp .env.template .env`) file with these variables:
+
+```
+ETHEREUM_NETWORK=INSERT_NETWORK
+NODE_URL=NODE_URL
+DB_LOCATION_FOLDER_PATH=INSERT_PATH
+```
+
+- ETHEREUM_NETWORK = MUMBAI | POLYGON | SANDBOX
+- NODE_URL = the node url to connect which matches the network
+- DB_LOCATION_FOLDER_PATH = the path to the folder where you want to store the DB, if folder does not exist it will create it. We suggest putting it as close to this code as possible. We suggest ./da-verifier-database
+
+#### Running from this repo
 
 If you wish to just run it on its own, you can just run:
 

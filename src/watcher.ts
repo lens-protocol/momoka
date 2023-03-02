@@ -8,7 +8,7 @@ const ethereumNode: EthereumNode = {
   deployment: (getParam('DEPLOYMENT') as Deployment) || Deployment.PRODUCTION,
 };
 
-startDAVerifierNode(ethereumNode).catch((error) => {
+startDAVerifierNode(ethereumNode, getParamOrExit('DB_LOCATION_FOLDER_PATH')).catch((error) => {
   console.error('DA verifier node failed to startup', error);
   process.exitCode = 1;
 });

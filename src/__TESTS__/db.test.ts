@@ -16,7 +16,7 @@ import { random } from './shared-helpers';
 
 describe('db', () => {
   beforeEach(() => {
-    startDb();
+    startDb('../database');
   });
 
   const txValidatedResult: TxValidatedResult = {

@@ -33,11 +33,17 @@ export interface TxValidatedFailureResult
 export interface TxValidatedSuccessResult
   extends TxValidatedResultBase<true, DAStructurePublication<DAEventType, PublicationTypedData>> {}
 
-export const startDb = () => {
+export const startDb = (dbLocationFolderPath: string) => {
   if (db) return;
 
   const path = require('path');
-  const dbPath = path.join(__dirname, '..', 'database');
+  const dbPath = path.join(process.cwd(), dbLocationFolderPath);
+
+  const fs = require('fs');
+  if (!fs.existsSync(dbPath)) {
+    fs.mkdirSync(dbPath);
+  }
+
   db = new Level(dbPath);
 };
 

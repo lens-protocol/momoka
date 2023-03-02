@@ -129,13 +129,14 @@ const checkDAProofsBatch = async (
 
 export const startDAVerifierNode = async (
   ethereumNode: EthereumNode,
+  dbLocationFolderPath: string,
   stream?: StreamCallback | undefined
 ) => {
   consoleLog('LENS VERIFICATION NODE - DA verification watcher started...');
 
-  startDb();
+  startDb(dbLocationFolderPath);
   watchBlocks(ethereumNode);
-  verifierFailedSubmissionsWatcher();
+  verifierFailedSubmissionsWatcher(dbLocationFolderPath);
 
   let endCursor: string | null = null;
 
