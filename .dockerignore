@@ -1,3 +1,6 @@
+.dockerignore
+npm-debug.log
+Dockerfile
 .gitignore
 jest.config.js
 .git
