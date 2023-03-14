@@ -1,11 +1,19 @@
 import { getOwnerOfTransactionAPI } from './bundlr/get-owner-of-transaction.api';
 import { Deployment, Environment } from './environment';
 import { TimeoutError, TIMEOUT_ERROR } from './fetch-with-timeout';
+import { LogFunctionType } from './logger';
 
+/**
+ * Returns the list of submitters based on the given environment and deployment
+ * @param environment - The environment to get the submitters for
+ * @param deployment - The deployment to get the submitters for. Defaults to Deployment.PRODUCTION
+ * @returns An array of submitter addresses in lowercase
+ * @throws {Error} if the environment is invalid or if the deployment is invalid
+ */
 export const getSubmitters = (
   environment: Environment,
   deployment: Deployment = Deployment.PRODUCTION
-) => {
+): string[] => {
   // this will come from a smart contract later on!
 
   if (deployment === Deployment.PRODUCTION) {
@@ -50,6 +58,13 @@ export const getSubmitters = (
   throw new Error('Invalid deployment');
 };
 
+/**
+ * Checks if an Ethereum address is a valid submitter for the given environment and deployment.
+ * @param environment The environment (Polygon, Mumbai, or Sandbox).
+ * @param address The Ethereum address to check.
+ * @param deployment The deployment (Production, Staging, or Local). Defaults to Production.
+ * @returns True if the address is a valid submitter, false otherwise.
+ */
 export const isValidSubmitter = (
   environment: Environment,
   address: string,
@@ -58,13 +73,21 @@ export const isValidSubmitter = (
   return getSubmitters(environment, deployment).includes(address.toLowerCase());
 };
 
+/**
+ * Checks if the given Arweave transaction was submitted by a valid submitter for the specified environment.
+ * @param environment The environment to check against.
+ * @param txId The Arweave transaction ID to check the submitter of.
+ * @param log A logging function to use for outputting log messages.
+ * @param deployment The deployment to check against.
+ * @returns A Promise that resolves to true if the submitter is valid, false if it is not valid, or a TimeoutError if the request timed out.
+ */
 export const isValidTransactionSubmitter = async (
   environment: Environment,
-  arweaveId: string,
-  log: (message: string, ...optionalParams: any[]) => void,
+  txId: string,
+  log: LogFunctionType,
   deployment?: Deployment
 ): Promise<boolean | TimeoutError> => {
-  const owner = await getOwnerOfTransactionAPI(arweaveId);
+  const owner = await getOwnerOfTransactionAPI(txId);
   if (owner === TIMEOUT_ERROR) {
     return TIMEOUT_ERROR;
   }

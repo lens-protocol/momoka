@@ -1,15 +1,27 @@
+/**
+ * Enum defining the supported Ethereum environments for the verifier node.
+ */
 export enum Environment {
   POLYGON = 'POLYGON',
   MUMBAI = 'MUMBAI',
   SANDBOX = 'SANDBOX',
 }
 
+/**
+ * Enum defining the deployment configurations for the verifier node.
+ */
 export enum Deployment {
   PRODUCTION = 'PRODUCTION',
   STAGING = 'STAGING',
   LOCAL = 'LOCAL',
 }
 
+/**
+ * Maps an Ethereum environment to its corresponding chain ID.
+ * @param environment The Ethereum environment to map to a chain ID.
+ * @returns The chain ID corresponding to the provided Ethereum environment.
+ * @throws An error if the provided environment is invalid.
+ */
 export const environmentToChainId = (environment: Environment) => {
   switch (environment) {
     case Environment.POLYGON:
@@ -22,6 +34,12 @@ export const environmentToChainId = (environment: Environment) => {
   }
 };
 
+/**
+ * Maps an Ethereum environment to its corresponding Lens Hub contract address.
+ * @param environment The Ethereum environment to map to a Lens Hub contract address.
+ * @returns The Lens Hub contract address corresponding to the provided Ethereum environment.
+ * @throws An error if the provided environment is invalid.
+ */
 export const environmentToLensHubContract = (environment: Environment) => {
   switch (environment) {
     case Environment.POLYGON:

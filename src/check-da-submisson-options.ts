@@ -1,4 +1,6 @@
+import { LogFunctionType } from './logger';
+
 export interface CheckDASubmissionOptions {
   verifyPointer: boolean;
-  log: (message: string, ...optionalParams: any[]) => void;
+  log: LogFunctionType;
 }

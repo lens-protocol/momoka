@@ -5,17 +5,24 @@ import { EthereumNode, ethereumProvider } from '../ethereum';
 import { LensHub } from '../ethereum-abi-types/LensHub';
 import { LENS_HUB_ABI } from './lens-hub-contract-abi';
 
-type LensHubType = LensHub | undefined;
+/**
+ * Cached Lens Hub smart contract instances.
+ */
 const _lensHubCached: {
-  POLYGON: LensHubType;
-  MUMBAI: LensHubType;
-  SANDBOX: LensHubType;
+  POLYGON: LensHub | undefined;
+  MUMBAI: LensHub | undefined;
+  SANDBOX: LensHub | undefined;
 } = {
   POLYGON: undefined,
   MUMBAI: undefined,
   SANDBOX: undefined,
 };
 
+/**
+ * Returns an instance of the Lens Hub smart contract for the specified Ethereum node.
+ * @param ethereumNode The Ethereum node to connect to.
+ * @returns An instance of the Lens Hub smart contract.
+ */
 export const getLensHubContract = (ethereumNode: EthereumNode): LensHub => {
   if (_lensHubCached[ethereumNode.environment]) {
     return _lensHubCached[ethereumNode.environment]!;
@@ -30,8 +37,18 @@ export const getLensHubContract = (ethereumNode: EthereumNode): LensHub => {
   return (_lensHubCached[ethereumNode.environment] = contract);
 };
 
+/**
+ * The Lens Hub smart contract interface.
+ */
 export const DAlensHubInterface = new Interface(LENS_HUB_ABI);
 
+/**
+ * Returns the number of published data availability proofs for a given profile ID and block number.
+ * @param profileId The profile ID to retrieve the published proof count for.
+ * @param blockNumber The block number to retrieve the published proof count at.
+ * @param ethereumNode The Ethereum node to connect to.
+ * @returns The number of published data availability proofs for the specified profile ID and block number.
+ */
 export const getPubCount = async (
   profileId: string,
   blockNumber: number,

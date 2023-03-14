@@ -1,5 +1,5 @@
 import got from 'got-cjs';
-// import https from 'https';
+import https from 'https';
 export const TIMEOUT_ERROR = 'timeout';
 export type TimeoutError = 'timeout';
 
@@ -12,9 +12,9 @@ export const fetchWithTimeout = async <TResponse>(url: string): Promise<TRespons
         timeout: {
           request: TIMEOUT_MS,
         },
-        // agent: {
-        //   https: new https.Agent({ keepAlive: true }),
-        // },
+        agent: {
+          https: new https.Agent({ keepAlive: true }),
+        },
       })
       .json();
 
@@ -44,9 +44,9 @@ export const postWithTimeout = async <TResponse, TBody>(
         timeout: {
           request: TIMEOUT_MS,
         },
-        // agent: {
-        //   https: new https.Agent({ keepAlive: true }),
-        // },
+        agent: {
+          https: new https.Agent({ keepAlive: true }),
+        },
       })
       .json();
 
@@ -79,9 +79,9 @@ export const JSONRPCWithTimeout = async <TResponse>(
         timeout: {
           request: TIMEOUT_MS,
         },
-        // agent: {
-        //   https: new https.Agent({ keepAlive: true }),
-        // },
+        agent: {
+          https: new https.Agent({ keepAlive: true }),
+        },
       })
       .json();
 

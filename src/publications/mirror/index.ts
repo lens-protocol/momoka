@@ -9,6 +9,7 @@ import {
 } from '../../data-availability-models/publications/data-availability-structure-publication';
 import { DAMirrorCreatedEventEmittedResponse } from '../../data-availability-models/publications/data-availability-structure-publications-events';
 import { EMPTY_BYTE, EthereumNode, getOnChainProfileDetails } from '../../ethereum';
+import { LogFunctionType } from '../../logger';
 import { whoSignedTypedData } from '../publication.base';
 
 export type CheckDAMirrorPublication = DAStructurePublication<
@@ -16,11 +17,19 @@ export type CheckDAMirrorPublication = DAStructurePublication<
   CreateMirrorEIP712TypedData
 >;
 
+/**
+ * Cross check DA mirror event with the typed data value
+ * @param event - the event to be cross-checked
+ * @param typedData - the typed data to be compared with the event value
+ * @param pubCountAtBlock - the publication count at the block
+ * @param log - logging function to display the message
+ * @returns {PromiseResult} - returns success if the event passes the cross-check, otherwise returns failure with an error
+ */
 const crossCheckEvent = async (
   event: DAMirrorCreatedEventEmittedResponse,
   typedData: CreateMirrorEIP712TypedData,
   pubCountAtBlock: string,
-  log: (message: string, ...optionalParams: any[]) => void
+  log: LogFunctionType
 ): PromiseResult => {
   // compare all event emitted to typed data value
   log('cross check event with typed data value');
@@ -48,11 +57,20 @@ const crossCheckEvent = async (
   return success();
 };
 
+/**
+ * Checks if the given DAMirrorPublication is valid by verifying the proof chain, cross-checking against the event, and
+ * validating the signature.
+ * @param publication The DAMirrorPublication to check.
+ * @param verifyPointer If true, the pointer chain will be verified before checking the publication.
+ * @param ethereumNode The EthereumNode to use for fetching data from the Ethereum blockchain.
+ * @param log A function used for logging output.
+ * @returns A PromiseResult indicating success or failure, along with an optional error message.
+ */
 export const checkDAMirror = async (
   publication: CheckDAMirrorPublication,
   verifyPointer: boolean,
   ethereumNode: EthereumNode,
-  log: (message: string, ...optionalParams: any[]) => void
+  log: LogFunctionType
 ): PromiseResult => {
   log('check DA mirror');
 

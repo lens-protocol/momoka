@@ -39,6 +39,10 @@ export interface TxValidatedFailureResult
 export interface TxValidatedSuccessResult
   extends TxValidatedResultBase<true, DAStructurePublication<DAEventType, PublicationTypedData>> {}
 
+/**
+ * Starts the LevelDB database.
+ * @param dbLocationFolderPath - The path where the LevelDB will be created.
+ */
 export const startDb = (dbLocationFolderPath: string) => {
   if (db) return;
 
@@ -53,11 +57,20 @@ export const startDb = (dbLocationFolderPath: string) => {
   db = new Level(dbPath);
 };
 
+/**
+ * Deletes an item from the database.
+ * @param key - The key of the item to be deleted.
+ */
 export const deleteDb = (key: string) => {
   if (!db) return;
   return db.del(key);
 };
 
+/**
+ * Gets a transaction from the database.
+ * @param txId - The ID of the transaction to get.
+ * @returns The transaction if it exists, null otherwise.
+ */
 export const getTxDb = async (txId: string): Promise<TxValidatedResult | null> => {
   if (!db) return null;
   try {
@@ -68,6 +81,12 @@ export const getTxDb = async (txId: string): Promise<TxValidatedResult | null> =
   }
 };
 
+/**
+ * Saves a transaction to the database.
+ *
+ * @param txId - The ID of the transaction to save.
+ * @param result - The result of the transaction.
+ */
 export const saveTxDb = async (txId: string, result: TxValidatedResult): Promise<void> => {
   if (!db) return;
   try {
@@ -78,6 +97,12 @@ export const saveTxDb = async (txId: string, result: TxValidatedResult): Promise
   }
 };
 
+/**
+ * Gets a block from the database.
+ *
+ * @param blockNumber - The number of the block to get.
+ * @returns The block if it exists, null otherwise.
+ */
 export const getBlockDb = async (blockNumber: number): Promise<Block | null> => {
   if (!db) return null;
   try {
@@ -88,6 +113,11 @@ export const getBlockDb = async (blockNumber: number): Promise<Block | null> => 
   }
 };
 
+/**
+ * Saves a block to the database.
+ *
+ * @param block - The block to save.
+ */
 export const saveBlockDb = async (block: BlockInfo): Promise<void> => {
   if (!db) return;
   try {
@@ -104,6 +134,11 @@ export interface FailedTransactionsDb {
   submitter: string;
 }
 
+/**
+ * Gets an array of failed transactions from the database.
+ * Returns an empty array if the database is not available or there are no failed transactions.
+ * @returns An array of failed transactions.
+ */
 export const getFailedTransactionsDb = async (): Promise<FailedTransactionsDb[]> => {
   if (!db) return [];
   try {
@@ -114,6 +149,11 @@ export const getFailedTransactionsDb = async (): Promise<FailedTransactionsDb[]>
   }
 };
 
+/**
+ * Saves a failed transaction to the database.
+ * @param failedTransaction - The failed transaction object to save.
+ * @throws Throws an error if the database is not available.
+ */
 export const saveFailedTransactionDb = async (
   failedTransaction: FailedTransactionsDb
 ): Promise<void> => {
@@ -126,6 +166,11 @@ export const saveFailedTransactionDb = async (
   }
 };
 
+/**
+ * Gets the last end cursor from the database.
+ * Returns null if the database is not available or there is no cursor.
+ * @returns The last end cursor.
+ */
 export const getLastEndCursorDb = async (): Promise<string | null> => {
   if (!db) return null;
   try {
@@ -135,6 +180,11 @@ export const getLastEndCursorDb = async (): Promise<string | null> => {
   }
 };
 
+/**
+ * Saves the end cursor to the database.
+ * @param cursor - The end cursor to save.
+ * @throws Throws an error if the database is not available.
+ */
 export const saveEndCursorDb = async (cursor: string): Promise<void> => {
   if (!db) return;
   try {
@@ -144,6 +194,12 @@ export const saveEndCursorDb = async (cursor: string): Promise<void> => {
   }
 };
 
+/**
+ * Saves the given publication metadata to the database under the given transaction ID
+ * @param txId The transaction ID to use as the key in the database
+ * @param publication The publication metadata to save
+ * @throws An error if the database is not available or if the write operation fails
+ */
 export const saveTxDAMetadataDb = async (
   txId: string,
   publication: DAStructurePublication<DAEventType, PublicationTypedData>
@@ -156,6 +212,11 @@ export const saveTxDAMetadataDb = async (
   }
 };
 
+/**
+ * Retrieves the publication metadata associated with the given transaction ID from the database
+ * @param txId The transaction ID to use as the key in the database
+ * @returns The publication metadata if it is found, or null if it is not found or if the database is not available
+ */
 export const getTxDAMetadataDb = async (
   txId: string
 ): Promise<DAStructurePublication<DAEventType, PublicationTypedData> | null> => {
@@ -168,6 +229,12 @@ export const getTxDAMetadataDb = async (
   }
 };
 
+/**
+ * Saves the given timestamp proofs metadata to the database under the given transaction ID
+ * @param txId The transaction ID to use as the key in the database
+ * @param proofs The timestamp proofs metadata to save
+ * @throws An error if the database is not available or if the write operation fails
+ */
 export const saveTxTimestampProofsMetadataDb = async (
   txId: string,
   proofs: DATimestampProofsResponse
@@ -180,6 +247,11 @@ export const saveTxTimestampProofsMetadataDb = async (
   }
 };
 
+/**
+ * Retrieves the timestamp proofs metadata associated with the given transaction ID from the database
+ * @param txId The transaction ID to use as the key in the database
+ * @returns The timestamp proofs metadata if it is found, or null if it is not found or if the database is not available
+ */
 export const getTxTimestampProofsMetadataDb = async (
   txId: string
 ): Promise<DATimestampProofsResponse | null> => {

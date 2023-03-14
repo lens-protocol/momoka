@@ -33,16 +33,23 @@ import {
 import { BlockInfo, EthereumNode, getBlock } from './ethereum';
 import { TIMEOUT_ERROR } from './fetch-with-timeout';
 import { deepClone } from './helpers';
+import { LogFunctionType } from './logger';
 import { checkDAComment, CheckDACommentPublication } from './publications/comment';
 import { checkDAMirror, CheckDAMirrorPublication } from './publications/mirror';
 import { checkDAPost, CheckDAPostPublication } from './publications/post';
 import { isValidSubmitter, isValidTransactionSubmitter } from './submitters';
 
+/**
+ * Finds the closest block based on timestamp in milliseconds.
+ * @param blocks List of blocks to search through
+ * @param timestamp Timestamp in milliseconds to match against block timestamp
+ * @returns The block with the closest matching timestamp
+ */
 const getClosestBlock = (blocks: BlockInfo[], timestamp: number): BlockInfo => {
   return blocks
     .map((c) => ({
       ...c,
-      // turn to ms!
+      // Convert block timestamp to milliseconds
       timestamp: c.timestamp * 1000,
     }))
     .filter((c) => timestamp >= c.timestamp)
@@ -53,6 +60,14 @@ const getClosestBlock = (blocks: BlockInfo[], timestamp: number): BlockInfo => {
     });
 };
 
+/**
+ * Retrieves block information for a range of block numbers.
+ * If a block has been retrieved previously, it will return the cached value instead of querying the network.
+ * Any newly retrieved blocks will be cached for future use.
+ * @param blockNumbers An array of block numbers to retrieve information for
+ * @param ethereumNode The Ethereum node to query for block information
+ * @returns A PromiseResult containing an array of BlockInfo objects, or a TimeoutError if the query times out
+ */
 const getBlockRange = async (
   blockNumbers: number[],
   ethereumNode: EthereumNode
@@ -81,11 +96,19 @@ const getBlockRange = async (
   }
 };
 
+/**
+ * Validate if a block number is the closest one to a given timestamp.
+ * @param blockNumber - The block number to be validated.
+ * @param timestamp - The timestamp to be used to validate the block.
+ * @param ethereumNode - The Ethereum node to be used for block validation.
+ * @param log - The log function used to log debug information.
+ * @returns A PromiseResult containing a success result if the block is validated, or a failure with the corresponding error.
+ */
 const validateChoosenBlock = async (
   blockNumber: number,
   timestamp: number,
   ethereumNode: EthereumNode,
-  log: (message: string, ...optionalParams: any[]) => void
+  log: LogFunctionType
 ): PromiseResult => {
   try {
     // got the current block the previous block and the block in the future!
@@ -149,6 +172,10 @@ const validateChoosenBlock = async (
   }
 };
 
+/**
+ * Generates the unique ID for a DAStructurePublication.
+ * @param daPublication The DAStructurePublication to generate an ID for
+ */
 const generatePublicationId = (
   daPublication: DAStructurePublication<DAEventType, PublicationTypedData>
 ): string => {
@@ -157,47 +184,70 @@ const generatePublicationId = (
   }`;
 };
 
+/**
+ * Validates a publication of a DA structure by checking its type and calling the appropriate check function.
+ * @param daPublication The publication to validate.
+ * @param ethereumNode The Ethereum node to use for validation.
+ * @param checkOptions Options for checking the publication.
+ * @returns A PromiseResult indicating the success or failure of the publication check.
+ */
 const checkDAPublication = async (
   daPublication: DAStructurePublication<DAEventType, PublicationTypedData>,
   ethereumNode: EthereumNode,
-  { log, verifyPointer }: CheckDASubmissionOptions
+  checkOptions: CheckDASubmissionOptions
 ): PromiseResult => {
   switch (daPublication.type) {
     case DAActionTypes.POST_CREATED:
       if (daPublication.chainProofs.pointer) {
         return failure(ClaimableValidatorError.INVALID_POINTER_SET_NOT_NEEDED);
       }
-      return await checkDAPost(daPublication as CheckDAPostPublication, ethereumNode, log);
+      return await checkDAPost(
+        daPublication as CheckDAPostPublication,
+        ethereumNode,
+        checkOptions.log
+      );
     case DAActionTypes.COMMENT_CREATED:
       return await checkDAComment(
         daPublication as CheckDACommentPublication,
-        verifyPointer,
+        checkOptions.verifyPointer,
         ethereumNode,
-        log
+        checkOptions.log
       );
     case DAActionTypes.MIRROR_CREATED:
       return await checkDAMirror(
         daPublication as CheckDAMirrorPublication,
-        verifyPointer,
+        checkOptions.verifyPointer,
         ethereumNode,
-        log
+        checkOptions.log
       );
     default:
       return failure(ClaimableValidatorError.UNKNOWN);
   }
 };
 
+/**
+ * Checks if the given transaction ID has already been checked and returns the corresponding publication.
+ * If the transaction ID is found in the database, returns either a success or failure result depending on whether the
+ * publication was validated successfully or not, respectively.
+ * If the transaction ID is not found in the database, returns null.
+ * @param txId The transaction ID to check
+ * @param log The logging function to use
+ * @returns A promise that resolves to a success or failure result if the publication has already been checked, or null otherwise.
+ */
 const txAlreadyChecked = async (
   txId: string,
-  log: (message: string, ...optionalParams: any[]) => void
+  log: LogFunctionType
 ): PromiseWithContextResultOrNull<
   DAStructurePublication<DAEventType, PublicationTypedData> | void,
   DAStructurePublication<DAEventType, PublicationTypedData>
 > => {
-  // no need to recheck something already processed
+  // Check if the transaction ID exists in the database
   const dbResult = await getTxDb(txId);
+
   if (dbResult) {
+    // If the transaction ID is found, log a message and return the corresponding publication
     log('Already checked submission');
+
     if (dbResult.success) {
       return successWithContext(dbResult.dataAvailabilityResult);
     }
@@ -208,10 +258,131 @@ const txAlreadyChecked = async (
     );
   }
 
+  // If the transaction ID is not found, return null
   return null;
 };
 
-const checkDAProofInternal = async (
+const validResult = 'valid';
+type ValidType = 'valid';
+
+/**
+ * Validates the timestamp proof of the given DA publication against the corresponding timestamp proof payload.
+ * @param daPublication The DA publication to validate the timestamp proof of.
+ * @param timestampProofs The timestamp proof payload to validate the DA publication against.
+ * @param log A logging function to output debug information.
+ * @returns A Promise that resolves with a `ValidType` if the timestamp proof is valid or an error code if it is not.
+ */
+const validatesTimestampProof = async (
+  daPublication: DAStructurePublication<DAEventType, PublicationTypedData>,
+  timestampProofs: DATimestampProofsResponse,
+  log: LogFunctionType
+): Promise<
+  | ClaimableValidatorError.TIMESTAMP_PROOF_INVALID_SIGNATURE
+  | ClaimableValidatorError.TIMESTAMP_PROOF_INVALID_TYPE
+  | ClaimableValidatorError.TIMESTAMP_PROOF_INVALID_DA_ID
+  | ValidType
+> => {
+  // check if bundlr timestamp proofs are valid and verified against bundlr node
+  // bundlr typings are Required<Proofs> but they are sharing the response and request
+  const valid = await Utils.verifyReceipt(daPublication.timestampProofs.response as any);
+  if (!valid) {
+    log('timestamp proof invalid signature');
+    return ClaimableValidatorError.TIMESTAMP_PROOF_INVALID_SIGNATURE;
+  }
+
+  log('timestamp proof signature valid');
+
+  if (timestampProofs.type !== daPublication.type) {
+    log('timestamp proof type mismatch');
+    return ClaimableValidatorError.TIMESTAMP_PROOF_INVALID_TYPE;
+  }
+
+  if (timestampProofs.dataAvailabilityId !== daPublication.dataAvailabilityId) {
+    log('timestamp proof da id mismatch');
+    return ClaimableValidatorError.TIMESTAMP_PROOF_INVALID_DA_ID;
+  }
+
+  return validResult;
+};
+
+/**
+ * Checks if the event timestamp in the given DA publication matches the publication timestamp of the block it was included in.
+ * @param daPublication The DA publication to check.
+ * @returns A boolean indicating whether or not the event timestamp matches the publication timestamp.
+ */
+const isValidEventTimestamp = (
+  daPublication: DAStructurePublication<DAEventType, PublicationTypedData>
+): boolean => {
+  return daPublication.event.timestamp === daPublication.chainProofs.thisPublication.blockTimestamp;
+};
+
+/**
+ * Checks if the typed data deadline timestamp in the given DAStructurePublication matches
+ * the block timestamp of the containing block.
+ * @param daPublication The DAStructurePublication to check.
+ * @returns True if the typed data deadline timestamp matches the block timestamp, false otherwise.
+ */
+const isValidTypedDataDeadlineTimestamp = (
+  daPublication: DAStructurePublication<DAEventType, PublicationTypedData>
+): boolean => {
+  return (
+    daPublication.chainProofs.thisPublication.typedData.value.deadline ===
+    daPublication.chainProofs.thisPublication.blockTimestamp
+  );
+};
+
+/**
+ * Checks if the publication id generated from the given DAStructurePublication matches the publication id of the same
+ * DAStructurePublication.
+ * @param daPublication The DAStructurePublication to validate.
+ * @returns true if the generated publication id matches the publication id of the given DAStructurePublication.
+ */
+export const isValidPublicationId = (
+  daPublication: DAStructurePublication<DAEventType, PublicationTypedData>
+): boolean => {
+  const generatedPublicationId = generatePublicationId(daPublication);
+
+  return generatedPublicationId === daPublication.publicationId;
+};
+
+/**
+ * Checks if the signature submitter is valid.
+ * @param daPublication - The publication to check.
+ * @param ethereumNode - The Ethereum node to use.
+ * @param log - The logging function to use.
+ * @returns True if the signature submitter is valid, false otherwise.
+ */
+export const isValidSignatureSubmitter = (
+  daPublication: DAStructurePublication<DAEventType, PublicationTypedData>,
+  ethereumNode: EthereumNode,
+  log: LogFunctionType
+): boolean => {
+  const signature = deepClone(daPublication.signature);
+
+  // @ts-ignore
+  delete daPublication.signature;
+
+  // check if signature matches!
+  const signedAddress = utils.verifyMessage(JSON.stringify(daPublication), signature);
+  log('signedAddress', signedAddress);
+
+  if (!isValidSubmitter(ethereumNode.environment, signedAddress, ethereumNode.deployment)) {
+    return false;
+  }
+
+  return true;
+};
+
+/**
+ * Validates the timestamp proofs and signatures of a given publication
+ * against the timestampProofs and ethereumNode parameters.
+ * @param daPublication The publication to validate.
+ * @param timestampProofs The timestamp proofs to validate the publication against.
+ * @param ethereumNode The Ethereum node to validate the publication against.
+ * @param options The optional parameters to use when checking the publication.
+ * @returns A promise with the result of the validation.
+ */
+const _checkDAProof = async (
   daPublication: DAStructurePublication<DAEventType, PublicationTypedData>,
   timestampProofs: DATimestampProofsResponse,
   ethereumNode: EthereumNode,
@@ -227,52 +398,22 @@ const checkDAProofInternal = async (
     return failureWithContext(ClaimableValidatorError.NO_SIGNATURE_SUBMITTER, daPublication);
   }
 
-  let signature = deepClone(daPublication.signature);
-
-  // @ts-ignore
-  delete daPublication.signature;
-
-  // check if signature matches!
-  const signedAddress = utils.verifyMessage(JSON.stringify(daPublication), signature);
-  log('signedAddress', signedAddress);
-
-  if (!isValidSubmitter(ethereumNode.environment, signedAddress, ethereumNode.deployment)) {
+  if (!isValidSignatureSubmitter(daPublication, ethereumNode, log)) {
     return failureWithContext(ClaimableValidatorError.INVALID_SIGNATURE_SUBMITTER, daPublication);
   }
 
-  // check if bundlr timestamp proofs are valid and verified against bundlr node
-  // bundlr typings are Required<Proofs> but they are sharing the response and request
-  const valid = await Utils.verifyReceipt(daPublication.timestampProofs.response as any);
-  if (!valid) {
-    log('timestamp proof invalid signature');
-    return failureWithContext(
-      ClaimableValidatorError.TIMESTAMP_PROOF_INVALID_SIGNATURE,
-      daPublication
-    );
+  const timestampProofsResult = await validatesTimestampProof(daPublication, timestampProofs, log);
+  if (timestampProofsResult !== validResult) {
+    return failureWithContext(timestampProofsResult, daPublication);
   }
 
-  log('timestamp proof signature valid');
-
-  if (timestampProofs.type !== daPublication.type) {
-    log('timestamp proof type mismatch');
-    return failureWithContext(ClaimableValidatorError.TIMESTAMP_PROOF_INVALID_TYPE, daPublication);
-  }
-
-  if (timestampProofs.dataAvailabilityId !== daPublication.dataAvailabilityId) {
-    log('timestamp proof da id mismatch');
-    return failureWithContext(ClaimableValidatorError.TIMESTAMP_PROOF_INVALID_DA_ID, daPublication);
-  }
-
-  if (daPublication.event.timestamp !== daPublication.chainProofs.thisPublication.blockTimestamp) {
+  if (!isValidEventTimestamp(daPublication)) {
     log('event timestamp does not match the publication timestamp');
     // the event emitted must match the same timestamp as the block number
     return failureWithContext(ClaimableValidatorError.INVALID_EVENT_TIMESTAMP, daPublication);
   }
 
-  if (
-    daPublication.chainProofs.thisPublication.typedData.value.deadline !==
-    daPublication.chainProofs.thisPublication.blockTimestamp
-  ) {
+  if (!isValidTypedDataDeadlineTimestamp(daPublication)) {
     log('typed data timestamp does not match the publication timestamp');
     // the event emitted must match the same timestamp as the block number
     return failureWithContext(
@@ -301,8 +442,7 @@ const checkDAProofInternal = async (
     return failureWithContext(daResult.failure!, daPublication);
   }
 
-  const generatedPublicationId = generatePublicationId(daPublication);
-  if (generatedPublicationId !== daPublication.publicationId) {
+  if (!isValidPublicationId(daPublication)) {
     log('publicationId does not match the generated one');
     return failureWithContext(
       ClaimableValidatorError.GENERATED_PUBLICATION_ID_MISMATCH,
@@ -313,6 +453,17 @@ const checkDAProofInternal = async (
   return successWithContext(daPublication);
 };
 
+/**
+ * Checks a data availability proof with metadata, including the timestamp proofs and transaction ID.
+ * If the proof has already been checked, returns the previous result.
+ * If the submitter is invalid, returns an error.
+ * Otherwise, runs the internal proof check and returns the result.
+ * @param txId The transaction ID associated with the proof.
+ * @param daPublicationWithTimestampProofs The data availability publication with associated timestamp proofs.
+ * @param ethereumNode The Ethereum node to use for validation.
+ * @param options Optional options for the check, including logging and pointer verification.
+ * @returns A context result with the validated publication, or an error if validation fails.
+ */
 export const checkDAProofWithMetadata = async (
   txId: string,
   daPublicationWithTimestampProofs: DAPublicationWithTimestampProofsBatchResult,
@@ -344,7 +495,7 @@ export const checkDAProofWithMetadata = async (
     );
   }
 
-  return await checkDAProofInternal(
+  return await _checkDAProof(
     daPublicationWithTimestampProofs.daPublication,
     daPublicationWithTimestampProofs.timestampProofsData,
     ethereumNode,
@@ -352,6 +503,13 @@ export const checkDAProofWithMetadata = async (
   );
 };
 
+/**
+ * Validates a data availability proof of a given transaction on the Arweave network, including the timestamp proofs.
+ * @param txId The transaction ID to check.
+ * @param ethereumNode The Ethereum node to use to validate the data availability proof.
+ * @param options The options for validating the data availability proof.
+ * @returns A `Promise` that resolves to a `PromiseResult` containing the validated data availability proof, or `void` if the validation fails.
+ */
 export const checkDAProof = async (
   txId: string,
   ethereumNode: EthereumNode,
@@ -363,62 +521,46 @@ export const checkDAProof = async (
   DAStructurePublication<DAEventType, PublicationTypedData> | void,
   DAStructurePublication<DAEventType, PublicationTypedData>
 > => {
-  // pointers have the ar prefix!
-  txId = txId.replace('ar://', '');
+  txId = txId.replace('ar://', ''); // pointers have the ar prefix!
 
   options.log(`Checking the submission`);
 
   const alreadyChecked = await txAlreadyChecked(txId, options.log);
-  if (alreadyChecked) {
-    return alreadyChecked;
-  }
+  if (alreadyChecked) return alreadyChecked;
 
-  const cachedDAMetadata = await getTxDAMetadataDb(txId);
-
-  const daPublication = cachedDAMetadata
-    ? cachedDAMetadata
-    : await getArweaveByIdAPI<DAStructurePublication<DAEventType, PublicationTypedData>>(txId);
-
-  if (daPublication === null) {
+  const daPublication =
+    (await getTxDAMetadataDb(txId)) ||
+    (await getArweaveByIdAPI<DAStructurePublication<DAEventType, PublicationTypedData>>(txId));
+  if (!daPublication) {
     return failureWithContext(ClaimableValidatorError.INVALID_TX_ID, undefined as any);
   }
-
   if (daPublication === TIMEOUT_ERROR) {
     return failureWithContext(ClaimableValidatorError.CAN_NOT_CONNECT_TO_BUNDLR, undefined as any);
   }
 
-  const cachedTimestampProofsMetadata = await getTxTimestampProofsMetadataDb(txId);
-
-  const timestampProofsPayload = cachedTimestampProofsMetadata
-    ? cachedTimestampProofsMetadata
-    : await getArweaveByIdAPI<DATimestampProofsResponse>(daPublication.timestampProofs.response.id);
-
-  if (timestampProofsPayload === null) {
+  const timestampProofsPayload =
+    (await getTxTimestampProofsMetadataDb(txId)) ||
+    (await getArweaveByIdAPI<DATimestampProofsResponse>(daPublication.timestampProofs.response.id));
+  if (!timestampProofsPayload) {
     return failureWithContext(ClaimableValidatorError.INVALID_TX_ID, undefined as any);
   }
-
   if (timestampProofsPayload === TIMEOUT_ERROR) {
     return failureWithContext(ClaimableValidatorError.CAN_NOT_CONNECT_TO_BUNDLR, undefined as any);
   }
 
-  // check the wallet who uploaded it is within the submittors wallet list
   const timestampProofsSubmitter = await isValidTransactionSubmitter(
     ethereumNode.environment,
     daPublication.timestampProofs.response.id,
     options.log,
     ethereumNode.deployment
   );
-
   if (timestampProofsSubmitter === TIMEOUT_ERROR) {
     return failureWithContext(ClaimableValidatorError.CAN_NOT_CONNECT_TO_BUNDLR, undefined as any);
   }
-
   if (!timestampProofsSubmitter) {
-    options.log('timestamp proof invalid submitter');
     return failureWithContext(ClaimableValidatorError.TIMESTAMP_PROOF_NOT_SUBMITTER, daPublication);
   }
-
   options.log('timestamp proof valid submitter');
 
-  return await checkDAProofInternal(daPublication, timestampProofsPayload, ethereumNode, options);
+  return await _checkDAProof(daPublication, timestampProofsPayload, ethereumNode, options);
 };

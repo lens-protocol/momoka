@@ -1,6 +1,11 @@
 import { getBundlrByIdAPI } from '../bundlr/get-bundlr-by-id.api';
 import { TimeoutError } from '../fetch-with-timeout';
 
+/**
+ * Retrieves data associated with a given transaction ID using the Bundlr gateway.
+ * @param txId The transaction ID to retrieve data for.
+ * @returns The data associated with the transaction, or `null` if the transaction cannot be found, or `TimeoutError` if the request times out.
+ */
 export const getArweaveByIdAPI = async <T>(txId: string): Promise<T | TimeoutError | null> => {
   // try {
   //   const metadata = await fetchWithTimeout(`https://arweave.net/${txId}`);

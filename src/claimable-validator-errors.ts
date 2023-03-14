@@ -1,3 +1,6 @@
+/**
+ * This is a list of all the errors that can be returned from the claimable validator
+ */
 export enum ClaimableValidatorError {
   /**
    * This means the main signature has not been attached to the payload

@@ -12,17 +12,26 @@ import {
   parseSignature,
 } from '../../ethereum';
 import { PostWithSig_DispatcherRequest } from '../../ethereum-abi-types/LensHub';
+import { LogFunctionType } from '../../logger';
 
 export type CheckDAPostPublication = DAStructurePublication<
   DAPostCreatedEventEmittedResponse,
   CreatePostEIP712TypedData
 >;
 
+/**
+ * Cross check DA post event with the typed data value
+ * @param event - the event to be cross-checked
+ * @param typedData - the typed data to be compared with the event value
+ * @param pubCountAtBlock - the publication count at the block
+ * @param log - logging function to display the message
+ * @returns {PromiseResult} - returns success if the event passes the cross-check, otherwise returns failure with an error
+ */
 const crossCheckEvent = async (
   event: DAPostCreatedEventEmittedResponse,
   simulatedPubResult: BigNumber,
   typedData: CreatePostEIP712TypedData,
-  log: (message: string, ...optionalParams: any[]) => void
+  log: LogFunctionType
 ): PromiseResult => {
   // compare all event emitted to typed data value
   log('cross check event with typed data value');
@@ -45,6 +54,12 @@ const crossCheckEvent = async (
   return success();
 };
 
+/**
+ * Generates simulation data for the postWithSig or postWithSig_Dispatcher function of the DAlens Hub contract.
+ * @param signedByDelegate - Indicates whether the signature was signed by the delegate.
+ * @param sigRequest - The signature request.
+ * @returns The simulation data or an error result.
+ */
 const generateSimulationData = (
   signedByDelegate: boolean,
   sigRequest: PostWithSig_DispatcherRequest
@@ -61,19 +76,34 @@ const generateSimulationData = (
   }
 };
 
+/**
+ * Expected result of simulation
+ * @param profileId The profile id
+ * @param blockNumber The block number
+ * @param ethereumNode The ethereum node
+ * @returns The expected result
+ */
 const getExpectedResult = async (
   profileId: string,
   blockNumber: number,
   ethereumNode: EthereumNode
-) => {
+): Promise<BigNumber> => {
   const publicationCount = await getPubCount(profileId, blockNumber, ethereumNode);
   return publicationCount.add(1);
 };
 
+/**
+ * Checks if the given DAPostPublication is valid by verifying the proof chain, cross-checking against the event, and
+ * validating the signature.
+ * @param publication The DAPostPublication to check.
+ * @param ethereumNode The EthereumNode to use for fetching data from the Ethereum blockchain.
+ * @param log A function used for logging output.
+ * @returns A PromiseResult indicating success or failure, along with an optional error message.
+ */
 export const checkDAPost = async (
   publication: CheckDAPostPublication,
   ethereumNode: EthereumNode,
-  log: (message: string, ...optionalParams: any[]) => void
+  log: LogFunctionType
 ): PromiseResult => {
   log('check DA post');
 
