@@ -9,3 +9,4 @@ da-verifier-database/*
 cache/*
 node-go/*
 node-rs/*
+src/__playground__.ts
