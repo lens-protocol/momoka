@@ -1,16 +1,16 @@
 import { ContractCallContext, ContractCallResults, Multicall } from 'ethereum-multicall';
 import { BigNumber, ethers } from 'ethers';
-import { ClaimableValidatorError } from './claimable-validator-errors';
-import { LENS_HUB_ABI } from './contract-lens/lens-hub-contract-abi';
-import { failure, PromiseResult, success } from './da-result';
 import {
   Deployment,
   Environment,
   environmentToChainId,
   environmentToLensHubContract,
-} from './environment';
-import { JSONRPCWithTimeout } from './fetch-with-timeout';
-import { sleep } from './helpers';
+} from '../common/environment';
+import { sleep } from '../common/helpers';
+import { ClaimableValidatorError } from '../data-availability-models/claimable-validator-errors';
+import { failure, PromiseResult, success } from '../data-availability-models/da-result';
+import { JSONRPCWithTimeout } from '../input-output/json-rpc-with-timeout';
+import { LENS_HUB_ABI } from './contract-lens/lens-hub-contract-abi';
 
 export interface EthereumNode {
   environment: Environment;

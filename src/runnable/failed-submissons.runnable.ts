@@ -1,5 +1,5 @@
-import { getParamOrExit } from './helpers';
-import { verifierFailedSubmissionsWatcher } from './watchers/failed-submissons.watcher';
+import { getParamOrExit } from '../common/helpers';
+import { verifierFailedSubmissionsWatcher } from '../watchers/failed-submissons.watcher';
 
 /**
  * Watches for failed submissions in the database and logs a summary of the errors.

@@ -1,12 +1,13 @@
-import { LOCAL_NODE_URL, setupAnvilLocalNode } from '../anvil';
-import { BundlrBulkTxSuccess, getBundlrBulkTxsAPI } from '../bundlr/get-bundlr-bulk-txs.api';
+import { Deployment, Environment } from '../common/environment';
 import {
-  getDataAvailabilityTransactionsAPI,
-  getDataAvailabilityTransactionsAPIResponse,
-} from '../bundlr/get-data-availability-transactions.api';
-import { checkDAProofWithMetadata } from '../check-da-proof';
-import { ClaimableValidatorError } from '../claimable-validator-errors';
-import { DAResult } from '../da-result';
+  base64StringToJson,
+  formatDate,
+  sleep,
+  unixTimestampToMilliseconds,
+} from '../common/helpers';
+import { consoleLog, LogFunctionType } from '../common/logger';
+import { ClaimableValidatorError } from '../data-availability-models/claimable-validator-errors';
+import { DAResult } from '../data-availability-models/da-result';
 import {
   DAPublicationWithTimestampProofsBatchResult,
   DATimestampProofsResponse,
@@ -17,6 +18,17 @@ import {
   DAStructurePublication,
   PublicationTypedData,
 } from '../data-availability-models/publications/data-availability-structure-publication';
+import { LOCAL_NODE_URL, setupAnvilLocalNode } from '../evm/anvil';
+import { EthereumNode } from '../evm/ethereum';
+import {
+  BundlrBulkTxSuccess,
+  getBundlrBulkTxsAPI,
+} from '../input-output/bundlr/get-bundlr-bulk-txs.api';
+import {
+  getDataAvailabilityTransactionsAPI,
+  getDataAvailabilityTransactionsAPIResponse,
+} from '../input-output/bundlr/get-data-availability-transactions.api';
+import { TIMEOUT_ERROR } from '../input-output/common';
 import {
   FailedTransactionsDb,
   getLastEndCursorDb,
@@ -27,12 +39,8 @@ import {
   saveTxTimestampProofsMetadataDb,
   startDb,
   TxValidatedResult,
-} from '../db';
-import { Deployment, Environment } from '../environment';
-import { EthereumNode } from '../ethereum';
-import { TIMEOUT_ERROR } from '../fetch-with-timeout';
-import { base64StringToJson, formatDate, sleep, unixTimestampToMilliseconds } from '../helpers';
-import { consoleLog, LogFunctionType } from '../logger';
+} from '../input-output/db';
+import { checkDAProofWithMetadata } from '../proofs/check-da-proof';
 // import { watchBlocks } from './block.watcher';
 import { verifierFailedSubmissionsWatcher } from './failed-submissons.watcher';
 import { StreamCallback } from './stream.type';

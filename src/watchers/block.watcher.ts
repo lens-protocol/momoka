@@ -1,8 +1,8 @@
-import { LOCAL_NODE_URL } from '../anvil';
-import { saveBlockDb } from '../db';
-import { EthereumNode, ethereumProvider, getBlock } from '../ethereum';
-import { sleep } from '../helpers';
-import { consoleLog } from '../logger';
+import { sleep } from '../common/helpers';
+import { consoleLog } from '../common/logger';
+import { LOCAL_NODE_URL } from '../evm/anvil';
+import { EthereumNode, ethereumProvider, getBlock } from '../evm/ethereum';
+import { saveBlockDb } from '../input-output/db';
 
 /**
  * Watches for new blocks on the Ethereum network and saves them to the database.

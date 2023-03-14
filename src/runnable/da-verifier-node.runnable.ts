@@ -2,10 +2,10 @@
 // import { Deployment } from './environment';
 // import { getParam, getParamOrExit } from './helpers';
 
-import { Deployment, Environment } from './environment';
-import { EthereumNode } from './ethereum';
-import { getParam, getParamOrExit } from './helpers';
-import { startDAVerifierNode } from './index';
+import { Deployment, Environment } from '../common/environment';
+import { getParam, getParamOrExit } from '../common/helpers';
+import { EthereumNode } from '../evm/ethereum';
+import { startDAVerifierNode } from '../index';
 
 const ethereumNode: EthereumNode = {
   environment: getParamOrExit('ETHEREUM_NETWORK') as Environment,

@@ -1,7 +1,7 @@
 import { SignatureLike } from '@ethersproject/bytes';
 import { utils } from 'ethers';
-import { ClaimableValidatorError } from '../claimable-validator-errors';
-import { failure, Result, success } from '../da-result';
+import { ClaimableValidatorError } from '../data-availability-models/claimable-validator-errors';
+import { failure, Result, success } from '../data-availability-models/da-result';
 import {
   TypedDataDomain,
   TypedDataField,

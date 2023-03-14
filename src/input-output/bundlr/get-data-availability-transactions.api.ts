@@ -1,7 +1,7 @@
-import { Deployment, Environment } from '../environment';
-import { DataAvailabilityTransactionsDocument } from '../graphql/generated';
-import { client } from '../graphql/urql.client';
-import { getSubmitters } from '../submitters';
+import { Deployment, Environment } from '../../common/environment';
+import { DataAvailabilityTransactionsDocument } from '../../graphql/generated';
+import { client } from '../../graphql/urql.client';
+import { getSubmitters } from '../../submitters';
 
 /**
  * The response format for the `getDataAvailabilityTransactionsAPI` function.

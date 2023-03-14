@@ -1,5 +1,5 @@
 import { getBundlrByIdAPI } from '../bundlr/get-bundlr-by-id.api';
-import { TimeoutError } from '../fetch-with-timeout';
+import { TimeoutError } from '../common';
 
 /**
  * Retrieves data associated with a given transaction ID using the Bundlr gateway.

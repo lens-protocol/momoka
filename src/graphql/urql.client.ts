@@ -1,5 +1,5 @@
 import { createClient } from '@urql/core';
-import { BUNDLR_NODE_GRAPHQL } from '../bundlr/bundlr-config';
+import { BUNDLR_NODE_GRAPHQL } from '../input-output/bundlr/bundlr-config';
 
 export const client = createClient({
   url: BUNDLR_NODE_GRAPHQL,

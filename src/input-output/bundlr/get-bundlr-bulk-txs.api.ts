@@ -1,5 +1,6 @@
-import { postWithTimeout, TimeoutError, TIMEOUT_ERROR } from '../fetch-with-timeout';
-import { sleep } from '../helpers';
+import { sleep } from '../../common/helpers';
+import { TimeoutError, TIMEOUT_ERROR } from '../common';
+import { postWithTimeout } from '../post-with-timeout';
 import { BUNDLR_NODE } from './bundlr-config';
 
 /**

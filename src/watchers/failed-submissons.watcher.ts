@@ -1,7 +1,7 @@
-import { ClaimableValidatorError } from '../claimable-validator-errors';
-import { getFailedTransactionsDb, startDb } from '../db';
-import { sleep } from '../helpers';
-import { consoleLog } from '../logger';
+import { sleep } from '../common/helpers';
+import { consoleLog } from '../common/logger';
+import { ClaimableValidatorError } from '../data-availability-models/claimable-validator-errors';
+import { getFailedTransactionsDb, startDb } from '../input-output/db';
 
 /**
  * Watches for failed submissions in the database and logs a summary of the errors.

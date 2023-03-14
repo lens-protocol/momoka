@@ -1,8 +1,8 @@
 import { BigNumber, ethers } from 'ethers';
 import { Interface } from 'ethers/lib/utils';
-import { environmentToLensHubContract } from '../environment';
+import { environmentToLensHubContract } from '../../common/environment';
+import { LensHub } from '../abi-types/LensHub';
 import { EthereumNode, ethereumProvider } from '../ethereum';
-import { LensHub } from '../ethereum-abi-types/LensHub';
 import { LENS_HUB_ABI } from './lens-hub-contract-abi';
 
 /**

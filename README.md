@@ -1589,7 +1589,7 @@ Any PRs are welcome and we will review them as soon as possible. Please make sur
 
 ## Bundlr
 
-Thanks to [Bundlr](https://bundlr.io/) for making this even possible with their incredible technology. Incredible team and amazing to work with.
+Thanks to [Bundlr](https://bundlr.network/) for making this even possible with their incredible technology. Incredible team and amazing to work with.
 
 ### Foundry team
 

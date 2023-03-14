@@ -1,6 +1,6 @@
 import { promisify } from 'util';
-import { JSONRPCWithTimeout } from './fetch-with-timeout';
-import { consoleLog } from './logger';
+import { consoleLog } from '../common/logger';
+import { JSONRPCWithTimeout } from '../input-output/json-rpc-with-timeout';
 
 const exec = promisify(require('child_process').exec);
 

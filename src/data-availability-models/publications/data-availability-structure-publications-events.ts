@@ -2,7 +2,7 @@ import {
   CommentCreatedEventEmittedResponse,
   MirrorCreatedEventEmittedResponse,
   PostCreatedEventEmittedResponse,
-} from '../../ethereum-abi-types/LensHubEvents';
+} from '../../evm/abi-types/LensHubEvents';
 
 export interface DAPostCreatedEventEmittedResponse extends PostCreatedEventEmittedResponse {}
 export interface DACommentCreatedEventEmittedResponse extends CommentCreatedEventEmittedResponse {}

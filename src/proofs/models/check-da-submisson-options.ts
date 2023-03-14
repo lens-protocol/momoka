@@ -1,4 +1,4 @@
-import { LogFunctionType } from './logger';
+import { LogFunctionType } from '../../common/logger';
 
 export interface CheckDASubmissionOptions {
   verifyPointer: boolean;

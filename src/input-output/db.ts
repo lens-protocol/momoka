@@ -1,13 +1,13 @@
 import { Block } from '@ethersproject/abstract-provider';
 import { Level } from 'level';
-import { ClaimableValidatorError } from './claimable-validator-errors';
-import { DATimestampProofsResponse } from './data-availability-models/data-availability-timestamp-proofs';
+import { ClaimableValidatorError } from '../data-availability-models/claimable-validator-errors';
+import { DATimestampProofsResponse } from '../data-availability-models/data-availability-timestamp-proofs';
 import {
   DAEventType,
   DAStructurePublication,
   PublicationTypedData,
-} from './data-availability-models/publications/data-availability-structure-publication';
-import { BlockInfo } from './ethereum';
+} from '../data-availability-models/publications/data-availability-structure-publication';
+import { BlockInfo } from '../evm/ethereum';
 
 let db: Level | undefined;
 

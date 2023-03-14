@@ -1,8 +1,8 @@
 import Utils from '@bundlr-network/client/build/common/utils';
 import { utils } from 'ethers';
-import { getArweaveByIdAPI } from './arweave/get-arweave-by-id.api';
-import { CheckDASubmissionOptions } from './check-da-submisson-options';
-import { ClaimableValidatorError } from './claimable-validator-errors';
+import { deepClone } from '../common/helpers';
+import { LogFunctionType } from '../common/logger';
+import { ClaimableValidatorError } from '../data-availability-models/claimable-validator-errors';
 import {
   failure,
   failureWithContext,
@@ -11,17 +11,20 @@ import {
   PromiseWithContextResultOrNull,
   success,
   successWithContext,
-} from './da-result';
-import { DAActionTypes } from './data-availability-models/data-availability-action-types';
+} from '../data-availability-models/da-result';
+import { DAActionTypes } from '../data-availability-models/data-availability-action-types';
 import {
   DAPublicationWithTimestampProofsBatchResult,
   DATimestampProofsResponse,
-} from './data-availability-models/data-availability-timestamp-proofs';
+} from '../data-availability-models/data-availability-timestamp-proofs';
 import {
   DAEventType,
   DAStructurePublication,
   PublicationTypedData,
-} from './data-availability-models/publications/data-availability-structure-publication';
+} from '../data-availability-models/publications/data-availability-structure-publication';
+import { BlockInfo, EthereumNode, getBlock } from '../evm/ethereum';
+import { getArweaveByIdAPI } from '../input-output/arweave/get-arweave-by-id.api';
+import { TIMEOUT_ERROR } from '../input-output/common';
 import {
   getBlockDb,
   getTxDAMetadataDb,
@@ -29,15 +32,12 @@ import {
   getTxTimestampProofsMetadataDb,
   saveBlockDb,
   TxValidatedFailureResult,
-} from './db';
-import { BlockInfo, EthereumNode, getBlock } from './ethereum';
-import { TIMEOUT_ERROR } from './fetch-with-timeout';
-import { deepClone } from './helpers';
-import { LogFunctionType } from './logger';
-import { checkDAComment, CheckDACommentPublication } from './publications/comment';
-import { checkDAMirror, CheckDAMirrorPublication } from './publications/mirror';
-import { checkDAPost, CheckDAPostPublication } from './publications/post';
-import { isValidSubmitter, isValidTransactionSubmitter } from './submitters';
+} from '../input-output/db';
+import { checkDAComment, CheckDACommentPublication } from '../publications/comment';
+import { checkDAMirror, CheckDAMirrorPublication } from '../publications/mirror';
+import { checkDAPost, CheckDAPostPublication } from '../publications/post';
+import { isValidSubmitter, isValidTransactionSubmitter } from '../submitters';
+import { CheckDASubmissionOptions } from './models/check-da-submisson-options';
 
 /**
  * Finds the closest block based on timestamp in milliseconds.

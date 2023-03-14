@@ -1,14 +1,14 @@
-import { getOwnerOfTransactionAPI } from './bundlr/get-owner-of-transaction.api';
-import { Deployment, Environment } from './environment';
-import { TimeoutError, TIMEOUT_ERROR } from './fetch-with-timeout';
-import { LogFunctionType } from './logger';
+import { Deployment, Environment } from './common/environment';
+import { LogFunctionType } from './common/logger';
+import { getOwnerOfTransactionAPI } from './input-output/bundlr/get-owner-of-transaction.api';
+import { TimeoutError, TIMEOUT_ERROR } from './input-output/common';
 
 /**
  * Returns the list of submitters based on the given environment and deployment
  * @param environment - The environment to get the submitters for
  * @param deployment - The deployment to get the submitters for. Defaults to Deployment.PRODUCTION
  * @returns An array of submitter addresses in lowercase
- * @throws {Error} if the environment is invalid or if the deployment is invalid
+ * @throws if the environment is invalid or if the deployment is invalid
  */
 export const getSubmitters = (
   environment: Environment,
