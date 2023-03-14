@@ -1,11 +1,11 @@
 import { SignatureLike } from '@ethersproject/bytes';
 import { utils } from 'ethers';
-import { ClaimableValidatorError } from '../data-availability-models/claimable-validator-errors';
-import { failure, Result, success } from '../data-availability-models/da-result';
+import { ClaimableValidatorError } from '../../data-availability-models/claimable-validator-errors';
+import { failure, Result, success } from '../../data-availability-models/da-result';
 import {
   TypedDataDomain,
   TypedDataField,
-} from '../data-availability-models/data-availability-typed-data';
+} from '../../data-availability-models/data-availability-typed-data';
 
 /**
  * Verifies the provided signature corresponds to the given typed data and returns the address of the signer.

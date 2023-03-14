@@ -1,18 +1,23 @@
 import { BigNumber } from 'ethers';
-import { LogFunctionType } from '../../common/logger';
-import { ClaimableValidatorError } from '../../data-availability-models/claimable-validator-errors';
-import { failure, PromiseResult, Result, success } from '../../data-availability-models/da-result';
-import { CreatePostEIP712TypedData } from '../../data-availability-models/publications/data-availability-publication-typed-data';
-import { DAStructurePublication } from '../../data-availability-models/publications/data-availability-structure-publication';
-import { DAPostCreatedEventEmittedResponse } from '../../data-availability-models/publications/data-availability-structure-publications-events';
-import { PostWithSig_DispatcherRequest } from '../../evm/abi-types/LensHub';
-import { DAlensHubInterface, getPubCount } from '../../evm/contract-lens/lens-proxy-info';
+import { LogFunctionType } from '../../../common/logger';
+import { ClaimableValidatorError } from '../../../data-availability-models/claimable-validator-errors';
+import {
+  failure,
+  PromiseResult,
+  Result,
+  success,
+} from '../../../data-availability-models/da-result';
+import { CreatePostEIP712TypedData } from '../../../data-availability-models/publications/data-availability-publication-typed-data';
+import { DAStructurePublication } from '../../../data-availability-models/publications/data-availability-structure-publication';
+import { DAPostCreatedEventEmittedResponse } from '../../../data-availability-models/publications/data-availability-structure-publications-events';
+import { PostWithSig_DispatcherRequest } from '../../../evm/abi-types/LensHub';
+import { DAlensHubInterface, getPubCount } from '../../../evm/contract-lens/lens-proxy-info';
 import {
   EMPTY_BYTE,
   EthereumNode,
   executeSimulationTransaction,
   parseSignature,
-} from '../../evm/ethereum';
+} from '../../../evm/ethereum';
 
 export type CheckDAPostPublication = DAStructurePublication<
   DAPostCreatedEventEmittedResponse,

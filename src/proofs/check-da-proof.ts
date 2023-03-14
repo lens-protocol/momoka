@@ -33,11 +33,11 @@ import {
   saveBlockDb,
   TxValidatedFailureResult,
 } from '../input-output/db';
-import { checkDAComment, CheckDACommentPublication } from '../publications/comment';
-import { checkDAMirror, CheckDAMirrorPublication } from '../publications/mirror';
-import { checkDAPost, CheckDAPostPublication } from '../publications/post';
 import { isValidSubmitter, isValidTransactionSubmitter } from '../submitters';
 import { CheckDASubmissionOptions } from './models/check-da-submisson-options';
+import { checkDAComment, CheckDACommentPublication } from './publications/comment';
+import { checkDAMirror, CheckDAMirrorPublication } from './publications/mirror';
+import { checkDAPost, CheckDAPostPublication } from './publications/post';
 
 /**
  * Finds the closest block based on timestamp in milliseconds.

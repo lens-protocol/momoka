@@ -1,15 +1,15 @@
 import { BigNumber } from 'ethers';
-import { LogFunctionType } from '../../common/logger';
-import { ClaimableValidatorError } from '../../data-availability-models/claimable-validator-errors';
-import { failure, PromiseResult, success } from '../../data-availability-models/da-result';
-import { CreateCommentEIP712TypedData } from '../../data-availability-models/publications/data-availability-publication-typed-data';
+import { LogFunctionType } from '../../../common/logger';
+import { ClaimableValidatorError } from '../../../data-availability-models/claimable-validator-errors';
+import { failure, PromiseResult, success } from '../../../data-availability-models/da-result';
+import { CreateCommentEIP712TypedData } from '../../../data-availability-models/publications/data-availability-publication-typed-data';
 import {
   DAPublicationPointerType,
   DAStructurePublication,
-} from '../../data-availability-models/publications/data-availability-structure-publication';
-import { DACommentCreatedEventEmittedResponse } from '../../data-availability-models/publications/data-availability-structure-publications-events';
-import { EMPTY_BYTE, EthereumNode, getOnChainProfileDetails } from '../../evm/ethereum';
-import { checkDAProof } from '../../proofs/check-da-proof';
+} from '../../../data-availability-models/publications/data-availability-structure-publication';
+import { DACommentCreatedEventEmittedResponse } from '../../../data-availability-models/publications/data-availability-structure-publications-events';
+import { EMPTY_BYTE, EthereumNode, getOnChainProfileDetails } from '../../../evm/ethereum';
+import { checkDAProof } from '../../check-da-proof';
 import { whoSignedTypedData } from '../publication.base';
 
 export type CheckDACommentPublication = DAStructurePublication<
