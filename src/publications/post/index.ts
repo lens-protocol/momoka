@@ -36,7 +36,6 @@ const crossCheckEvent = async (
   // compare all event emitted to typed data value
   log('cross check event with typed data value');
 
-  // compare all others!
   if (
     !simulatedPubResult.eq(event.pubId) ||
     typedData.value.profileId !== event.profileId ||
@@ -44,7 +43,9 @@ const crossCheckEvent = async (
     typedData.value.collectModule !== event.collectModule ||
     event.collectModuleReturnData !== EMPTY_BYTE ||
     typedData.value.referenceModule !== event.referenceModule ||
-    event.referenceModuleReturnData !== EMPTY_BYTE
+    event.referenceModuleReturnData !== EMPTY_BYTE ||
+    typedData.value.collectModuleInitData !== EMPTY_BYTE ||
+    typedData.value.referenceModuleInitData !== EMPTY_BYTE
   ) {
     return failure(ClaimableValidatorError.EVENT_MISMATCH);
   }
@@ -106,10 +107,6 @@ export const checkDAPost = async (
   log: LogFunctionType
 ): PromiseResult => {
   log('check DA post');
-
-  // VALIDATE THE TYPED DATA WHAT IS ALLOWED AND NOT!!!!!!!!!!!!
-  // typedData.value.collectModuleInitData !== EMPTY_BYTE ||
-  // typedData.value.referenceModuleInitData !== EMPTY_BYTE ||
 
   const sigRequest: PostWithSig_DispatcherRequest = {
     profileId: publication.chainProofs.thisPublication.typedData.value.profileId,

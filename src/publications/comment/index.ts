@@ -50,7 +50,9 @@ const crossCheckEvent = async (
     typedData.value.collectModule !== event.collectModule ||
     event.collectModuleReturnData !== EMPTY_BYTE ||
     typedData.value.referenceModule !== event.referenceModule ||
-    event.referenceModuleReturnData !== EMPTY_BYTE
+    event.referenceModuleReturnData !== EMPTY_BYTE ||
+    typedData.value.collectModuleInitData !== EMPTY_BYTE ||
+    typedData.value.referenceModuleInitData !== EMPTY_BYTE
   ) {
     return failure(ClaimableValidatorError.EVENT_MISMATCH);
   }

@@ -38,7 +38,7 @@ It's the submitter's job to validate, build up the DA metadata and submit this t
 
 ## Verifiers
 
-The verifier's job is to listen out for all DA publications sent from the submitters and verify it is a valid submissions. It has a certain amount of criteria it must check when the publications come in; its sole purpose is to just prove the submitter is telling the truth. Anyone can run a verifier; it's just open-source software which can be run with a few commands. The verifier uses leveldb to store passed results allowing it to be very fast.
+The verifier's job is to listen out for all DA publications sent from the submitters and verify it is a valid submissions. It has a certain amount of criteria it must check when the publications come in; its sole purpose is to just prove the submitter is telling the truth. Anyone can run a verifier; it's just open-source software which can be run with a few commands. The verifier uses leveldb to store passed results allowing it to be very fast. It also forks the archive node using foundry `anvil` so it can run locally on the machine, this improves speed, cost as you are not paying for the all of the requests. All you need is an archive node so it can be forked it will use the archieve node sometimes for latest block numbers and reforking to the head when it needs to.
 
 ## Current restrictions with DA publications
 
@@ -1370,6 +1370,11 @@ export enum ClaimableValidatorError {
   INVALID_POINTER_SET_NOT_NEEDED = 'INVALID_POINTER_SET_NOT_NEEDED',
 
   /**
+   * This means the pointer has failed verification
+   */
+  POINTER_FAILED_VERIFICATION = 'POINTER_FAILED_VERIFICATION',
+
+  /**
    * This means the block processed against is not the closest block to the timestamp proofs
    */
   NOT_CLOSEST_BLOCK = 'NOT_CLOSEST_BLOCK',
@@ -1431,7 +1436,7 @@ please note if you wish to use a different deployment then `production` you will
 
 #### checkDAProof
 
-The `checkDAProof` will return you a failure reason of the enum `ClaimableValidatorError`, and if successful, you be returned the entire `DAStructurePublication`.
+The `checkDAProof` will return you a failure reason of the enum `ClaimableValidatorError`, and if successful, you be returned the entire `DAStructurePublication`. This can be ran on the client to check in runtime.
 
 ```ts
 import { checkDAProof, EthereumNode, Environment } from '@lens-protocol/data-availability-verifier';
@@ -1455,6 +1460,27 @@ console.error('proof invalid do something', result.failure!)
 
 This is a start watching all the DA items coming in and logging it all out in your terminal. You can use the docker to just run it, or you can install the package and run it on your own server.
 
+You must have foundry installed on the machine with Anvil running when you run this.
+
+```bash
+$ curl -L https://foundry.paradigm.xyz | bash
+```
+
+then run 
+```bash
+$ foundryup
+```
+
+then to start the node up you run:
+
+we advise using alchemy nodes as they are very reliable and fast, but any archive node should work.
+
+```bash
+$ REQ_TIMEOUT=100000 anvil -f https://polygon-mumbai.g.alchemy.com/v2/API_KEY
+```
+
+once the node is running all you need to call is the below:
+
 ```ts
 import { startDAVerifierNode, EthereumNode } from '@lens-protocol/data-availability-verifier';
 
@@ -1467,10 +1493,9 @@ const ethereumNode: EthereumNode = {
 startDAVerifierNode(ethereumNode);
 ```
 
-##### Stream
+##### Stream with proofs verified
 
-If you wish to index the data yourself, you can use the `startDAVerifierNode` and stream the data out to your own DB using the `StreamCallback`:
-
+If you wish to index the data yourself, you can use the `startDAVerifierNode` and stream the data out to your own DB using the `StreamCallback`. This will run the verifier node and check the proofs as every new one comes in. This requires you to run the anvil forked node for it to work.
 
 ```ts
 import { startDAVerifierNode, StreamResult, EthereumNode } from '@lens-protocol/data-availability-verifier';
@@ -1498,6 +1523,37 @@ const ethereumNode: EthereumNode = {
 // DB_LOCATION_FOLDER_PATH = the path to the folder where you want to store the DB, if folder does not exist it will create it. We suggest putting it as close to this code as possible.
 startDAVerifierNode(ethereumNode, DB_LOCATION_FOLDER_PATH, stream);
 ```
+
+#### startDATrustingIndexing
+
+If you just want to get the data as fast as possible and do not wish to verifiy the proofs, you can use the `startDATrustingIndexing` function. This will stream out the data as fast as possible and will not check the proofs. This does NOT require you to run the anvil forked node for it to work, it also does not need any archive node.
+
+```ts
+import { startDATrustingIndexing, StreamResult, StartDATrustingIndexingRequest } from '@lens-protocol/data-availability-verifier';
+
+const stream = (result: StreamResult) => {
+  console.log('streamed publication', result);
+
+  if(result.success) {
+    // success - insert into your db here if you wish
+    console.log('success', result.dataAvailabilityResult)
+  } else {
+    // failure reason
+    console.log('reason', result.failureReason);
+    // this will expose the submisson if it could be read
+    console.log('submisson', result.dataAvailabilityResult)
+  }
+};
+
+const request: StartDATrustingIndexingRequest = {
+  environment: Environment.POLYGON,
+  stream,
+};
+
+// it run forever and stream data as it comes in
+startDATrustingIndexing(request);
+```
+
 
 ### Running standalone
 

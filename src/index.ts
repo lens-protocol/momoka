@@ -9,4 +9,8 @@ export { TxValidatedFailureResult, TxValidatedResult, TxValidatedSuccessResult }
 export { Deployment, Environment } from './environment';
 export { EthereumNode } from './ethereum';
 export * from './watchers/stream.type';
-export { startDAVerifierNode } from './watchers/verifier.watcher';
+export {
+  startDATrustingIndexing,
+  StartDATrustingIndexingRequest,
+  startDAVerifierNode,
+} from './watchers/verifier.watcher';
