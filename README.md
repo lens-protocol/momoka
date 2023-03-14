@@ -1458,28 +1458,7 @@ console.error('proof invalid do something', result.failure!)
 
 #### startDAVerifierNode
 
-This is a start watching all the DA items coming in and logging it all out in your terminal. You can use the docker to just run it, or you can install the package and run it on your own server.
-
-You must have foundry installed on the machine with Anvil running when you run this.
-
-```bash
-$ curl -L https://foundry.paradigm.xyz | bash
-```
-
-then run 
-```bash
-$ foundryup
-```
-
-then to start the node up you run:
-
-we advise using alchemy nodes as they are very reliable and fast, but any archive node should work.
-
-```bash
-$ REQ_TIMEOUT=100000 anvil -f https://polygon-mumbai.g.alchemy.com/v2/API_KEY
-```
-
-once the node is running all you need to call is the below:
+This is a start watching all the DA items coming in and logging it all out in your terminal. You can use the docker to just run it, or you can install the package and run it on your own server. This will install foundry and run a forked node automatically for you.
 
 ```ts
 import { startDAVerifierNode, EthereumNode } from '@lens-protocol/data-availability-verifier';
@@ -1495,7 +1474,7 @@ startDAVerifierNode(ethereumNode);
 
 ##### Stream with proofs verified
 
-If you wish to index the data yourself, you can use the `startDAVerifierNode` and stream the data out to your own DB using the `StreamCallback`. This will run the verifier node and check the proofs as every new one comes in. This requires you to run the anvil forked node for it to work.
+If you wish to index the data yourself, you can use the `startDAVerifierNode` and stream the data out to your own DB using the `StreamCallback`. This will run the verifier node and check the proofs as every new one comes in. This runs the anvil forked node for it to work - this happens automatically.
 
 ```ts
 import { startDAVerifierNode, StreamResult, EthereumNode } from '@lens-protocol/data-availability-verifier';
@@ -1526,7 +1505,7 @@ startDAVerifierNode(ethereumNode, DB_LOCATION_FOLDER_PATH, stream);
 
 #### startDATrustingIndexing
 
-If you just want to get the data as fast as possible and do not wish to verifiy the proofs, you can use the `startDATrustingIndexing` function. This will stream out the data as fast as possible and will not check the proofs. This does NOT require you to run the anvil forked node for it to work, it also does not need any archive node.
+If you just want to get the data as fast as possible and do not wish to verifiy the proofs, you can use the `startDATrustingIndexing` function. This will stream out the data as fast as possible and will not check the proofs. This does NOT run the anvil forked node for it to work, it also does not need any archive node to be defined.
 
 ```ts
 import { startDATrustingIndexing, StreamResult, StartDATrustingIndexingRequest } from '@lens-protocol/data-availability-verifier';
@@ -1602,3 +1581,16 @@ Then to listen to the logs you can:
 docker logs <id>
 ```
 
+## Contributing
+
+Any PRs are welcome and we will review them as soon as possible. Please make sure you have tests and they pass.
+
+## Thanks
+
+## Bundlr
+
+Thanks to [Bundlr](https://bundlr.io/) for making this even possible with their incredible technology. Incredible team and amazing to work with.
+
+### Foundry team
+
+Thanks to the [foundry team](https://github.com/foundry-rs/foundry) team for the awesome work on the anvil to allow us to simulate transactions cheaply and fast.

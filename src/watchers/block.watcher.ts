@@ -1,3 +1,4 @@
+import { LOCAL_NODE_URL } from '../anvil';
 import { saveBlockDb } from '../db';
 import { EthereumNode, ethereumProvider, getBlock } from '../ethereum';
 import { sleep } from '../helpers';
@@ -11,7 +12,7 @@ export const watchBlocks = async (ethereumNode: EthereumNode) => {
   consoleLog('LENS VERIFICATION NODE - started up block watching...');
 
   // Initialize a forked node to the provided Ethereum node's URL.
-  const forkNode = ethereumProvider({ ...ethereumNode, nodeUrl: 'http://127.0.0.1:8545/' }, false)!;
+  const forkNode = ethereumProvider({ ...ethereumNode, nodeUrl: LOCAL_NODE_URL }, false)!;
 
   let blockNumber = 0;
   while (true) {

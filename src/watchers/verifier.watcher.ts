@@ -1,3 +1,4 @@
+import { LOCAL_NODE_URL, setupAnvilLocalNode } from '../anvil';
 import { BundlrBulkTxSuccess, getBundlrBulkTxsAPI } from '../bundlr/get-bundlr-bulk-txs.api';
 import {
   getDataAvailabilityTransactionsAPI,
@@ -259,13 +260,16 @@ export const startDAVerifierNode = async (
 ) => {
   consoleLog('LENS VERIFICATION NODE - DA verification watcher started...');
 
+  // Start the local node up
+  await setupAnvilLocalNode(ethereumNode.nodeUrl);
+
   // Initialize database.
   startDb(dbLocationFolderPath);
   // watchBlocks(deepClone(ethereumNode));
   verifierFailedSubmissionsWatcher(dbLocationFolderPath);
 
   // Switch to local node.
-  ethereumNode.nodeUrl = 'http://127.0.0.1:8545/';
+  ethereumNode.nodeUrl = LOCAL_NODE_URL;
 
   // Get the last end cursor.
   let endCursor: string | null = await getLastEndCursorDb();
