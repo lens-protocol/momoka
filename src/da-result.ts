@@ -26,6 +26,10 @@ export const failure = (failure: ClaimableValidatorError): DAResult<void> => new
 export type PromiseWithContextResult<TSuccessResult, TContext> = Promise<
   DAResult<TSuccessResult, TContext>
 >;
+export type PromiseWithContextResultOrNull<TSuccessResult, TContext> = Promise<DAResult<
+  TSuccessResult,
+  TContext
+> | null>;
 export const failureWithContext = <TContext>(
   failure: ClaimableValidatorError,
   context: TContext

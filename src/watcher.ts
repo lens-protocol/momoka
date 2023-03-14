@@ -1,6 +1,11 @@
-import { Environment, EthereumNode, startDAVerifierNode } from './';
-import { Deployment } from './environment';
+// import { checkDAProof, Environment, EthereumNode, startDAVerifierNode } from './';
+// import { Deployment } from './environment';
+// import { getParam, getParamOrExit } from './helpers';
+
+import { Deployment, Environment } from './environment';
+import { EthereumNode } from './ethereum';
 import { getParam, getParamOrExit } from './helpers';
+import { startDAVerifierNode } from './index';
 
 const ethereumNode: EthereumNode = {
   environment: getParamOrExit('ETHEREUM_NETWORK') as Environment,
@@ -12,3 +17,13 @@ startDAVerifierNode(ethereumNode, getParamOrExit('DB_LOCATION_FOLDER_PATH')).cat
   console.error('DA verifier node failed to startup', error);
   process.exitCode = 1;
 });
+
+// export const hey = async () => {
+//   const result = await checkDAProof('7SAmEOqejLLx__EinrktF2vL9eXbwNLvrN3wzeQJfH8', ethereumNode, {
+//     log: console.log,
+//     verifyPointer: true,
+//   });
+//   console.log(result);
+// };
+
+// hey();

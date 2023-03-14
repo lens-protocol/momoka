@@ -6,3 +6,6 @@ lib/
 database/*
 da-verifier-database/*
 .DS_Store
+cache/*
+node-go/*
+node-rs/*

@@ -1,5 +1,5 @@
 import { BigNumber } from 'ethers';
-import { checkDAProof } from '../../';
+import { checkDAProof } from '../../check-da-proof';
 import { ClaimableValidatorError } from '../../claimable-validator-errors';
 import { failure, PromiseResult, success } from '../../da-result';
 import { CreateMirrorEIP712TypedData } from '../../data-availability-models/publications/data-availability-publication-typed-data';
@@ -78,7 +78,7 @@ export const checkDAMirror = async (
       }
     );
     if (pointerResult.isFailure()) {
-      return failure(pointerResult.failure!);
+      return failure(ClaimableValidatorError.POINTER_FAILED_VERIFICATION);
     }
   }
 

@@ -98,3 +98,9 @@ export interface DAStructurePublication<
    */
   publicationId: string;
 }
+
+export interface DAPublicationsBatchResult {
+  id: string;
+  daPublication: DAStructurePublication<DAEventType, PublicationTypedData>;
+  submitter: string;
+}

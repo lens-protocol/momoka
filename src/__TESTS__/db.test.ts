@@ -1,6 +1,6 @@
 import { ClaimableValidatorError } from '../claimable-validator-errors';
 import {
-  DbRefernece,
+  DbReference,
   deleteDb,
   FailedTransactionsDb,
   getBlockDb,
@@ -70,14 +70,14 @@ describe('db', () => {
 
   describe('getFailedTransactionsDb + saveFailedTransactionDb', () => {
     test('should return empty array if nothing found', async () => {
-      await deleteDb(`${DbRefernece.block}:failed`);
+      await deleteDb(`${DbReference.block}:failed`);
 
       const result = await getFailedTransactionsDb();
       expect(result).toEqual([]);
     });
 
     test('should return value if found', async () => {
-      await deleteDb(`${DbRefernece.block}:failed`);
+      await deleteDb(`${DbReference.block}:failed`);
 
       const failedTx: FailedTransactionsDb = {
         txId: random(),

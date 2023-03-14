@@ -51,7 +51,13 @@ export enum ClaimableValidatorError {
   /**
    * We tried to call them 5 times and its errored out - this is not a bad proof but bundlr/arweave are having issues
    */
-  CAN_NOT_CONNECT_TO_ARWEAVE = 'CAN_NOT_CONNECT_TO_ARWEAVE',
+  CAN_NOT_CONNECT_TO_BUNDLR = 'CAN_NOT_CONNECT_TO_BUNDLR',
+
+  /**
+   * The DA tx could not be found or invalid on the bundlr/arweave nodes
+   * can happened if pasted it in wrong
+   */
+  INVALID_TX_ID = 'INVALID_TX_ID',
 
   /**
    * This the typed data format is invalid (aka a invalid address type etc)
@@ -95,6 +101,11 @@ export enum ClaimableValidatorError {
    * This means the pointer set in the chain proofs is not required but set anyway
    */
   INVALID_POINTER_SET_NOT_NEEDED = 'INVALID_POINTER_SET_NOT_NEEDED',
+
+  /**
+   * This means the pointer has failed verification
+   */
+  POINTER_FAILED_VERIFICATION = 'POINTER_FAILED_VERIFICATION',
 
   /**
    * This means the block processed against is not the closest block to the timestamp proofs

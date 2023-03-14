@@ -1,5 +1,6 @@
 import { DAActionTypes } from './data-availability-action-types';
 import { DAProvider } from './data-availability-provider';
+import { DAPublicationsBatchResult } from './publications/data-availability-structure-publication';
 
 export type DATimestampProofs = BundlrTimestampProofs;
 
@@ -37,8 +38,11 @@ export interface BundlrTimestampProofs {
   response: BundlrUploadResponse;
 }
 
-export interface BundlrTimestampProofsResponse {
+export interface DATimestampProofsResponse {
   type: DAActionTypes;
   dataAvailabilityId: string;
-  hash: string;
+}
+
+export interface DAPublicationWithTimestampProofsBatchResult extends DAPublicationsBatchResult {
+  timestampProofsData: DATimestampProofsResponse;
 }

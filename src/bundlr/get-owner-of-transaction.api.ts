@@ -1,31 +1,42 @@
-import { TimeoutError, TIMEOUT_ERROR } from '../fetch-with-timeout';
-import { TransactionOwnersDocument } from '../graphql/generated';
-import { client } from '../graphql/urql.client';
+import { fetchWithTimeout, TimeoutError, TIMEOUT_ERROR } from '../fetch-with-timeout';
 import { sleep } from '../helpers';
+import { BUNDLR_NODE_TX } from './bundlr-config';
+
+interface BundlrTag {
+  name: string;
+  value: string;
+}
+
+interface BundlrTx {
+  id: string;
+  currency: string;
+  address: string;
+  owner: string;
+  signature: string;
+  target: string;
+  tags: BundlrTag[];
+  anchor: string;
+  data_size: number;
+}
 
 export const getOwnerOfTransactionAPI = async (
-  arweaveId: string,
+  txId: string,
   attempts = 0
 ): Promise<string | null | TimeoutError> => {
   try {
-    const result = await client
-      .query(TransactionOwnersDocument, {
-        id: arweaveId,
-      })
-      .toPromise();
+    const result = await fetchWithTimeout<BundlrTx>(`${BUNDLR_NODE_TX}${txId}`);
 
-    if (!result.data?.transactions?.edges) {
+    return result.address;
+  } catch (error: any) {
+    if (attempts > 3) {
+      if (error.name == 'AbortError') {
+        return TIMEOUT_ERROR;
+      }
       return null;
     }
 
-    return result.data.transactions.edges[0]?.node.address || null;
-  } catch (_error) {
-    if (attempts > 3) {
-      return TIMEOUT_ERROR;
-    }
-
     // sleep for 300ms and try again
-    sleep(300);
-    return await getOwnerOfTransactionAPI(arweaveId, attempts + 1);
+    await sleep(300);
+    return await getOwnerOfTransactionAPI(txId, attempts + 1);
   }
 };

@@ -14,33 +14,6 @@ export type Scalars = {
   BigInt: any;
 };
 
-export type Account = {
-  __typename?: 'Account';
-  balance: Scalars['BigInt'];
-  transactions?: Maybe<BalanceTransactionConnection>;
-  withdrawals: Scalars['Int'];
-};
-
-export type BalanceTransaction = {
-  __typename?: 'BalanceTransaction';
-  amount: Scalars['BigInt'];
-  block_height: Scalars['BigInt'];
-  confirmed: Scalars['Boolean'];
-  tx_id: Scalars['String'];
-};
-
-export type BalanceTransactionConnection = {
-  __typename?: 'BalanceTransactionConnection';
-  edges?: Maybe<Array<Maybe<BalanceTransactionEdge>>>;
-  pageInfo?: Maybe<PageInfo>;
-};
-
-export type BalanceTransactionEdge = {
-  __typename?: 'BalanceTransactionEdge';
-  cursor: Scalars['String'];
-  node: BalanceTransaction;
-};
-
 export type PageInfo = {
   __typename?: 'PageInfo';
   endCursor?: Maybe<Scalars['String']>;
@@ -49,24 +22,25 @@ export type PageInfo = {
 
 export type Query = {
   __typename?: 'Query';
-  account?: Maybe<Account>;
   transactions?: Maybe<TransactionConnection>;
-};
-
-export type QueryAccountArgs = {
-  address: Scalars['String'];
-  after?: InputMaybe<Scalars['String']>;
-  currency: Scalars['String'];
-  limit?: InputMaybe<Scalars['Int']>;
 };
 
 export type QueryTransactionsArgs = {
   after?: InputMaybe<Scalars['String']>;
+  currency?: InputMaybe<Scalars['String']>;
   hasTags?: InputMaybe<Scalars['Boolean']>;
   ids?: InputMaybe<Array<Scalars['String']>>;
   limit?: InputMaybe<Scalars['Int']>;
   order?: InputMaybe<SortOrder>;
   owners?: InputMaybe<Array<Scalars['String']>>;
+  tags?: InputMaybe<Array<TagFilter>>;
+};
+
+export type Receipt = {
+  __typename?: 'Receipt';
+  signature: Scalars['String'];
+  timestamp: Scalars['BigInt'];
+  version: Scalars['String'];
 };
 
 export enum SortOrder {
@@ -74,16 +48,26 @@ export enum SortOrder {
   Desc = 'DESC',
 }
 
+export type Tag = {
+  __typename?: 'Tag';
+  name: Scalars['String'];
+  value: Scalars['String'];
+};
+
+export type TagFilter = {
+  name: Scalars['String'];
+  values: Array<Scalars['String']>;
+};
+
 export type Transaction = {
   __typename?: 'Transaction';
   address: Scalars['String'];
-  current_block: Scalars['BigInt'];
-  expected_block: Scalars['BigInt'];
-  fee: Scalars['String'];
+  currency: Scalars['String'];
   id: Scalars['String'];
-  signature: Scalars['String'];
+  receipt?: Maybe<Receipt>;
+  signature?: Maybe<Scalars['String']>;
+  tags: Array<Tag>;
   timestamp: Scalars['BigInt'];
-  unit: Scalars['String'];
 };
 
 export type TransactionConnection = {
@@ -114,21 +98,6 @@ export type DataAvailabilityTransactionsQuery = {
       node: { __typename?: 'Transaction'; id: string; address: string };
     } | null> | null;
     pageInfo?: { __typename?: 'PageInfo'; endCursor?: string | null; hasNextPage: boolean } | null;
-  } | null;
-};
-
-export type TransactionOwnersQueryVariables = Exact<{
-  id: Scalars['String'];
-}>;
-
-export type TransactionOwnersQuery = {
-  __typename?: 'Query';
-  transactions?: {
-    __typename?: 'TransactionConnection';
-    edges?: Array<{
-      __typename?: 'TransactionEdge';
-      node: { __typename?: 'Transaction'; id: string; address: string };
-    } | null> | null;
   } | null;
 };
 
@@ -241,67 +210,3 @@ export const DataAvailabilityTransactionsDocument = {
   DataAvailabilityTransactionsQuery,
   DataAvailabilityTransactionsQueryVariables
 >;
-export const TransactionOwnersDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'query',
-      name: { kind: 'Name', value: 'TransactionOwners' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-          type: {
-            kind: 'NonNullType',
-            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'transactions' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'ids' },
-                value: {
-                  kind: 'ListValue',
-                  values: [{ kind: 'Variable', name: { kind: 'Name', value: 'id' } }],
-                },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'edges' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'node' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'address' } },
-                          ],
-                        },
-                      },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<TransactionOwnersQuery, TransactionOwnersQueryVariables>;

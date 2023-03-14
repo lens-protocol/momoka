@@ -1,4 +1,4 @@
-schema: https://node1.bundlr.network/graphql
+schema: https://lens.bundlr.network/graphql
 documents: './src/graphql/*.graphql'
 generates:
   ./src/graphql/generated.ts:
