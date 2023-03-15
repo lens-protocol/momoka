@@ -1,6 +1,7 @@
 import { Deployment, Environment } from '../common/environment';
 import {
   base64StringToJson,
+  deepClone,
   formatDate,
   sleep,
   unixTimestampToMilliseconds,
@@ -18,7 +19,12 @@ import {
   DAStructurePublication,
   PublicationTypedData,
 } from '../data-availability-models/publications/data-availability-structure-publication';
-import { LOCAL_NODE_URL, setupAnvilLocalNode } from '../evm/anvil';
+import {
+  anvilForkFrom,
+  getAnvilCurrentBlockNumber,
+  LOCAL_NODE_URL,
+  setupAnvilLocalNode,
+} from '../evm/anvil';
 import { EthereumNode } from '../evm/ethereum';
 import {
   BundlrBulkTxSuccess,
@@ -41,9 +47,11 @@ import {
   TxValidatedResult,
 } from '../input-output/db';
 import { checkDAProofWithMetadata } from '../proofs/check-da-proof';
+import { cacheBlocksWatcher } from './cache-blocks.watcher';
 // import { watchBlocks } from './block.watcher';
 import { verifierFailedSubmissionsWatcher } from './failed-submissons.watcher';
-import { StreamCallback } from './stream.type';
+import { StartDAVerifierNodeOptions } from './models/start-da-verifier-node-options';
+import { StreamCallback } from './models/stream.type';
 
 /**
  * This function processes a failed transaction by saving it to the database.
@@ -174,6 +182,20 @@ const checkDAProofsBatch = async (
   // Build the data availability publication result for each submission.
   const daPublications = buildDAPublicationsBatchResult(bulkDAProofs.success);
 
+  // get the most recent block number to make sure we forked on the correct block
+  const mostRecentBlockNumber = Math.max(
+    ...daPublications.map((d) => d.daPublication.chainProofs.thisPublication.blockNumber)
+  );
+
+  const anvilCurrentBlockNumber = await getAnvilCurrentBlockNumber();
+
+  // if the most recent block number is greater than the current block number, we need to wait for the next block
+  if (mostRecentBlockNumber > anvilCurrentBlockNumber) {
+    await anvilForkFrom(ethereumNode, mostRecentBlockNumber);
+  }
+
+  // get the current lastest block we have seen
+
   // Get bulk timestamp proofs.
   const bulkDATimestampProofs = await getBundlrBulkTxsAPI(
     daPublications.map((pub) => pub.daPublication.timestampProofs.response.id)
@@ -218,6 +240,7 @@ const checkDAProofsBatch = async (
           // fire and forget
           processFailedSubmissions(
             { txId, reason: result.failure!, submitter: publication.submitter },
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
             () => {}
           );
         }
@@ -229,6 +252,7 @@ const checkDAProofsBatch = async (
         }
 
         log(`${result.isFailure() ? `FAILED - ${result.failure!}` : 'OK'}`);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (e: any) {
         saveTxDb(txId, {
           proofTxId: txId,
@@ -254,12 +278,14 @@ const checkDAProofsBatch = async (
  * Starts the DA verifier node to watch for new data availability submissions and verify their proofs.
  * @param ethereumNode The Ethereum node to use for verification.
  * @param dbLocationFolderPath The folder path for the location of the database.
- * @param stream An optional stream callback function to send results to.
+ * @param options An optional object containing options for the node.
+ *                   - stream - A callback function to stream the validation results.
+ *                   - syncFromHeadOnly - A boolean to indicate whether to sync from the head of the chain only.
  */
 export const startDAVerifierNode = async (
   ethereumNode: EthereumNode,
   dbLocationFolderPath: string,
-  stream?: StreamCallback | undefined
+  { stream }: StartDAVerifierNodeOptions = {}
 ): Promise<never> => {
   consoleLog('LENS VERIFICATION NODE - DA verification watcher started...');
 
@@ -268,7 +294,7 @@ export const startDAVerifierNode = async (
 
   // Initialize database.
   startDb(dbLocationFolderPath);
-  // watchBlocks(deepClone(ethereumNode));
+  cacheBlocksWatcher(deepClone(ethereumNode));
   verifierFailedSubmissionsWatcher(dbLocationFolderPath);
 
   // Switch to local node.
@@ -281,6 +307,7 @@ export const startDAVerifierNode = async (
 
   consoleLog('LENS VERIFICATION NODE - started up..');
 
+  // eslint-disable-next-line no-constant-condition
   while (true) {
     try {
       // Get new data availability transactions from the server.

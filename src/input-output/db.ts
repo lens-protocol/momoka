@@ -1,4 +1,3 @@
-import { Block } from '@ethersproject/abstract-provider';
 import { Level } from 'level';
 import { ClaimableValidatorError } from '../data-availability-models/claimable-validator-errors';
 import { DATimestampProofsResponse } from '../data-availability-models/data-availability-timestamp-proofs';
@@ -99,16 +98,40 @@ export const saveTxDb = async (txId: string, result: TxValidatedResult): Promise
 };
 
 /**
+ * Gets a last seen block number from the database.
+ * @returns The last seen block if it exists, null otherwise.
+ */
+export const getLastSeenBlockNumber = async (): Promise<number | null> => {
+  if (!db) return null;
+  try {
+    const result = await db.get(`${DbReference.block}:latestSeenBlock`);
+    return Number(result);
+  } catch (e) {
+    return null;
+  }
+};
+
+export const saveLatestSeenBlock = async (block: BlockInfo): Promise<void> => {
+  if (!db) return;
+  try {
+    await db.put(`${DbReference.block}:latestSeenBlock`, `${block}`);
+  } catch (error) {
+    console.log('error', error);
+    throw new Error('`saveLatestSeenBlock` - Could not write to into the db - critical error!');
+  }
+};
+
+/**
  * Gets a block from the database.
  *
  * @param blockNumber - The number of the block to get.
  * @returns The block if it exists, null otherwise.
  */
-export const getBlockDb = async (blockNumber: number): Promise<Block | null> => {
+export const getBlockDb = async (blockNumber: number): Promise<BlockInfo | null> => {
   if (!db) return null;
   try {
     const result = await db.get(`${DbReference.block}:${blockNumber}`);
-    return JSON.parse(result) as Block;
+    return JSON.parse(result) as BlockInfo;
   } catch (e) {
     return null;
   }

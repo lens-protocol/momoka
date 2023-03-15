@@ -13,7 +13,7 @@ export {
 } from './input-output/db';
 export { checkDAProof } from './proofs/check-da-proof';
 export * from './submitters';
-export * from './watchers/stream.type';
+export * from './watchers/models/stream.type';
 export {
   startDATrustingIndexing,
   StartDATrustingIndexingRequest,

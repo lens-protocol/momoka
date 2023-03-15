@@ -24,7 +24,7 @@ export interface EthereumNode {
 
 export const EMPTY_BYTE = '0x';
 
-type EthereumProvider = ethers.providers.StaticJsonRpcProvider | undefined;
+export type EthereumProvider = ethers.providers.StaticJsonRpcProvider | undefined;
 
 const _ethereumProviders: {
   POLYGON: EthereumProvider;
