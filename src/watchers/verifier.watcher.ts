@@ -265,8 +265,6 @@ const checkDAProofsBatch = async (
           { txId, reason: ClaimableValidatorError.UNKNOWN, submitter: publication.submitter },
           () => {}
         );
-
-        log(e);
       }
     })
   );

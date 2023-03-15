@@ -1,4 +1,4 @@
-import got from 'got-cjs';
+import gotRequest from 'got-cjs';
 import https from 'https';
 import { TIMEOUT_MS } from './common';
 
@@ -7,7 +7,7 @@ export const postWithTimeout = async <TResponse, TBody>(
   body: TBody
 ): Promise<TResponse> => {
   if (typeof window === 'undefined') {
-    const response: any = await got
+    const response = await gotRequest
       .post(url, {
         json: body,
         timeout: {
@@ -17,7 +17,7 @@ export const postWithTimeout = async <TResponse, TBody>(
           https: new https.Agent({ keepAlive: true }),
         },
       })
-      .json();
+      .json<TResponse>();
 
     return response as TResponse;
   } else {

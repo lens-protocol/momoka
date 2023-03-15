@@ -113,9 +113,9 @@ const validateChoosenBlock = async (
   try {
     // got the current block the previous block and the block in the future!
     const blockNumbers = [
-      deepClone(blockNumber) - 1,
+      // deepClone(blockNumber) - 1,
       deepClone(blockNumber),
-      deepClone(blockNumber) + 1,
+      // deepClone(blockNumber) + 1,
     ];
 
     const blocksResult = await getBlockRange(blockNumbers, ethereumNode);
@@ -469,6 +469,7 @@ export const checkDAProofWithMetadata = async (
   daPublicationWithTimestampProofs: DAPublicationWithTimestampProofsBatchResult,
   ethereumNode: EthereumNode,
   options: CheckDASubmissionOptions = {
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     log: () => {},
     verifyPointer: true,
   }

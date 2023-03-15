@@ -1,28 +1,31 @@
-import got from 'got-cjs';
+import gotRequest from 'got-cjs';
 import https from 'https';
-import { TIMEOUT_MS } from './common';
+
+const PUBLIC_JSON_RPC_TIMEOUT = 5000;
+const LOCAL_JSON_RPC_TIMEOUT = 500;
 
 export const JSONRPCWithTimeout = async <TResponse>(
   url: string,
-  request: { id: number; jsonrpc: string; method: string; params: any[] }
+  request: { id: number; jsonrpc: string; method: string; params: unknown[] }
 ): Promise<TResponse> => {
+  const timeout = url.includes(':8445') ? LOCAL_JSON_RPC_TIMEOUT : PUBLIC_JSON_RPC_TIMEOUT;
   if (typeof window === 'undefined') {
-    const response: any = await got
+    const response = await gotRequest
       .post(url, {
         json: request,
         timeout: {
-          request: TIMEOUT_MS,
+          request: timeout,
         },
         agent: {
           https: new https.Agent({ keepAlive: true }),
         },
       })
-      .json();
+      .json<{ result: TResponse }>();
 
-    return response.result as TResponse;
+    return response.result;
   } else {
     const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), 10000);
+    const id = setTimeout(() => controller.abort(), timeout);
 
     const response = await fetch(url, {
       method: 'POST',
