@@ -107,25 +107,19 @@ const buildTxValidationResult = (
 const buildDAPublicationsBatchResult = (
   results: BundlrBulkTxSuccess[]
 ): DAPublicationsBatchResult[] => {
-  const daPublications: DAPublicationsBatchResult[] = [];
-
-  for (let i = 0; i < results.length; i++) {
-    const result = results[i];
-
+  return results.map((result) => {
     const daPublication = base64StringToJson(result.data) as DAStructurePublication<
       DAEventType,
       PublicationTypedData
     >;
     saveTxDAMetadataDb(result.id, daPublication);
 
-    daPublications.push({
+    return {
       id: result.id,
       daPublication,
       submitter: result.address,
-    });
-  }
-
-  return daPublications;
+    };
+  });
 };
 
 /**
