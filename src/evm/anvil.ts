@@ -22,7 +22,7 @@ const isLocalNodeAlive = async (): Promise<boolean> => {
   return true;
 };
 
-export const setupAnvilLocalNode = async (nodeUrl: string) => {
+export const setupAnvilLocalNode = async (nodeUrl: string): Promise<void> => {
   consoleLog('LENS VERIFICATION NODE - setting up anvil local node from the fork...');
 
   if (await isLocalNodeAlive()) {
@@ -38,6 +38,7 @@ export const setupAnvilLocalNode = async (nodeUrl: string) => {
   await exec('foundryup');
   consoleLog('LENS VERIFICATION NODE - foundryup complete...');
 
+  // eslint-disable-next-line no-async-promise-executor
   await new Promise<void>(async (resolve, _reject) => {
     const internal = setInterval(async () => {
       consoleLog('LENS VERIFICATION NODE - checking local node status...');

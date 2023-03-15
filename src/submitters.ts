@@ -8,7 +8,6 @@ import { TimeoutError, TIMEOUT_ERROR } from './input-output/common';
  * @param environment - The environment to get the submitters for
  * @param deployment - The deployment to get the submitters for. Defaults to Deployment.PRODUCTION
  * @returns An array of submitter addresses in lowercase
- * @throws if the environment is invalid or if the deployment is invalid
  */
 export const getSubmitters = (
   environment: Environment,
@@ -69,7 +68,7 @@ export const isValidSubmitter = (
   environment: Environment,
   address: string,
   deployment?: Deployment
-) => {
+): boolean => {
   return getSubmitters(environment, deployment).includes(address.toLowerCase());
 };
 

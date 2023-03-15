@@ -4,8 +4,8 @@ jest.mock('../db');
 jest.mock('../arweave/get-arweave-by-id.api');
 jest.mock('../submitters');
 
-import { ClaimableValidatorError } from '../claimable-validator-errors';
-import { deepClone } from '../helpers';
+import { deepClone } from '../common/helpers';
+import { ClaimableValidatorError } from '../data-availability-models/claimable-validator-errors';
 import { postCreatedDelegateArweaveResponse } from './mocks/post/post-created-delegate-arweave-response.mock';
 import { postCreatedWithoutDelegateArweaveResponse } from './mocks/post/post-created-without-delegate-arweave-response.mock';
 import * as sharedMocks from './mocks/shared.mock';
@@ -28,7 +28,7 @@ describe('post', () => {
       });
 
       test('txExists in the db already', async () => {
-        sharedMocks.mockGetTxDb.mockImplementationOnce(async () => mockTxValidationResult);
+        sharedMocks.mockGetTxDb.mockImplementationOnce(() => mockTxValidationResult);
         const result = await sharedMocks.callCheckDAProof();
         expect(result.isSuccess()).toBe(true);
       });
@@ -103,7 +103,7 @@ describe('post', () => {
       });
 
       test('EVENT_MISMATCH - pub id does not match simulated result', async () => {
-        sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+        sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(() => {
           return {
             ...baseMock,
             event: {
@@ -117,7 +117,7 @@ describe('post', () => {
       });
 
       test('EVENT_MISMATCH - profile id does not match typed data', async () => {
-        sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+        sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(() => {
           return {
             ...baseMock,
             event: {
@@ -131,7 +131,7 @@ describe('post', () => {
       });
 
       test('EVENT_MISMATCH - contentURI does not match typed data', async () => {
-        sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+        sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(() => {
           return {
             ...baseMock,
             event: {
@@ -145,7 +145,7 @@ describe('post', () => {
       });
 
       test('EVENT_MISMATCH - collectModule does not match typed data', async () => {
-        sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+        sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(() => {
           return {
             ...baseMock,
             event: {
@@ -159,7 +159,7 @@ describe('post', () => {
       });
 
       test('EVENT_MISMATCH - collectModuleReturnData is not empty bytes', async () => {
-        sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+        sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(() => {
           return {
             ...baseMock,
             event: {
@@ -173,7 +173,7 @@ describe('post', () => {
       });
 
       test('EVENT_MISMATCH - referenceModule does not match typed data', async () => {
-        sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+        sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(() => {
           return {
             ...baseMock,
             event: {
@@ -187,7 +187,7 @@ describe('post', () => {
       });
 
       test('EVENT_MISMATCH - referenceModuleReturnData is not empty bytes', async () => {
-        sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+        sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(() => {
           return {
             ...baseMock,
             event: {
@@ -211,18 +211,18 @@ describe('post', () => {
 
     beforeEach(() => {
       baseMock = postCreatedWithoutDelegateArweaveResponse;
-      sharedMocks.mockGetArweaveByIdAPI.mockImplementation(async () =>
+      sharedMocks.mockGetArweaveByIdAPI.mockImplementation(() =>
         deepClone(postCreatedWithoutDelegateArweaveResponse)
       );
     });
 
     describe('should return success when', () => {
-      test('signed by delegate is false', async () => {
+      test('signed by delegate is false', () => {
         expect(baseMock.chainProofs.thisPublication.signedByDelegate).toBe(false);
       });
 
       test('txExists in the db already', async () => {
-        sharedMocks.mockGetTxDb.mockImplementationOnce(async () => mockTxValidationResult);
+        sharedMocks.mockGetTxDb.mockImplementationOnce(() => mockTxValidationResult);
         const result = await sharedMocks.callCheckDAProof();
         expect(result.isSuccess()).toBe(true);
       });
@@ -297,7 +297,7 @@ describe('post', () => {
       });
 
       test('EVENT_MISMATCH - pub id does not match simulated result', async () => {
-        sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+        sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(() => {
           return {
             ...baseMock,
             event: {
@@ -311,7 +311,7 @@ describe('post', () => {
       });
 
       test('EVENT_MISMATCH - profile id does not match typed data', async () => {
-        sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+        sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(() => {
           return {
             ...baseMock,
             event: {
@@ -325,7 +325,7 @@ describe('post', () => {
       });
 
       test('EVENT_MISMATCH - contentURI does not match typed data', async () => {
-        sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+        sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(() => {
           return {
             ...baseMock,
             event: {
@@ -339,7 +339,7 @@ describe('post', () => {
       });
 
       test('EVENT_MISMATCH - collectModule does not match typed data', async () => {
-        sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+        sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(() => {
           return {
             ...baseMock,
             event: {
@@ -353,7 +353,7 @@ describe('post', () => {
       });
 
       test('EVENT_MISMATCH - collectModuleReturnData is not empty bytes', async () => {
-        sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+        sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(() => {
           return {
             ...baseMock,
             event: {
@@ -367,7 +367,7 @@ describe('post', () => {
       });
 
       test('EVENT_MISMATCH - referenceModule does not match typed data', async () => {
-        sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+        sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(() => {
           return {
             ...baseMock,
             event: {
@@ -381,7 +381,7 @@ describe('post', () => {
       });
 
       test('EVENT_MISMATCH - referenceModuleReturnData is not empty bytes', async () => {
-        sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+        sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(() => {
           return {
             ...baseMock,
             event: {

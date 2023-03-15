@@ -56,7 +56,7 @@ let isProcessingFailedSubmission = false;
 const processFailedSubmissions = async (
   failedTransaction: FailedTransactionsDb,
   log: LogFunctionType
-) => {
+): Promise<void> => {
   while (isProcessingFailedSubmission) {
     await sleep(10);
   }
@@ -134,10 +134,10 @@ const buildDAPublicationsBatchResult = (
  * @param daPublications The array of DAPublicationsBatchResult objects corresponding to the original set of transactions.
  * @returns An array of DAPublicationWithTimestampProofsBatchResult objects with timestamp proofs included.
  */
-const buildDAPublicationsWithTimestampProofsBatchResult = async (
+const buildDAPublicationsWithTimestampProofsBatchResult = (
   results: BundlrBulkTxSuccess[],
   daPublications: DAPublicationsBatchResult[]
-): Promise<DAPublicationWithTimestampProofsBatchResult[]> => {
+): DAPublicationWithTimestampProofsBatchResult[] => {
   const daPublicationsWithTimestampProofs: DAPublicationWithTimestampProofsBatchResult[] = [];
 
   for (let i = 0; i < results.length; i++) {
@@ -189,7 +189,7 @@ const checkDAProofsBatch = async (
   }
 
   // Build the data availability publication result with timestamp proofs for each submission.
-  const daPublicationsWithTimestampProofs = await buildDAPublicationsWithTimestampProofsBatchResult(
+  const daPublicationsWithTimestampProofs = buildDAPublicationsWithTimestampProofsBatchResult(
     bulkDATimestampProofs.success,
     daPublications
   );
@@ -198,7 +198,7 @@ const checkDAProofsBatch = async (
   await Promise.allSettled(
     daPublicationsWithTimestampProofs.map(async (publication) => {
       const txId = publication.id;
-      const log = (message: string, ...optionalParams: any[]) => {
+      const log = (message: string, ...optionalParams: unknown[]): void => {
         consoleLog(
           '\x1b[32m',
           `LENS VERIFICATION NODE - tx at - ${formatDate(
@@ -211,6 +211,7 @@ const checkDAProofsBatch = async (
       try {
         const result = await checkDAProofWithMetadata(txId, publication, ethereumNode, {
           verifyPointer: true,
+          // eslint-disable-next-line @typescript-eslint/no-empty-function
           log: () => {},
         });
 
@@ -265,7 +266,7 @@ export const startDAVerifierNode = async (
   ethereumNode: EthereumNode,
   dbLocationFolderPath: string,
   stream?: StreamCallback | undefined
-) => {
+): Promise<never> => {
   consoleLog('LENS VERIFICATION NODE - DA verification watcher started...');
 
   // Start the local node up
@@ -338,11 +339,14 @@ export interface StartDATrustingIndexingRequest {
  * Starts the DA trusting indexing to watch for new data availability coming in and index them.
  * @param request The trusting index request
  */
-export const startDATrustingIndexing = async (request: StartDATrustingIndexingRequest) => {
+export const startDATrustingIndexing = async (
+  request: StartDATrustingIndexingRequest
+): Promise<never> => {
   consoleLog('LENS DA TRUSTING INDEXING - DA verification indexing starting...');
 
   let endCursor: string | null = null;
 
+  // eslint-disable-next-line no-constant-condition
   while (true) {
     try {
       // Get new data availability transactions from the server.

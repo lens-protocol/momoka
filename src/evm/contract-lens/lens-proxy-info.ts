@@ -49,7 +49,7 @@ export const DAlensHubInterface = new Interface(LENS_HUB_ABI);
  * @param ethereumNode The Ethereum node to connect to.
  * @returns The number of published data availability proofs for the specified profile ID and block number.
  */
-export const getPubCount = async (
+export const getPubCount = (
   profileId: string,
   blockNumber: number,
   ethereumNode: EthereumNode

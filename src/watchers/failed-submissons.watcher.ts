@@ -13,6 +13,7 @@ export const verifierFailedSubmissionsWatcher = async (dbLocationFolder: string)
   // Initialize the database
   startDb(dbLocationFolder);
 
+  // eslint-disable-next-line no-constant-condition
   while (true) {
     try {
       const failed = await getFailedTransactionsDb();
@@ -23,7 +24,7 @@ export const verifierFailedSubmissionsWatcher = async (dbLocationFolder: string)
         const failedResults = [];
 
         // Count the number of failed submissions for each error reason
-        for (let item in ClaimableValidatorError) {
+        for (const item in ClaimableValidatorError) {
           if (isNaN(Number(item))) {
             failedResults.push([item, failed.filter((f) => f.reason === item).length]);
           }

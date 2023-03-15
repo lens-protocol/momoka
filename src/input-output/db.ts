@@ -36,6 +36,7 @@ export interface TxValidatedFailureResult
   extraErrorInfo?: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface TxValidatedSuccessResult
   extends TxValidatedResultBase<true, DAStructurePublication<DAEventType, PublicationTypedData>> {}
 
@@ -43,7 +44,7 @@ export interface TxValidatedSuccessResult
  * Starts the LevelDB database.
  * @param dbLocationFolderPath - The path where the LevelDB will be created.
  */
-export const startDb = (dbLocationFolderPath: string) => {
+export const startDb = (dbLocationFolderPath: string): void => {
   if (db) return;
 
   const path = require('path');
@@ -61,8 +62,8 @@ export const startDb = (dbLocationFolderPath: string) => {
  * Deletes an item from the database.
  * @param key - The key of the item to be deleted.
  */
-export const deleteDb = (key: string) => {
-  if (!db) return;
+export const deleteDb = (key: string): Promise<void> => {
+  if (!db) return Promise.resolve();
   return db.del(key);
 };
 

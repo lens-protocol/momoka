@@ -36,7 +36,7 @@ const crossCheckEvent = async (
 
   // check the pub count makes sense from the block!
   if (BigNumber.from(pubCountAtBlock).add(1).toHexString() !== event.pubId) {
-    return failure(ClaimableValidatorError.EVENT_MISMATCH);
+    return await Promise.resolve(failure(ClaimableValidatorError.EVENT_MISMATCH));
   }
 
   log('pub count at block is correct');
@@ -50,12 +50,12 @@ const crossCheckEvent = async (
     event.referenceModuleReturnData !== EMPTY_BYTE ||
     typedData.value.referenceModuleInitData !== EMPTY_BYTE
   ) {
-    return failure(ClaimableValidatorError.EVENT_MISMATCH);
+    return await Promise.resolve(failure(ClaimableValidatorError.EVENT_MISMATCH));
   }
 
   log('cross check event is complete');
 
-  return success();
+  return await Promise.resolve(success());
 };
 
 /**

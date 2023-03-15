@@ -68,7 +68,7 @@ export const unixTimestampToMilliseconds = (unixTimestamp: number): number => un
  * @param chr - The character to use for padding (default: '0').
  * @returns The resulting padded string.
  */
-const padLeft = (nr: number, len = 2, chr = `0`) => `${nr}`.padStart(len, chr);
+const padLeft = (nr: number, len = 2, chr = `0`): string => `${nr}`.padStart(len, chr);
 
 /**
  * Formats a JavaScript Date object as a human-readable string.

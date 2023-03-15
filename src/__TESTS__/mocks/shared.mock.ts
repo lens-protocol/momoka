@@ -1,19 +1,24 @@
-import { checkDAProof, EthereumNode, TxValidatedResult } from '../..';
-import * as getArweaveByIdAPIDefault from '../../arweave/get-arweave-by-id.api';
-import { ClaimableValidatorError } from '../../claimable-validator-errors';
+import {
+  checkDAProof,
+  ClaimableValidatorError,
+  Environment,
+  EthereumNode,
+  TxValidatedResult,
+} from '../..';
+import { getParamOrExit } from '../../common/helpers';
+import { PromiseWithContextResult } from '../../data-availability-models/da-result';
 import {
   DAEventType,
   DAStructurePublication,
   PublicationTypedData,
 } from '../../data-availability-models/publications/data-availability-structure-publication';
-import * as database from '../../db';
-import { Environment } from '../../environment';
-import { getParamOrExit } from '../../helpers';
+import * as getArweaveByIdAPIDefault from '../../input-output/arweave/get-arweave-by-id.api';
+import * as database from '../../input-output/db';
 import * as submittors from '../../submitters';
 import { postCreatedDelegateArweaveResponse } from './post/post-created-delegate-arweave-response.mock';
 
 export const mockGetTxDb = database.getTxDb as jest.MockedFunction<typeof database.getTxDb>;
-mockGetTxDb.mockImplementation(async () => null);
+mockGetTxDb.mockImplementation(() => Promise.resolve(null));
 
 export const mockGetArweaveByIdAPI =
   getArweaveByIdAPIDefault.getArweaveByIdAPI as jest.MockedFunction<
@@ -22,7 +27,7 @@ export const mockGetArweaveByIdAPI =
 
 export const mockImpl__NO_SIGNATURE_SUBMITTER = (
   baseMock: DAStructurePublication<DAEventType, PublicationTypedData>
-) => {
+): void => {
   mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
     return {
       ...baseMock,
@@ -33,7 +38,7 @@ export const mockImpl__NO_SIGNATURE_SUBMITTER = (
 
 export const mockImpl__TIMESTAMP_PROOF_INVALID_SIGNATURE = (
   baseMock: DAStructurePublication<DAEventType, PublicationTypedData>
-) => {
+): void => {
   mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
     return {
       ...baseMock,
@@ -47,13 +52,13 @@ export const mockImpl__TIMESTAMP_PROOF_INVALID_SIGNATURE = (
   });
 };
 
-export const mockImpl__TIMESTAMP_PROOF_NOT_SUBMITTER = () => {
+export const mockImpl__TIMESTAMP_PROOF_NOT_SUBMITTER = (): void => {
   mockIsValidTransactionSubmitter.mockImplementationOnce(() => Promise.resolve(false));
 };
 
 export const mockImpl__INVALID_EVENT_TIMESTAMP = (
   baseMock: DAStructurePublication<DAEventType, PublicationTypedData>
-) => {
+): void => {
   mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
     return {
       ...baseMock,
@@ -67,8 +72,8 @@ export const mockImpl__INVALID_EVENT_TIMESTAMP = (
 
 export const mockImpl__INVALID_POINTER_SET = (
   baseMock: DAStructurePublication<DAEventType, PublicationTypedData>,
-  pointer: any
-) => {
+  pointer: unknown
+): void => {
   mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
     return {
       ...baseMock,
@@ -82,7 +87,7 @@ export const mockImpl__INVALID_POINTER_SET = (
 
 export const mockImpl__SIMULATION_FAILED_BAD_PROFILE_ID = (
   baseMock: DAStructurePublication<DAEventType, PublicationTypedData>
-) => {
+): void => {
   mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
     return {
       ...baseMock,
@@ -105,7 +110,7 @@ export const mockImpl__SIMULATION_FAILED_BAD_PROFILE_ID = (
 
 export const mockImpl__INVALID_FORMATTED_TYPED_DATA = (
   baseMock: DAStructurePublication<DAEventType, PublicationTypedData>
-) => {
+): void => {
   mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
     return {
       ...baseMock,
@@ -142,17 +147,22 @@ const ethereumNode: EthereumNode = {
   nodeUrl: getParamOrExit('NODE_URL'),
 };
 
-export const callCheckDAProof = () => {
+export const callCheckDAProof = (): PromiseWithContextResult<
+  void | DAStructurePublication<DAEventType, PublicationTypedData>,
+  DAStructurePublication<DAEventType, PublicationTypedData>
+> => {
   return checkDAProof('mocked_tx_id', ethereumNode, { log: jest.fn(), verifyPointer: true });
 };
 
-export const checkAndValidateDAProof = async (expectedError: ClaimableValidatorError) => {
+export const checkAndValidateDAProof = async (
+  expectedError: ClaimableValidatorError
+): Promise<void> => {
   const result = await callCheckDAProof();
   expect(result.failure).toEqual(expectedError);
   expect(result.isFailure()).toBe(true);
 };
 
-export const random = () => (Math.random() + 1).toString(36).substring(7);
+export const random = (): string => (Math.random() + 1).toString(36).substring(7);
 
 export const mockTxValidationResult: TxValidatedResult = {
   success: true,

@@ -22,7 +22,7 @@ export enum Deployment {
  * @returns The chain ID corresponding to the provided Ethereum environment.
  * @throws An error if the provided environment is invalid.
  */
-export const environmentToChainId = (environment: Environment) => {
+export const environmentToChainId = (environment: Environment): 137 | 80001 => {
   switch (environment) {
     case Environment.POLYGON:
       return 137;
@@ -40,7 +40,7 @@ export const environmentToChainId = (environment: Environment) => {
  * @returns The Lens Hub contract address corresponding to the provided Ethereum environment.
  * @throws An error if the provided environment is invalid.
  */
-export const environmentToLensHubContract = (environment: Environment) => {
+export const environmentToLensHubContract = (environment: Environment): string => {
   switch (environment) {
     case Environment.POLYGON:
       return '0xDb46d1Dc155634FbC732f92E853b10B288AD5a1d';

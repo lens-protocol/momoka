@@ -61,7 +61,7 @@ export const success = <TResult = void>(result?: TResult): DAResult<TResult> =>
  * @param failure The claimable validator error in case of failure.
  * @returns The failed data availability result.
  */
-export const failure = (failure: ClaimableValidatorError): DAResult<void> => new DAResult(failure);
+export const failure = (error: ClaimableValidatorError): DAResult<void> => new DAResult(error);
 
 /**
  * Represents a Promise of a data availability result with context.
@@ -90,9 +90,9 @@ export type PromiseWithContextResultOrNull<TSuccessResult, TContext> = Promise<D
  * @returns The failed data availability result with context.
  */
 export const failureWithContext = <TContext>(
-  failure: ClaimableValidatorError,
+  error: ClaimableValidatorError,
   context: TContext
-): DAResult<void, TContext> => new DAResult(failure, undefined, context);
+): DAResult<void, TContext> => new DAResult(error, undefined, context);
 
 /**
  * Creates a successful data availability result with context.

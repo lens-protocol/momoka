@@ -100,7 +100,15 @@ export const executeSimulationTransaction = async (
  * @param deadline - The deadline timestamp to add to the signature.
  * @returns An object containing the parsed signature and deadline.
  */
-export const parseSignature = (signature: string, deadline: number) => {
+export const parseSignature = (
+  signature: string,
+  deadline: number
+): {
+  r: string;
+  s: string;
+  v: number;
+  deadline: number;
+} => {
   const splitSign = ethers.utils.splitSignature(signature);
   return {
     r: splitSign.r,
@@ -204,7 +212,7 @@ export const getBlock = async (
   blockHashOrBlockTag: ethers.providers.BlockTag,
   ethereumNode: EthereumNode,
   maxRetries: number = DEFAULT_MAX_BLOCK_RETRIES,
-  attempt: number = 0
+  attempt = 0
 ): Promise<BlockInfo> => {
   try {
     if (typeof blockHashOrBlockTag === 'number') {

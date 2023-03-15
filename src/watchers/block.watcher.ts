@@ -8,13 +8,14 @@ import { saveBlockDb } from '../input-output/db';
  * Watches for new blocks on the Ethereum network and saves them to the database.
  * @param ethereumNode The Ethereum node to watch for blocks.
  */
-export const watchBlocks = async (ethereumNode: EthereumNode) => {
+export const watchBlocks = async (ethereumNode: EthereumNode): Promise<never> => {
   consoleLog('LENS VERIFICATION NODE - started up block watching...');
 
   // Initialize a forked node to the provided Ethereum node's URL.
   const forkNode = ethereumProvider({ ...ethereumNode, nodeUrl: LOCAL_NODE_URL }, false)!;
 
   let blockNumber = 0;
+  // eslint-disable-next-line no-constant-condition
   while (true) {
     try {
       // Get the latest block.
