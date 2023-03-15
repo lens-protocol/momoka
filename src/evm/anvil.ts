@@ -1,15 +1,22 @@
 import { ChildProcess, exec } from 'child_process';
 import { BigNumber } from 'ethers';
-import { promisify } from 'util';
 import { consoleLog } from '../common/logger';
 import { JSONRPCWithTimeout } from '../input-output/json-rpc-with-timeout';
 import { EthereumNode, EthereumProvider, ethereumProvider } from './ethereum';
 
-const execWrapper = (command: string): ChildProcess => {
-  return exec(command, { maxBuffer: Infinity });
+const execWrapper = (command: string, callback: Function): ChildProcess => {
+  const childProcess = exec(command, { maxBuffer: Infinity });
+  return callback(childProcess);
 };
 
-const execAsync = promisify(execWrapper);
+const mypromisify =
+  (fn: Function) =>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (...args: any) =>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    new Promise((resolve) => fn(...args, (...a: any) => resolve(a)));
+
+const execAsync = mypromisify(execWrapper);
 
 export const LOCAL_NODE_URL = 'http://127.0.0.1:8545/';
 
