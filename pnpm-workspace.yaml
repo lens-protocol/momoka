@@ -1,0 +1,4 @@
+packages:
+  - 'src/**'
+  # if required, exclude some directories
+  - '!**/test/**'

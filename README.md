@@ -1427,7 +1427,7 @@ This is a rough look at how this could work in the future in a trustless manner.
 This is a built-in node, and this means it can be run on the client as well as a server; it won't use the DB on the client but can mean you can run proof checks in runtime, which is super powerful.
 
 ```bash
-$ npm i @lens-protocol/data-availability-verifier
+$ pnpm i @lens-protocol/data-availability-verifier
 ```
 
 <b>Do not use if you do not know what you are doing the basic config works for all production apps</b>
@@ -1552,11 +1552,25 @@ DB_LOCATION_FOLDER_PATH=INSERT_PATH
 
 #### Running from this repo
 
+#### Dependencies
+
+This package has a few dependencies that need to be installed, these are:
+
+- we use `pnpm` for this repo so please have it installed: https://pnpm.io/installation
+- nvm is also used for node versioning:
+
 If you wish to just run it on its own, you can just run:
 
 ```bash
-$ npm i
-$ npm run start
+$ nvm use
+$ pnpm i
+$ pnpm run start
+```
+
+To build its just:
+
+```bash
+$ pnpm build
 ```
 
 #### Docker
