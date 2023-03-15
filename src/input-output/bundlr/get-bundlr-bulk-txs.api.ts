@@ -37,8 +37,9 @@ export const getBundlrBulkTxsAPI = async (
     );
 
     return response;
-  } catch (error) {
-    console.log('Error while retrieving data from Lens Bundlr API:', error);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    console.log('Error while retrieving data from Lens Bundlr API:', error.message);
 
     if (attempts >= 3) {
       console.log('BUNDLR TIMEOUTS', error);

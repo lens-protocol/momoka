@@ -1,7 +1,6 @@
 import { Deployment, Environment } from '../common/environment';
 import {
   base64StringToJson,
-  deepClone,
   formatDate,
   sleep,
   unixTimestampToMilliseconds,
@@ -47,7 +46,6 @@ import {
   TxValidatedResult,
 } from '../input-output/db';
 import { checkDAProofWithMetadata } from '../proofs/check-da-proof';
-import { cacheBlocksWatcher } from './cache-blocks.watcher';
 // import { watchBlocks } from './block.watcher';
 import { verifierFailedSubmissionsWatcher } from './failed-submissons.watcher';
 import { StartDAVerifierNodeOptions } from './models/start-da-verifier-node-options';
@@ -294,7 +292,7 @@ export const startDAVerifierNode = async (
 
   // Initialize database.
   startDb(dbLocationFolderPath);
-  cacheBlocksWatcher(deepClone(ethereumNode));
+  // cacheBlocksWatcher(deepClone(ethereumNode));
   verifierFailedSubmissionsWatcher(dbLocationFolderPath);
 
   // Switch to local node.

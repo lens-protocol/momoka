@@ -1,10 +1,15 @@
+import { ChildProcess, exec } from 'child_process';
 import { BigNumber } from 'ethers';
 import { promisify } from 'util';
 import { consoleLog } from '../common/logger';
 import { JSONRPCWithTimeout } from '../input-output/json-rpc-with-timeout';
 import { EthereumNode, EthereumProvider, ethereumProvider } from './ethereum';
 
-const exec = promisify(require('child_process').exec);
+const execWrapper = (command: string): ChildProcess => {
+  return exec(command, { maxBuffer: Infinity });
+};
+
+const execAsync = promisify(execWrapper);
 
 export const LOCAL_NODE_URL = 'http://127.0.0.1:8545/';
 
@@ -69,11 +74,11 @@ export const setupAnvilLocalNode = async (nodeUrl: string): Promise<void> => {
   }
 
   consoleLog('LENS VERIFICATION NODE - downloading foundry...');
-  await exec('curl -L https://foundry.paradigm.xyz | bash');
+  await execAsync('curl -L https://foundry.paradigm.xyz | bash');
   consoleLog('LENS VERIFICATION NODE - downloaded foundry...');
 
   consoleLog('LENS VERIFICATION NODE - foundryup...');
-  await exec('foundryup');
+  await execAsync('foundryup');
   consoleLog('LENS VERIFICATION NODE - foundryup complete...');
 
   // eslint-disable-next-line no-async-promise-executor
@@ -90,7 +95,7 @@ export const setupAnvilLocalNode = async (nodeUrl: string): Promise<void> => {
     }, 100);
 
     consoleLog('LENS VERIFICATION NODE - starting up anvil local node from the fork...');
-    await exec(`REQ_TIMEOUT=100000 anvil -f ${nodeUrl}`);
+    await execAsync(`REQ_TIMEOUT=100000 anvil --fork-url ${nodeUrl} --silent --no-rate-limit`);
   });
 
   consoleLog('LENS VERIFICATION NODE - complete setup of anvil local node from fork...');
