@@ -9,6 +9,7 @@ import {
 } from '../../../data-availability-models/publications/data-availability-structure-publication';
 import { DAMirrorCreatedEventEmittedResponse } from '../../../data-availability-models/publications/data-availability-structure-publications-events';
 import { EMPTY_BYTE, EthereumNode, getOnChainProfileDetails } from '../../../evm/ethereum';
+import { checkDAProof } from '../../check-da-proof';
 import { whoSignedTypedData } from '../publication.base';
 
 export type CheckDAMirrorPublication = DAStructurePublication<
@@ -68,7 +69,7 @@ const crossCheckEvent = async (
  */
 export const checkDAMirror = async (
   publication: CheckDAMirrorPublication,
-  _verifyPointer: boolean,
+  verifyPointer: boolean,
   ethereumNode: EthereumNode,
   log: LogFunctionType
 ): PromiseResult => {
@@ -83,23 +84,26 @@ export const checkDAMirror = async (
     return failure(ClaimableValidatorError.PUBLICATION_NONE_DA);
   }
 
-  // if (verifyPointer) {
-  //   log('verify pointer first');
+  if (verifyPointer) {
+    log('verify pointer first');
 
-  //   // check the pointer!
-  //   const pointerResult = await checkDAProof(
-  //     publication.chainProofs.pointer.location,
-  //     ethereumNode,
-  //     {
-  //       verifyPointer: false,
-  //       byPassDb: false,
-  //       log,
-  //     }
-  //   );
-  //   if (pointerResult.isFailure()) {
-  //     return failure(ClaimableValidatorError.POINTER_FAILED_VERIFICATION);
-  //   }
-  // }
+    // check the pointer!
+    const pointerResult = await checkDAProof(
+      publication.chainProofs.pointer.location,
+      ethereumNode,
+      {
+        verifyPointer: false,
+        byPassDb: false,
+        log,
+      }
+    );
+
+    console.log('pointerResult', pointerResult);
+
+    if (pointerResult.isFailure()) {
+      return failure(ClaimableValidatorError.POINTER_FAILED_VERIFICATION);
+    }
+  }
 
   const typedData = publication.chainProofs.thisPublication.typedData;
 

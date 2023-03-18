@@ -23,7 +23,7 @@ import {
   PublicationTypedData,
 } from '../data-availability-models/publications/data-availability-structure-publication';
 import { BlockInfo, EthereumNode, getBlock } from '../evm/ethereum';
-import { getArweaveByIdAPI } from '../input-output/arweave/get-arweave-by-id.api';
+import { getBundlrByIdAPI } from '../input-output/bundlr/get-bundlr-by-id.api';
 import { TIMEOUT_ERROR } from '../input-output/common';
 import {
   getBlockDb,
@@ -547,7 +547,7 @@ export const checkDAProof = async (
 
   const daPublication =
     (await getTxDAMetadataDb(txId)) ||
-    (await getArweaveByIdAPI<DAStructurePublication<DAEventType, PublicationTypedData>>(txId));
+    (await getBundlrByIdAPI<DAStructurePublication<DAEventType, PublicationTypedData>>(txId));
   if (!daPublication) {
     return failureWithContext(ClaimableValidatorError.INVALID_TX_ID, undefined as any);
   }
@@ -557,7 +557,7 @@ export const checkDAProof = async (
 
   const timestampProofsPayload =
     (await getTxTimestampProofsMetadataDb(txId)) ||
-    (await getArweaveByIdAPI<DATimestampProofsResponse>(daPublication.timestampProofs.response.id));
+    (await getBundlrByIdAPI<DATimestampProofsResponse>(daPublication.timestampProofs.response.id));
   if (!timestampProofsPayload) {
     return failureWithContext(ClaimableValidatorError.INVALID_TX_ID, undefined as any);
   }

@@ -9,6 +9,7 @@ import {
 } from '../../../data-availability-models/publications/data-availability-structure-publication';
 import { DACommentCreatedEventEmittedResponse } from '../../../data-availability-models/publications/data-availability-structure-publications-events';
 import { EMPTY_BYTE, EthereumNode, getOnChainProfileDetails } from '../../../evm/ethereum';
+import { checkDAProof } from '../../check-da-proof';
 import { whoSignedTypedData } from '../publication.base';
 
 export type CheckDACommentPublication = DAStructurePublication<
@@ -72,7 +73,7 @@ const crossCheckEvent = async (
  */
 export const checkDAComment = async (
   publication: CheckDACommentPublication,
-  _verifyPointer: boolean,
+  verifyPointer: boolean,
   ethereumNode: EthereumNode,
   log: LogFunctionType
 ): PromiseResult => {
@@ -86,26 +87,26 @@ export const checkDAComment = async (
     return failure(ClaimableValidatorError.PUBLICATION_NONE_DA);
   }
 
-  // if (verifyPointer) {
-  //   console.time(publication.dataAvailabilityId + ' - verifyPointer');
-  //   log('verify pointer first');
+  if (verifyPointer) {
+    //console.time(publication.dataAvailabilityId + ' - verifyPointer');
+    log('verify pointer first');
 
-  //   // check the pointer!
-  //   const pointerResult = await checkDAProof(
-  //     publication.chainProofs.pointer.location,
-  //     ethereumNode,
-  //     {
-  //       byPassDb: false,
-  //       verifyPointer: false,
-  //       log,
-  //     }
-  //   );
-  //   if (pointerResult.isFailure()) {
-  //     return failure(ClaimableValidatorError.POINTER_FAILED_VERIFICATION);
-  //   }
+    // check the pointer!
+    const pointerResult = await checkDAProof(
+      publication.chainProofs.pointer.location,
+      ethereumNode,
+      {
+        byPassDb: false,
+        verifyPointer: false,
+        log,
+      }
+    );
+    if (pointerResult.isFailure()) {
+      return failure(ClaimableValidatorError.POINTER_FAILED_VERIFICATION);
+    }
 
-  //   console.timeEnd(publication.dataAvailabilityId + ' - verifyPointer');
-  // }
+    //console.timeEnd(publication.dataAvailabilityId + ' - verifyPointer');
+  }
 
   const typedData = publication.chainProofs.thisPublication.typedData;
 

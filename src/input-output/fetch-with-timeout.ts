@@ -1,6 +1,6 @@
 import { curly } from 'node-libcurl';
 
-export const fetchWithTimeout = async <TResponse>(url: string): Promise<TResponse> => {
+export const fetchWithTimeout = async <TResponse>(url: string): Promise<TResponse | null> => {
   if (typeof window === 'undefined') {
     const { statusCode, data } = await curly.get(url, {
       httpHeader: ['Content-Type: application/json'],
@@ -9,7 +9,7 @@ export const fetchWithTimeout = async <TResponse>(url: string): Promise<TRespons
     });
 
     if (statusCode !== 200) {
-      throw new Error(`JSONRPCWithTimeout: ${statusCode}`);
+      return null;
     }
 
     return JSON.parse(data.toString()) as TResponse;

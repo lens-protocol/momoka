@@ -89,7 +89,7 @@ export const startDAVerifierNode = async (
           usLocalNode,
           stream
         );
-        console.timeEnd('startings');
+        console.timeEnd('starting');
 
         // push the retry queue
         retryCheckDAProofsQueue.enqueueWithDelay(
@@ -121,6 +121,8 @@ export const startDAVerifierNode = async (
 
         endCursor = arweaveTransactions.pageInfo.endCursor;
         await saveEndCursorDb(endCursor!);
+
+        // await sleep(100000000);
 
         consoleLog('completed count', count);
       }

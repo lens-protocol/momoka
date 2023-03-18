@@ -33,7 +33,7 @@ export const getOwnerOfTransactionAPI = async (
 ): Promise<string | null | TimeoutError> => {
   try {
     const result = await fetchWithTimeout<BundlrTx>(`${BUNDLR_NODE_TX}${txId}`);
-
+    if (!result) return null;
     return result.address;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {

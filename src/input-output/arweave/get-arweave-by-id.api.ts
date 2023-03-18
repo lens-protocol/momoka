@@ -7,7 +7,6 @@ import { fetchWithTimeout } from '../fetch-with-timeout';
  * @returns The data associated with the transaction, or `null` if the transaction cannot be found, or `TimeoutError` if the request times out.
  * @note This function is not used internally on the data availability node as it is too slow. Even so you can use this if you wish on a fork or anything else.
  */
-export const getArweaveByIdAPI = async <T>(txId: string): Promise<T | TimeoutError | null> => {
-  const result = await fetchWithTimeout<T>(`https://arweave.net/${txId}`);
-  return result;
+export const getArweaveByIdAPI = <T>(txId: string): Promise<T | TimeoutError | null> => {
+  return fetchWithTimeout<T>(`https://arweave.net/${txId}`);
 };
