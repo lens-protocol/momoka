@@ -28,7 +28,6 @@ export const processFailedDAProofQueue = async (
             JSON.stringify(failed)
           );
         } catch (e) {
-          //TODO add back to the queue
           console.error(
             'Error writing the disk for failed publication.. make sure you have enough disk space'
           );
