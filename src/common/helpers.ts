@@ -110,3 +110,10 @@ export const createTimeoutPromise = (
 
   return { promise, timeoutId: timeoutIdWrapper.timeoutId };
 };
+
+/**
+ *  Return if the processing doing this is native node and not a browser
+ */
+export const isNativeNode = (): boolean => {
+  return typeof window === 'undefined';
+};

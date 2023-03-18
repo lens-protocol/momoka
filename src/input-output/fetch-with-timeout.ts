@@ -1,7 +1,8 @@
 import { curly } from 'node-libcurl';
+import { isNativeNode } from '../common/helpers';
 
 export const fetchWithTimeout = async <TResponse>(url: string): Promise<TResponse | null> => {
-  if (typeof window === 'undefined') {
+  if (isNativeNode()) {
     const { statusCode, data } = await curly.get(url, {
       httpHeader: ['Content-Type: application/json'],
       curlyResponseBodyParser: false,

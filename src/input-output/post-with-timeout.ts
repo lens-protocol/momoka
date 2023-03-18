@@ -1,10 +1,11 @@
 import { curly } from 'node-libcurl';
+import { isNativeNode } from '../common/helpers';
 
 export const postWithTimeout = async <TResponse, TBody>(
   url: string,
   body: TBody
 ): Promise<TResponse> => {
-  if (typeof window === 'undefined') {
+  if (isNativeNode()) {
     const { statusCode, data } = await curly.post(url, {
       postFields: JSON.stringify(body),
       httpHeader: ['Content-Type: application/json'],

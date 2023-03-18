@@ -1,4 +1,5 @@
 import { curly } from 'node-libcurl';
+import { isNativeNode } from '../common/helpers';
 import { JSONRPCMethods } from '../evm/jsonrpc-methods';
 
 export const JSONRPCWithTimeout = async <TResponse>(
@@ -12,7 +13,7 @@ export const JSONRPCWithTimeout = async <TResponse>(
     method,
     params,
   };
-  if (typeof window === 'undefined') {
+  if (isNativeNode()) {
     const { statusCode, data } = await curly.post(url, {
       postFields: JSON.stringify(request),
       httpHeader: ['Content-Type: application/json'],
