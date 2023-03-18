@@ -164,7 +164,8 @@ const validateChoosenBlock = async (
       timestamp,
     });
 
-    // TODO to look at this later!
+    //TODO look at this again
+    // block times are 2 seconds so this should never ever happen
     // if (closestBlock.number + 2500 > timestamp) {
     //   throw new Error(ClaimableValidatorError.BLOCK_TOO_FAR);
     // }

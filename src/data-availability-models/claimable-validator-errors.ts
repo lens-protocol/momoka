@@ -121,6 +121,11 @@ export enum ClaimableValidatorError {
   NOT_CLOSEST_BLOCK = 'NOT_CLOSEST_BLOCK',
 
   /**
+   * This means the timestamp proofs are not close enough to the block
+   */
+  BLOCK_TOO_FAR = 'NOT_CLOSEST_BLOCK',
+
+  /**
    * This means the publication submitted does not have a valid pointer
    * and a pointer is required
    */
