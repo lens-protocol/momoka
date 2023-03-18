@@ -1,6 +1,7 @@
-import { promises as fs } from 'fs';
+import { existsSync, promises as fs } from 'fs';
 import path from 'path';
 import { ClaimableValidatorError } from '../data-availability-models/claimable-validator-errors';
+import { FAILED_PROOFS_PATHS } from '../input-output/paths';
 import { Queue } from './base.queue';
 import { failedDAProofQueue } from './known.queue';
 
@@ -9,6 +10,15 @@ export interface ProcessFailedProofQueueRequest {
   reason: ClaimableValidatorError;
   submitter: string;
 }
+
+const writeFailedProof = async (failed: ProcessFailedProofQueueRequest): Promise<void> => {
+  const errorLocation = path.join(FAILED_PROOFS_PATHS, failed.reason);
+  if (!existsSync(errorLocation)) {
+    await fs.mkdir(errorLocation);
+  }
+
+  await fs.writeFile(path.join(errorLocation, failed.txId + '.json'), JSON.stringify(failed));
+};
 
 /**
  * Processes the failed proofs queue to save them on disk
@@ -23,10 +33,7 @@ export const processFailedDAProofQueue = async (
       const failed = failedQueue.dequeue();
       if (failed) {
         try {
-          await fs.writeFile(
-            path.join(process.cwd(), 'lens__da', 'failed-proofs', failed.txId + '.json'),
-            JSON.stringify(failed)
-          );
+          await writeFailedProof(failed);
         } catch (e) {
           console.error(
             'Error writing the disk for failed publication.. make sure you have enough disk space'

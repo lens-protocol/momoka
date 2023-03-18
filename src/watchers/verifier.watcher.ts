@@ -1,6 +1,5 @@
 import { sleep } from '../common/helpers';
 import { consoleLog } from '../common/logger';
-import { ClaimableValidatorError } from '../data-availability-models/claimable-validator-errors';
 import { LOCAL_NODE_URL, setupAnvilLocalNode } from '../evm/anvil';
 import { EthereumNode } from '../evm/ethereum';
 import {
@@ -10,6 +9,7 @@ import {
 import { getLastEndCursorDb, saveEndCursorDb, startDb } from '../input-output/db';
 import { checkDAProofsBatch } from '../proofs/check-da-proofs-batch';
 import { retryCheckDAProofsQueue } from '../queue/known.queue';
+import { shouldRetry } from '../queue/process-retry-check-da-proofs.queue';
 import { startupQueues } from '../queue/startup.queue';
 import { verifierFailedSubmissionsWatcher } from './failed-submissons.watcher';
 import { StartDAVerifierNodeOptions } from './models/start-da-verifier-node-options';
@@ -96,20 +96,7 @@ export const startDAVerifierNode = async (
         retryCheckDAProofsQueue.enqueueWithDelay(
           {
             txIds: result
-              .filter(
-                (c) =>
-                  !c.success &&
-                  // if the error is something based on network or node issues, then retry
-                  (c.claimableValidatorError === ClaimableValidatorError.UNKNOWN ||
-                    c.claimableValidatorError ===
-                      ClaimableValidatorError.CAN_NOT_CONNECT_TO_BUNDLR ||
-                    c.claimableValidatorError ===
-                      ClaimableValidatorError.BLOCK_CANT_BE_READ_FROM_NODE ||
-                    c.claimableValidatorError ===
-                      ClaimableValidatorError.DATA_CANT_BE_READ_FROM_NODE ||
-                    c.claimableValidatorError ===
-                      ClaimableValidatorError.SIMULATION_NODE_COULD_NOT_RUN)
-              )
+              .filter((c) => !c.success && shouldRetry(c.claimableValidatorError!))
               .map((c) => c.txId),
             ethereumNode,
             stream,
