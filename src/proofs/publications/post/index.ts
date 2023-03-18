@@ -1,21 +1,17 @@
 import { BigNumber } from 'ethers';
 import { LogFunctionType } from '../../../common/logger';
 import { ClaimableValidatorError } from '../../../data-availability-models/claimable-validator-errors';
-import {
-  failure,
-  PromiseResult,
-  Result,
-  success,
-} from '../../../data-availability-models/da-result';
+import { failure, PromiseResult, success } from '../../../data-availability-models/da-result';
 import { CreatePostEIP712TypedData } from '../../../data-availability-models/publications/data-availability-publication-typed-data';
 import { DAStructurePublication } from '../../../data-availability-models/publications/data-availability-structure-publication';
 import { DAPostCreatedEventEmittedResponse } from '../../../data-availability-models/publications/data-availability-structure-publications-events';
 import { PostWithSig_DispatcherRequest } from '../../../evm/abi-types/LensHub';
-import { DAlensHubInterface, getPubCount } from '../../../evm/contract-lens/lens-proxy-info';
 import {
+  DAlensHubInterface,
   EMPTY_BYTE,
   EthereumNode,
   executeSimulationTransaction,
+  getLensPubCount,
   parseSignature,
 } from '../../../evm/ethereum';
 
@@ -30,7 +26,7 @@ export type CheckDAPostPublication = DAStructurePublication<
  * @param typedData - the typed data to be compared with the event value
  * @param pubCountAtBlock - the publication count at the block
  * @param log - logging function to display the message
- * @returns {PromiseResult} - returns success if the event passes the cross-check, otherwise returns failure with an error
+ * @returns returns success if the event passes the cross-check, otherwise returns failure with an error
  */
 const crossCheckEvent = async (
   event: DAPostCreatedEventEmittedResponse,
@@ -65,20 +61,21 @@ const crossCheckEvent = async (
  * @param signedByDelegate - Indicates whether the signature was signed by the delegate.
  * @param sigRequest - The signature request.
  * @returns The simulation data or an error result.
+ *          turned into a promise as its minimum CPU intensive
  */
 const generateSimulationData = (
   signedByDelegate: boolean,
   sigRequest: PostWithSig_DispatcherRequest
-): Result<string | void> => {
+): PromiseResult<string | void> => {
   try {
     const result = DAlensHubInterface.encodeFunctionData(
       signedByDelegate ? 'postWithSig_Dispatcher' : 'postWithSig',
       [sigRequest]
     );
 
-    return success(result);
+    return Promise.resolve(success(result));
   } catch (e) {
-    return failure(ClaimableValidatorError.INVALID_FORMATTED_TYPED_DATA);
+    return Promise.resolve(failure(ClaimableValidatorError.INVALID_FORMATTED_TYPED_DATA));
   }
 };
 
@@ -93,9 +90,13 @@ const getExpectedResult = async (
   profileId: string,
   blockNumber: number,
   ethereumNode: EthereumNode
-): Promise<BigNumber> => {
-  const publicationCount = await getPubCount(profileId, blockNumber, ethereumNode);
-  return publicationCount.add(1);
+): PromiseResult<BigNumber | void> => {
+  const publicationCount = await getLensPubCount(profileId, blockNumber, ethereumNode);
+  if (publicationCount.isFailure()) {
+    return failure(publicationCount.failure!);
+  }
+
+  return success(publicationCount.successResult!.add(1));
 };
 
 /**
@@ -130,7 +131,7 @@ export const checkDAPost = async (
 
   log('signature simulation checking!', sigRequest);
 
-  const simulationData = generateSimulationData(
+  const simulationData = await generateSimulationData(
     publication.chainProofs.thisPublication.signedByDelegate,
     sigRequest
   );
@@ -139,6 +140,7 @@ export const checkDAPost = async (
     return failure(simulationData.failure!);
   }
 
+  //console.time(publication.dataAvailabilityId + ' - simulate');
   // check the signature would of passed using eth_call
   const [simulatedResult, expectedResult] = await Promise.all([
     executeSimulationTransaction(
@@ -152,13 +154,20 @@ export const checkDAPost = async (
       ethereumNode
     ),
   ]);
+  //console.timeEnd(publication.dataAvailabilityId + ' - simulate');
 
   if (simulatedResult.isFailure()) {
     log('signature simulation checking failed');
     return failure(simulationData.failure!);
   }
+  if (expectedResult.isFailure()) {
+    log('expectedResult failed to be fetched');
+    return failure(expectedResult.failure!);
+  }
 
-  if (!expectedResult.eq(simulatedResult.successResult!)) {
+  console.log('RESULTS', { simulatedResult, expectedResult });
+
+  if (!expectedResult.successResult!.eq(simulatedResult.successResult!)) {
     log('signature simulation checking failed');
     return failure(ClaimableValidatorError.SIMULATION_FAILED);
   }

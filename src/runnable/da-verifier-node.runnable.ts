@@ -2,16 +2,9 @@
 // import { Deployment } from './environment';
 // import { getParam, getParamOrExit } from './helpers';
 
-import { Deployment, Environment } from '../common/environment';
-import { getParam, getParamOrExit } from '../common/helpers';
-import { EthereumNode } from '../evm/ethereum';
+import { getParamOrExit } from '../common/helpers';
 import { startDAVerifierNode } from '../index';
-
-const ethereumNode: EthereumNode = {
-  environment: getParamOrExit('ETHEREUM_NETWORK') as Environment,
-  nodeUrl: getParamOrExit('NODE_URL'),
-  deployment: (getParam('DEPLOYMENT') as Deployment) || Deployment.PRODUCTION,
-};
+import { ethereumNode } from './ethereum-node-instance';
 
 startDAVerifierNode(ethereumNode, getParamOrExit('DB_LOCATION_FOLDER_PATH')).catch((error) => {
   console.error('DA verifier node failed to startup', error);

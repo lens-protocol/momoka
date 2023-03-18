@@ -1,7 +1,7 @@
 import { SignatureLike } from '@ethersproject/bytes';
 import { utils } from 'ethers';
 import { ClaimableValidatorError } from '../../data-availability-models/claimable-validator-errors';
-import { failure, Result, success } from '../../data-availability-models/da-result';
+import { failure, PromiseResult, success } from '../../data-availability-models/da-result';
 import {
   TypedDataDomain,
   TypedDataField,
@@ -14,17 +14,19 @@ import {
  * @param value The typed data value.
  * @param signature The signature to verify.
  * @returns A `success` result with the signer's address if the signature is valid, or a `failure` result with a `ClaimableValidatorError` if there's an error during the verification process.
+            turned into a promise as its minimum CPU intensive
  */
 export const whoSignedTypedData = (
   domain: TypedDataDomain,
   types: Record<string, Array<TypedDataField>>,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: Record<string, any>,
   signature: SignatureLike
-): Result<string | void> => {
+): PromiseResult<string | void> => {
   try {
     const address = utils.verifyTypedData(domain, types, value, signature);
-    return success(address);
+    return Promise.resolve(success(address));
   } catch {
-    return failure(ClaimableValidatorError.INVALID_FORMATTED_TYPED_DATA);
+    return Promise.resolve(failure(ClaimableValidatorError.INVALID_FORMATTED_TYPED_DATA));
   }
 };

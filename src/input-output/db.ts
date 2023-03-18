@@ -1,4 +1,6 @@
+import fs from 'fs';
 import { Level } from 'level';
+import path from 'path';
 import { ClaimableValidatorError } from '../data-availability-models/claimable-validator-errors';
 import { DATimestampProofsResponse } from '../data-availability-models/data-availability-timestamp-proofs';
 import {
@@ -46,10 +48,20 @@ export interface TxValidatedSuccessResult
 export const startDb = (dbLocationFolderPath: string): void => {
   if (db) return;
 
-  const path = require('path');
-  const dbPath = path.join(process.cwd(), dbLocationFolderPath);
+  const lens__da = path.join(process.cwd(), 'lens__da');
 
-  const fs = require('fs');
+  if (!fs.existsSync(lens__da)) {
+    fs.mkdirSync(lens__da);
+  }
+
+  const failedProofs = path.join(process.cwd(), 'lens__da', 'failed-proofs');
+
+  if (!fs.existsSync(failedProofs)) {
+    fs.mkdirSync(failedProofs);
+  }
+
+  const dbPath = path.join(process.cwd(), 'lens__da', dbLocationFolderPath);
+
   if (!fs.existsSync(dbPath)) {
     fs.mkdirSync(dbPath);
   }
@@ -92,7 +104,6 @@ export const saveTxDb = async (txId: string, result: TxValidatedResult): Promise
   try {
     await db.put(`${DbReference.tx}:${txId}`, JSON.stringify(result));
   } catch (error) {
-    console.log('error', error);
     throw new Error('`saveTxDb`- Could not write to into the db - critical error!');
   }
 };
@@ -133,38 +144,6 @@ export interface FailedTransactionsDb {
   reason: ClaimableValidatorError;
   submitter: string;
 }
-
-/**
- * Gets an array of failed transactions from the database.
- * Returns an empty array if the database is not available or there are no failed transactions.
- * @returns An array of failed transactions.
- */
-export const getFailedTransactionsDb = async (): Promise<FailedTransactionsDb[]> => {
-  if (!db) return [];
-  try {
-    const result = await db.get(`${DbReference.tx}:failed`);
-    return JSON.parse(result) as FailedTransactionsDb[];
-  } catch (e) {
-    return [];
-  }
-};
-
-/**
- * Saves a failed transaction to the database.
- * @param failedTransaction - The failed transaction object to save.
- * @throws Throws an error if the database is not available.
- */
-export const saveFailedTransactionDb = async (
-  failedTransaction: FailedTransactionsDb
-): Promise<void> => {
-  if (!db) return;
-  try {
-    const result = await getFailedTransactionsDb();
-    await db.put(`${DbReference.tx}:failed`, JSON.stringify([...result, failedTransaction]));
-  } catch (error) {
-    throw new Error('Could not write to into the db - critical error!');
-  }
-};
 
 /**
  * Gets the last end cursor from the database.

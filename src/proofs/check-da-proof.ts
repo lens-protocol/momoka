@@ -34,7 +34,10 @@ import {
   TxValidatedFailureResult,
 } from '../input-output/db';
 import { isValidSubmitter, isValidTransactionSubmitter } from '../submitters';
-import { CheckDASubmissionOptions } from './models/check-da-submisson-options';
+import {
+  CheckDASubmissionOptions,
+  getDefaultCheckDASubmissionOptions,
+} from './models/check-da-submisson-options';
 import { checkDAComment, CheckDACommentPublication } from './publications/comment';
 import { checkDAMirror, CheckDAMirrorPublication } from './publications/mirror';
 import { checkDAPost, CheckDAPostPublication } from './publications/post';
@@ -73,6 +76,7 @@ const getBlockRange = async (
   ethereumNode: EthereumNode
 ): PromiseResult<BlockInfo[] | void> => {
   try {
+    //console.time(blockNumbers[0] + 'getBlockRange');
     const blocks = await Promise.all(
       blockNumbers.map(async (blockNumber) => {
         const cachedBlock = await getBlockDb(blockNumber);
@@ -88,6 +92,7 @@ const getBlockRange = async (
         return block;
       })
     );
+    //console.timeEnd(blockNumbers[0] + 'getBlockRange');
 
     return success(blocks);
   } catch (error) {
@@ -113,9 +118,9 @@ const validateChoosenBlock = async (
   try {
     // got the current block the previous block and the block in the future!
     const blockNumbers = [
-      // deepClone(blockNumber) - 1,
+      //deepClone(blockNumber) - 1,
       deepClone(blockNumber),
-      // deepClone(blockNumber) + 1,
+      //deepClone(blockNumber) + 1,
     ];
 
     const blocksResult = await getBlockRange(blockNumbers, ethereumNode);
@@ -351,14 +356,16 @@ export const isValidPublicationId = (
  * @param ethereumNode - The Ethereum node to use.
  * @param log - The logging function to use.
  * @returns True if the signature submitter is valid, false otherwise.
+ *          turned into a promise as its CPU intensive
  */
 export const isValidSignatureSubmitter = (
   daPublication: DAStructurePublication<DAEventType, PublicationTypedData>,
   ethereumNode: EthereumNode,
   log: LogFunctionType
-): boolean => {
+): Promise<boolean> => {
   const signature = deepClone(daPublication.signature);
 
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   delete daPublication.signature;
 
@@ -367,10 +374,10 @@ export const isValidSignatureSubmitter = (
   log('signedAddress', signedAddress);
 
   if (!isValidSubmitter(ethereumNode.environment, signedAddress, ethereumNode.deployment)) {
-    return false;
+    return Promise.resolve(false);
   }
 
-  return true;
+  return Promise.resolve(true);
 };
 
 /**
@@ -386,33 +393,37 @@ const _checkDAProof = async (
   daPublication: DAStructurePublication<DAEventType, PublicationTypedData>,
   timestampProofs: DATimestampProofsResponse,
   ethereumNode: EthereumNode,
-  { log, verifyPointer }: CheckDASubmissionOptions = {
-    log: () => {},
-    verifyPointer: true,
-  }
+  { log, byPassDb, verifyPointer }: CheckDASubmissionOptions = getDefaultCheckDASubmissionOptions
 ): PromiseWithContextResult<
   DAStructurePublication<DAEventType, PublicationTypedData> | void,
   DAStructurePublication<DAEventType, PublicationTypedData>
 > => {
+  //console.time(daPublication.dataAvailabilityId + ' - signature');
   if (!daPublication.signature) {
     return failureWithContext(ClaimableValidatorError.NO_SIGNATURE_SUBMITTER, daPublication);
   }
+  //console.timeEnd(daPublication.dataAvailabilityId + ' - signature');
 
-  if (!isValidSignatureSubmitter(daPublication, ethereumNode, log)) {
+  if (!(await isValidSignatureSubmitter(daPublication, ethereumNode, log))) {
     return failureWithContext(ClaimableValidatorError.INVALID_SIGNATURE_SUBMITTER, daPublication);
   }
 
+  //console.time(daPublication.dataAvailabilityId + ' - timestampProofsResult');
   const timestampProofsResult = await validatesTimestampProof(daPublication, timestampProofs, log);
   if (timestampProofsResult !== validResult) {
     return failureWithContext(timestampProofsResult, daPublication);
   }
+  //console.timeEnd(daPublication.dataAvailabilityId + ' - timestampProofsResult');
 
+  //console.time(daPublication.dataAvailabilityId + ' - isValidEventTimestamp');
   if (!isValidEventTimestamp(daPublication)) {
     log('event timestamp does not match the publication timestamp');
     // the event emitted must match the same timestamp as the block number
     return failureWithContext(ClaimableValidatorError.INVALID_EVENT_TIMESTAMP, daPublication);
   }
+  //console.timeEnd(daPublication.dataAvailabilityId + ' - isValidEventTimestamp');
 
+  //console.time(daPublication.dataAvailabilityId + ' - isValidTypedDataDeadlineTimestamp');
   if (!isValidTypedDataDeadlineTimestamp(daPublication)) {
     log('typed data timestamp does not match the publication timestamp');
     // the event emitted must match the same timestamp as the block number
@@ -421,15 +432,18 @@ const _checkDAProof = async (
       daPublication
     );
   }
+  //console.timeEnd(daPublication.dataAvailabilityId + ' - isValidTypedDataDeadlineTimestamp');
 
   log('event timestamp matches publication timestamp');
 
+  //console.time(daPublication.dataAvailabilityId + ' - validateChoosenBlock');
   const validateBlockResult = await validateChoosenBlock(
     daPublication.chainProofs.thisPublication.blockNumber,
     daPublication.timestampProofs.response.timestamp,
     ethereumNode,
     log
   );
+  //console.timeEnd(daPublication.dataAvailabilityId + ' - validateChoosenBlock');
 
   if (validateBlockResult.isFailure()) {
     return failureWithContext(validateBlockResult.failure!, daPublication);
@@ -437,7 +451,14 @@ const _checkDAProof = async (
 
   log('event timestamp matches up the on chain block timestamp');
 
-  const daResult = await checkDAPublication(daPublication, ethereumNode, { log, verifyPointer });
+  //console.time(daPublication.dataAvailabilityId + ' - checkDAPublication');
+  const daResult = await checkDAPublication(daPublication, ethereumNode, {
+    log,
+    byPassDb,
+    verifyPointer,
+  });
+  //console.timeEnd(daPublication.dataAvailabilityId + ' - checkDAPublication');
+
   if (daResult.isFailure()) {
     return failureWithContext(daResult.failure!, daPublication);
   }
@@ -468,18 +489,16 @@ export const checkDAProofWithMetadata = async (
   txId: string,
   daPublicationWithTimestampProofs: DAPublicationWithTimestampProofsBatchResult,
   ethereumNode: EthereumNode,
-  options: CheckDASubmissionOptions = {
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    log: () => {},
-    verifyPointer: true,
-  }
+  options: CheckDASubmissionOptions = getDefaultCheckDASubmissionOptions
 ): PromiseWithContextResult<
   DAStructurePublication<DAEventType, PublicationTypedData> | void,
   DAStructurePublication<DAEventType, PublicationTypedData>
 > => {
-  const alreadyChecked = await txAlreadyChecked(txId, options.log);
-  if (alreadyChecked) {
-    return alreadyChecked;
+  if (!options.byPassDb) {
+    const alreadyChecked = await txAlreadyChecked(txId, options.log);
+    if (alreadyChecked) {
+      return alreadyChecked;
+    }
   }
 
   if (
@@ -514,10 +533,7 @@ export const checkDAProofWithMetadata = async (
 export const checkDAProof = async (
   txId: string,
   ethereumNode: EthereumNode,
-  options: CheckDASubmissionOptions = {
-    log: () => {},
-    verifyPointer: true,
-  }
+  options: CheckDASubmissionOptions = getDefaultCheckDASubmissionOptions
 ): PromiseWithContextResult<
   DAStructurePublication<DAEventType, PublicationTypedData> | void,
   DAStructurePublication<DAEventType, PublicationTypedData>

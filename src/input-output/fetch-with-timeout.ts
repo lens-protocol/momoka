@@ -1,24 +1,21 @@
-import gotRequest from 'got-cjs';
-import https from 'https';
-import { TIMEOUT_MS } from './common';
+import { curly } from 'node-libcurl';
 
 export const fetchWithTimeout = async <TResponse>(url: string): Promise<TResponse> => {
   if (typeof window === 'undefined') {
-    const response = await gotRequest
-      .get(url, {
-        timeout: {
-          request: TIMEOUT_MS,
-        },
-        agent: {
-          https: new https.Agent({ keepAlive: true }),
-        },
-      })
-      .json<TResponse>();
+    const { statusCode, data } = await curly.get(url, {
+      httpHeader: ['Content-Type: application/json'],
+      curlyResponseBodyParser: false,
+      timeout: 5000,
+    });
 
-    return response;
+    if (statusCode !== 200) {
+      throw new Error(`JSONRPCWithTimeout: ${statusCode}`);
+    }
+
+    return JSON.parse(data.toString()) as TResponse;
   } else {
     const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), TIMEOUT_MS);
+    const id = setTimeout(() => controller.abort(), 5000);
 
     const response = await fetch(url, {
       signal: controller.signal,

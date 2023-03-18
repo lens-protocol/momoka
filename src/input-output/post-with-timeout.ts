@@ -1,28 +1,25 @@
-import gotRequest from 'got-cjs';
-import https from 'https';
-import { TIMEOUT_MS } from './common';
+import { curly } from 'node-libcurl';
 
 export const postWithTimeout = async <TResponse, TBody>(
   url: string,
   body: TBody
 ): Promise<TResponse> => {
   if (typeof window === 'undefined') {
-    const response = await gotRequest
-      .post(url, {
-        json: body,
-        timeout: {
-          request: TIMEOUT_MS,
-        },
-        agent: {
-          https: new https.Agent({ keepAlive: true }),
-        },
-      })
-      .json<TResponse>();
+    const { statusCode, data } = await curly.post(url, {
+      postFields: JSON.stringify(body),
+      httpHeader: ['Content-Type: application/json'],
+      timeout: 5000,
+      curlyResponseBodyParser: false,
+    });
 
-    return response as TResponse;
+    if (statusCode !== 200) {
+      throw new Error(`postWithTimeout: ${statusCode}`);
+    }
+
+    return JSON.parse(data.toString()) as TResponse;
   } else {
     const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), 10000);
+    const id = setTimeout(() => controller.abort(), 5000);
 
     const response = await fetch(url, {
       method: 'POST',

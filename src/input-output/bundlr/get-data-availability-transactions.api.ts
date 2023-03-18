@@ -36,6 +36,7 @@ export const getDataAvailabilityTransactionsAPI = async (
     .query(DataAvailabilityTransactionsDocument, {
       owners: getSubmitters(environment, deployment),
       after: cursor,
+      // Check DA proofs in batches of 1000 to avoid I/O issues.
       limit: 1000,
     })
     .toPromise();

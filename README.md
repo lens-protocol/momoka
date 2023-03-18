@@ -38,7 +38,7 @@ It's the submitter's job to validate, build up the DA metadata and submit this t
 
 ## Verifiers
 
-The verifier's job is to listen out for all DA publications sent from the submitters and verify it is a valid submissions. It has a certain amount of criteria it must check when the publications come in; its sole purpose is to just prove the submitter is telling the truth. Anyone can run a verifier; it's just open-source software which can be run with a few commands. The verifier uses leveldb to store passed results allowing it to be very fast. It also forks the archive node using foundry `anvil` so it can run locally on the machine, this improves speed, cost as you are not paying for the all of the requests. All you need is an archive node so it can be forked it will use the archieve node sometimes for latest block numbers and reforking to the head when it needs to.
+The verifier's job is to listen out for all DA publications sent from the submitters and verify it is a valid submissions. It has a certain amount of criteria it must check when the publications come in; its sole purpose is to just prove the submitter is telling the truth. Anyone can run a verifier; it's just open-source software which can be run with a few commands. The verifier uses leveldb to store passed results allowing it to be very fast. The code has ability to use a forked archive node which uses foundry `anvil` so it can run locally on the machine, `anvil` is a super fast forked local node and will be used more later, for now its recommended for speed you use the archive node directly (Alchemy is recommended but not required). All you need is an archive node to run a verifier.
 
 ## Current restrictions with DA publications
 
@@ -50,7 +50,7 @@ The verifier's job is to listen out for all DA publications sent from the submit
 
 ## Does it work with signature free
 
-Throughout building LENS, we know how important a top-class UX is for users. Image when you used Twitter, and you had to confirm everything all the time, on every action, it would be painful. DA publications work with the dispatcher, as the dispatcher can post/mirror/comment on your behalf anyway. If enabled, it would pass the state checks. The logic on the LENS contract states that if the dispatcher signs on your behalf, it would be a valid transaction and pass. If the user does not want to trust the dispatcher, they can still just sign the typed data with their wallet and send it through the submitter. This is the same flow as you do now, but instead of sending it to the submitter, you would send it to a Polygon node.
+Throughout building LENS, we know how important a top-class UX is for users. Image when you used Twitter, and you had to confirm everything all the time, on every action, it would be painful. DA publications work with the dispatcher, as the dispatcher can post/mirror/comment on your behalf anyway. If enabled, it would pass the state checks. The logic on the LENS contract states that if the dispatcher signs on your behalf, it would be a valid transaction and pass. If the user does not want to trust the dispatcher, they can still just sign the typed data with their wallet and send it through the submitter. This is the same flow as you do now, but instead of sending it to the Polygon node, you would send it to a submitter.
 
 ## Gasless
 
@@ -1458,7 +1458,7 @@ console.error('proof invalid do something', result.failure!)
 
 #### startDAVerifierNode
 
-This is a start watching all the DA items coming in and logging it all out in your terminal. You can use the docker to just run it, or you can install the package and run it on your own server. This will install foundry and run a forked node automatically for you.
+This is a start watching all the DA items coming in and logging it all out in your terminal. You can use the docker to just run it, or you can install the package and run it on your own server.
 
 ```ts
 import { startDAVerifierNode, EthereumNode } from '@lens-protocol/data-availability-verifier';
@@ -1474,7 +1474,7 @@ startDAVerifierNode(ethereumNode);
 
 ##### Stream with proofs verified
 
-If you wish to index the data yourself, you can use the `startDAVerifierNode` and stream the data out to your own DB using the `StreamCallback`. This will run the verifier node and check the proofs as every new one comes in. This runs the anvil forked node for it to work - this happens automatically.
+If you wish to index the data yourself, you can use the `startDAVerifierNode` and stream the data out to your own DB using the `StreamCallback`. This will run the verifier node and check the proofs as every new one comes in.
 
 ```ts
 import { startDAVerifierNode, StreamResult, EthereumNode } from '@lens-protocol/data-availability-verifier';
@@ -1505,7 +1505,7 @@ startDAVerifierNode(ethereumNode, DB_LOCATION_FOLDER_PATH, stream);
 
 #### startDATrustingIndexing
 
-If you just want to get the data as fast as possible and do not wish to verifiy the proofs, you can use the `startDATrustingIndexing` function. This will stream out the data as fast as possible and will not check the proofs. This does NOT run the anvil forked node for it to work, it also does not need any archive node to be defined.
+If you just want to get the data as fast as possible and do not wish to verifiy the proofs, you can use the `startDATrustingIndexing` function. This will stream out the data as fast as possible and will not check the proofs.
 
 ```ts
 import { startDATrustingIndexing, StreamResult, StartDATrustingIndexingRequest } from '@lens-protocol/data-availability-verifier';

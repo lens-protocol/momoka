@@ -1,16 +1,13 @@
-import { ContractCallContext, ContractCallResults, Multicall } from 'ethereum-multicall';
+import { ContractCallContext, Multicall } from 'ethereum-multicall';
 import { BigNumber, ethers } from 'ethers';
-import {
-  Deployment,
-  Environment,
-  environmentToChainId,
-  environmentToLensHubContract,
-} from '../common/environment';
+import { Interface } from 'ethers/lib/utils';
+import { Deployment, Environment, environmentToLensHubContract } from '../common/environment';
 import { sleep } from '../common/helpers';
 import { ClaimableValidatorError } from '../data-availability-models/claimable-validator-errors';
 import { failure, PromiseResult, success } from '../data-availability-models/da-result';
 import { JSONRPCWithTimeout } from '../input-output/json-rpc-with-timeout';
 import { LENS_HUB_ABI } from './contract-lens/lens-hub-contract-abi';
+import { JSONRPCMethods } from './jsonrpc-methods';
 
 export interface EthereumNode {
   environment: Environment;
@@ -23,41 +20,6 @@ export interface EthereumNode {
 }
 
 export const EMPTY_BYTE = '0x';
-
-export type EthereumProvider = ethers.providers.StaticJsonRpcProvider | undefined;
-
-const _ethereumProviders: {
-  POLYGON: EthereumProvider;
-  MUMBAI: EthereumProvider;
-  SANDBOX: EthereumProvider;
-} = {
-  POLYGON: undefined,
-  MUMBAI: undefined,
-  SANDBOX: undefined,
-};
-
-/**
- * Returns an instance of an EthereumProvider.
- * @param ethereumNode Ethereum node object.
- * @param cache Flag indicating whether to cache the EthereumProvider.
- * @returns An instance of an EthereumProvider.
- */
-export const ethereumProvider = (ethereumNode: EthereumNode, cache = false): EthereumProvider => {
-  if (_ethereumProviders[ethereumNode.environment] && cache) {
-    return _ethereumProviders[ethereumNode.environment]!;
-  }
-
-  const provider = new ethers.providers.StaticJsonRpcProvider(
-    ethereumNode.nodeUrl,
-    environmentToChainId(ethereumNode.environment)
-  );
-
-  if (cache) {
-    return (_ethereumProviders[ethereumNode.environment] = provider);
-  }
-
-  return provider;
-};
 
 const MAX_RETRIES_SIMULATION = 10;
 /**
@@ -73,16 +35,26 @@ export const executeSimulationTransaction = async (
   ethereumNode: EthereumNode
 ): PromiseResult<string | void> => {
   let attempt = 0;
+  // eslint-disable-next-line no-constant-condition
   while (true) {
     try {
-      const transaction: ethers.providers.TransactionRequest = {
-        to: environmentToLensHubContract(ethereumNode.environment),
-        data,
-      };
+      const ethCall = await JSONRPCWithTimeout<string>(
+        ethereumNode.nodeUrl,
+        JSONRPCMethods.eth_call,
+        [
+          {
+            to: environmentToLensHubContract(ethereumNode.environment),
+            data,
+          },
+          numberToHex(blockNumber),
+        ]
+      );
 
-      const result = await ethereumProvider(ethereumNode)!.call(transaction, blockNumber);
+      if (!ethCall) {
+        throw new Error('eth_call returned undefined');
+      }
 
-      return success(result);
+      return success(ethCall);
     } catch (_error) {
       if (attempt < MAX_RETRIES_SIMULATION) {
         await sleep(100);
@@ -92,6 +64,17 @@ export const executeSimulationTransaction = async (
       }
     }
   }
+};
+
+/**
+ * Does this over ethers call as alchemy and some other providers dont like a padding hex number
+ * - wont accept 0x01f1a494
+ * - will accept 0x1f1a494
+ * @param number
+ * @returns
+ */
+const numberToHex = (number: number): string => {
+  return '0x' + number.toString(16);
 };
 
 /**
@@ -118,6 +101,8 @@ export const parseSignature = (
   };
 };
 
+const contractInterface = new ethers.utils.Interface(Multicall.ABI);
+const MAX_RETRIES_GET_CHAIN_DETAILS = 10;
 /**
  * Fetches on-chain details for a given Lens Profile.
  * @param blockNumber The block number at which to query the contract.
@@ -131,15 +116,15 @@ export const getOnChainProfileDetails = async (
   profileId: string,
   signedByAddress: string,
   ethereumNode: EthereumNode
-): Promise<{
+): PromiseResult<{
   sigNonce: number;
   currentPublicationId: string;
   dispatcherAddress: string;
   ownerOfAddress: string;
-}> => {
-  // Create a new Multicall instance using the provided Ethereum node.
+} | void> => {
+  // Create a new Multicall instance
   const multicall = new Multicall({
-    ethersProvider: ethereumProvider(ethereumNode)!,
+    nodeUrl: ethereumNode.nodeUrl,
     tryAggregate: true,
   });
 
@@ -172,25 +157,60 @@ export const getOnChainProfileDetails = async (
     ],
   };
 
-  // Use Multicall to execute the contract calls and aggregate the results.
-  const { results }: ContractCallResults = await multicall.call(contractCallContext, {
-    blockNumber: String(blockNumber),
-  });
+  // we go a bespoke way so we can use our own http library and not ethers
+  // to be in full control
+  const calls = multicall.mapCallContextToMatchContractFormat(
+    multicall.buildAggregateCallContext([contractCallContext])
+  );
+  const encodedData = contractInterface.encodeFunctionData('tryBlockAndAggregate', [true, calls]);
 
-  // Extract the on-chain details for the Lens Profile from the Multicall results.
-  const onChainProfileDetails = results.onChainProfileDetails;
+  let attempt = 0;
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    try {
+      const result = await JSONRPCWithTimeout<string>(
+        ethereumNode.nodeUrl,
+        JSONRPCMethods.eth_call,
+        [
+          {
+            // multicall 3 address
+            to: '0xcA11bde05977b3631167028862bE2a173976CA11',
+            data: encodedData,
+          },
+          numberToHex(blockNumber),
+        ]
+      );
 
-  // Return an object containing the on-chain details.
-  return {
-    sigNonce: BigNumber.from(
-      onChainProfileDetails.callsReturnContext[0].returnValues[0]
-    ).toNumber(),
-    currentPublicationId: BigNumber.from(
-      onChainProfileDetails.callsReturnContext[1].returnValues[0]
-    ).toHexString(),
-    dispatcherAddress: onChainProfileDetails.callsReturnContext[2].returnValues[0],
-    ownerOfAddress: onChainProfileDetails.callsReturnContext[3].returnValues[0],
-  };
+      const functionFragment = contractInterface.getFunction('tryBlockAndAggregate');
+      const outputTypes = functionFragment.outputs!;
+
+      const decodedResultData = ethers.utils.defaultAbiCoder.decode(outputTypes, result);
+      const resultData = decodedResultData[2];
+
+      // bit ugly but we need to decode the return data
+      // we know the order of stuff from the above ContractCallContext::calls
+      // but as we using a more bespoke approach we can use index here!
+      return success({
+        sigNonce: BigNumber.from(resultData[0].returnData).toNumber(),
+        currentPublicationId: BigNumber.from(resultData[1].returnData).toHexString(),
+        dispatcherAddress: ethers.utils.defaultAbiCoder.decode(
+          ['address'],
+          resultData[2].returnData
+        )[0],
+        ownerOfAddress: ethers.utils.defaultAbiCoder.decode(
+          ['address'],
+          resultData[3].returnData
+        )[0],
+      });
+    } catch (error) {
+      if (attempt < MAX_RETRIES_GET_CHAIN_DETAILS) {
+        await sleep(100);
+        attempt++;
+      } else {
+        return failure(ClaimableValidatorError.DATA_CANT_BE_READ_FROM_NODE);
+      }
+    }
+  }
 };
 
 export interface BlockInfo {
@@ -199,6 +219,7 @@ export interface BlockInfo {
 }
 
 const DEFAULT_MAX_BLOCK_RETRIES = 10;
+
 /**
  * Returns information about a block specified by either block hash or block tag
  * @param blockHashOrBlockTag The hash or tag of the block to retrieve information for
@@ -214,31 +235,82 @@ export const getBlock = async (
   maxRetries: number = DEFAULT_MAX_BLOCK_RETRIES,
   attempt = 0
 ): Promise<BlockInfo> => {
-  try {
-    if (typeof blockHashOrBlockTag === 'number') {
-      blockHashOrBlockTag = BigNumber.from(blockHashOrBlockTag).toHexString();
-    }
-
-    const result: { number: string; timestamp: string } = await JSONRPCWithTimeout(
-      ethereumNode.nodeUrl,
-      {
-        id: 0,
-        jsonrpc: '2.0',
-        method: 'eth_getBlockByNumber',
-        params: [blockHashOrBlockTag, false],
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    try {
+      if (typeof blockHashOrBlockTag === 'number') {
+        blockHashOrBlockTag = numberToHex(blockHashOrBlockTag);
       }
-    );
 
-    return {
-      number: BigNumber.from(result.number).toNumber(),
-      timestamp: BigNumber.from(result.timestamp).toNumber(),
-    };
-  } catch (e) {
-    if (attempt < DEFAULT_MAX_BLOCK_RETRIES) {
-      await sleep(200);
-      return await getBlock(blockHashOrBlockTag, ethereumNode, maxRetries, attempt + 1);
-    } else {
-      throw e;
+      const result: { number: string; timestamp: string } = await JSONRPCWithTimeout(
+        ethereumNode.nodeUrl,
+        JSONRPCMethods.eth_getBlockByNumber,
+        [blockHashOrBlockTag, false]
+      );
+
+      return {
+        number: BigNumber.from(result.number).toNumber(),
+        timestamp: BigNumber.from(result.timestamp).toNumber(),
+      };
+    } catch (e) {
+      if (attempt < maxRetries) {
+        await sleep(200);
+        attempt + 1;
+      } else {
+        throw e;
+      }
+    }
+  }
+};
+
+/**
+ * The Lens Hub smart contract interface.
+ */
+export const DAlensHubInterface = new Interface(LENS_HUB_ABI);
+
+/**
+ * Returns the number of published data availability proofs for a given profile ID and block number.
+ * @param profileId The profile ID to retrieve the published proof count for.
+ * @param blockNumber The block number to retrieve the published proof count at.
+ * @param ethereumNode The Ethereum node to connect to.
+ * @returns The number of published data availability proofs for the specified profile ID and block number.
+ */
+export const getLensPubCount = async (
+  profileId: string,
+  blockNumber: number,
+  ethereumNode: EthereumNode
+): PromiseResult<BigNumber | void> => {
+  let attempt = 0;
+
+  const encodedData = DAlensHubInterface.encodeFunctionData('getPubCount', [profileId]);
+
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    try {
+      const ethCall = await JSONRPCWithTimeout<string>(
+        ethereumNode.nodeUrl,
+        JSONRPCMethods.eth_call,
+        [
+          {
+            to: environmentToLensHubContract(ethereumNode.environment),
+            data: encodedData,
+          },
+          numberToHex(blockNumber),
+        ]
+      );
+
+      if (!ethCall) {
+        throw new Error('eth_call returned undefined');
+      }
+
+      return success(BigNumber.from(ethCall));
+    } catch (_error) {
+      if (attempt < MAX_RETRIES_SIMULATION) {
+        await sleep(200);
+        attempt++;
+      } else {
+        return failure(ClaimableValidatorError.DATA_CANT_BE_READ_FROM_NODE);
+      }
     }
   }
 };

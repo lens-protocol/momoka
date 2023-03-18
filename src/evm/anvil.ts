@@ -2,7 +2,8 @@ import { ChildProcess, exec } from 'child_process';
 import { BigNumber } from 'ethers';
 import { consoleLog } from '../common/logger';
 import { JSONRPCWithTimeout } from '../input-output/json-rpc-with-timeout';
-import { EthereumNode, EthereumProvider, ethereumProvider } from './ethereum';
+import { EthereumNode } from './ethereum';
+import { JSONRPCMethods } from './jsonrpc-methods';
 
 const execWrapper = (command: string, callback: Function): ChildProcess => {
   const childProcess = exec(command, { maxBuffer: Infinity });
@@ -33,12 +34,11 @@ export const getAnvilCurrentBlockNumber = async (): Promise<number> => {
     return _cached_anvil_current_block_number;
   }
 
-  const result = await JSONRPCWithTimeout<{ number: string }>(LOCAL_NODE_URL, {
-    id: 0,
-    jsonrpc: '2.0',
-    method: 'eth_getBlockByNumber',
-    params: ['latest', false],
-  });
+  const result = await JSONRPCWithTimeout<{ number: string }>(
+    LOCAL_NODE_URL,
+    JSONRPCMethods.eth_getBlockByNumber,
+    ['latest', false]
+  );
 
   const blockNumber = BigNumber.from(result.number).toNumber();
   setAnvilCurrentBlockNumber(blockNumber);
@@ -61,8 +61,20 @@ const isAnvilNodeAlive = async (): Promise<boolean> => {
   return true;
 };
 
-const anvilEthereumProvider = (ethereumNode: EthereumNode): EthereumProvider => {
-  return ethereumProvider({ ...ethereumNode, nodeUrl: LOCAL_NODE_URL }, false)!;
+const shutdownAnvilNode = async (): Promise<void> => {
+  await execAsync('lsof -t -i tcp:8545 | xargs kill');
+};
+
+const closeEventsListeners = (): void => {
+  //do something when app is closing
+  process.on('exit', shutdownAnvilNode);
+
+  //catches ctrl+c event
+  process.on('SIGINT', shutdownAnvilNode);
+
+  // catches "kill pid" (for example: nodemon restart)
+  process.on('SIGUSR1', shutdownAnvilNode);
+  process.on('SIGUSR2', shutdownAnvilNode);
 };
 
 let public_node_url: string | undefined;
@@ -102,12 +114,21 @@ export const setupAnvilLocalNode = async (nodeUrl: string): Promise<void> => {
     }, 100);
 
     consoleLog('LENS VERIFICATION NODE - starting up anvil local node from the fork...');
-    await execAsync(`REQ_TIMEOUT=100000 anvil --fork-url ${nodeUrl} --silent --no-rate-limit`);
+    await execAsync(
+      `REQ_TIMEOUT=100000 anvil --fork-url ${nodeUrl} --silent --timeout 1500 --retries 2`
+    );
   });
+
+  closeEventsListeners();
 
   consoleLog('LENS VERIFICATION NODE - complete setup of anvil local node from fork...');
 };
 
+/**
+ *  Reforks the local node from the archive node new block number
+ * @param ethereumNode The ethereum node
+ * @param blockNumber The block number to refork from
+ */
 export const anvilForkFrom = async (
   ethereumNode: EthereumNode,
   blockNumber: number
@@ -116,7 +137,7 @@ export const anvilForkFrom = async (
     throw new Error('must call setupAnvilLocalNode before you can refork');
   }
   // Reset the fork node to the latest block.
-  await anvilEthereumProvider(ethereumNode)!.send('anvil_reset', [
+  await JSONRPCWithTimeout<void>(ethereumNode.nodeUrl, JSONRPCMethods.anvil_reset, [
     {
       forking: {
         jsonRpcUrl: public_node_url,

@@ -2,7 +2,7 @@ import { whoSignedTypedData } from '../../publications/publication.base';
 
 describe('publication base', () => {
   describe('whoSignedTypedData', () => {
-    test('should return back correct address', () => {
+    test('should return back correct address', async () => {
       const typedData = {
         types: {
           CommentWithSig: [
@@ -73,7 +73,7 @@ describe('publication base', () => {
         },
       };
 
-      const result = whoSignedTypedData(
+      const result = await whoSignedTypedData(
         typedData.domain,
         typedData.types,
         typedData.value,

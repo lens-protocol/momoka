@@ -151,7 +151,11 @@ export const callCheckDAProof = (): PromiseWithContextResult<
   void | DAStructurePublication<DAEventType, PublicationTypedData>,
   DAStructurePublication<DAEventType, PublicationTypedData>
 > => {
-  return checkDAProof('mocked_tx_id', ethereumNode, { log: jest.fn(), verifyPointer: true });
+  return checkDAProof('mocked_tx_id', ethereumNode, {
+    log: jest.fn(),
+    byPassDb: false,
+    verifyPointer: true,
+  });
 };
 
 export const checkAndValidateDAProof = async (

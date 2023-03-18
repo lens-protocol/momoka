@@ -9,7 +9,6 @@ import {
 } from '../../../data-availability-models/publications/data-availability-structure-publication';
 import { DAMirrorCreatedEventEmittedResponse } from '../../../data-availability-models/publications/data-availability-structure-publications-events';
 import { EMPTY_BYTE, EthereumNode, getOnChainProfileDetails } from '../../../evm/ethereum';
-import { checkDAProof } from '../../check-da-proof';
 import { whoSignedTypedData } from '../publication.base';
 
 export type CheckDAMirrorPublication = DAStructurePublication<
@@ -69,7 +68,7 @@ const crossCheckEvent = async (
  */
 export const checkDAMirror = async (
   publication: CheckDAMirrorPublication,
-  verifyPointer: boolean,
+  _verifyPointer: boolean,
   ethereumNode: EthereumNode,
   log: LogFunctionType
 ): PromiseResult => {
@@ -84,26 +83,27 @@ export const checkDAMirror = async (
     return failure(ClaimableValidatorError.PUBLICATION_NONE_DA);
   }
 
-  if (verifyPointer) {
-    log('verify pointer first');
+  // if (verifyPointer) {
+  //   log('verify pointer first');
 
-    // check the pointer!
-    const pointerResult = await checkDAProof(
-      publication.chainProofs.pointer.location,
-      ethereumNode,
-      {
-        verifyPointer: false,
-        log,
-      }
-    );
-    if (pointerResult.isFailure()) {
-      return failure(ClaimableValidatorError.POINTER_FAILED_VERIFICATION);
-    }
-  }
+  //   // check the pointer!
+  //   const pointerResult = await checkDAProof(
+  //     publication.chainProofs.pointer.location,
+  //     ethereumNode,
+  //     {
+  //       verifyPointer: false,
+  //       byPassDb: false,
+  //       log,
+  //     }
+  //   );
+  //   if (pointerResult.isFailure()) {
+  //     return failure(ClaimableValidatorError.POINTER_FAILED_VERIFICATION);
+  //   }
+  // }
 
   const typedData = publication.chainProofs.thisPublication.typedData;
 
-  const whoSignedResult = whoSignedTypedData(
+  const whoSignedResult = await whoSignedTypedData(
     typedData.domain,
     typedData.types,
     typedData.value,
@@ -118,12 +118,18 @@ export const checkDAMirror = async (
 
   log('who signed', whoSigned);
 
-  const details = await getOnChainProfileDetails(
+  const chainProfileDetailsResult = await getOnChainProfileDetails(
     publication.chainProofs.thisPublication.blockNumber,
     typedData.value.profileId,
     whoSigned,
     ethereumNode
   );
+
+  if (chainProfileDetailsResult.isFailure()) {
+    return failure(chainProfileDetailsResult.failure!);
+  }
+
+  const details = chainProfileDetailsResult.successResult!;
 
   if (details.sigNonce !== typedData.value.nonce) {
     return failure(ClaimableValidatorError.PUBLICATION_NONCE_INVALID);

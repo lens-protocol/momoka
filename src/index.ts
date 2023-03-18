@@ -17,5 +17,5 @@ export * from './watchers/models/stream.type';
 export {
   startDATrustingIndexing,
   StartDATrustingIndexingRequest,
-  startDAVerifierNode,
-} from './watchers/verifier.watcher';
+} from './watchers/trusting-indexing.watcher';
+export { startDAVerifierNode } from './watchers/verifier.watcher';

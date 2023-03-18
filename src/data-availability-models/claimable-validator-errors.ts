@@ -41,11 +41,6 @@ export enum ClaimableValidatorError {
   TIMESTAMP_PROOF_NOT_SUBMITTER = 'TIMESTAMP_PROOF_NOT_SUBMITTER',
 
   /**
-   * This means it can not read the block from the node
-   */
-  BLOCK_CANT_BE_READ_FROM_NODE = 'BLOCK_CANT_BE_READ_FROM_NODE',
-
-  /**
    * This means the block stated in the chain proofs are not the closest block to the timstamp
    * proofs
    */
@@ -66,6 +61,16 @@ export enum ClaimableValidatorError {
    * This the typed data format is invalid (aka a invalid address type etc)
    */
   INVALID_FORMATTED_TYPED_DATA = 'INVALID_FORMATTED_TYPED_DATA',
+
+  /**
+   * This means it can not read the block from the node
+   */
+  BLOCK_CANT_BE_READ_FROM_NODE = 'BLOCK_CANT_BE_READ_FROM_NODE',
+
+  /**
+   * This means it can not read the data from the node
+   */
+  DATA_CANT_BE_READ_FROM_NODE = 'DATA_CANT_BE_READ_FROM_NODE',
 
   /**
    * This means the simulation was not able to be ran on the node, this does not mean

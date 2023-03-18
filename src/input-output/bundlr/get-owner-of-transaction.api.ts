@@ -35,9 +35,8 @@ export const getOwnerOfTransactionAPI = async (
     const result = await fetchWithTimeout<BundlrTx>(`${BUNDLR_NODE_TX}${txId}`);
 
     return result.address;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
-    console.log('Error while retrieving transaction info from Lens Bundlr API:', error);
-
     if (attempts >= 3) {
       if (error.name === 'AbortError') {
         return TIMEOUT_ERROR;

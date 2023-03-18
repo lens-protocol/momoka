@@ -82,3 +82,31 @@ export const formatDate = (date: Date): string => {
     date.getSeconds()
   )}`;
 };
+
+/**
+ *  Split arrays up into smaller chunks
+ * @param arr The array to chunk
+ * @param size The size of the chunks
+ */
+export const chunkArray = <T>(arr: T[], size: number): T[][] =>
+  arr.length > size ? [arr.slice(0, size), ...chunkArray(arr.slice(size), size)] : [arr];
+
+/**
+ *  Create a promise that will timeout after the given number of milliseconds
+ * @param timeout The number of milliseconds to wait before timing out
+ */
+export const createTimeoutPromise = (
+  timeout: number
+): {
+  promise: Promise<void>;
+  timeoutId: NodeJS.Timeout;
+} => {
+  const timeoutIdWrapper = { timeoutId: setTimeout(() => {}, 0) }; // Initialize with an empty function
+  clearTimeout(timeoutIdWrapper.timeoutId); // Clear the initial timeout
+
+  const promise = new Promise<void>((_, reject) => {
+    timeoutIdWrapper.timeoutId = setTimeout(() => reject(new Error('Timeout exceeded')), timeout);
+  });
+
+  return { promise, timeoutId: timeoutIdWrapper.timeoutId };
+};

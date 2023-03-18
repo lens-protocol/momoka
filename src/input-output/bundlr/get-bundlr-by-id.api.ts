@@ -18,14 +18,12 @@ export const getBundlrByIdAPI = async <T>(
 
     return response;
   } catch (error) {
-    console.log('Error while retrieving data from Lens Bundlr API:', error);
-
     if (attempts >= 3) {
       console.log('BUNDLR TIMEOUTS', error);
       return TIMEOUT_ERROR;
     }
 
-    await sleep(300);
+    await sleep(200);
     return await getBundlrByIdAPI(txId, attempts + 1);
   }
 };

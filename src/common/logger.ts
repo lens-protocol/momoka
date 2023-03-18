@@ -6,5 +6,5 @@ export type LogFunctionType = (message: string, ...optionalParams: unknown[]) =>
  * @param optionalParams - An optional list of additional parameters to be logged to the console.
  */
 export const consoleLog = (message: string, ...optionalParams: unknown[]): void => {
-  console.log('\x1b[32m', message, ...optionalParams);
+  console.log('\x1b[32m', `[${new Date().toUTCString()}] ${message}`, ...optionalParams);
 };
