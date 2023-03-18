@@ -9,6 +9,7 @@ import {
   PublicationTypedData,
 } from '../data-availability-models/publications/data-availability-structure-publication';
 import { BlockInfo } from '../evm/ethereum';
+import { FAILED_PROOFS_PATHS, LENS_DA_PATH } from './paths';
 
 let db: Level | undefined;
 
@@ -48,19 +49,19 @@ export interface TxValidatedSuccessResult
 export const startDb = (dbLocationFolderPath: string): void => {
   if (db) return;
 
-  const lens__da = path.join(process.cwd(), 'lens__da');
+  const lens__da = LENS_DA_PATH;
 
   if (!fs.existsSync(lens__da)) {
     fs.mkdirSync(lens__da);
   }
 
-  const failedProofs = path.join(process.cwd(), 'lens__da', 'failed-proofs');
+  const failedProofs = FAILED_PROOFS_PATHS;
 
   if (!fs.existsSync(failedProofs)) {
     fs.mkdirSync(failedProofs);
   }
 
-  const dbPath = path.join(process.cwd(), 'lens__da', dbLocationFolderPath);
+  const dbPath = path.join(lens__da, dbLocationFolderPath);
 
   if (!fs.existsSync(dbPath)) {
     fs.mkdirSync(dbPath);

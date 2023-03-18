@@ -1,24 +1,22 @@
+import { promises as fs } from 'fs';
 import { sleep } from '../common/helpers';
-import { consoleLog } from '../common/logger';
-import { EthereumNode } from '../evm/ethereum';
-import { startDb } from '../input-output/db';
+import { consoleError, consoleLog } from '../common/logger';
+import { FAILED_PROOFS_PATHS } from '../input-output/paths';
 
 /**
- * Watches for failed submissions in the database and logs a summary of the errors.
- * @param dbLocationFolder - The path to the folder containing the database.
+ * Watches for failed submissions written to disk
  */
-export const verifierFailedSubmissionsWatcher = async (
-  _ethereumNode: EthereumNode,
-  dbLocationFolderPath: string
-): Promise<void> => {
+export const verifierFailedSubmissionsWatcher = async (): Promise<void> => {
   consoleLog('LENS VERIFICATION NODE - started up failed submission watcher...');
-
-  // Initialize the database
-  startDb(dbLocationFolderPath);
 
   // eslint-disable-next-line no-constant-condition
   while (true) {
     try {
+      const files = await fs.readdir(FAILED_PROOFS_PATHS);
+      if (files.length > 0) {
+        consoleError('Found failed claims - ' + files.length);
+      }
+
       // const failed = await getFailedTransactionsDb();
       // if (dbLocationFolderPath === 'desdf') {
       //   handleRetries(failed, ethereumNode);
@@ -53,6 +51,7 @@ export const verifierFailedSubmissionsWatcher = async (
       );
     }
 
-    await sleep(1000000000);
+    // every 30 seconds
+    await sleep(30000);
   }
 };

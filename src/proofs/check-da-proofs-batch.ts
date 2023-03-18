@@ -5,7 +5,7 @@ import {
   formatDate,
   unixTimestampToMilliseconds,
 } from '../common/helpers';
-import { consoleLog } from '../common/logger';
+import { consoleDynamic, LoggerLevelColours } from '../common/logger';
 import { ClaimableValidatorError } from '../data-availability-models/claimable-validator-errors';
 import { DAResult } from '../data-availability-models/da-result';
 import {
@@ -152,8 +152,13 @@ const processPublications = async (
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async (publication: any) => {
       const txId = publication.id;
-      const log = (message: string, ...optionalParams: unknown[]): void => {
-        consoleLog(
+      const log = (
+        color: LoggerLevelColours,
+        message: string,
+        ...optionalParams: unknown[]
+      ): void => {
+        consoleDynamic(
+          color,
           `LENS VERIFICATION NODE - ${retryAttempt ? 'retry attempt' : ''} tx at - ${formatDate(
             new Date(unixTimestampToMilliseconds(Number(publication.daPublication.event.timestamp)))
           )} - ${txId} - ${message}`,
@@ -184,21 +189,22 @@ const processPublications = async (
         // write to the database!
         saveTxDb(txId, txValidatedResult);
 
+        if (stream) {
+          log(LoggerLevelColours.INFO, `stream the DA publication - ${txId}`);
+          // stream the result to the callback defined
+          stream(txValidatedResult);
+        }
+
         if (result.isFailure()) {
           failedDAProofQueue.enqueue({
             txId,
             reason: result.failure!,
             submitter: publication.submitter,
           });
+          log(LoggerLevelColours.ERROR, `FAILED - ${result.failure!}`);
+        } else {
+          log(LoggerLevelColours.SUCCESS, 'OK');
         }
-
-        if (stream) {
-          log(`stream the DA publication - ${txId}`);
-          // stream the result to the callback defined
-          stream(txValidatedResult);
-        }
-
-        log(`${result.isFailure() ? `FAILED - ${result.failure!}` : 'OK'}`);
 
         return {
           txId,

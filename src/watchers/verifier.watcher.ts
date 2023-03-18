@@ -11,6 +11,7 @@ import { getLastEndCursorDb, saveEndCursorDb, startDb } from '../input-output/db
 import { checkDAProofsBatch } from '../proofs/check-da-proofs-batch';
 import { retryCheckDAProofsQueue } from '../queue/known.queue';
 import { startupQueues } from '../queue/startup.queue';
+import { verifierFailedSubmissionsWatcher } from './failed-submissons.watcher';
 import { StartDAVerifierNodeOptions } from './models/start-da-verifier-node-options';
 
 const startup = async (
@@ -26,7 +27,7 @@ const startup = async (
   // Initialize database.
   startDb(dbLocationFolderPath);
   startupQueues();
-  // verifierFailedSubmissionsWatcher(ethereumNode, dbLocationFolderPath);
+  verifierFailedSubmissionsWatcher();
 
   if (usLocalNode) {
     // Switch to local node.
