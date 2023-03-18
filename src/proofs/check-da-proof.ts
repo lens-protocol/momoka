@@ -1,6 +1,6 @@
 import Utils from '@bundlr-network/client/build/common/utils';
 import { utils } from 'ethers';
-import { deepClone } from '../common/helpers';
+import { deepClone, unixTimestampToMilliseconds } from '../common/helpers';
 import { LogFunctionType } from '../common/logger';
 import { ClaimableValidatorError } from '../data-availability-models/claimable-validator-errors';
 import {
@@ -48,19 +48,22 @@ import { checkDAPost, CheckDAPostPublication } from './publications/post';
  * @param timestamp Timestamp in milliseconds to match against block timestamp
  * @returns The block with the closest matching timestamp
  */
-const getClosestBlock = (blocks: BlockInfo[], timestamp: number): BlockInfo => {
-  return blocks
-    .map((c) => ({
-      ...c,
-      // Convert block timestamp to milliseconds
-      timestamp: c.timestamp * 1000,
-    }))
-    .filter((c) => timestamp >= c.timestamp)
-    .reduce((prev, curr) => {
-      return Math.abs(curr.timestamp - timestamp) < Math.abs(prev.timestamp - timestamp)
-        ? curr
-        : prev;
-    });
+const getClosestBlock = (blocks: BlockInfo[], targetTimestamp: number): BlockInfo => {
+  const targetTimestampMs = unixTimestampToMilliseconds(targetTimestamp);
+
+  return blocks.reduce((prev, curr) => {
+    const prevTimestamp = unixTimestampToMilliseconds(prev.timestamp);
+    const currTimestamp = unixTimestampToMilliseconds(curr.timestamp);
+
+    if (currTimestamp > targetTimestampMs) {
+      return prev;
+    }
+
+    const prevDifference = Math.abs(prevTimestamp - targetTimestampMs);
+    const currDifference = Math.abs(currTimestamp - targetTimestampMs);
+
+    return currDifference < prevDifference ? curr : prev;
+  });
 };
 
 /**
@@ -116,12 +119,8 @@ const validateChoosenBlock = async (
   log: LogFunctionType
 ): PromiseResult => {
   try {
-    // got the current block the previous block and the block in the future!
-    const blockNumbers = [
-      //deepClone(blockNumber) - 1,
-      deepClone(blockNumber),
-      //deepClone(blockNumber) + 1,
-    ];
+    // got the current block, the previous block, and the block in the future!
+    const blockNumbers = [blockNumber - 1, blockNumber, blockNumber + 1];
 
     const blocksResult = await getBlockRange(blockNumbers, ethereumNode);
 
@@ -146,13 +145,13 @@ const validateChoosenBlock = async (
         closestBlockFull: closestBlock,
       });
 
-      if (closestBlock.number === deepClone(blockNumber) + 1) {
+      if (closestBlock.number === blockNumber + 1) {
         log(
           `
-        Due to latency with nodes we allow the next block to be accepted as the closest.
-        When you do a request over the wire the node provider may not of broadcasted yet,
-        this means you may have 100-300ms latency which can not be avoided. The signature still
-        needs to conform to the past block so its still very valid.
+        Due to latency with nodes, we allow the next block to be accepted as the closest.
+        When you do a request over the wire, the node provider may not have broadcasted yet,
+        this means you may have 100-300ms latency which cannot be avoided. The signature still
+        needs to conform to the past block, so it's still very valid.
         `
         );
       } else {
