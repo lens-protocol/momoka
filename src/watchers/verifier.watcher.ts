@@ -33,6 +33,14 @@ const startup = async (
     // Switch to local node.
     ethereumNode.nodeUrl = LOCAL_NODE_URL;
   }
+
+  console.log(`
+  _     _____ _   _ ____    ____    _    
+ | |   | ____|  || | ___|  |  _ \\  / \\   
+ | |   |  _| |  \\| |___ \\  | | | |/ _ \\  
+ | |___| |___| |  |___) | | |_| / ___ \\ 
+ |_____|_____|_| \\_|____/  |____/_/   \\_\\                                                      
+  `);
 };
 
 /**
