@@ -1,6 +1,6 @@
 import Utils from '@bundlr-network/client/build/common/utils';
 import { utils } from 'ethers';
-import { deepClone, unixTimestampToMilliseconds } from '../common/helpers';
+import { deepClone, isNativeNode, unixTimestampToMilliseconds } from '../common/helpers';
 import { LogFunctionType } from '../common/logger';
 import { ClaimableValidatorError } from '../data-availability-models/claimable-validator-errors';
 import {
@@ -34,6 +34,8 @@ import {
   TxValidatedFailureResult,
 } from '../input-output/db';
 import { isValidSubmitter, isValidTransactionSubmitter } from '../submitters';
+import { HandlerWorkers } from '../workers/handler-communication.worker';
+import { workerPool } from '../workers/worker-pool';
 import {
   CheckDASubmissionOptions,
   getDefaultCheckDASubmissionOptions,
@@ -288,8 +290,16 @@ const validatesTimestampProof = async (
   | ValidType
 > => {
   // check if bundlr timestamp proofs are valid and verified against bundlr node
-  // bundlr typings are Required<Proofs> but they are sharing the response and request
-  const valid = await Utils.verifyReceipt(daPublication.timestampProofs.response as any);
+  const valid = isNativeNode()
+    ? await workerPool.execute<boolean>({
+        worker: HandlerWorkers.BUNDLR_VERIFY_RECEIPT,
+        data: {
+          bundlrUploadResponse: daPublication.timestampProofs.response,
+        },
+      })
+    : // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await Utils.verifyReceipt(daPublication.timestampProofs.response as any);
+
   if (!valid) {
     log('timestamp proof invalid signature');
     return ClaimableValidatorError.TIMESTAMP_PROOF_INVALID_SIGNATURE;
@@ -358,7 +368,7 @@ export const isValidPublicationId = (
  * @returns True if the signature submitter is valid, false otherwise.
  *          turned into a promise as its CPU intensive
  */
-export const isValidSignatureSubmitter = (
+export const isValidSignatureSubmitter = async (
   daPublication: DAStructurePublication<DAEventType, PublicationTypedData>,
   ethereumNode: EthereumNode,
   log: LogFunctionType
@@ -369,8 +379,16 @@ export const isValidSignatureSubmitter = (
   // @ts-ignore
   delete daPublication.signature;
 
-  // check if signature matches!
-  const signedAddress = utils.verifyMessage(JSON.stringify(daPublication), signature);
+  const signedAddress = isNativeNode()
+    ? await workerPool.execute<string>({
+        worker: HandlerWorkers.EVM_VERIFY_MESSAGE,
+        data: {
+          daPublication,
+          signature,
+        },
+      })
+    : utils.verifyMessage(JSON.stringify(daPublication), signature);
+
   log('signedAddress', signedAddress);
 
   if (!isValidSubmitter(ethereumNode.environment, signedAddress, ethereumNode.deployment)) {

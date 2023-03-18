@@ -1,29 +1,24 @@
 import { parentPort } from 'worker_threads';
-import { DAPublicationWithTimestampProofsBatchResult } from '../data-availability-models/data-availability-timestamp-proofs';
-import { ProofResult } from '../proofs/check-da-proofs-batch';
-import { CheckDASubmissionOptions } from '../proofs/models/check-da-submisson-options';
-import { checkDAProofsBatchWorker } from './message-handlers/check-da-proofs-batch.worker';
-import { checkDAProofsWithMetadataBatchWorker } from './message-handlers/check-da-proofs-with-metadata-batch.worker';
+import {
+  bundlrVerifyReceiptWorker,
+  BundlrVerifyReceiptWorkerRequest,
+  evmVerifyMessageWorker,
+  EVMVerifyMessageWorkerRequest,
+} from './message-handlers';
 
-export type CheckDAProofsBatchWorkerRequest = HandlerWorkerRequest<
-  HandlerWorkers.CHECK_DA_PROOFS_BATCH,
-  string[]
+export type EVMVerifyMessageHandlerWorkerRequest = HandlerWorkerRequest<
+  HandlerWorkers.EVM_VERIFY_MESSAGE,
+  EVMVerifyMessageWorkerRequest
 >;
 
-export interface CheckDAProofsWihMetadataBatchWorkerRequest {
-  txId: string;
-  daPublicationWithTimestampProofs: DAPublicationWithTimestampProofsBatchResult;
-  options: CheckDASubmissionOptions;
-}
-
-export type CheckDAProofsWithMetadataBatchWorkerRequest = HandlerWorkerRequest<
-  HandlerWorkers.CHECK_DA_PROOFS_WITH_METADATA_BATCH,
-  CheckDAProofsWihMetadataBatchWorkerRequest[]
+export type BundlrVerifyReceiptHandlerWorkerRequest = HandlerWorkerRequest<
+  HandlerWorkers.BUNDLR_VERIFY_RECEIPT,
+  BundlrVerifyReceiptWorkerRequest
 >;
 
 export enum HandlerWorkers {
-  CHECK_DA_PROOFS_BATCH = 'CHECK_DA_PROOFS_BATCH',
-  CHECK_DA_PROOFS_WITH_METADATA_BATCH = 'CHECK_DA_PROOFS_WITH_METADATA_BATCH',
+  EVM_VERIFY_MESSAGE = 'EVM_VERIFY_MESSAGE',
+  BUNDLR_VERIFY_RECEIPT = 'BUNDLR_VERIFY_RECEIPT',
 }
 
 export interface HandlerWorkerRequest<THandlerWorkers extends HandlerWorkers, T> {
@@ -32,27 +27,17 @@ export interface HandlerWorkerRequest<THandlerWorkers extends HandlerWorkers, T>
 }
 
 export type HandlerWorkerData =
-  | CheckDAProofsBatchWorkerRequest
-  | CheckDAProofsWithMetadataBatchWorkerRequest;
+  | EVMVerifyMessageHandlerWorkerRequest
+  | BundlrVerifyReceiptHandlerWorkerRequest;
 
-const executeWorker = async (request: HandlerWorkerData): Promise<ProofResult[] | boolean[]> => {
+const executeWorker = async (request: HandlerWorkerData): Promise<string | boolean> => {
   switch (request.worker) {
-    case HandlerWorkers.CHECK_DA_PROOFS_BATCH:
-      return await checkDAProofsBatchWorker(request.data as string[]);
-    case HandlerWorkers.CHECK_DA_PROOFS_WITH_METADATA_BATCH:
-      return await checkDAProofsWithMetadataBatchWorker(
-        request.data.map((r) => {
-          return {
-            txId: r.txId,
-            daPublicationWithTimestampProofs: r.daPublicationWithTimestampProofs,
-            options: {
-              ...r.options,
-              // eslint-disable-next-line @typescript-eslint/no-empty-function
-              log: () => {},
-            },
-          };
-        })
+    case HandlerWorkers.EVM_VERIFY_MESSAGE:
+      return await Promise.resolve(
+        evmVerifyMessageWorker(request.data as EVMVerifyMessageWorkerRequest)
       );
+    case HandlerWorkers.BUNDLR_VERIFY_RECEIPT:
+      return await bundlrVerifyReceiptWorker(request.data as BundlrVerifyReceiptWorkerRequest);
   }
 };
 

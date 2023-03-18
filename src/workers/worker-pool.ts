@@ -4,7 +4,7 @@ import { HandlerWorkerData } from './handler-communication.worker';
 
 const workerPath = resolvePath(__dirname, 'handler-communication.worker.js');
 
-export class WorkerPool {
+class WorkerPool {
   private workers: Worker[] = [];
   private queue: (() => void)[] = [];
 
@@ -21,7 +21,7 @@ export class WorkerPool {
     }
   }
 
-  public execute(request: HandlerWorkerData): Promise<any> {
+  public execute<T>(request: HandlerWorkerData): Promise<T> {
     const availableWorker = this.workers.shift();
     if (!availableWorker) {
       return new Promise((resolve) => {
@@ -40,3 +40,5 @@ export class WorkerPool {
     });
   }
 }
+
+export const workerPool = new WorkerPool();
