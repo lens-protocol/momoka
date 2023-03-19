@@ -1,4 +1,4 @@
-import { runForever, sleep } from '../common/helpers';
+import { runForever } from '../common/helpers';
 import { ClaimableValidatorError } from '../data-availability-models/claimable-validator-errors';
 import { EthereumNode } from '../evm/ethereum';
 import { checkDAProofsBatch } from '../proofs/check-da-proofs-batch';
@@ -53,9 +53,6 @@ export const processRetryCheckDAProofsQueue = async (
           retryCheckDAProofsQueue.enqueueWithDelay(proofs, 30000);
         }
       }
-    } else {
-      // Wait for a short period before checking the queue again
-      await sleep(200);
     }
-  });
+  }, 200);
 };

@@ -1,6 +1,6 @@
 import { existsSync, promises as fs } from 'fs';
 import path from 'path';
-import { runForever, sleep } from '../common/helpers';
+import { runForever } from '../common/helpers';
 import { consoleLog } from '../common/logger';
 import { ClaimableValidatorError } from '../data-availability-models/claimable-validator-errors';
 import { FAILED_PROOFS_PATHS } from '../input-output/paths';
@@ -40,8 +40,5 @@ export const verifierFailedSubmissionsWatcher = async (): Promise<void> => {
         );
       }
     }
-
-    // every 30 seconds
-    await sleep(5000);
-  });
+  }, 5000);
 };

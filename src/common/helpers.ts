@@ -141,10 +141,9 @@ export const retryWithTimeout = async <T>(
   // eslint-disable-next-line no-constant-condition
   while (true) {
     try {
-      const result = await fn();
-      return result;
+      return await fn();
     } catch (error) {
-      if (attempt < maxRetries) {
+      if (attempt <= maxRetries) {
         await sleep(delayMs);
         attempt++;
       } else {
@@ -158,9 +157,15 @@ export const retryWithTimeout = async <T>(
  * Simple abstraction to run a function forever
  * @param fn
  */
-export const runForever = async (fn: AsyncFunction<void>): Promise<never> => {
+export const runForever = async (
+  fn: AsyncFunction<void>,
+  sleepAfterEach: number | undefined = undefined
+): Promise<never> => {
   // eslint-disable-next-line no-constant-condition
   while (true) {
     await fn();
+    if (sleepAfterEach) {
+      await sleep(sleepAfterEach);
+    }
   }
 };

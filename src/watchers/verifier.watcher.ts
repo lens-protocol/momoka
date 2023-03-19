@@ -117,8 +117,6 @@ export const startDAVerifierNode = async (
         endCursor = arweaveTransactions.pageInfo.endCursor;
         await saveEndCursorDb(endCursor!);
 
-        // await sleep(100000000);
-
         consoleLog('completed count', count);
       }
     } catch (error) {

@@ -1,6 +1,6 @@
 import { existsSync, promises as fs } from 'fs';
 import path from 'path';
-import { runForever, sleep } from '../common/helpers';
+import { runForever } from '../common/helpers';
 import { ClaimableValidatorError } from '../data-availability-models/claimable-validator-errors';
 import { FAILED_PROOFS_PATHS } from '../input-output/paths';
 import { Queue } from './base.queue';
@@ -43,9 +43,6 @@ export const processFailedDAProofQueue = async (
           failedDAProofQueue.enqueueWithDelay(failed, 30000);
         }
       }
-    } else {
-      // Wait for a short period before checking the queue again
-      await sleep(200);
     }
-  });
+  }, 200);
 };
