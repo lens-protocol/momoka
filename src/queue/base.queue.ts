@@ -1,3 +1,5 @@
+import { sleep } from '../common/helpers';
+
 /**
  * A queue is a data structure that follows the FIFO (First In First Out) principle.
  */
@@ -18,7 +20,7 @@ export class Queue<T> {
    * @param delay The delay in milliseconds
    */
   public async enqueueWithDelay(item: T, delay: number): Promise<void> {
-    await new Promise((resolve) => setTimeout(resolve, delay));
+    await sleep(delay);
     this.enqueue(item);
   }
 

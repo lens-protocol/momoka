@@ -68,8 +68,11 @@ export const startDAVerifierNode = async (
 
   consoleLogWithLensNodeFootprint('started up..');
 
+  console.time('resync complete');
+
   return await runForever(async () => {
     try {
+      console.time('getDataAvailabilityTransactionsAPI');
       // Get new data availability transactions from the server.
       const arweaveTransactions: getDataAvailabilityTransactionsAPIResponse =
         await getDataAvailabilityTransactionsAPI(
@@ -77,9 +80,11 @@ export const startDAVerifierNode = async (
           ethereumNode.deployment,
           endCursor
         );
+      console.timeEnd('getDataAvailabilityTransactionsAPI');
 
       if (arweaveTransactions.edges.length === 0) {
         if (!lastCheckNothingFound) {
+          console.timeEnd('resync complete');
           consoleLogWithLensNodeFootprint('waiting for new data availability to be submitted...');
         }
         lastCheckNothingFound = true;
@@ -103,18 +108,22 @@ export const startDAVerifierNode = async (
         );
         console.timeEnd('starting');
 
-        // push the retry queue
-        retryCheckDAProofsQueue.enqueueWithDelay(
-          {
-            txIds: result
-              .filter((c) => !c.success && shouldRetry(c.claimableValidatorError!))
-              .map((c) => c.txId),
-            ethereumNode,
-            stream,
-          },
-          // try again in 30 seconds any failed ones
-          30000
-        );
+        const retryTxids = result
+          .filter((c) => !c.success && shouldRetry(c.claimableValidatorError!))
+          .map((c) => c.txId);
+
+        if (retryTxids.length > 0) {
+          // push the retry queue
+          retryCheckDAProofsQueue.enqueueWithDelay(
+            {
+              txIds: retryTxids,
+              ethereumNode,
+              stream,
+            },
+            // try again in 30 seconds any failed ones
+            30000
+          );
+        }
 
         consoleLog('result done!', count);
 

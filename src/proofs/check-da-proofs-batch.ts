@@ -276,14 +276,12 @@ export const checkDAProofsBatch = async (
     }
   }
 
-  // get the current lastest block we have seen
-
-  console.time('getBundlrBulkTxsAPI');
+  console.time('getBulkTimestampProofs');
   // Get bulk timestamp proofs.
   const bulkDATimestampProofs = await getBulkTimestampProofs(
     daPublications.map((pub) => pub.daPublication.timestampProofs.response.id)
   );
-  console.timeEnd('getBundlrBulkTxsAPI');
+  console.timeEnd('getBulkTimestampProofs');
 
   //console.time('buildDAPublicationsWithTimestampProofsBatchResult');
   // Build the data availability publication result with timestamp proofs for each submission.

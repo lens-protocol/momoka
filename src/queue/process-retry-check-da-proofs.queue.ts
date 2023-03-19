@@ -39,7 +39,7 @@ export const processRetryCheckDAProofsQueue = async (
   await runForever(async () => {
     if (!retryQueue.isEmpty()) {
       const proofs = retryQueue.dequeue();
-      if (proofs) {
+      if (proofs && proofs.txIds.length > 0) {
         try {
           await checkDAProofsBatch(
             proofs.txIds,

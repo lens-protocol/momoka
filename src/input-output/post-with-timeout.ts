@@ -14,7 +14,7 @@ export const postWithTimeout = async <TResponse, TBody>(
     });
 
     if (statusCode !== 200) {
-      throw new Error(`postWithTimeout: ${statusCode}`);
+      throw new Error(`postWithTimeout: ${statusCode} - ${data.toString()}`);
     }
 
     return JSON.parse(data.toString()) as TResponse;
