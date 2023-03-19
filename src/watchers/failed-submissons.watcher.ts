@@ -1,7 +1,7 @@
 import { existsSync, promises as fs } from 'fs';
 import path from 'path';
 import { runForever } from '../common/helpers';
-import { consoleLog } from '../common/logger';
+import { consoleLogWithLensNodeFootprint } from '../common/logger';
 import { ClaimableValidatorError } from '../data-availability-models/claimable-validator-errors';
 import { FAILED_PROOFS_PATHS } from '../input-output/paths';
 import { shouldRetry } from '../queue/process-retry-check-da-proofs.queue';
@@ -10,7 +10,7 @@ import { shouldRetry } from '../queue/process-retry-check-da-proofs.queue';
  * Watches for failed submissions written to disk
  */
 export const verifierFailedSubmissionsWatcher = async (): Promise<void> => {
-  consoleLog('LENS VERIFICATION NODE - started up failed submission watcher...');
+  consoleLogWithLensNodeFootprint('started up failed submission watcher...');
 
   let firstRun = true;
   await runForever(async () => {
@@ -34,8 +34,8 @@ export const verifierFailedSubmissionsWatcher = async (): Promise<void> => {
         }
         console.table(failedResults);
       } catch (error) {
-        consoleLog(
-          'LENS VERIFICATION NODE - verifier failed watcher failed try again in 5 seconds',
+        consoleLogWithLensNodeFootprint(
+          'verifier failed watcher failed try again in 5 seconds',
           error
         );
       }

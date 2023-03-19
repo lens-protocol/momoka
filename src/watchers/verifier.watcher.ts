@@ -1,5 +1,5 @@
 import { runForever, sleep } from '../common/helpers';
-import { consoleLog } from '../common/logger';
+import { consoleLog, consoleLogWithLensNodeFootprint } from '../common/logger';
 import { LOCAL_NODE_URL, setupAnvilLocalNode } from '../evm/anvil';
 import { EthereumNode } from '../evm/ethereum';
 import {
@@ -57,16 +57,16 @@ export const startDAVerifierNode = async (
   usLocalNode = false,
   { stream }: StartDAVerifierNodeOptions = {}
 ): Promise<never> => {
-  consoleLog('LENS VERIFICATION NODE - DA verification watcher started...');
+  consoleLogWithLensNodeFootprint('DA verification watcher started...');
 
   await startup(ethereumNode, dbLocationFolderPath, usLocalNode);
 
   // Get the last end cursor.
   let endCursor: string | null = await getLastEndCursorDb();
-
   let count = 0;
+  let lastCheckNothingFound = false;
 
-  consoleLog('LENS VERIFICATION NODE - started up..');
+  consoleLogWithLensNodeFootprint('started up..');
 
   return await runForever(async () => {
     try {
@@ -79,12 +79,16 @@ export const startDAVerifierNode = async (
         );
 
       if (arweaveTransactions.edges.length === 0) {
-        consoleLog('LENS VERIFICATION NODE - No new DA items found..');
+        if (!lastCheckNothingFound) {
+          consoleLogWithLensNodeFootprint('waiting for new data availability to be submitted...');
+        }
+        lastCheckNothingFound = true;
         await sleep(100);
       } else {
         count++;
-        consoleLog(
-          'LENS VERIFICATION NODE - Found new submissions...',
+        lastCheckNothingFound = false;
+        consoleLogWithLensNodeFootprint(
+          'Found new submissions...',
           arweaveTransactions.edges.length
         );
 
@@ -120,7 +124,7 @@ export const startDAVerifierNode = async (
         consoleLog('completed count', count);
       }
     } catch (error) {
-      consoleLog('LENS VERIFICATION NODE - Error while checking for new submissions', error);
+      consoleLogWithLensNodeFootprint('Error while checking for new submissions', error);
       await sleep(100);
     }
   });

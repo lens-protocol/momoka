@@ -1,6 +1,6 @@
 import { ChildProcess, exec } from 'child_process';
 import { BigNumber } from 'ethers';
-import { consoleLog } from '../common/logger';
+import { consoleLogWithLensNodeFootprint } from '../common/logger';
 import { JSONRPCWithTimeout } from '../input-output/json-rpc-with-timeout';
 import { EthereumNode } from './ethereum';
 import { JSONRPCMethods } from './jsonrpc-methods';
@@ -85,35 +85,35 @@ let public_node_url: string | undefined;
  */
 export const setupAnvilLocalNode = async (nodeUrl: string): Promise<void> => {
   public_node_url = nodeUrl;
-  consoleLog('LENS VERIFICATION NODE - setting up anvil local node from the fork...');
+  consoleLogWithLensNodeFootprint('setting up anvil local node from the fork...');
 
   if (await isAnvilNodeAlive()) {
-    consoleLog('LENS VERIFICATION NODE - local node is already up, skipping setup...');
+    consoleLogWithLensNodeFootprint('local node is already up, skipping setup...');
     return;
   }
 
-  consoleLog('LENS VERIFICATION NODE - downloading foundry...');
+  consoleLogWithLensNodeFootprint('downloading foundry...');
   await execAsync('curl -L https://foundry.paradigm.xyz | bash');
-  consoleLog('LENS VERIFICATION NODE - downloaded foundry...');
+  consoleLogWithLensNodeFootprint('downloaded foundry...');
 
-  consoleLog('LENS VERIFICATION NODE - foundryup...');
+  consoleLogWithLensNodeFootprint('foundryup...');
   await execAsync('foundryup');
-  consoleLog('LENS VERIFICATION NODE - foundryup complete...');
+  consoleLogWithLensNodeFootprint('foundryup complete...');
 
   // eslint-disable-next-line no-async-promise-executor
   await new Promise<void>(async (resolve, _reject) => {
     const internal = setInterval(async () => {
-      consoleLog('LENS VERIFICATION NODE - checking local node status...');
+      consoleLogWithLensNodeFootprint('checking local node status...');
       if (await isAnvilNodeAlive()) {
-        consoleLog('LENS VERIFICATION NODE - local node status.. ALIVE');
+        consoleLogWithLensNodeFootprint('local node status.. ALIVE');
         clearInterval(internal);
         return resolve();
       }
 
-      consoleLog('LENS VERIFICATION NODE - local node status... STARTING');
+      consoleLogWithLensNodeFootprint('local node status... STARTING');
     }, 100);
 
-    consoleLog('LENS VERIFICATION NODE - starting up anvil local node from the fork...');
+    consoleLogWithLensNodeFootprint('starting up anvil local node from the fork...');
     await execAsync(
       `REQ_TIMEOUT=100000 anvil --fork-url ${nodeUrl} --silent --timeout 1500 --retries 2`
     );
@@ -121,7 +121,7 @@ export const setupAnvilLocalNode = async (nodeUrl: string): Promise<void> => {
 
   closeEventsListeners();
 
-  consoleLog('LENS VERIFICATION NODE - complete setup of anvil local node from fork...');
+  consoleLogWithLensNodeFootprint('complete setup of anvil local node from fork...');
 };
 
 /**
