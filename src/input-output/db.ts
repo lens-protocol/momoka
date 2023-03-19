@@ -139,12 +139,6 @@ export const saveBlockDb = async (block: BlockInfo): Promise<void> => {
   }
 };
 
-export interface FailedTransactionsDb {
-  txId: string;
-  reason: ClaimableValidatorError;
-  submitter: string;
-}
-
 /**
  * Gets the last end cursor from the database.
  * Returns null if the database is not available or there is no cursor.
@@ -168,6 +162,37 @@ export const saveEndCursorDb = async (cursor: string): Promise<void> => {
   if (!db) return;
   try {
     await db.put(DbReference.cursor, cursor);
+  } catch (error) {
+    throw new Error('Could not write to into the db - critical error!');
+  }
+};
+
+/**
+ *  Gets the total checked count from the database.
+ */
+export const getTotalCheckedCountDb = async (): Promise<number> => {
+  if (!db) return 0;
+  try {
+    const result = await db.get(`${DbReference.tx}:totalCheckedCount`);
+    if (result) {
+      return Number(result);
+    }
+
+    return 0;
+  } catch (e) {
+    return 0;
+  }
+};
+
+/**
+ *  Saves the total checked count to the database.
+ * @param checked The checked count to add to current total
+ */
+export const saveTotalCheckedCountDb = async (checked: number): Promise<void> => {
+  if (!db) return;
+  try {
+    const currentCount = (await getTotalCheckedCountDb()) || 0;
+    await db.put(`${DbReference.tx}:totalCheckedCount`, (currentCount + checked).toString());
   } catch (error) {
     throw new Error('Could not write to into the db - critical error!');
   }

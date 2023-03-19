@@ -1,10 +1,16 @@
 import { Deployment, Environment } from '../common/environment';
 import { runForever, sleep } from '../common/helpers';
-import { consoleLog, consoleLogWithLensNodeFootprint } from '../common/logger';
+import { consoleLogWithLensNodeFootprint } from '../common/logger';
 import { LOCAL_NODE_URL, setupAnvilLocalNode } from '../evm/anvil';
 import { EthereumNode } from '../evm/ethereum';
 import { getDataAvailabilityTransactionsAPI } from '../input-output/bundlr/get-data-availability-transactions.api';
-import { getLastEndCursorDb, saveEndCursorDb, startDb } from '../input-output/db';
+import {
+  getLastEndCursorDb,
+  getTotalCheckedCountDb,
+  saveEndCursorDb,
+  saveTotalCheckedCountDb,
+  startDb,
+} from '../input-output/db';
 import { checkDAProofsBatch } from '../proofs/check-da-proofs-batch';
 import { retryCheckDAProofsQueue } from '../queue/known.queue';
 import { shouldRetry } from '../queue/process-retry-check-da-proofs.queue';
@@ -88,6 +94,13 @@ const getBulkDataAvailabilityTransactions = async (
   return result;
 };
 
+/**
+ *  Process the transactions and do the proof checks
+ * @param transactions The transactions
+ * @param ethereumNode The ethereum node to use
+ * @param usLocalNode If we are using the local node
+ * @param stream The stream callback
+ */
 const processTransactions = async (
   transactions: BulkDataAvailabilityTransactionsResponse,
   ethereumNode: EthereumNode,
@@ -123,14 +136,9 @@ const processTransactions = async (
   };
 };
 
-const waitForNewSubmissions = async (
-  lastCheckNothingFound: boolean,
-  totalChecked: number
-): Promise<boolean> => {
+const waitForNewSubmissions = async (lastCheckNothingFound: boolean): Promise<boolean> => {
   if (!lastCheckNothingFound) {
-    consoleLogWithLensNodeFootprint(
-      `waiting for new data availability to be submitted... it has checked ${totalChecked} DA publications so far.`
-    );
+    consoleLogWithLensNodeFootprint(`waiting for new data availability to be submitted...`);
   }
   lastCheckNothingFound = true;
   await sleep(100);
@@ -155,8 +163,8 @@ export const startDAVerifierNode = async (
 
   await startup(ethereumNode, dbLocationFolderPath, usLocalNode);
   let endCursor: string | null = await getLastEndCursorDb();
-  let totalChecked = 0;
-  let count = 0;
+  let totalChecked: number = await getTotalCheckedCountDb();
+  // let count = 0;
   let lastCheckNothingFound = false;
 
   consoleLogWithLensNodeFootprint('started up..');
@@ -171,15 +179,12 @@ export const startDAVerifierNode = async (
       );
 
       if (!transactions || transactions.txIds.length === 0) {
-        lastCheckNothingFound = await waitForNewSubmissions(lastCheckNothingFound, totalChecked);
+        lastCheckNothingFound = await waitForNewSubmissions(lastCheckNothingFound);
       } else {
-        count++;
+        // count++;
         lastCheckNothingFound = false;
 
-        consoleLogWithLensNodeFootprint(
-          `Resyncing and checking submissons.. ${totalChecked} checked so far`,
-          transactions.txIds.length
-        );
+        consoleLogWithLensNodeFootprint(`Resyncing submissons.. ${totalChecked} checked so far`);
 
         const { totalChecked: newTotalChecked, endCursor: newEndCursor } =
           await processTransactions(transactions, ethereumNode, usLocalNode, stream);
@@ -187,8 +192,8 @@ export const startDAVerifierNode = async (
         totalChecked += newTotalChecked;
         endCursor = newEndCursor;
 
-        await saveEndCursorDb(endCursor!);
-        consoleLog('completed count', count);
+        await Promise.all([saveEndCursorDb(endCursor!), saveTotalCheckedCountDb(totalChecked)]);
+        // consoleLog('completed count', count);
       }
     } catch (error) {
       consoleLogWithLensNodeFootprint('Error while checking for new submissions', error);

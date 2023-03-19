@@ -40,5 +40,5 @@ export const verifierFailedSubmissionsWatcher = async (): Promise<void> => {
         );
       }
     }
-  }, 5000);
+  }, 60000);
 };
