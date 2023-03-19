@@ -232,7 +232,8 @@ const processPublications = async (
       }
     },
     // anything more then this will cause the node to crash
-    { concurrency: 100 }
+    // TODO PLAY AROUND WITH THIS
+    { concurrency: 120 }
   );
 };
 

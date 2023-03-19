@@ -11,7 +11,6 @@ class WorkerPool {
   constructor() {
     // Set the pool size to the number of available CPU cores
     const size = require('os').cpus().length;
-    console.log('size', size);
     for (let i = 0; i < size; i++) {
       const worker = new Worker(workerPath);
       worker.on('message', (_result) => {

@@ -2,7 +2,7 @@ import { ContractCallContext, Multicall } from 'ethereum-multicall';
 import { BigNumber, ethers } from 'ethers';
 import { Interface } from 'ethers/lib/utils';
 import { Deployment, Environment, environmentToLensHubContract } from '../common/environment';
-import { sleep } from '../common/helpers';
+import { retryWithTimeout } from '../common/helpers';
 import { ClaimableValidatorError } from '../data-availability-models/claimable-validator-errors';
 import { failure, PromiseResult, success } from '../data-availability-models/da-result';
 import { JSONRPCWithTimeout } from '../input-output/json-rpc-with-timeout';
@@ -21,7 +21,6 @@ export interface EthereumNode {
 
 export const EMPTY_BYTE = '0x';
 
-const MAX_RETRIES_SIMULATION = 10;
 /**
  * Executes a simulation transaction on the given Ethereum node.
  * @param data - The transaction data to be executed.
@@ -34,10 +33,8 @@ export const executeSimulationTransaction = async (
   blockNumber: number,
   ethereumNode: EthereumNode
 ): PromiseResult<string | void> => {
-  let attempt = 0;
-  // eslint-disable-next-line no-constant-condition
-  while (true) {
-    try {
+  try {
+    return await retryWithTimeout(async () => {
       const ethCall = await JSONRPCWithTimeout<string>(
         ethereumNode.nodeUrl,
         JSONRPCMethods.eth_call,
@@ -55,14 +52,9 @@ export const executeSimulationTransaction = async (
       }
 
       return success(ethCall);
-    } catch (_error) {
-      if (attempt < MAX_RETRIES_SIMULATION) {
-        await sleep(100);
-        attempt++;
-      } else {
-        return failure(ClaimableValidatorError.SIMULATION_NODE_COULD_NOT_RUN);
-      }
-    }
+    });
+  } catch (_error) {
+    return failure(ClaimableValidatorError.SIMULATION_NODE_COULD_NOT_RUN);
   }
 };
 
@@ -102,7 +94,6 @@ export const parseSignature = (
 };
 
 const contractInterface = new ethers.utils.Interface(Multicall.ABI);
-const MAX_RETRIES_GET_CHAIN_DETAILS = 10;
 /**
  * Fetches on-chain details for a given Lens Profile.
  * @param blockNumber The block number at which to query the contract.
@@ -164,10 +155,8 @@ export const getOnChainProfileDetails = async (
   );
   const encodedData = contractInterface.encodeFunctionData('tryBlockAndAggregate', [true, calls]);
 
-  let attempt = 0;
-  // eslint-disable-next-line no-constant-condition
-  while (true) {
-    try {
+  try {
+    return await retryWithTimeout(async () => {
       const result = await JSONRPCWithTimeout<string>(
         ethereumNode.nodeUrl,
         JSONRPCMethods.eth_call,
@@ -202,14 +191,9 @@ export const getOnChainProfileDetails = async (
           resultData[3].returnData
         )[0],
       });
-    } catch (error) {
-      if (attempt < MAX_RETRIES_GET_CHAIN_DETAILS) {
-        await sleep(100);
-        attempt++;
-      } else {
-        return failure(ClaimableValidatorError.DATA_CANT_BE_READ_FROM_NODE);
-      }
-    }
+    });
+  } catch (_error) {
+    return failure(ClaimableValidatorError.DATA_CANT_BE_READ_FROM_NODE);
   }
 };
 
@@ -218,26 +202,19 @@ export interface BlockInfo {
   timestamp: number;
 }
 
-const DEFAULT_MAX_BLOCK_RETRIES = 10;
-
 /**
  * Returns information about a block specified by either block hash or block tag
  * @param blockHashOrBlockTag The hash or tag of the block to retrieve information for
  * @param ethereumNode The Ethereum node to use for the request
- * @param maxRetries The maximum number of retries to attempt if the request fails
- * @param attempt The current attempt number, used for recursive retries
  * @returns A promise that resolves to an object containing block number and timestamp
  * @throws An error if the request fails and exceeds the maximum number of retries
  */
 export const getBlock = async (
   blockHashOrBlockTag: ethers.providers.BlockTag,
-  ethereumNode: EthereumNode,
-  maxRetries: number = DEFAULT_MAX_BLOCK_RETRIES,
-  attempt = 0
+  ethereumNode: EthereumNode
 ): Promise<BlockInfo> => {
-  // eslint-disable-next-line no-constant-condition
-  while (true) {
-    try {
+  return await retryWithTimeout(
+    async () => {
       if (typeof blockHashOrBlockTag === 'number') {
         blockHashOrBlockTag = numberToHex(blockHashOrBlockTag);
       }
@@ -252,15 +229,9 @@ export const getBlock = async (
         number: BigNumber.from(result.number).toNumber(),
         timestamp: BigNumber.from(result.timestamp).toNumber(),
       };
-    } catch (e) {
-      if (attempt < maxRetries) {
-        await sleep(200);
-        attempt + 1;
-      } else {
-        throw e;
-      }
-    }
-  }
+    },
+    { delayMs: 200 }
+  );
 };
 
 /**
@@ -280,13 +251,10 @@ export const getLensPubCount = async (
   blockNumber: number,
   ethereumNode: EthereumNode
 ): PromiseResult<BigNumber | void> => {
-  let attempt = 0;
-
   const encodedData = DAlensHubInterface.encodeFunctionData('getPubCount', [profileId]);
 
-  // eslint-disable-next-line no-constant-condition
-  while (true) {
-    try {
+  try {
+    return await retryWithTimeout(async () => {
       const ethCall = await JSONRPCWithTimeout<string>(
         ethereumNode.nodeUrl,
         JSONRPCMethods.eth_call,
@@ -304,13 +272,8 @@ export const getLensPubCount = async (
       }
 
       return success(BigNumber.from(ethCall));
-    } catch (_error) {
-      if (attempt < MAX_RETRIES_SIMULATION) {
-        await sleep(200);
-        attempt++;
-      } else {
-        return failure(ClaimableValidatorError.DATA_CANT_BE_READ_FROM_NODE);
-      }
-    }
+    });
+  } catch (_error) {
+    return failure(ClaimableValidatorError.DATA_CANT_BE_READ_FROM_NODE);
   }
 };

@@ -117,3 +117,50 @@ export const createTimeoutPromise = (
 export const isNativeNode = (): boolean => {
   return typeof window === 'undefined';
 };
+
+type AsyncFunction<T> = () => Promise<T>;
+
+export interface RetryWithTimeoutOptions {
+  delayMs?: number;
+  maxRetries?: number;
+}
+
+/**
+ *  Retry a function with a timeout between retries
+ * @param fn The function
+ * @param options The options like delay and max retries
+ */
+export const retryWithTimeout = async <T>(
+  fn: AsyncFunction<T>,
+  options: RetryWithTimeoutOptions = {}
+): Promise<T> => {
+  let attempt = 0;
+
+  const maxRetries = options.maxRetries || 10;
+  const delayMs = options.delayMs || 100;
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    try {
+      const result = await fn();
+      return result;
+    } catch (error) {
+      if (attempt < maxRetries) {
+        await sleep(delayMs);
+        attempt++;
+      } else {
+        throw error;
+      }
+    }
+  }
+};
+
+/**
+ * Simple abstraction to run a function forever
+ * @param fn
+ */
+export const runForever = async (fn: AsyncFunction<void>): Promise<never> => {
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    await fn();
+  }
+};

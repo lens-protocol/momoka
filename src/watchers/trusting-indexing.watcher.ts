@@ -1,5 +1,5 @@
 import { Deployment, Environment } from '../common/environment';
-import { sleep } from '../common/helpers';
+import { runForever, sleep } from '../common/helpers';
 import { consoleLog } from '../common/logger';
 import { getBundlrBulkTxsAPI } from '../input-output/bundlr/get-bundlr-bulk-txs.api';
 import {
@@ -33,8 +33,7 @@ export const startDATrustingIndexing = async (
 
   let endCursor: string | null = null;
 
-  // eslint-disable-next-line no-constant-condition
-  while (true) {
+  return await runForever(async () => {
     try {
       // Get new data availability transactions from the server.
       const arweaveTransactions: getDataAvailabilityTransactionsAPIResponse =
@@ -79,5 +78,5 @@ export const startDATrustingIndexing = async (
       consoleLog('LENS DA TRUSTING INDEXING - Error while checking for new submissions', error);
       await sleep(100);
     }
-  }
+  });
 };

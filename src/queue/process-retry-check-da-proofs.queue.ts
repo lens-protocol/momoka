@@ -1,3 +1,4 @@
+import { runForever, sleep } from '../common/helpers';
 import { ClaimableValidatorError } from '../data-availability-models/claimable-validator-errors';
 import { EthereumNode } from '../evm/ethereum';
 import { checkDAProofsBatch } from '../proofs/check-da-proofs-batch';
@@ -35,8 +36,7 @@ export const processRetryCheckDAProofsQueue = async (
   retryQueue: Queue<ProcessRetryCheckDAProofsQueueRequest>,
   usLocalNode = false
 ): Promise<void> => {
-  // eslint-disable-next-line no-constant-condition
-  while (true) {
+  await runForever(async () => {
     if (!retryQueue.isEmpty()) {
       const proofs = retryQueue.dequeue();
       if (proofs) {
@@ -55,7 +55,7 @@ export const processRetryCheckDAProofsQueue = async (
       }
     } else {
       // Wait for a short period before checking the queue again
-      await new Promise((resolve) => setTimeout(resolve, 200));
+      await sleep(200);
     }
-  }
+  });
 };

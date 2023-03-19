@@ -1,6 +1,6 @@
 import { existsSync, promises as fs } from 'fs';
 import path from 'path';
-import { sleep } from '../common/helpers';
+import { runForever, sleep } from '../common/helpers';
 import { consoleLog } from '../common/logger';
 import { ClaimableValidatorError } from '../data-availability-models/claimable-validator-errors';
 import { FAILED_PROOFS_PATHS } from '../input-output/paths';
@@ -13,8 +13,7 @@ export const verifierFailedSubmissionsWatcher = async (): Promise<void> => {
   consoleLog('LENS VERIFICATION NODE - started up failed submission watcher...');
 
   let firstRun = true;
-  // eslint-disable-next-line no-constant-condition
-  while (true) {
+  await runForever(async () => {
     if (firstRun) {
       firstRun = false;
     } else {
@@ -43,6 +42,6 @@ export const verifierFailedSubmissionsWatcher = async (): Promise<void> => {
     }
 
     // every 30 seconds
-    await sleep(30000);
-  }
+    await sleep(5000);
+  });
 };

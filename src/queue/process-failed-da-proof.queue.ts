@@ -1,5 +1,6 @@
 import { existsSync, promises as fs } from 'fs';
 import path from 'path';
+import { runForever, sleep } from '../common/helpers';
 import { ClaimableValidatorError } from '../data-availability-models/claimable-validator-errors';
 import { FAILED_PROOFS_PATHS } from '../input-output/paths';
 import { Queue } from './base.queue';
@@ -27,8 +28,7 @@ const writeFailedProof = async (failed: ProcessFailedProofQueueRequest): Promise
 export const processFailedDAProofQueue = async (
   failedQueue: Queue<ProcessFailedProofQueueRequest>
 ): Promise<void> => {
-  // eslint-disable-next-line no-constant-condition
-  while (true) {
+  await runForever(async () => {
     if (!failedQueue.isEmpty()) {
       const failed = failedQueue.dequeue();
       if (failed) {
@@ -45,7 +45,7 @@ export const processFailedDAProofQueue = async (
       }
     } else {
       // Wait for a short period before checking the queue again
-      await new Promise((resolve) => setTimeout(resolve, 200));
+      await sleep(200);
     }
-  }
+  });
 };

@@ -1,4 +1,4 @@
-import { sleep } from '../common/helpers';
+import { runForever, sleep } from '../common/helpers';
 import { consoleLog } from '../common/logger';
 import { LOCAL_NODE_URL, setupAnvilLocalNode } from '../evm/anvil';
 import { EthereumNode } from '../evm/ethereum';
@@ -68,8 +68,7 @@ export const startDAVerifierNode = async (
 
   consoleLog('LENS VERIFICATION NODE - started up..');
 
-  // eslint-disable-next-line no-constant-condition
-  while (true) {
+  return await runForever(async () => {
     try {
       // Get new data availability transactions from the server.
       const arweaveTransactions: getDataAvailabilityTransactionsAPIResponse =
@@ -126,5 +125,5 @@ export const startDAVerifierNode = async (
       consoleLog('LENS VERIFICATION NODE - Error while checking for new submissions', error);
       await sleep(100);
     }
-  }
+  });
 };
