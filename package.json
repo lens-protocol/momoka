@@ -14,7 +14,7 @@
     "eslint": "eslint \"src/**/*.ts\" --quiet",
     "start:fork": "REQ_TIMEOUT=100000 anvil --fork-url https://polygon-mumbai.g.alchemy.com/v2/lvrU-S7p7QDU-TMpm1JeZNbgyIphNx3h --silent",
     "start": "env-cmd -f .env ts-node src/runnable/da-verifier-node.runnable.ts",
-    "start:native": "env-cmd -f .env node lib/runnable/da-verifier-node.runnable.js",
+    "start:native": "env-cmd -f .env node lib/runnable/da-verifier-node.runnable.js --trace-warnings",
     "start:profile": "env-cmd -f .env node lib/runnable/da-verifier-node.runnable.js --prof",
     "start:failed": "env-cmd -f .env ts-node src/failed-submissons.runnable.ts",
     "debug:playground": "env-cmd -f .env ts-node src/__PLAYGROUND__/index.ts",
@@ -62,7 +62,6 @@
     "bluebird": "^3.7.2",
     "ethereum-multicall": "^2.16.1",
     "ethers": "^5.7.2",
-    "got-cjs": "^12.5.4",
     "graphql": "^16.6.0",
     "level": "^8.0.0",
     "node-libcurl": "^3.0.0"
