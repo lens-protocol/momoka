@@ -1,3 +1,5 @@
+import yargs from 'yargs';
+
 /**
  * Creates a deep clone of the given object by converting it to a JSON string and then parsing it back to an object.
  * @param object - The object to clone.
@@ -167,5 +169,55 @@ export const runForever = async (
     if (sleepAfterEach) {
       await sleep(sleepAfterEach);
     }
+  }
+};
+
+export interface ProgramOptions {
+  command: string;
+  subcommands: string[];
+  options: { [key: string]: string };
+}
+
+export const getProgramArguments = (): ProgramOptions => {
+  // tslint:disable-next-line: typedef
+  const {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    _: [command, ...subcommands],
+    ...options
+  } = yargs.argv;
+  return {
+    command,
+    options: Object.keys(options).reduce((r, v) => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      r[v] = options[v];
+      return r;
+    }, {}),
+    subcommands,
+  };
+};
+
+/**
+ * node please stop saying fetch is experimental - we know and we are not even using it :)
+ */
+export const turnedOffExperimentalWarning = (): void => {
+  // node please stop saying fetch is experimental - we know and we are not even using it :)
+  const warningListeners = process.listeners('warning');
+  if (warningListeners.length != 1) {
+    console.warn(
+      `expected 1 listener on the process "warning" event, saw ${warningListeners.length}`
+    );
+  }
+
+  if (warningListeners[0]) {
+    const originalWarningListener = warningListeners[0];
+    process.removeAllListeners('warning');
+
+    process.prependListener('warning', (warning) => {
+      if (warning.name != 'ExperimentalWarning') {
+        originalWarningListener(warning);
+      }
+    });
   }
 };

@@ -36,6 +36,7 @@
     "@graphql-codegen/typescript-operations": "2.5.2",
     "@types/bluebird": "^3.5.38",
     "@types/jest": "^29.2.6",
+    "@types/yargs": "^17.0.22",
     "@typescript-eslint/eslint-plugin": "^5.49.0",
     "@typescript-eslint/parser": "^5.49.0",
     "env-cmd": "^10.1.0",
@@ -64,9 +65,13 @@
     "ethers": "^5.7.2",
     "graphql": "^16.6.0",
     "level": "^8.0.0",
-    "node-libcurl": "^3.0.0"
+    "node-libcurl": "^3.0.0",
+    "yargs": "^17.7.1"
   },
   "license": "MIT",
+  "bin": {
+    "lens-verifier": "./lib/bin/cli.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/lens-protocol/data-availability-verifier.git"
