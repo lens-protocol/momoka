@@ -120,6 +120,10 @@ const buildDAPublicationsWithTimestampProofsBatchResult = (
   );
 };
 
+/**
+ *  Checks the data availability proofs for a batch of transactions.
+ * @param txIds The array of transaction IDs to check.
+ */
 const getBundlrBulkTxs = async (txIds: string[]): Promise<BundlrBulkTxsResponse> => {
   // can only handle 1000 at a time!
   const txIdsChunks = chunkArray(txIds, 1000);
@@ -156,17 +160,84 @@ export interface ProofResult {
   claimableValidatorError?: ClaimableValidatorError;
 }
 
+/**
+ *  Checks the data availability proof for a publication
+ * @param publication The publication to check
+ * @param ethereumNode The ethereum node information
+ * @param retryAttempt If its a retry
+ * @param stream The callback to stream the result
+ */
+const processPublication = async (
+  publication: DAPublicationWithTimestampProofsBatchResult,
+  ethereumNode: EthereumNode,
+  retryAttempt: boolean,
+  stream?: StreamCallback
+): Promise<ProofResult> => {
+  const txId = publication.id;
+
+  try {
+    const checkPromise = checkDAProofWithMetadata(txId, publication, ethereumNode, {
+      ...getDefaultCheckDASubmissionOptions,
+      byPassDb: retryAttempt,
+    });
+
+    const { promise: timeoutPromise, timeoutId } = createTimeoutPromise(5000);
+    const result = (await Promise.race([checkPromise, timeoutPromise])) as DAResult<
+      void | DAStructurePublication<DAEventType, PublicationTypedData>,
+      DAStructurePublication<DAEventType, PublicationTypedData>
+    >;
+
+    clearTimeout(timeoutId);
+
+    const txValidatedResult: TxValidatedResult = buildTxValidationResult(txId, result);
+
+    saveTxDb(txId, txValidatedResult);
+
+    if (stream) {
+      // stream the result to the callback defined
+      stream(txValidatedResult);
+    }
+
+    return {
+      txId,
+      success: result.isSuccess(),
+      claimableValidatorError: result.isFailure() ? result.failure! : undefined,
+    };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (e: any) {
+    console.log(`FAILED - ${e.message || e}`);
+    saveTxDb(txId, {
+      proofTxId: txId,
+      success: false,
+      failureReason: ClaimableValidatorError.UNKNOWN,
+      dataAvailabilityResult: undefined,
+      extraErrorInfo: typeof e === 'string' ? e : e.message || undefined,
+    });
+
+    return {
+      txId,
+      success: false,
+      claimableValidatorError: ClaimableValidatorError.UNKNOWN,
+    };
+  }
+};
+
+/**
+ *  Checks the data availability proofs for a set of publications
+ * @param publications The publications to check
+ * @param ethereumNode The ethereum node information
+ * @param retryAttempt If its a retry
+ * @param stream The callback to stream the result
+ */
 const processPublications = async (
-  daPublicationsWithTimestampProofs: DAPublicationWithTimestampProofsBatchResult[],
+  publications: DAPublicationWithTimestampProofsBatchResult[],
   ethereumNode: EthereumNode,
   retryAttempt: boolean,
   stream?: StreamCallback
 ): Promise<ProofResult[]> => {
   return await BluebirdPromise.map(
-    daPublicationsWithTimestampProofs,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async (publication: any) => {
-      const txId = publication.id;
+    publications,
+    async (publication) => {
       const log = (
         color: LoggerLevelColours,
         message: string,
@@ -176,73 +247,25 @@ const processPublications = async (
           color,
           `LENS VERIFICATION NODE - ${retryAttempt ? 'retry attempt' : ''} tx at - ${formatDate(
             new Date(unixTimestampToMilliseconds(Number(publication.daPublication.event.timestamp)))
-          )} - ${txId} - ${message}`,
+          )} - ${publication.id} - ${message}`,
           ...optionalParams
         );
       };
 
-      try {
-        const checkPromise = checkDAProofWithMetadata(txId, publication, ethereumNode, {
-          ...getDefaultCheckDASubmissionOptions,
-          byPassDb: retryAttempt,
+      const result = await processPublication(publication, ethereumNode, retryAttempt, stream);
+
+      if (result.success) {
+        log(LoggerLevelColours.SUCCESS, 'OK');
+      } else {
+        failedDAProofQueue.enqueue({
+          txId: result.txId,
+          reason: result.claimableValidatorError!,
+          submitter: publication.submitter,
         });
-
-        // 5 seconds timeout then release the promise! (this is to prevent the promise from hanging)
-        const { promise: timeoutPromise, timeoutId } = createTimeoutPromise(5000);
-
-        // if it throws it leave here
-        const result = (await Promise.race([checkPromise, timeoutPromise])) as DAResult<
-          void | DAStructurePublication<DAEventType, PublicationTypedData>,
-          DAStructurePublication<DAEventType, PublicationTypedData>
-        >;
-
-        clearTimeout(timeoutId);
-
-        const txValidatedResult: TxValidatedResult = buildTxValidationResult(txId, result);
-
-        // write to the database!
-        saveTxDb(txId, txValidatedResult);
-
-        if (stream) {
-          log(LoggerLevelColours.INFO, `stream the DA publication - ${txId}`);
-          // stream the result to the callback defined
-          stream(txValidatedResult);
-        }
-
-        if (result.isFailure()) {
-          failedDAProofQueue.enqueue({
-            txId,
-            reason: result.failure!,
-            submitter: publication.submitter,
-          });
-          log(LoggerLevelColours.ERROR, `FAILED - ${result.failure!}`);
-        } else {
-          log(LoggerLevelColours.SUCCESS, 'OK');
-        }
-
-        return {
-          txId,
-          success: result.isSuccess(),
-          claimableValidatorError: result.isFailure() ? result.failure! : undefined,
-        };
-
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } catch (e: any) {
-        console.log(`FAILED - ${e.message || e}`);
-        saveTxDb(txId, {
-          proofTxId: txId,
-          success: false,
-          failureReason: ClaimableValidatorError.UNKNOWN,
-          dataAvailabilityResult: undefined,
-          extraErrorInfo: typeof e === 'string' ? e : e.message || undefined,
-        });
-
-        return {
-          txId,
-          success: false,
-          claimableValidatorError: ClaimableValidatorError.UNKNOWN,
-        };
+        log(LoggerLevelColours.ERROR, `FAILED - ${result.claimableValidatorError!}`);
       }
+
+      return result;
     },
     // this is how we get more TCP but the higher we go
     // the more requirements we need to set on the archive node to handle the load
