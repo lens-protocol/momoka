@@ -135,7 +135,6 @@ export const saveBlockDb = async (block: BlockInfo): Promise<void> => {
   try {
     await db.put(`${DbReference.block}:${block.number}`, JSON.stringify(block));
   } catch (error) {
-    console.log('error', error);
     throw new Error('`saveBlockDb` - Could not write to into the db - critical error!');
   }
 };

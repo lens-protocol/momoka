@@ -81,7 +81,6 @@ const getBlockRange = async (
   ethereumNode: EthereumNode
 ): PromiseResult<BlockInfo[] | void> => {
   try {
-    //console.time(blockNumbers[0] + 'getBlockRange');
     const blocks = await Promise.all(
       blockNumbers.map(async (blockNumber) => {
         const cachedBlock = await getBlockDb(blockNumber);
@@ -97,7 +96,6 @@ const getBlockRange = async (
         return block;
       })
     );
-    //console.timeEnd(blockNumbers[0] + 'getBlockRange');
 
     return success(blocks);
   } catch (error) {
@@ -416,32 +414,25 @@ const _checkDAProof = async (
   DAStructurePublication<DAEventType, PublicationTypedData> | void,
   DAStructurePublication<DAEventType, PublicationTypedData>
 > => {
-  //console.time(daPublication.dataAvailabilityId + ' - signature');
   if (!daPublication.signature) {
     return failureWithContext(ClaimableValidatorError.NO_SIGNATURE_SUBMITTER, daPublication);
   }
-  //console.timeEnd(daPublication.dataAvailabilityId + ' - signature');
 
   if (!(await isValidSignatureSubmitter(daPublication, ethereumNode, log))) {
     return failureWithContext(ClaimableValidatorError.INVALID_SIGNATURE_SUBMITTER, daPublication);
   }
 
-  //console.time(daPublication.dataAvailabilityId + ' - timestampProofsResult');
   const timestampProofsResult = await validatesTimestampProof(daPublication, timestampProofs, log);
   if (timestampProofsResult !== validResult) {
     return failureWithContext(timestampProofsResult, daPublication);
   }
-  //console.timeEnd(daPublication.dataAvailabilityId + ' - timestampProofsResult');
 
-  //console.time(daPublication.dataAvailabilityId + ' - isValidEventTimestamp');
   if (!isValidEventTimestamp(daPublication)) {
     log('event timestamp does not match the publication timestamp');
     // the event emitted must match the same timestamp as the block number
     return failureWithContext(ClaimableValidatorError.INVALID_EVENT_TIMESTAMP, daPublication);
   }
-  //console.timeEnd(daPublication.dataAvailabilityId + ' - isValidEventTimestamp');
 
-  //console.time(daPublication.dataAvailabilityId + ' - isValidTypedDataDeadlineTimestamp');
   if (!isValidTypedDataDeadlineTimestamp(daPublication)) {
     log('typed data timestamp does not match the publication timestamp');
     // the event emitted must match the same timestamp as the block number
@@ -450,18 +441,15 @@ const _checkDAProof = async (
       daPublication
     );
   }
-  //console.timeEnd(daPublication.dataAvailabilityId + ' - isValidTypedDataDeadlineTimestamp');
 
   log('event timestamp matches publication timestamp');
 
-  //console.time(daPublication.dataAvailabilityId + ' - validateChoosenBlock');
   const validateBlockResult = await validateChoosenBlock(
     daPublication.chainProofs.thisPublication.blockNumber,
     daPublication.timestampProofs.response.timestamp,
     ethereumNode,
     log
   );
-  //console.timeEnd(daPublication.dataAvailabilityId + ' - validateChoosenBlock');
 
   if (validateBlockResult.isFailure()) {
     return failureWithContext(validateBlockResult.failure!, daPublication);
@@ -469,13 +457,11 @@ const _checkDAProof = async (
 
   log('event timestamp matches up the on chain block timestamp');
 
-  //console.time(daPublication.dataAvailabilityId + ' - checkDAPublication');
   const daResult = await checkDAPublication(daPublication, ethereumNode, {
     log,
     byPassDb,
     verifyPointer,
   });
-  //console.timeEnd(daPublication.dataAvailabilityId + ' - checkDAPublication');
 
   if (daResult.isFailure()) {
     return failureWithContext(daResult.failure!, daPublication);
@@ -526,7 +512,6 @@ export const checkDAProofWithMetadata = async (
       ethereumNode.deployment
     )
   ) {
-    console.log('invalid submitter', daPublicationWithTimestampProofs.submitter);
     return failureWithContext(
       ClaimableValidatorError.TIMESTAMP_PROOF_NOT_SUBMITTER,
       daPublicationWithTimestampProofs.daPublication

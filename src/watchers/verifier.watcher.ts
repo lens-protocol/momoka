@@ -1,11 +1,9 @@
+import { Deployment, Environment } from '../common/environment';
 import { runForever, sleep } from '../common/helpers';
 import { consoleLog, consoleLogWithLensNodeFootprint } from '../common/logger';
 import { LOCAL_NODE_URL, setupAnvilLocalNode } from '../evm/anvil';
 import { EthereumNode } from '../evm/ethereum';
-import {
-  getDataAvailabilityTransactionsAPI,
-  getDataAvailabilityTransactionsAPIResponse,
-} from '../input-output/bundlr/get-data-availability-transactions.api';
+import { getDataAvailabilityTransactionsAPI } from '../input-output/bundlr/get-data-availability-transactions.api';
 import { getLastEndCursorDb, saveEndCursorDb, startDb } from '../input-output/db';
 import { checkDAProofsBatch } from '../proofs/check-da-proofs-batch';
 import { retryCheckDAProofsQueue } from '../queue/known.queue';
@@ -13,7 +11,14 @@ import { shouldRetry } from '../queue/process-retry-check-da-proofs.queue';
 import { startupQueues } from '../queue/startup.queue';
 import { verifierFailedSubmissionsWatcher } from './failed-submissons.watcher';
 import { StartDAVerifierNodeOptions } from './models/start-da-verifier-node-options';
+import { StreamCallback } from './models/stream.type';
 
+/**
+ *  Starts up the verifier node
+ * @param ethereumNode The Ethereum node to use for verification.
+ * @param dbLocationFolderPath The folder path for the location of the database.
+ * @param usLocalNode A boolean to indicate whether to use the local node.
+ */
 const startup = async (
   ethereumNode: EthereumNode,
   dbLocationFolderPath: string,
@@ -43,6 +48,95 @@ const startup = async (
   `);
 };
 
+export interface BulkDataAvailabilityTransactionsResponse {
+  next: string | null;
+  txIds: string[];
+}
+
+/**
+ *  Get the bulk data availability transactions from bundlr
+ * @param environment The environment to use.
+ * @param deployment The deployment to use.
+ * @param endCursor  The end cursor to use.
+ * @param maxPulling The maximum number of pulling.
+ */
+const getBulkDataAvailabilityTransactions = async (
+  environment: Environment,
+  deployment: Deployment | undefined,
+  endCursor: string | null,
+  maxPulling: number
+): Promise<BulkDataAvailabilityTransactionsResponse | null> => {
+  const result: BulkDataAvailabilityTransactionsResponse | null = {
+    next: endCursor,
+    txIds: [],
+  };
+  let pullingCounter = 0;
+
+  do {
+    const response = await getDataAvailabilityTransactionsAPI(environment, deployment, result.next);
+    if (response.edges.length === 0) {
+      break;
+    }
+
+    const txIds = response.edges.map((edge) => edge.node.id);
+
+    result.next = response.pageInfo.endCursor;
+    result.txIds.push(...txIds);
+    pullingCounter++;
+  } while (result.next && pullingCounter < maxPulling);
+
+  return result;
+};
+
+const processTransactions = async (
+  transactions: BulkDataAvailabilityTransactionsResponse,
+  ethereumNode: EthereumNode,
+  usLocalNode: boolean,
+  stream: StreamCallback | undefined
+): Promise<{ totalChecked: number; endCursor: string | null }> => {
+  const result = await checkDAProofsBatch(
+    transactions.txIds,
+    ethereumNode,
+    false,
+    usLocalNode,
+    stream
+  );
+
+  const retryTxids = result
+    .filter((c) => !c.success && shouldRetry(c.claimableValidatorError!))
+    .map((c) => c.txId);
+
+  if (retryTxids.length > 0) {
+    retryCheckDAProofsQueue.enqueueWithDelay(
+      {
+        txIds: retryTxids,
+        ethereumNode,
+        stream,
+      },
+      30000
+    );
+  }
+
+  return {
+    totalChecked: result.length - retryTxids.length,
+    endCursor: transactions.next,
+  };
+};
+
+const waitForNewSubmissions = async (
+  lastCheckNothingFound: boolean,
+  totalChecked: number
+): Promise<boolean> => {
+  if (!lastCheckNothingFound) {
+    consoleLogWithLensNodeFootprint(
+      `waiting for new data availability to be submitted... it has checked ${totalChecked} DA publications so far.`
+    );
+  }
+  lastCheckNothingFound = true;
+  await sleep(100);
+  return lastCheckNothingFound;
+};
+
 /**
  * Starts the DA verifier node to watch for new data availability submissions and verify their proofs.
  * @param ethereumNode The Ethereum node to use for verification.
@@ -60,76 +154,40 @@ export const startDAVerifierNode = async (
   consoleLogWithLensNodeFootprint('DA verification watcher started...');
 
   await startup(ethereumNode, dbLocationFolderPath, usLocalNode);
-
-  // Get the last end cursor.
   let endCursor: string | null = await getLastEndCursorDb();
+  let totalChecked = 0;
   let count = 0;
   let lastCheckNothingFound = false;
 
   consoleLogWithLensNodeFootprint('started up..');
 
-  console.time('resync complete');
-
   return await runForever(async () => {
     try {
-      console.time('getDataAvailabilityTransactionsAPI');
-      // Get new data availability transactions from the server.
-      const arweaveTransactions: getDataAvailabilityTransactionsAPIResponse =
-        await getDataAvailabilityTransactionsAPI(
-          ethereumNode.environment,
-          ethereumNode.deployment,
-          endCursor
-        );
-      console.timeEnd('getDataAvailabilityTransactionsAPI');
+      const transactions = await getBulkDataAvailabilityTransactions(
+        ethereumNode.environment,
+        ethereumNode.deployment,
+        endCursor,
+        10
+      );
 
-      if (arweaveTransactions.edges.length === 0) {
-        if (!lastCheckNothingFound) {
-          console.timeEnd('resync complete');
-          consoleLogWithLensNodeFootprint('waiting for new data availability to be submitted...');
-        }
-        lastCheckNothingFound = true;
-        await sleep(100);
+      if (!transactions || transactions.txIds.length === 0) {
+        lastCheckNothingFound = await waitForNewSubmissions(lastCheckNothingFound, totalChecked);
       } else {
         count++;
         lastCheckNothingFound = false;
+
         consoleLogWithLensNodeFootprint(
-          'Found new submissions...',
-          arweaveTransactions.edges.length
+          `Resyncing and checking submissons.. ${totalChecked} checked so far`,
+          transactions.txIds.length
         );
 
-        // Check DA proofs in batches of 1000 to avoid I/O issues.
-        console.time('starting');
-        const result = await checkDAProofsBatch(
-          arweaveTransactions.edges.map((edge) => edge.node.id),
-          ethereumNode,
-          false,
-          usLocalNode,
-          stream
-        );
-        console.timeEnd('starting');
+        const { totalChecked: newTotalChecked, endCursor: newEndCursor } =
+          await processTransactions(transactions, ethereumNode, usLocalNode, stream);
 
-        const retryTxids = result
-          .filter((c) => !c.success && shouldRetry(c.claimableValidatorError!))
-          .map((c) => c.txId);
+        totalChecked += newTotalChecked;
+        endCursor = newEndCursor;
 
-        if (retryTxids.length > 0) {
-          // push the retry queue
-          retryCheckDAProofsQueue.enqueueWithDelay(
-            {
-              txIds: retryTxids,
-              ethereumNode,
-              stream,
-            },
-            // try again in 30 seconds any failed ones
-            30000
-          );
-        }
-
-        consoleLog('result done!', count);
-
-        endCursor = arweaveTransactions.pageInfo.endCursor;
         await saveEndCursorDb(endCursor!);
-
         consoleLog('completed count', count);
       }
     } catch (error) {

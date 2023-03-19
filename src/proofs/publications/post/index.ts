@@ -140,7 +140,6 @@ export const checkDAPost = async (
     return failure(simulationData.failure!);
   }
 
-  //console.time(publication.dataAvailabilityId + ' - simulate');
   // check the signature would of passed using eth_call
   const [simulatedResult, expectedResult] = await Promise.all([
     executeSimulationTransaction(
@@ -154,7 +153,6 @@ export const checkDAPost = async (
       ethereumNode
     ),
   ]);
-  //console.timeEnd(publication.dataAvailabilityId + ' - simulate');
 
   if (simulatedResult.isFailure()) {
     log('signature simulation checking failed');
@@ -164,8 +162,6 @@ export const checkDAPost = async (
     log('expectedResult failed to be fetched');
     return failure(expectedResult.failure!);
   }
-
-  console.log('RESULTS', { simulatedResult, expectedResult });
 
   if (!expectedResult.successResult!.eq(simulatedResult.successResult!)) {
     log('signature simulation checking failed');

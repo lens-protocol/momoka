@@ -88,7 +88,6 @@ export const checkDAComment = async (
   }
 
   if (verifyPointer) {
-    //console.time(publication.dataAvailabilityId + ' - verifyPointer');
     log('verify pointer first');
 
     // check the pointer!
@@ -104,20 +103,16 @@ export const checkDAComment = async (
     if (pointerResult.isFailure()) {
       return failure(ClaimableValidatorError.POINTER_FAILED_VERIFICATION);
     }
-
-    //console.timeEnd(publication.dataAvailabilityId + ' - verifyPointer');
   }
 
   const typedData = publication.chainProofs.thisPublication.typedData;
 
-  //console.time(publication.dataAvailabilityId + ' - whoSignedTypedData');
   const whoSignedResult = await whoSignedTypedData(
     typedData.domain,
     typedData.types,
     typedData.value,
     publication.chainProofs.thisPublication.signature
   );
-  //console.timeEnd(publication.dataAvailabilityId + ' - whoSignedTypedData');
 
   if (whoSignedResult.isFailure()) {
     return failure(whoSignedResult.failure!);
@@ -127,7 +122,6 @@ export const checkDAComment = async (
 
   log('who signed', whoSigned);
 
-  //console.time(publication.dataAvailabilityId + ' - getOnChainProfileDetails');
   const chainProfileDetailsResult = await getOnChainProfileDetails(
     publication.chainProofs.thisPublication.blockNumber,
     typedData.value.profileId,
@@ -137,7 +131,6 @@ export const checkDAComment = async (
   if (chainProfileDetailsResult.isFailure()) {
     return failure(chainProfileDetailsResult.failure!);
   }
-  //console.timeEnd(publication.dataAvailabilityId + ' - getOnChainProfileDetails');
 
   const details = chainProfileDetailsResult.successResult!;
 

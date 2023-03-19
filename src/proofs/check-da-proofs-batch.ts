@@ -1,6 +1,7 @@
 import { Promise as BluebirdPromise } from 'bluebird';
 import {
   base64StringToJson,
+  chunkArray,
   createTimeoutPromise,
   formatDate,
   unixTimestampToMilliseconds,
@@ -119,20 +120,34 @@ const buildDAPublicationsWithTimestampProofsBatchResult = (
   );
 };
 
-const getBulkDAProofs = async (txIds: string[]): Promise<BundlrBulkTxsResponse> => {
-  const bulkDAProofs = await getBundlrBulkTxsAPI(txIds);
-  if (bulkDAProofs === TIMEOUT_ERROR) {
-    throw new Error('getBundlrBulkTxsAPI for proofs timed out');
-  }
-  return bulkDAProofs;
-};
+const getBundlrBulkTxs = async (txIds: string[]): Promise<BundlrBulkTxsResponse> => {
+  // can only handle 1000 at a time!
+  const txIdsChunks = chunkArray(txIds, 1000);
 
-const getBulkTimestampProofs = async (ids: string[]): Promise<BundlrBulkTxsResponse> => {
-  const bulkDATimestampProofs = await getBundlrBulkTxsAPI(ids);
-  if (bulkDATimestampProofs === TIMEOUT_ERROR) {
-    throw new Error('getBundlrBulkTxsAPI for timestamps timed out');
-  }
-  return bulkDATimestampProofs;
+  const bulkDAProofs = await Promise.all(
+    txIdsChunks.map(async (txIdsChunk) => {
+      const result = await getBundlrBulkTxsAPI(txIdsChunk);
+      if (result === TIMEOUT_ERROR) {
+        throw new Error('getBundlrBulkTxsAPI for proofs timed out');
+      }
+      return result;
+    })
+  );
+
+  const combinedResponse: BundlrBulkTxsResponse = bulkDAProofs.reduce(
+    (acc: BundlrBulkTxsResponse, current: BundlrBulkTxsResponse) => {
+      return {
+        success: [...acc.success, ...current.success],
+        failed: { ...acc.failed, ...current.failed },
+      };
+    },
+    {
+      success: [],
+      failed: {},
+    }
+  );
+
+  return combinedResponse;
 };
 
 export interface ProofResult {
@@ -167,13 +182,13 @@ const processPublications = async (
       };
 
       try {
-        console.time('blah' + txId);
         const checkPromise = checkDAProofWithMetadata(txId, publication, ethereumNode, {
           ...getDefaultCheckDASubmissionOptions,
           byPassDb: retryAttempt,
         });
 
-        const { promise: timeoutPromise, timeoutId } = createTimeoutPromise(10000);
+        // 5 seconds timeout then release the promise! (this is to prevent the promise from hanging)
+        const { promise: timeoutPromise, timeoutId } = createTimeoutPromise(5000);
 
         // if it throws it leave here
         const result = (await Promise.race([checkPromise, timeoutPromise])) as DAResult<
@@ -182,7 +197,6 @@ const processPublications = async (
         >;
 
         clearTimeout(timeoutId);
-        console.timeEnd('blah' + txId);
 
         const txValidatedResult: TxValidatedResult = buildTxValidationResult(txId, result);
 
@@ -214,7 +228,6 @@ const processPublications = async (
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (e: any) {
-        console.timeEnd('blah' + txId);
         console.log(`FAILED - ${e.message || e}`);
         saveTxDb(txId, {
           proofTxId: txId,
@@ -231,8 +244,9 @@ const processPublications = async (
         };
       }
     },
-    // anything more then this will cause the node to crash
-    // TODO PLAY AROUND WITH THIS
+    // this is how we get more TCP but the higher we go
+    // the more requirements we need to set on the archive node to handle the load
+    // for now 120 is a good number!
     { concurrency: 120 }
   );
 };
@@ -251,23 +265,16 @@ export const checkDAProofsBatch = async (
   usLocalNode = false,
   stream?: StreamCallback
 ): Promise<ProofResult[]> => {
-  //console.log('txIds', txIds);
-  console.time('getBundlrBulkTxsAPI');
   // Get bulk data availability proofs.
-  const bulkDAProofs = await getBulkDAProofs(txIds);
-  console.timeEnd('getBundlrBulkTxsAPI');
+  const bulkDAProofs = await getBundlrBulkTxs(txIds);
 
-  console.time('buildDAPublicationsBatchResult');
   // Build the data availability publication result for each submission.
   const daPublications = await buildDAPublicationsBatchResult(bulkDAProofs.success);
-  console.timeEnd('buildDAPublicationsBatchResult');
 
   if (usLocalNode) {
     const mostRecentBlockNumber = Math.max(
       ...daPublications.map((d) => d.daPublication.chainProofs.thisPublication.blockNumber)
     );
-
-    console.time('getAnvilCurrentBlockNumber');
 
     const anvilCurrentBlockNumber = await getAnvilCurrentBlockNumber();
 
@@ -276,14 +283,11 @@ export const checkDAProofsBatch = async (
     }
   }
 
-  console.time('getBulkTimestampProofs');
   // Get bulk timestamp proofs.
-  const bulkDATimestampProofs = await getBulkTimestampProofs(
+  const bulkDATimestampProofs = await getBundlrBulkTxs(
     daPublications.map((pub) => pub.daPublication.timestampProofs.response.id)
   );
-  console.timeEnd('getBulkTimestampProofs');
 
-  //console.time('buildDAPublicationsWithTimestampProofsBatchResult');
   // Build the data availability publication result with timestamp proofs for each submission.
   const daPublicationsWithTimestampProofs = await buildDAPublicationsWithTimestampProofsBatchResult(
     bulkDATimestampProofs.success,

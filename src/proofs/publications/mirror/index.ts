@@ -98,8 +98,6 @@ export const checkDAMirror = async (
       }
     );
 
-    console.log('pointerResult', pointerResult);
-
     if (pointerResult.isFailure()) {
       return failure(ClaimableValidatorError.POINTER_FAILED_VERIFICATION);
     }

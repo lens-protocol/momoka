@@ -36,7 +36,6 @@ export const getBundlrBulkTxsAPI = (
           txIds
         );
       } catch (error) {
-        console.log('BUNDLR TIMEOUTS', error);
         return TIMEOUT_ERROR;
       }
     },
