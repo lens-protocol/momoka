@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { curly } from 'node-libcurl';
 import { isNativeNode } from '../common/helpers';
 
@@ -19,18 +20,10 @@ export const postWithTimeout = async <TResponse, TBody>(
 
     return JSON.parse(data.toString()) as TResponse;
   } else {
-    const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), 5000);
-
-    const response = await fetch(url, {
-      method: 'POST',
-      body: JSON.stringify(body),
-      signal: controller.signal,
+    const response = await axios.post(url, JSON.stringify(body), {
+      timeout: 5000,
     });
 
-    clearTimeout(id);
-
-    const blockchain = await response.json();
-    return blockchain.result as TResponse;
+    return response.data as TResponse;
   }
 };

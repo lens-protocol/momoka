@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { curly } from 'node-libcurl';
 import { isNativeNode } from '../common/helpers';
 
@@ -15,15 +16,10 @@ export const fetchWithTimeout = async <TResponse>(url: string): Promise<TRespons
 
     return JSON.parse(data.toString()) as TResponse;
   } else {
-    const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), 5000);
-
-    const response = await fetch(url, {
-      signal: controller.signal,
+    const response = await axios.get(url, {
+      timeout: 5000,
     });
 
-    clearTimeout(id);
-
-    return await response.json();
+    return response.data as TResponse;
   }
 };

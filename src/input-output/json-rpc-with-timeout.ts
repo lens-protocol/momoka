@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { curly } from 'node-libcurl';
 import { isNativeNode } from '../common/helpers';
 import { JSONRPCMethods } from '../evm/jsonrpc-methods';
@@ -26,18 +27,10 @@ export const JSONRPCWithTimeout = async <TResponse>(
 
     return data.result as TResponse;
   } else {
-    const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), 5000);
-
-    const response = await fetch(url, {
-      method: 'POST',
-      body: JSON.stringify(request),
-      signal: controller.signal,
+    const response = await axios.post(url, JSON.stringify(request), {
+      timeout: 5000,
     });
 
-    clearTimeout(id);
-
-    const blockchain = await response.json();
-    return blockchain.result as TResponse;
+    return response.data.result as TResponse;
   }
 };
