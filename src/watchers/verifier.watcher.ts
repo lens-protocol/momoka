@@ -25,18 +25,14 @@ import { StreamCallback } from './models/stream.type';
  * @param dbLocationFolderPath The folder path for the location of the database.
  * @param usLocalNode A boolean to indicate whether to use the local node.
  */
-const startup = async (
-  ethereumNode: EthereumNode,
-  dbLocationFolderPath: string,
-  usLocalNode: boolean
-): Promise<void> => {
+const startup = async (ethereumNode: EthereumNode, usLocalNode: boolean): Promise<void> => {
   if (usLocalNode) {
     // Start the local node up
     await setupAnvilLocalNode(ethereumNode.nodeUrl);
   }
 
   // Initialize database.
-  startDb(dbLocationFolderPath);
+  startDb();
   startupQueues();
   verifierFailedSubmissionsWatcher();
 
@@ -155,13 +151,12 @@ const waitForNewSubmissions = async (lastCheckNothingFound: boolean): Promise<bo
  */
 export const startDAVerifierNode = async (
   ethereumNode: EthereumNode,
-  dbLocationFolderPath: string,
   usLocalNode = false,
   { stream }: StartDAVerifierNodeOptions = {}
 ): Promise<never> => {
   consoleLogWithLensNodeFootprint('DA verification watcher started...');
 
-  await startup(ethereumNode, dbLocationFolderPath, usLocalNode);
+  await startup(ethereumNode, usLocalNode);
   let endCursor: string | null = await getLastEndCursorDb();
   let totalChecked: number = await getTotalCheckedCountDb();
   // let count = 0;
@@ -171,11 +166,12 @@ export const startDAVerifierNode = async (
 
   return await runForever(async () => {
     try {
+      // fetch 50,000 at a time! we can extend this if we wish for now thats plenty.
       const transactions = await getBulkDataAvailabilityTransactions(
         ethereumNode.environment,
         ethereumNode.deployment,
         endCursor,
-        10
+        50
       );
 
       if (!transactions || transactions.txIds.length === 0) {
@@ -184,7 +180,13 @@ export const startDAVerifierNode = async (
         // count++;
         lastCheckNothingFound = false;
 
-        consoleLogWithLensNodeFootprint(`Resyncing submissons.. ${totalChecked} checked so far`);
+        if (totalChecked === 0) {
+          consoleLogWithLensNodeFootprint(`Resyncing from start, preparing please wait...`);
+        } else {
+          consoleLogWithLensNodeFootprint(
+            `Checking submissons.. ${totalChecked} checked already..`
+          );
+        }
 
         const { totalChecked: newTotalChecked, endCursor: newEndCursor } =
           await processTransactions(transactions, ethereumNode, usLocalNode, stream);

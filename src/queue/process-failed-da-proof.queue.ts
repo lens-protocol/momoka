@@ -36,7 +36,10 @@ export const processFailedDAProofQueue = async (
           await writeFailedProof(failed);
         } catch (e) {
           console.error(
-            'Error writing the disk for failed publication.. make sure you have enough disk space'
+            'Error writing the disk for failed publication.. make sure you have enough disk space',
+            {
+              error: e,
+            }
           );
 
           // add back in the queue in 30 seconds for retry

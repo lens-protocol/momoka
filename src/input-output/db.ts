@@ -44,9 +44,8 @@ export interface TxValidatedSuccessResult
 
 /**
  * Starts the LevelDB database.
- * @param dbLocationFolderPath - The path where the LevelDB will be created.
  */
-export const startDb = (dbLocationFolderPath: string): void => {
+export const startDb = (): void => {
   if (db) return;
 
   const lens__da = LENS_DA_PATH;
@@ -61,7 +60,7 @@ export const startDb = (dbLocationFolderPath: string): void => {
     fs.mkdirSync(failedProofs);
   }
 
-  const dbPath = path.join(lens__da, dbLocationFolderPath);
+  const dbPath = path.join(lens__da, 'database');
 
   if (!fs.existsSync(dbPath)) {
     fs.mkdirSync(dbPath);

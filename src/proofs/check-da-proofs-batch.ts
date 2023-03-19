@@ -34,6 +34,7 @@ import {
   TxValidatedResult,
 } from '../input-output/db';
 import { failedDAProofQueue } from '../queue/known.queue';
+import { shouldRetry } from '../queue/process-retry-check-da-proofs.queue';
 import { StreamCallback } from '../watchers/models/stream.type';
 import { checkDAProofWithMetadata } from './check-da-proof';
 import { getDefaultCheckDASubmissionOptions } from './models/check-da-submisson-options';
@@ -74,22 +75,25 @@ const buildTxValidationResult = (
  * @returns An array of DAPublicationsBatchResult objects.
  *          turned into a promise as base64StringToJson is CPU intensive.
  */
-export const buildDAPublicationsBatchResult = (
+export const buildDAPublicationsBatchResult = async (
   results: BundlrBulkTxSuccess[]
 ): Promise<DAPublicationsBatchResult[]> => {
-  const batchResult = results.map((result) => {
-    const daPublication = base64StringToJson(result.data) as DAStructurePublication<
-      DAEventType,
-      PublicationTypedData
-    >;
-    saveTxDAMetadataDb(result.id, daPublication);
+  const batchResult = await Promise.all(
+    // eslint-disable-next-line require-await
+    results.map(async (result) => {
+      const daPublication = base64StringToJson(result.data) as DAStructurePublication<
+        DAEventType,
+        PublicationTypedData
+      >;
+      saveTxDAMetadataDb(result.id, daPublication);
 
-    return {
-      id: result.id,
-      daPublication,
-      submitter: result.address,
-    };
-  });
+      return {
+        id: result.id,
+        daPublication,
+        submitter: result.address,
+      };
+    })
+  );
 
   return Promise.resolve(batchResult);
 };
@@ -105,8 +109,9 @@ const buildDAPublicationsWithTimestampProofsBatchResult = (
   results: BundlrBulkTxSuccess[],
   daPublications: DAPublicationsBatchResult[]
 ): Promise<DAPublicationWithTimestampProofsBatchResult[]> => {
-  return Promise.resolve(
-    results.map((result, i) => {
+  return Promise.all(
+    // eslint-disable-next-line require-await
+    results.map(async (result, i) => {
       const timestampProofsData = base64StringToJson(result.data) as DATimestampProofsResponse;
 
       saveTxTimestampProofsMetadataDb(result.id, timestampProofsData);
@@ -205,7 +210,7 @@ const processPublication = async (
     };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
-    console.log(`FAILED - ${e.message || e}`);
+    // console.log(`FAILED - ${e.message || e}`);
     saveTxDb(txId, {
       proofTxId: txId,
       success: false,
@@ -262,7 +267,11 @@ const processPublications = async (
           reason: result.claimableValidatorError!,
           submitter: publication.submitter,
         });
-        log(LoggerLevelColours.ERROR, `FAILED - ${result.claimableValidatorError!}`);
+
+        // only log out ones which do not need retrying
+        if (!shouldRetry(result.claimableValidatorError!)) {
+          log(LoggerLevelColours.ERROR, `FAILED - ${result.claimableValidatorError!}`);
+        }
       }
 
       return result;
