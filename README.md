@@ -1514,7 +1514,7 @@ $ npx lens-verifier --node 'YOUR_NODE' --environment='MUMBAI|POLYGON' --concurre
 - `--concurrency` - this is the concurrency you wish to run the verifier on, which was talked in depth above
 - `--fromHead` - this is a boolean value, which if set to true will start the verifier from the head of the chain aka the most recent transaction, if set to false it will start from the last block and resync from zero.
 
-### Installing package
+## Installing package
 
 This is a written in node, and this means it can be ran on the client as well as a server; it won't use the DB on the client but can mean you can run proof checks in runtime, which is super powerful. Also you may which to monitor this on your server to index stuff as it comes in.
 
@@ -1526,9 +1526,13 @@ $ npm i @lens-protocol/data-availability-verifier
 
 please note if you wish to use a different deployment then `PRODUCTION` you will need to make sure you put `deployment: STAGING` or `deployment: LOCAL` in the `EthereumNode` object. This for most will not be the case.
 
+### Browser usage
+
+Currently working on fixing the build to work on browsers.
+
 #### checkDAProof
 
-The `checkDAProof` will return you a failure reason of the enum `ClaimableValidatorError`, and if successful, you be returned the entire `DAStructurePublication`. This can be ran on the client to check in runtime.
+The `checkDAProof` will return you a failure reason of the enum `ClaimableValidatorError`, and if successful, you be returned the entire `DAStructurePublication`. This can be ran on the client to check in runtime, this can also be ran on any server.
 
 ```ts
 import { checkDAProof, EthereumNode, Environment } from '@lens-protocol/data-availability-verifier';
@@ -1547,6 +1551,8 @@ if (result.isSuccess()) {
 // it failed!
 console.error('proof invalid do something', result.failure!)
 ```
+
+### Server usage
 
 #### startDAVerifierNode
 
@@ -1567,7 +1573,7 @@ const concurrency = 100;
 startDAVerifierNode(ethereumNode, concurrency);
 ```
 
-##### Stream with proofs verified
+#### startDAVerifierNode - Stream with proofs verified
 
 If you wish to index the data yourself, you can use the `startDAVerifierNode` and stream the data out to your own DB using the `StreamCallback`. This will run the verifier node and check the proofs as every new one comes in.
 
@@ -1600,7 +1606,7 @@ const concurrency = 100;
 startDAVerifierNode(ethereumNode, concurrency, { stream });
 ```
 
-##### Start verifier from head
+#### Start verifier from head
 
 You may wish to start the verifier from the head of the chain and not resync all the passed, this is useful to just start checking new proofs. You can do this by passing in the `syncFromHeadOnly` option.
 
