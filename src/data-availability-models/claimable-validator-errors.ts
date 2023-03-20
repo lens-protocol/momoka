@@ -30,21 +30,9 @@ export enum ClaimableValidatorError {
   TIMESTAMP_PROOF_INVALID_DA_ID = 'TIMESTAMP_PROOF_INVALID_DA_ID',
 
   /**
-   * This means the submitted timestamp proof does not match up to the `dataAvailabilityId`
-   * or `type` or not uploaded from the submittor whitelisted wallet
-   */
-  // TIMESTAMP_PROOF_INVALID_UPLOAD = 'TIMESTAMP_PROOF_INVALID_UPLOAD',
-
-  /**
    * This means the timestamp proof uploaded was not done by a valid submitter
    */
   TIMESTAMP_PROOF_NOT_SUBMITTER = 'TIMESTAMP_PROOF_NOT_SUBMITTER',
-
-  /**
-   * This means the block stated in the chain proofs are not the closest block to the timstamp
-   * proofs
-   */
-  // BLOCK_MISMATCH = 'BLOCK_MISMATCH',
 
   /**
    * We tried to call them 5 times and its errored out - this is not a bad proof but bundlr/arweave are having issues
