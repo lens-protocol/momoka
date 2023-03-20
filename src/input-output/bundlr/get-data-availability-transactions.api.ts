@@ -20,6 +20,11 @@ export interface getDataAvailabilityTransactionsAPIResponse {
   };
 }
 
+export enum DataAvailabilityTransactionsOrderTypes {
+  ASC = 'ASC',
+  DESC = 'DESC',
+}
+
 /**
  * Sends a query to the bundlr GraphQL API to retrieve data availability transactions.
  * @param environment The environment to retrieve transactions for.
@@ -30,14 +35,17 @@ export interface getDataAvailabilityTransactionsAPIResponse {
 export const getDataAvailabilityTransactionsAPI = async (
   environment: Environment,
   deployment: Deployment | undefined,
-  cursor: string | null
+  cursor: string | null,
+  order: DataAvailabilityTransactionsOrderTypes,
+  limit = 1000
 ): Promise<getDataAvailabilityTransactionsAPIResponse> => {
   const result = await client
     .query(DataAvailabilityTransactionsDocument, {
       owners: getSubmitters(environment, deployment),
       after: cursor,
-      // Check DA proofs in batches of 1000 to avoid I/O issues.
-      limit: 1000,
+      order,
+      // max fetch is 1000
+      limit: limit <= 1000 ? limit : 1000,
     })
     .toPromise();
 

@@ -130,6 +130,11 @@ export const DataAvailabilityTransactionsDocument = {
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'after' } },
           type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
         },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'order' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'SortOrder' } },
+        },
       ],
       selectionSet: {
         kind: 'SelectionSet',
@@ -156,7 +161,7 @@ export const DataAvailabilityTransactionsDocument = {
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'order' },
-                value: { kind: 'EnumValue', value: 'ASC' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'order' } },
               },
               {
                 kind: 'Argument',

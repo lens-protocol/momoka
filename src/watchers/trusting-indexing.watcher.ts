@@ -3,6 +3,7 @@ import { runForever, sleep } from '../common/helpers';
 import { consoleLog } from '../common/logger';
 import { getBundlrBulkTxsAPI } from '../input-output/bundlr/get-bundlr-bulk-txs.api';
 import {
+  DataAvailabilityTransactionsOrderTypes,
   getDataAvailabilityTransactionsAPI,
   getDataAvailabilityTransactionsAPIResponse,
 } from '../input-output/bundlr/get-data-availability-transactions.api';
@@ -40,7 +41,8 @@ export const startDATrustingIndexing = async (
         await getDataAvailabilityTransactionsAPI(
           request.environment,
           request.deployment,
-          endCursor
+          endCursor,
+          DataAvailabilityTransactionsOrderTypes.ASC
         );
 
       if (arweaveTransactions.edges.length === 0) {

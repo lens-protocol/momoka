@@ -1,30 +1,33 @@
-# Data availability verifier
+# Data Availability Verifier
 
-Data availability verifier allows you to run a trustless verifier node that checks in real-time the submitted LENS DA publications. On top of this, you can use this as an indexer and stream the data if you wish to index it yourself. The code is all open and only uses software you can run yourself without a dependency on LENS. It means if LENS ever went away, you would still have all your content; you would still have the ability to prove that you own it. You would still be able to use it, all stored in a decentralised data availability storage layer.
+The Data Availability Verifier enables you to operate a trustless verifier node that validates LENS DA publications in real-time. Additionally, it can serve as an indexer, allowing you to stream and index the data yourself. This open-source solution relies exclusively on software that you can run independently, without any dependency on LENS. This ensures that even if LENS were to cease operation, you would retain access to your content, maintain proof of ownership, and continue to utilize it, all thanks to a decentralized data availability storage layer.
 
-Please see the [How to run](#running) section if you wish to know how to run this software.
+For information on how to run this software, please refer to the [How to run](#running) section.
+## Disclaimer 
 
-## What is DA
+We would like to emphasize that this project is currently in its beta phase and incorporates new, innovative technology. As with any cutting-edge solution, there may be potential challenges or undiscovered issues that could arise during its initial stages. We are committed to continually refining and improving our offering, and we appreciate your understanding and patience as we work diligently to perfect this technology. Please feel free to provide feedback or report any issues, as your input is invaluable in helping us enhance the user experience and overall functionality of our project.
 
-DA stands for Data Availability. It is a concept of storing the data in a decentralised availability layer, which is much cheaper than keeping it on an EVM chain. It has no latency meaning the data is produced straight away and querable unlike IPFS and EVM chain which always have latency until they are seen as complete. We use Arweave and Bundlr to do this. Arweave is a decentralised permanent storage network with over 300 nodes running on it; Instagram and many NFT projects are starting to use them. Bundlr scales Arweave while providing DA guarantees, allowing you to use EVM wallets to save DA logic and is a tool to push data to arweave quickly. DA could be used to store actions like posts, comments, mirrors and others; for now, we are starting with publications. The idea is that you can keep the DA layer cheaper and scalable and still verify the transactions on polygon using EVM simulations. DA is a one time payment to store the data and is backed by math and hardware history in how it can offer it.
+## What is DA?
 
-If you want to verify that a particular action would have been executed on-chain, you can use this software to prove it. The idea is that you do the same signing actions as you would on an EVM chain, but you never actually send the transaction (the part which costs gas to store in the EVM state). Instead, you build up a DA standard and save it on a DA layer with proofs and all the information you need. You can then allow ANYONE to cross-check the data; doing so will enable you to 100% prove that this action must have been actioned by someone who could create the transaction signature and submit it as you can prove it by simulating the transaction. All of the above allows LENS to scale but still have the core message of "ownership" and "trust", which the blockchain provides.
+DA stands for Data Availability. It refers to the concept of storing data in a decentralized availability layer, which is more cost-effective than storing it on an EVM chain. The DA has no latency, meaning the data is produced and queryable instantly, in contrast to IPFS and EVM chains, which always have latency until they are considered complete. We utilize Arweave and Bundlr for this purpose. Arweave is a decentralized, permanent storage network with over 300 nodes in operation; it is being increasingly adopted by Instagram and various NFT projects. Bundlr enhances Arweave's scalability while providing DA guarantees, enabling the use of EVM wallets to save DA logic and serving as a tool to rapidly push data to Arweave. DA can be used to store actions like posts, comments, mirrors, and more; initially, we are focusing on publications. The goal is to keep the DA layer affordable and scalable while still verifying transactions on Polygon using EVM simulations. DA requires a one-time payment for data storage and is backed by mathematical and hardware history guarantees.
 
-## Why do we need to use DA
+Using this software, you can verify that a particular action would have been executed on-chain. The approach involves performing the same signing actions as you would on an EVM chain, but without actually sending the transaction (which consumes gas to store in the EVM state). Instead, you create a DA standard and save it on a DA layer, complete with proofs and all the required information. This enables ANYONE to cross-check the data, providing 100% proof that the action must have been performed by someone capable of creating the transaction signature and submitting it. This can be demonstrated by simulating the transaction. This approach allows LENS to scale while maintaining the core values of "ownership" and "trust" provided by the blockchain.
 
-EVM can store state forever, but it comes at a price; blockchains were built for transactional trustless systems. EVM is secured by the network and mined into the chain; the idea is that you can trust the data on-chain as it is immutable, and you can verify this anytime. The problem is that the data is expensive to store on-chain, and also, the EVM machines can only accept a certain amount of transactions per block based on the maximum gas limits. Polygon is a shared block space; if you wanted to scale more than 50-100tps, it wouldn't be possible. With block times being 2 seconds, you always have some form of latency, and with the max gas limits per block, scaling is hard/impossible. For context, Twitter does 25,000TPS in peak; not saying LENS needs this now, but it needs to think about how it could work. This is why we have DA layers; they are cheaper and allow you to store the data with a one-off payment; this is backed up by math and a history of hardware price decreases over the years. Even more so, these DA layers are decentralised, meaning you do not lose that part when using them. DA allows you to scale passed 25,000TPS and even more; if we are going to change the world of core social ownership, we need to scale.
+## Why do we need to use DA?
 
-## What are transaction on EVM machines
+EVM can store state indefinitely, but at a cost; blockchains were designed for trustless transactional systems. EVM is secured by the network and mined into the chain; the data on-chain is immutable and verifiable at any time, ensuring trust. However, storing data on-chain is expensive, and EVM machines can only process a limited number of transactions per block based on maximum gas limits. Polygon is a shared block space; scaling beyond 50-100 TPS is infeasible. With 2-second block times, some latency is unavoidable, and max gas limits per block make scaling challenging, if not impossible. For context, Twitter experiences peak rates of 25,000 TPS; while LENS may not require this level of capacity yet, scalability is a critical consideration. This is where DA layers come in; they offer a more affordable solution for storing data with a one-time payment, backed by mathematical guarantees and a history of decreasing hardware costs over time. Moreover, these DA layers are decentralized, preserving this aspect of the system. DA enables scalability beyond 25,000 TPS, and even more; if we aim to revolutionize the world of core social ownership, we must be able to scale accordingly.
 
-A transaction changes some form of state; the wallet's private key signs it and then sends it to the network. The network then verifies the signature and executes the transaction; the transaction contains logic to run which can revert or succeed; if it reverts, then it is not included in the new block, but if it passes, it is included in the new block and then confirmed by other miners; The miners that do this are incentivised to do so. Now it makes you think that here you can not "fake" transactions because they require being signed by something which would pass on-chain, with this also a key you should only own or trust (the whole ethos of blockchain). On top of this, a transaction can either succeed or revert, nothing more, nothing less, as EVM moves block by block, which updates the state each time it makes you think that on stuff which does not need to have a form of funds changing hands or trustless executions by others what happens if you did not send the transaction but did everything else?
+## What are transactions on EVM machines?
 
-## How could DA and EVM work together
+A transaction on an EVM machine alters some form of state; it is signed by the wallet's private key and then transmitted to the network. The network verifies the signature and executes the transaction, which contains logic that can either succeed or revert. If the transaction reverts, it is not included in the new block; if it succeeds, it is incorporated into the new block and confirmed by other miners. Miners are incentivized to perform these confirmations. This process ensures that transactions cannot be "faked," as they require a valid signature from a trusted key. Furthermore, a transaction can only succeed or revert—nothing more, nothing less. As the EVM progresses block by block and updates the state each time, it raises the question: what if you performed all steps of a transaction, except actually sending it, for actions that don't involve transferring funds or trustless executions?
 
-Well, LENS is deployed on Polygon, and that is an EVM machine; with that, every post, comment, mirror, follow, collect etc., is a transaction which is sent and stored on the EVM machine; the transactions are built up, signed and sent. Here we still build up the transactions and still require a signature from a wallet which would pass the state on-chain, but it does not actually send it; it passes the signature of the transaction and typed data and then builds up the DA metadata. This metadata is then sent to a DA layer which contains stuff like block number, signed typed data, transaction signature and other important things. This data is built up in a way which is fully verifiable on-chain by the EVM machine; let me explain that part.
+## How can DA and EVM work together?
 
-EVM machines are just big state machines; in the EVM JSON-RPC methods, you have the ability to simulate transactions using `eth_call`. This actually allows you to know the outcome of a transaction WITHOUT sending it. You can define a block number for it to run on and the signed typed data transaction using the typed data; we can do this with every `withSig` method on the LENS contracts. With just a polygon node, anyone can prove that what is on the DA layer is true and would have passed at that point in time. As the typed data has expiry times and nonces etc., it is all provable in a safe manner and can not be submitted by anyone else. 
+LENS is deployed on Polygon, an EVM-based platform. All actions—such as posts, comments, mirrors, follows, and collects are transactions that are built, signed, and sent to be stored on the EVM machine. In this system, transactions are still built and require a signature from a wallet that would pass the state on-chain, but they are not actually sent. Instead, the transaction signature and typed data are used to create DA metadata, which is then transmitted to a DA layer containing information such as block number, signed typed data, transaction signature, and other crucial details. This data is structured in a way that can be fully verified with just having an archive node.
 
-The beauty of this is it's saved on a decentralised layer. No centralised entity is storing the content; this means the user still owns all their publications; if any part of LENS went away tomorrow, all that data would be verifiable, fetchable, and can be used by anyone. This is the power of decentralisation; you can not take away the data from the user.
+EVM machines function as large state machines. The EVM JSON-RPC methods allow you to simulate transactions using `eth_call`, determining the outcome of a transaction without actually sending it. You can specify a block number to run the simulation and use the signed typed data transaction with the typed data. This can be done with every `withSig` method on the LENS contracts. With just a Polygon node, anyone can verify that the data on the DA layer is accurate and would have been valid at that point in time. Since the typed data contains expiry times and nonces, it can be proven in a secure manner and cannot be submitted by anyone else.
+
+The advantage of this approach is that the data is stored on a decentralized layer, meaning that no centralized entity controls the content. Users retain ownership of their publications, and if any part of LENS were to disappear, all the data would remain verifiable, accessible, and usable by anyone. This demonstrates the power of decentralization, ensuring that users' data cannot be taken away from them.
 
 ## What does this mean
 
@@ -32,7 +35,7 @@ It means LENS could scale to 25,000TPS+, which would not be possible at the curr
 
 ## Submitters
 
-Anything which has some form of "trust" needs some form of "slashing" if they act badly. Our submitters will start as a whitelisted array of addresses; for now, this will just be one address LENS owns. Once this approach is proven and later down the line, this can be opened up to anyone to be a submitter with incentives but also the ability to lose something if they are a bad actor. If the submitters have nothing to lose, then they can flood the system with invalid submissions; this also means the verifier has no incentives to prove the submitters wrong. Of course, they can't make up signatures, but they could DDOS the entire system by submitting a lot of invalid data making it hard to catch up and lagging the system. Our submitter will be accountable for any mistakes, and a bug bounty will be paid out if someone finds a bad submission once we are out of beta. A note on this `CAN_NOT_CONNECT_TO_BUNDLR` and `BLOCK_CANT_BE_READ_FROM_NODE` can be issues due to other third party software being down so not classed as a verifier critical errors. The verifier will retry them later on to see if it still passes. This whole system could be decentralised over time. For now, we see this as a beta approach to scaling; when I say beta, it doesn't mean it will ever go away. It's just our first stab at how we can scale using a hybrid module model.
+Anything which has some form of "trust" needs some form of "slashing" if they act badly. Our submitters will start as a whitelisted array of addresses; for now, this will just be one address LENS owns. Once this approach is proven and later down the line, this can be opened up to anyone to be a submitter with incentives but also the ability to lose something if they are a bad actor. If the submitters have nothing to lose, then they can flood the system with invalid submissions; this also means the verifier has no incentives to prove the submitters wrong. Of course, they can't make up signatures, but they could DDOS the entire system by submitting a lot of invalid data making it hard to catch up and lagging the system. As this is `beta` Our submitter will be accountable for any mistakes and fix as we find it, later on a bug bounty will be paid out if someone finds a bad submission once we are out of beta. The end game would be many submitters. A note on this `UNKNOWN`, `CAN_NOT_CONNECT_TO_BUNDLR` `BLOCK_CANT_BE_READ_FROM_NODE`, `DATA_CANT_BE_READ_FROM_NODE`, `SIMULATION_NODE_COULD_NOT_RUN` are issues due to other third party software being down (like bundlr, arweave, your RPC node) so not class as a verifier critical errors. The verifier will retry them later on to see if it still passes. This whole system could be decentralised over time. For now, we see this as a beta approach to scaling; when I say beta, it doesn't mean it will ever go away. It's just our first stab at how we can scale using a hybrid module model.
 
 It's the submitter's job to validate, build up the DA metadata and submit this to Arweave/Bundlr. Once the proofs have been generated with the DA submission, it is uploaded to Aarweave via Bundlr, which response is instant; we will run through the entire flow shortly. It is the submitter's job to give back proofs that anyone can contest. The submitters are whitelisted, so the verifier software listens out for all DA publications sent from those addresses and verifies it is a valid submissions.
 
@@ -1300,10 +1303,16 @@ export enum ClaimableValidatorError {
   TIMESTAMP_PROOF_INVALID_SIGNATURE = 'TIMESTAMP_PROOF_INVALID_SIGNATURE',
 
   /**
-   * This means the submitted timestamp proof does not match up to the `dataAvailabilityId`
-   * or `type` or not uploaded from the submittor whitelisted wallet
+   * This means the type in the timestamp proofs do not match
+   * timestamp proofs are not portable
    */
-  // TIMESTAMP_PROOF_INVALID_UPLOAD = 'TIMESTAMP_PROOF_INVALID_UPLOAD',
+  TIMESTAMP_PROOF_INVALID_TYPE = 'TIMESTAMP_PROOF_INVALID_TYPE',
+
+  /**
+   * This means the da id in the timestamp proofs do not match up
+   * timestamp proofs are not portable
+   */
+  TIMESTAMP_PROOF_INVALID_DA_ID = 'TIMESTAMP_PROOF_INVALID_DA_ID',
 
   /**
    * This means the timestamp proof uploaded was not done by a valid submitter
@@ -1311,25 +1320,30 @@ export enum ClaimableValidatorError {
   TIMESTAMP_PROOF_NOT_SUBMITTER = 'TIMESTAMP_PROOF_NOT_SUBMITTER',
 
   /**
-   * This means it can not read the block from the node
-   */
-  BLOCK_CANT_BE_READ_FROM_NODE = 'BLOCK_CANT_BE_READ_FROM_NODE',
-
-  /**
-   * This means the block stated in the chain proofs are not the closest block to the timstamp
-   * proofs
-   */
-  // BLOCK_MISMATCH = 'BLOCK_MISMATCH',
-
-  /**
-   * We tried to call them 5 times and its errored out - this is not a bad proof but Bundlr/Arweave are having issues
+   * We tried to call them 5 times and its errored out - this is not a bad proof but bundlr/arweave are having issues
    */
   CAN_NOT_CONNECT_TO_BUNDLR = 'CAN_NOT_CONNECT_TO_BUNDLR',
+
+  /**
+   * The DA tx could not be found or invalid on the bundlr/arweave nodes
+   * can happened if pasted it in wrong
+   */
+  INVALID_TX_ID = 'INVALID_TX_ID',
 
   /**
    * This the typed data format is invalid (aka a invalid address type etc)
    */
   INVALID_FORMATTED_TYPED_DATA = 'INVALID_FORMATTED_TYPED_DATA',
+
+  /**
+   * This means it can not read the block from the node
+   */
+  BLOCK_CANT_BE_READ_FROM_NODE = 'BLOCK_CANT_BE_READ_FROM_NODE',
+
+  /**
+   * This means it can not read the data from the node
+   */
+  DATA_CANT_BE_READ_FROM_NODE = 'DATA_CANT_BE_READ_FROM_NODE',
 
   /**
    * This means the simulation was not able to be ran on the node, this does not mean
@@ -1380,6 +1394,11 @@ export enum ClaimableValidatorError {
   NOT_CLOSEST_BLOCK = 'NOT_CLOSEST_BLOCK',
 
   /**
+   * This means the timestamp proofs are not close enough to the block
+   */
+  BLOCK_TOO_FAR = 'NOT_CLOSEST_BLOCK',
+
+  /**
    * This means the publication submitted does not have a valid pointer
    * and a pointer is required
    */
@@ -1422,17 +1441,54 @@ This is a rough look at how this could work in the future in a trustless manner.
 
 ## Running
 
-### Package
+### Key information
 
-This is a built-in node, and this means it can be run on the client as well as a server; it won't use the DB on the client but can mean you can run proof checks in runtime, which is super powerful.
+To run the verifier, you MUST use an archive node. You can sign up with Alchemy and use one of their free nodes. Non-archive nodes do not retain state information beyond the previous 16-128 blocks. While this may be sufficient for immediate runtime calls after the DA publication is created, it will not work for past transactions beyond the 16-128 block range.
+
+### Being as fast as possible - Concurrency
+
+The verifier is designed for optimal speed, with performance determined by its configuration parameters. Achieving 10,000 TPS is not a problem, provided that the hardware and nodes can support these limits. When running the verifier, you have the option to set the CONCURRENCY, which divides the number of requests sent to the NODE_URL simultaneously. Higher concurrency values result in faster performance during resynchronization or when handling a large volume of transactions at once.
+
+The default concurrency is 100, which typically requires a paid archive node. If you prefer using a free node, the verifier will be slower, but it will still work effectively. For a free node, you can set the concurrency between 1 and 3. For example, at LENS, we have set the concurrency at 120, which enables our verifier to run very quickly.
+
+## Running straight out the box
+
+You can install it globally: 
 
 ```bash
-$ pnpm i @lens-protocol/data-availability-verifier
+$ npm i @lens-protocol/data-availability-verifier -g
+```
+
+then you can just run:
+
+```bash
+$ lens-verifier --node 'YOUR_NODE' --environment='MUMBAI|POLYGON' --concurrency=100 --fromHead=false
+```
+
+you can also just run with npx:
+
+```bash
+$ npx lens-verifier --node 'YOUR_NODE' --environment='MUMBAI|POLYGON' --concurrency=100 --fromHead=false
+```
+
+### Parameter meanings
+
+- `--node` - this is the node you wish to connect to, this can be a free node or a paid node, it is recommended to use a paid node for the best performance
+- `--environment` - this is the environment you wish to run the verifier on, this can be `MUMBAI` or `POLYGON`
+- `--concurrency` - this is the concurrency you wish to run the verifier on, which was talked in depth above
+- `--fromHead` - this is a boolean value, which if set to true will start the verifier from the head of the chain aka the most recent transaction, if set to false it will start from the last block and resync from zero.
+
+### Installing package
+
+This is a written in node, and this means it can be ran on the client as well as a server; it won't use the DB on the client but can mean you can run proof checks in runtime, which is super powerful. Also you may which to monitor this on your server to index stuff as it comes in.
+
+```bash
+$ npm i @lens-protocol/data-availability-verifier
 ```
 
 <b>Do not use if you do not know what you are doing the basic config works for all production apps</b>
 
-please note if you wish to use a different deployment then `production` you will need to make sure you put `deployment: STAGING` or `deployment: LOCAL` in the `EthereumNode` object. This for most will not be the case.
+please note if you wish to use a different deployment then `PRODUCTION` you will need to make sure you put `deployment: STAGING` or `deployment: LOCAL` in the `EthereumNode` object. This for most will not be the case.
 
 #### checkDAProof
 
@@ -1458,7 +1514,7 @@ console.error('proof invalid do something', result.failure!)
 
 #### startDAVerifierNode
 
-This is a start watching all the DA items coming in and logging it all out in your terminal. You can use the docker to just run it, or you can install the package and run it on your own server.
+This will start watching all the DA items coming in and logging it all out in your terminal. you can install the package and run it on your own server.
 
 ```ts
 import { startDAVerifierNode, EthereumNode } from '@lens-protocol/data-availability-verifier';
@@ -1468,8 +1524,11 @@ const ethereumNode: EthereumNode = {
   nodeUrl: YOUR_NODE_URL,
 };
 
+// you should read up on section "Being as fast as possible - Concurrency"
+const concurrency = 100;
+
 // it run forever and log out to the terminal
-startDAVerifierNode(ethereumNode);
+startDAVerifierNode(ethereumNode, concurrency);
 ```
 
 ##### Stream with proofs verified
@@ -1498,14 +1557,35 @@ const ethereumNode: EthereumNode = {
   nodeUrl: YOUR_NODE_URL,
 };
 
+// you should read up on section "Being as fast as possible - Concurrency"
+const concurrency = 100;
+
 // it run forever and log out to the terminal
-// DB_LOCATION_FOLDER_PATH = the path to the folder where you want to store the DB, if folder does not exist it will create it. We suggest putting it as close to this code as possible.
-startDAVerifierNode(ethereumNode, DB_LOCATION_FOLDER_PATH, stream);
+startDAVerifierNode(ethereumNode, concurrency, { stream });
+```
+
+##### Start verifier from head
+
+You may wish to start the verifier from the head of the chain and not resync all the passed, this is useful to just start checking new proofs. You can do this by passing in the `syncFromHeadOnly` option.
+
+```ts
+import { startDAVerifierNode, StreamResult, EthereumNode } from '@lens-protocol/data-availability-verifier';
+
+const ethereumNode: EthereumNode = {
+  environment: Environment.POLYGON,
+  nodeUrl: YOUR_NODE_URL,
+};
+
+// you should read up on section "Being as fast as possible - Concurrency"
+const concurrency = 100;
+
+// it run forever and log out to the terminal
+startDAVerifierNode(ethereumNode, concurrency, { syncFromHeadOnly: true });
 ```
 
 #### startDATrustingIndexing
 
-If you just want to get the data as fast as possible and do not wish to verifiy the proofs, you can use the `startDATrustingIndexing` function. This will stream out the data as fast as possible and will not check the proofs.
+If you just want to get the data as fast as possible and do not wish to verifiy the proofs, you can use the `startDATrustingIndexing` function. This will stream out the data as fast as possible and will not check the proofs, so does not require a archive node.
 
 ```ts
 import { startDATrustingIndexing, StreamResult, StartDATrustingIndexingRequest } from '@lens-protocol/data-availability-verifier';
@@ -1533,24 +1613,7 @@ const request: StartDATrustingIndexingRequest = {
 startDATrustingIndexing(request);
 ```
 
-
-### Running standalone
-
-#### ENV setup
-
-for this to run you need to create a `.env` (or copy the template `cp .env.template .env`) file with these variables:
-
-```
-ETHEREUM_NETWORK=INSERT_NETWORK
-NODE_URL=NODE_URL
-DB_LOCATION_FOLDER_PATH=INSERT_PATH
-```
-
-- ETHEREUM_NETWORK = MUMBAI | POLYGON | SANDBOX
-- NODE_URL = the node url to connect which matches the network
-- DB_LOCATION_FOLDER_PATH = the path to the folder where you want to store the DB, if folder does not exist it will create it. We suggest putting it as close to this code as possible. We suggest ./da-verifier-database
-
-#### Running from this repo
+### Running from this repo
 
 #### Dependencies
 
@@ -1573,7 +1636,9 @@ To build its just:
 $ pnpm build
 ```
 
-#### Docker
+### Docker
+
+Please note you need a `.env` setup for this to work.
 
 To run the docker first build it:
 
@@ -1599,12 +1664,12 @@ docker logs <id>
 
 Any PRs are welcome and we will review them as soon as possible. Please make sure you have tests and they pass.
 
-## Thanks
+## Acknowledgements
 
-## Bundlr
+### Bundlr
 
-Thanks to [Bundlr](https://bundlr.network/) for making this even possible with their incredible technology. Incredible team and amazing to work with.
+A special thank you to [Bundlr](https://bundlr.network/) for making this project possible with their cutting-edge technology. We are grateful to their exceptional team for their collaboration and support.
 
-### Foundry team
+### Arweave
 
-Thanks to the [foundry team](https://github.com/foundry-rs/foundry) team for the awesome work on the anvil to allow us to simulate transactions cheaply and fast.
+We also extend our gratitude to [Arweave](https://www.arweave.org/) for providing decentralized storage solutions for our data, contributing to the overall success of the DA project.

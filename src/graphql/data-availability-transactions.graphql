@@ -1,5 +1,10 @@
-query DataAvailabilityTransactions($owners: [String!], $limit: Int, $after: String) {
-  transactions(owners: $owners, limit: $limit, after: $after, order: ASC, hasTags: true) {
+query DataAvailabilityTransactions(
+  $owners: [String!]
+  $limit: Int
+  $after: String
+  $order: SortOrder
+) {
+  transactions(owners: $owners, limit: $limit, after: $after, order: $order, hasTags: true) {
     edges {
       node {
         id

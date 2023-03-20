@@ -3,7 +3,10 @@ import { runForever, sleep } from '../common/helpers';
 import { consoleLogWithLensNodeFootprint } from '../common/logger';
 import { LOCAL_NODE_URL, setupAnvilLocalNode } from '../evm/anvil';
 import { EthereumNode } from '../evm/ethereum';
-import { getDataAvailabilityTransactionsAPI } from '../input-output/bundlr/get-data-availability-transactions.api';
+import {
+  DataAvailabilityTransactionsOrderTypes,
+  getDataAvailabilityTransactionsAPI,
+} from '../input-output/bundlr/get-data-availability-transactions.api';
 import {
   getLastEndCursorDb,
   getTotalCheckedCountDb,
@@ -79,7 +82,12 @@ const getBulkDataAvailabilityTransactions = async (
   let pullingCounter = 0;
 
   do {
-    const response = await getDataAvailabilityTransactionsAPI(environment, deployment, result.next);
+    const response = await getDataAvailabilityTransactionsAPI(
+      environment,
+      deployment,
+      result.next,
+      DataAvailabilityTransactionsOrderTypes.ASC
+    );
     if (response.edges.length === 0) {
       break;
     }
@@ -159,18 +167,37 @@ const waitForNewSubmissions = async (lastCheckNothingFound: boolean): Promise<bo
 export const startDAVerifierNode = async (
   ethereumNode: EthereumNode,
   concurrency: number,
-  usLocalNode = false,
-  { stream }: StartDAVerifierNodeOptions = {}
+  { stream, syncFromHeadOnly }: StartDAVerifierNodeOptions = {}
 ): Promise<never> => {
   consoleLogWithLensNodeFootprint('DA verification watcher started...');
+
+  const usLocalNode =
+    ethereumNode.nodeUrl.includes('127.0.0.1') || ethereumNode.nodeUrl.includes('localhost');
 
   await startup(ethereumNode, concurrency, usLocalNode);
   let endCursor: string | null = await getLastEndCursorDb();
   let totalChecked: number = await getTotalCheckedCountDb();
-  // let count = 0;
   let lastCheckNothingFound = false;
 
   consoleLogWithLensNodeFootprint('started up..');
+
+  if (syncFromHeadOnly) {
+    const lastSeenTransaction = await getDataAvailabilityTransactionsAPI(
+      ethereumNode.environment,
+      ethereumNode.deployment,
+      null,
+      DataAvailabilityTransactionsOrderTypes.DESC,
+      1
+    );
+
+    if (lastSeenTransaction.edges.length > 0) {
+      endCursor = lastSeenTransaction.pageInfo.endCursor;
+      console.log('endCursor', endCursor);
+      totalChecked = 0;
+    } else {
+      endCursor = null;
+    }
+  }
 
   return await runForever(async () => {
     try {
@@ -188,7 +215,11 @@ export const startDAVerifierNode = async (
         // count++;
         lastCheckNothingFound = false;
 
-        if (totalChecked === 0) {
+        if (syncFromHeadOnly) {
+          consoleLogWithLensNodeFootprint(
+            `Starting from the most recent transaction, preparing please wait...`
+          );
+        } else if (totalChecked === 0) {
           consoleLogWithLensNodeFootprint(`Resyncing from start, preparing please wait...`);
         } else {
           consoleLogWithLensNodeFootprint(
@@ -203,7 +234,6 @@ export const startDAVerifierNode = async (
         endCursor = newEndCursor;
 
         await Promise.all([saveEndCursorDb(endCursor!), saveTotalCheckedCountDb(totalChecked)]);
-        // consoleLog('completed count', count);
       }
     } catch (error) {
       consoleLogWithLensNodeFootprint('Error while checking for new submissions', error);

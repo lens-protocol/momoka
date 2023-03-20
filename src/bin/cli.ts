@@ -19,13 +19,17 @@ const deployment = (args.options.deployment as Deployment) || Deployment.STAGING
 const concurrencyRaw = args.options.concurrency;
 const concurrency = concurrencyRaw ? Number(concurrencyRaw) : 100;
 
+const syncFromHeadOnlyRaw = args.options.fromHead;
+const syncFromHeadOnly = syncFromHeadOnlyRaw ? Boolean(syncFromHeadOnlyRaw) : false;
+
 startDAVerifierNode(
   {
     nodeUrl,
     environment,
     deployment,
   },
-  concurrency
+  concurrency,
+  { syncFromHeadOnly }
 ).catch((error) => {
   console.error('DA verifier node failed to startup', error);
   process.exitCode = 1;
