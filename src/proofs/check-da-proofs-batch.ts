@@ -232,12 +232,14 @@ const processPublication = async (
  * @param publications The publications to check
  * @param ethereumNode The ethereum node information
  * @param retryAttempt If its a retry
+ * @param concurrency The concurrency to use < this is how many TCP it will run at
  * @param stream The callback to stream the result
  */
 const processPublications = async (
   publications: DAPublicationWithTimestampProofsBatchResult[],
   ethereumNode: EthereumNode,
   retryAttempt: boolean,
+  concurrency: number,
   stream?: StreamCallback
 ): Promise<ProofResult[]> => {
   return await BluebirdPromise.map(
@@ -278,8 +280,8 @@ const processPublications = async (
     },
     // this is how we get more TCP but the higher we go
     // the more requirements we need to set on the archive node to handle the load
-    // for now 120 is a good number!
-    { concurrency: 120 }
+    // up to the running of node
+    { concurrency }
   );
 };
 
@@ -288,12 +290,15 @@ const processPublications = async (
  * Saves the validation result for each submission to the database and optionally streams the result to a provided callback.
  * @param txIds - The data availability submissions to tx ids to check.
  * @param ethereumNode - The Ethereum node to use for verification.
+ * @param retryAttempt If its a retry
+ * @param concurrency The concurrency to use < this is how many TCP it will run at
  * @param stream - An optional callback function to stream the validation results.
  */
 export const checkDAProofsBatch = async (
   txIds: string[],
   ethereumNode: EthereumNode,
   retryAttempt: boolean,
+  concurrency: number,
   usLocalNode = false,
   stream?: StreamCallback
 ): Promise<ProofResult[]> => {
@@ -330,6 +335,7 @@ export const checkDAProofsBatch = async (
     daPublicationsWithTimestampProofs,
     ethereumNode,
     retryAttempt,
+    concurrency,
     stream
   );
 };

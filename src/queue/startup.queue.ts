@@ -5,7 +5,7 @@ import { processRetryCheckDAProofsQueue } from './process-retry-check-da-proofs.
 /**
  * Starts the queues up
  */
-export const startupQueues = (): void => {
+export const startupQueues = (concurrency: number): void => {
   processFailedDAProofQueue(failedDAProofQueue);
-  processRetryCheckDAProofsQueue(retryCheckDAProofsQueue);
+  processRetryCheckDAProofsQueue(retryCheckDAProofsQueue, concurrency);
 };

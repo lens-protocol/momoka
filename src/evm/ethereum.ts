@@ -5,7 +5,7 @@ import { Deployment, Environment, environmentToLensHubContract } from '../common
 import { retryWithTimeout } from '../common/helpers';
 import { ClaimableValidatorError } from '../data-availability-models/claimable-validator-errors';
 import { failure, PromiseResult, success } from '../data-availability-models/da-result';
-import { JSONRPCWithTimeout } from '../input-output/json-rpc-with-timeout';
+import { JSONRPCWithTimeout, RATE_LIMIT_TIME } from '../input-output/json-rpc-with-timeout';
 import { LENS_HUB_ABI } from './contract-lens/lens-hub-contract-abi';
 import { JSONRPCMethods } from './jsonrpc-methods';
 
@@ -34,25 +34,30 @@ export const executeSimulationTransaction = async (
   ethereumNode: EthereumNode
 ): PromiseResult<string | void> => {
   try {
-    return await retryWithTimeout(async () => {
-      const ethCall = await JSONRPCWithTimeout<string>(
-        ethereumNode.nodeUrl,
-        JSONRPCMethods.eth_call,
-        [
-          {
-            to: environmentToLensHubContract(ethereumNode.environment),
-            data,
-          },
-          numberToHex(blockNumber),
-        ]
-      );
+    return await retryWithTimeout(
+      async () => {
+        const ethCall = await JSONRPCWithTimeout<string>(
+          ethereumNode.nodeUrl,
+          JSONRPCMethods.eth_call,
+          [
+            {
+              to: environmentToLensHubContract(ethereumNode.environment),
+              data,
+            },
+            numberToHex(blockNumber),
+          ]
+        );
 
-      if (!ethCall) {
-        throw new Error('eth_call returned undefined');
+        if (!ethCall) {
+          throw new Error('eth_call returned undefined');
+        }
+
+        return success(ethCall);
+      },
+      {
+        delayMs: RATE_LIMIT_TIME,
       }
-
-      return success(ethCall);
-    });
+    );
   } catch (_error) {
     return failure(ClaimableValidatorError.SIMULATION_NODE_COULD_NOT_RUN);
   }
@@ -160,42 +165,47 @@ export const getOnChainProfileDetails = async (
   const encodedData = contractInterface.encodeFunctionData('tryBlockAndAggregate', [true, calls]);
 
   try {
-    return await retryWithTimeout(async () => {
-      const result = await JSONRPCWithTimeout<string>(
-        ethereumNode.nodeUrl,
-        JSONRPCMethods.eth_call,
-        [
-          {
-            // multicall 3 address
-            to: '0xcA11bde05977b3631167028862bE2a173976CA11',
-            data: encodedData,
-          },
-          numberToHex(blockNumber),
-        ]
-      );
+    return await retryWithTimeout(
+      async () => {
+        const result = await JSONRPCWithTimeout<string>(
+          ethereumNode.nodeUrl,
+          JSONRPCMethods.eth_call,
+          [
+            {
+              // multicall 3 address
+              to: '0xcA11bde05977b3631167028862bE2a173976CA11',
+              data: encodedData,
+            },
+            numberToHex(blockNumber),
+          ]
+        );
 
-      const functionFragment = contractInterface.getFunction('tryBlockAndAggregate');
-      const outputTypes = functionFragment.outputs!;
+        const functionFragment = contractInterface.getFunction('tryBlockAndAggregate');
+        const outputTypes = functionFragment.outputs!;
 
-      const decodedResultData = ethers.utils.defaultAbiCoder.decode(outputTypes, result);
-      const resultData = decodedResultData[2];
+        const decodedResultData = ethers.utils.defaultAbiCoder.decode(outputTypes, result);
+        const resultData = decodedResultData[2];
 
-      // bit ugly but we need to decode the return data
-      // we know the order of stuff from the above ContractCallContext::calls
-      // but as we using a more bespoke approach we can use index here!
-      return success({
-        sigNonce: BigNumber.from(resultData[0].returnData).toNumber(),
-        currentPublicationId: BigNumber.from(resultData[1].returnData).toHexString(),
-        dispatcherAddress: ethers.utils.defaultAbiCoder.decode(
-          ['address'],
-          resultData[2].returnData
-        )[0],
-        ownerOfAddress: ethers.utils.defaultAbiCoder.decode(
-          ['address'],
-          resultData[3].returnData
-        )[0],
-      });
-    });
+        // bit ugly but we need to decode the return data
+        // we know the order of stuff from the above ContractCallContext::calls
+        // but as we using a more bespoke approach we can use index here!
+        return success({
+          sigNonce: BigNumber.from(resultData[0].returnData).toNumber(),
+          currentPublicationId: BigNumber.from(resultData[1].returnData).toHexString(),
+          dispatcherAddress: ethers.utils.defaultAbiCoder.decode(
+            ['address'],
+            resultData[2].returnData
+          )[0],
+          ownerOfAddress: ethers.utils.defaultAbiCoder.decode(
+            ['address'],
+            resultData[3].returnData
+          )[0],
+        });
+      },
+      {
+        delayMs: RATE_LIMIT_TIME,
+      }
+    );
   } catch (_error) {
     return failure(ClaimableValidatorError.DATA_CANT_BE_READ_FROM_NODE);
   }
@@ -234,7 +244,9 @@ export const getBlock = async (
         timestamp: BigNumber.from(result.timestamp).toNumber(),
       };
     },
-    { delayMs: 200 }
+    {
+      delayMs: RATE_LIMIT_TIME,
+    }
   );
 };
 
@@ -258,25 +270,30 @@ export const getLensPubCount = async (
   const encodedData = DAlensHubInterface.encodeFunctionData('getPubCount', [profileId]);
 
   try {
-    return await retryWithTimeout(async () => {
-      const ethCall = await JSONRPCWithTimeout<string>(
-        ethereumNode.nodeUrl,
-        JSONRPCMethods.eth_call,
-        [
-          {
-            to: environmentToLensHubContract(ethereumNode.environment),
-            data: encodedData,
-          },
-          numberToHex(blockNumber),
-        ]
-      );
+    return await retryWithTimeout(
+      async () => {
+        const ethCall = await JSONRPCWithTimeout<string>(
+          ethereumNode.nodeUrl,
+          JSONRPCMethods.eth_call,
+          [
+            {
+              to: environmentToLensHubContract(ethereumNode.environment),
+              data: encodedData,
+            },
+            numberToHex(blockNumber),
+          ]
+        );
 
-      if (!ethCall) {
-        throw new Error('eth_call returned undefined');
+        if (!ethCall) {
+          throw new Error('eth_call returned undefined');
+        }
+
+        return success(BigNumber.from(ethCall));
+      },
+      {
+        delayMs: RATE_LIMIT_TIME,
       }
-
-      return success(BigNumber.from(ethCall));
-    });
+    );
   } catch (_error) {
     return failure(ClaimableValidatorError.DATA_CANT_BE_READ_FROM_NODE);
   }

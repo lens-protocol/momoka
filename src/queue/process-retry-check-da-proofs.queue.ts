@@ -34,6 +34,7 @@ export const shouldRetry = (claimableValidatorError: ClaimableValidatorError): b
  */
 export const processRetryCheckDAProofsQueue = async (
   retryQueue: Queue<ProcessRetryCheckDAProofsQueueRequest>,
+  concurrency: number,
   usLocalNode = false
 ): Promise<void> => {
   await runForever(async () => {
@@ -45,6 +46,7 @@ export const processRetryCheckDAProofsQueue = async (
             proofs.txIds,
             proofs.ethereumNode,
             true,
+            concurrency,
             usLocalNode,
             proofs.stream
           );

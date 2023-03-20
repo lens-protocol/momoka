@@ -15,17 +15,21 @@ import { checkDAProofsBatch } from '../proofs/check-da-proofs-batch';
 import { retryCheckDAProofsQueue } from '../queue/known.queue';
 import { shouldRetry } from '../queue/process-retry-check-da-proofs.queue';
 import { startupQueues } from '../queue/startup.queue';
-import { verifierFailedSubmissionsWatcher } from './failed-submissons.watcher';
+// import { verifierFailedSubmissionsWatcher } from './failed-submissons.watcher';
 import { StartDAVerifierNodeOptions } from './models/start-da-verifier-node-options';
 import { StreamCallback } from './models/stream.type';
 
 /**
  *  Starts up the verifier node
  * @param ethereumNode The Ethereum node to use for verification.
- * @param dbLocationFolderPath The folder path for the location of the database.
+ * @param concurrency The concurrency to use < this is how many TCP it will run at
  * @param usLocalNode A boolean to indicate whether to use the local node.
  */
-const startup = async (ethereumNode: EthereumNode, usLocalNode: boolean): Promise<void> => {
+const startup = async (
+  ethereumNode: EthereumNode,
+  concurrency: number,
+  usLocalNode: boolean
+): Promise<void> => {
   if (usLocalNode) {
     // Start the local node up
     await setupAnvilLocalNode(ethereumNode.nodeUrl);
@@ -33,8 +37,8 @@ const startup = async (ethereumNode: EthereumNode, usLocalNode: boolean): Promis
 
   // Initialize database.
   startDb();
-  startupQueues();
-  verifierFailedSubmissionsWatcher();
+  startupQueues(concurrency);
+  // verifierFailedSubmissionsWatcher();
 
   if (usLocalNode) {
     // Switch to local node.
@@ -94,12 +98,14 @@ const getBulkDataAvailabilityTransactions = async (
  *  Process the transactions and do the proof checks
  * @param transactions The transactions
  * @param ethereumNode The ethereum node to use
+ * @param concurrency The concurrency to use < this is how many TCP it will run at
  * @param usLocalNode If we are using the local node
  * @param stream The stream callback
  */
 const processTransactions = async (
   transactions: BulkDataAvailabilityTransactionsResponse,
   ethereumNode: EthereumNode,
+  concurrency: number,
   usLocalNode: boolean,
   stream: StreamCallback | undefined
 ): Promise<{ totalChecked: number; endCursor: string | null }> => {
@@ -107,6 +113,7 @@ const processTransactions = async (
     transactions.txIds,
     ethereumNode,
     false,
+    concurrency,
     usLocalNode,
     stream
   );
@@ -144,19 +151,20 @@ const waitForNewSubmissions = async (lastCheckNothingFound: boolean): Promise<bo
 /**
  * Starts the DA verifier node to watch for new data availability submissions and verify their proofs.
  * @param ethereumNode The Ethereum node to use for verification.
- * @param dbLocationFolderPath The folder path for the location of the database.
+ * @param concurrency The concurrency to use < this is how many TCP it will run at
  * @param options An optional object containing options for the node.
  *                   - stream - A callback function to stream the validation results.
  *                   - syncFromHeadOnly - A boolean to indicate whether to sync from the head of the chain only.
  */
 export const startDAVerifierNode = async (
   ethereumNode: EthereumNode,
+  concurrency: number,
   usLocalNode = false,
   { stream }: StartDAVerifierNodeOptions = {}
 ): Promise<never> => {
   consoleLogWithLensNodeFootprint('DA verification watcher started...');
 
-  await startup(ethereumNode, usLocalNode);
+  await startup(ethereumNode, concurrency, usLocalNode);
   let endCursor: string | null = await getLastEndCursorDb();
   let totalChecked: number = await getTotalCheckedCountDb();
   // let count = 0;
@@ -189,7 +197,7 @@ export const startDAVerifierNode = async (
         }
 
         const { totalChecked: newTotalChecked, endCursor: newEndCursor } =
-          await processTransactions(transactions, ethereumNode, usLocalNode, stream);
+          await processTransactions(transactions, ethereumNode, concurrency, usLocalNode, stream);
 
         totalChecked += newTotalChecked;
         endCursor = newEndCursor;

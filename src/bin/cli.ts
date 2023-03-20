@@ -16,11 +16,17 @@ if (!nodeUrl) {
 const environment = (args.options.environment as Environment) || Environment.MUMBAI;
 const deployment = (args.options.deployment as Deployment) || Deployment.STAGING;
 
-startDAVerifierNode({
-  nodeUrl,
-  environment,
-  deployment,
-}).catch((error) => {
+const concurrencyRaw = args.options.concurrency;
+const concurrency = concurrencyRaw ? Number(concurrencyRaw) : 100;
+
+startDAVerifierNode(
+  {
+    nodeUrl,
+    environment,
+    deployment,
+  },
+  concurrency
+).catch((error) => {
   console.error('DA verifier node failed to startup', error);
   process.exitCode = 1;
 });

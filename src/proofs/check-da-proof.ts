@@ -99,7 +99,6 @@ const getBlockRange = async (
 
     return success(blocks);
   } catch (error) {
-    console.error('getBlockRange', error);
     return failure(ClaimableValidatorError.BLOCK_CANT_BE_READ_FROM_NODE);
   }
 };
