@@ -6,10 +6,16 @@ import {
   PublicationTypedData,
 } from '../data-availability-models/publications/data-availability-structure-publication';
 import { BlockInfo } from '../evm/ethereum';
-import { failedProofsPath, lensDAPath, pathResolver } from './paths';
 import { TxValidatedResult } from './tx-validated-results';
 
 let db: Level | undefined;
+export const getDb = (): Level => {
+  if (!db) throw new Error('`db`- Database not initialized');
+  return db;
+};
+export const setDb = (dbInstance: Level): void => {
+  db = dbInstance;
+};
 
 export enum DbReference {
   block = 'block',
@@ -18,37 +24,6 @@ export enum DbReference {
   tx_timestamp_proof_metadata = 'tx_timestamp_proof_metadata',
   cursor = 'cursor',
 }
-
-/**
- * Starts the LevelDB database.
- */
-export const startDb = async (): Promise<void> => {
-  if (db) return;
-
-  const path = await pathResolver();
-
-  const lens__da = await lensDAPath();
-
-  const fs = await import('fs');
-
-  if (!fs.existsSync(lens__da)) {
-    fs.mkdirSync(lens__da);
-  }
-
-  const failedProofs = await failedProofsPath();
-
-  if (!fs.existsSync(failedProofs)) {
-    fs.mkdirSync(failedProofs);
-  }
-
-  const dbPath = path.join(lens__da, 'database');
-
-  if (!fs.existsSync(dbPath)) {
-    fs.mkdirSync(dbPath);
-  }
-
-  db = new Level(dbPath);
-};
 
 /**
  * Deletes an item from the database.

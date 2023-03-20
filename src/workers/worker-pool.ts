@@ -1,16 +1,15 @@
-import { resolve as resolvePath } from 'path';
 import { Worker } from 'worker_threads';
 import { HandlerWorkerData } from './handler-communication.worker';
 
-const workerPath = resolvePath(__dirname, 'handler-communication.worker.js');
-
-class WorkerPool {
+export class WorkerPool {
   private workers: Worker[] = [];
   private queue: (() => void)[] = [];
 
   constructor() {
     // Set the pool size to the number of available CPU cores
     const size = require('os').cpus().length;
+    const path = require('path');
+    const workerPath = path.resolve(__dirname, 'handler-communication.worker.js');
     for (let i = 0; i < size; i++) {
       const worker = new Worker(workerPath);
       worker.on('message', (_result) => {
@@ -39,5 +38,3 @@ class WorkerPool {
     });
   }
 }
-
-export const workerPool = new WorkerPool();

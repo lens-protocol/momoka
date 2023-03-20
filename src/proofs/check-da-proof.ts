@@ -34,8 +34,8 @@ import {
 } from '../input-output/db';
 import { TxValidatedFailureResult } from '../input-output/tx-validated-results';
 import { isValidSubmitter, isValidTransactionSubmitter } from '../submitters';
+import { workerPool } from '../workers/create-worker-pool';
 import { HandlerWorkers } from '../workers/handler-communication.worker';
-import { workerPool } from '../workers/worker-pool';
 import {
   CheckDASubmissionOptions,
   getDefaultCheckDASubmissionOptions,
@@ -288,7 +288,9 @@ const validatesTimestampProof = async (
 > => {
   // check if bundlr timestamp proofs are valid and verified against bundlr node
   const valid = isNativeNode()
-    ? await workerPool.execute<boolean>({
+    ? await (
+        await workerPool()
+      ).execute<boolean>({
         worker: HandlerWorkers.BUNDLR_VERIFY_RECEIPT,
         data: {
           bundlrUploadResponse: daPublication.timestampProofs.response,
@@ -377,7 +379,9 @@ export const isValidSignatureSubmitter = async (
   delete daPublication.signature;
 
   const signedAddress = isNativeNode()
-    ? await workerPool.execute<string>({
+    ? await (
+        await workerPool()
+      ).execute<string>({
         worker: HandlerWorkers.EVM_VERIFY_MESSAGE,
         data: {
           daPublication,

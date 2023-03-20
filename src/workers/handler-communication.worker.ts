@@ -1,4 +1,3 @@
-import { parentPort } from 'worker_threads';
 import {
   bundlrVerifyReceiptWorker,
   BundlrVerifyReceiptWorkerRequest,
@@ -41,10 +40,13 @@ const executeWorker = async (request: HandlerWorkerData): Promise<string | boole
   }
 };
 
-// eslint-disable-next-line require-await
-parentPort?.on('message', async (request: string) => {
-  const handlerWorkerData = JSON.parse(request) as HandlerWorkerData;
-  const result = await executeWorker(handlerWorkerData);
+export const startCommunicationWorker = (): void => {
+  const workerThread = require('worker_threads');
+  // eslint-disable-next-line require-await
+  workerThread.parentPort?.on('message', async (request: string) => {
+    const handlerWorkerData = JSON.parse(request) as HandlerWorkerData;
+    const result = await executeWorker(handlerWorkerData);
 
-  parentPort!.postMessage(result);
-});
+    workerThread.parentPort!.postMessage(result);
+  });
+};

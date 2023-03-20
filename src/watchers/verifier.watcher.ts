@@ -12,12 +12,13 @@ import {
   getTotalCheckedCountDb,
   saveEndCursorDb,
   saveTotalCheckedCountDb,
-  startDb,
 } from '../input-output/db';
+import { startDb } from '../input-output/db-start';
 import { checkDAProofsBatch } from '../proofs/check-da-proofs-batch';
 import { retryCheckDAProofsQueue } from '../queue/known.queue';
 import { shouldRetry } from '../queue/process-retry-check-da-proofs.queue';
 import { startupQueues } from '../queue/startup.queue';
+import { startCommunicationWorker } from '../workers/handler-communication.worker';
 // import { verifierFailedSubmissionsWatcher } from './failed-submissons.watcher';
 import { StartDAVerifierNodeOptions } from './models/start-da-verifier-node-options';
 import { StreamCallback } from './models/stream.type';
@@ -47,6 +48,8 @@ const startup = async (
     // Switch to local node.
     ethereumNode.nodeUrl = LOCAL_NODE_URL;
   }
+
+  startCommunicationWorker();
 
   console.log(`
   _     _____ _   _ ____    ____    _    
