@@ -1,5 +1,3 @@
-import yargs from 'yargs';
-
 /**
  * Creates a deep clone of the given object by converting it to a JSON string and then parsing it back to an object.
  * @param object - The object to clone.
@@ -170,32 +168,6 @@ export const runForever = async (
       await sleep(sleepAfterEach);
     }
   }
-};
-
-export interface ProgramOptions {
-  command: string;
-  subcommands: string[];
-  options: { [key: string]: string };
-}
-
-export const getProgramArguments = (): ProgramOptions => {
-  // tslint:disable-next-line: typedef
-  const {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    _: [command, ...subcommands],
-    ...options
-  } = yargs.argv;
-  return {
-    command,
-    options: Object.keys(options).reduce((r, v) => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      r[v] = options[v];
-      return r;
-    }, {}),
-    subcommands,
-  };
 };
 
 /**

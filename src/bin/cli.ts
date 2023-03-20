@@ -1,10 +1,37 @@
 #!/usr/bin/env node
 
+import yargs from 'yargs';
 import { Deployment, Environment } from '../common/environment';
-import { getProgramArguments, turnedOffExperimentalWarning } from '../common/helpers';
+import { turnedOffExperimentalWarning } from '../common/helpers';
 import { startDAVerifierNode } from '../watchers/verifier.watcher';
 
 turnedOffExperimentalWarning();
+
+interface ProgramOptions {
+  command: string;
+  subcommands: string[];
+  options: { [key: string]: string };
+}
+
+const getProgramArguments = (): ProgramOptions => {
+  // tslint:disable-next-line: typedef
+  const {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    _: [command, ...subcommands],
+    ...options
+  } = yargs.argv;
+  return {
+    command,
+    options: Object.keys(options).reduce((r, v) => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      r[v] = options[v];
+      return r;
+    }, {}),
+    subcommands,
+  };
+};
 
 const args = getProgramArguments();
 
