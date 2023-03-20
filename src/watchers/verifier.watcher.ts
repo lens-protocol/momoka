@@ -39,7 +39,7 @@ const startup = async (
   }
 
   // Initialize database.
-  startDb();
+  await startDb();
   startupQueues(concurrency);
   // verifierFailedSubmissionsWatcher();
 
@@ -171,8 +171,9 @@ export const startDAVerifierNode = async (
 ): Promise<never> => {
   consoleLogWithLensNodeFootprint('DA verification watcher started...');
 
-  const usLocalNode =
-    ethereumNode.nodeUrl.includes('127.0.0.1') || ethereumNode.nodeUrl.includes('localhost');
+  // for now you cant turn this on!
+  // will move it to .env later when needed
+  const usLocalNode = false;
 
   await startup(ethereumNode, concurrency, usLocalNode);
   let endCursor: string | null = await getLastEndCursorDb();
@@ -215,15 +216,11 @@ export const startDAVerifierNode = async (
         // count++;
         lastCheckNothingFound = false;
 
-        if (syncFromHeadOnly) {
-          consoleLogWithLensNodeFootprint(
-            `Starting from the most recent transaction, preparing please wait...`
-          );
-        } else if (totalChecked === 0) {
+        if (totalChecked === 0 && !syncFromHeadOnly) {
           consoleLogWithLensNodeFootprint(`Resyncing from start, preparing please wait...`);
         } else {
           consoleLogWithLensNodeFootprint(
-            `Checking submissons.. ${totalChecked} checked already..`
+            `Checking ${transactions.txIds.length} incoming submissons.. ${totalChecked} submissons checked in this nodes history..`
           );
         }
 

@@ -1,8 +1,7 @@
 import { existsSync, promises as fs } from 'fs';
-import path from 'path';
 import { runForever } from '../common/helpers';
 import { ClaimableValidatorError } from '../data-availability-models/claimable-validator-errors';
-import { FAILED_PROOFS_PATHS } from '../input-output/paths';
+import { failedProofsPath, pathResolver } from '../input-output/paths';
 import { Queue } from './base.queue';
 import { failedDAProofQueue } from './known.queue';
 
@@ -13,7 +12,9 @@ export interface ProcessFailedProofQueueRequest {
 }
 
 const writeFailedProof = async (failed: ProcessFailedProofQueueRequest): Promise<void> => {
-  const errorLocation = path.join(FAILED_PROOFS_PATHS, failed.reason);
+  const path = await pathResolver();
+  const failedPath = await failedProofsPath();
+  const errorLocation = path.join(failedPath, failed.reason);
   if (!existsSync(errorLocation)) {
     await fs.mkdir(errorLocation);
   }

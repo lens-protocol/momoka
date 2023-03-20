@@ -1,4 +1,43 @@
-import path from 'path';
+import { isNativeNode } from '../common/helpers';
 
-export const LENS_DA_PATH = path.join(process.cwd(), 'lens__da');
-export const FAILED_PROOFS_PATHS = path.join(process.cwd(), 'lens__da', 'failed-proofs');
+export type PathType = {
+  join(...paths: string[]): string;
+};
+let _path: PathType | undefined;
+export const pathResolver = async (): Promise<PathType> => {
+  if (!isNativeNode()) {
+    throw new Error('`path`- This function is only available in native node');
+  }
+
+  if (_path) return Promise.resolve(_path);
+
+  const pathImport = await import('path');
+
+  return (_path = pathImport);
+};
+
+let lensDAPathCache: string | undefined;
+export const lensDAPath = async (): Promise<string> => {
+  if (!isNativeNode()) {
+    throw new Error('`lensDAPath`- This function is only available in native node');
+  }
+
+  if (lensDAPathCache) return Promise.resolve(lensDAPathCache);
+
+  const path = await pathResolver();
+  const result = path.join(process.cwd(), 'lens__da');
+  return (lensDAPathCache = result);
+};
+
+let failedProofsPathCache: string | undefined;
+export const failedProofsPath = async (): Promise<string> => {
+  if (!isNativeNode()) {
+    throw new Error('`failedProofsPath`- This function is only available in native node');
+  }
+
+  if (failedProofsPathCache) return Promise.resolve(failedProofsPathCache);
+
+  const path = await pathResolver();
+  const result = path.join(process.cwd(), 'lens__da', 'failed-proofs');
+  return (failedProofsPathCache = result);
+};

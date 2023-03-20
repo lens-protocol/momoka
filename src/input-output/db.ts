@@ -1,6 +1,4 @@
-import fs from 'fs';
 import { Level } from 'level';
-import path from 'path';
 import { ClaimableValidatorError } from '../data-availability-models/claimable-validator-errors';
 import { DATimestampProofsResponse } from '../data-availability-models/data-availability-timestamp-proofs';
 import {
@@ -9,7 +7,7 @@ import {
   PublicationTypedData,
 } from '../data-availability-models/publications/data-availability-structure-publication';
 import { BlockInfo } from '../evm/ethereum';
-import { FAILED_PROOFS_PATHS, LENS_DA_PATH } from './paths';
+import { failedProofsPath, lensDAPath, pathResolver } from './paths';
 
 let db: Level | undefined;
 
@@ -45,16 +43,20 @@ export interface TxValidatedSuccessResult
 /**
  * Starts the LevelDB database.
  */
-export const startDb = (): void => {
+export const startDb = async (): Promise<void> => {
   if (db) return;
 
-  const lens__da = LENS_DA_PATH;
+  const path = await pathResolver();
+
+  const lens__da = await lensDAPath();
+
+  const fs = await import('fs');
 
   if (!fs.existsSync(lens__da)) {
     fs.mkdirSync(lens__da);
   }
 
-  const failedProofs = FAILED_PROOFS_PATHS;
+  const failedProofs = await failedProofsPath();
 
   if (!fs.existsSync(failedProofs)) {
     fs.mkdirSync(failedProofs);

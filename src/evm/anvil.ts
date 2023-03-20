@@ -1,11 +1,12 @@
-import { ChildProcess, exec } from 'child_process';
 import { BigNumber } from 'ethers';
 import { consoleLogWithLensNodeFootprint } from '../common/logger';
 import { JSONRPCWithTimeout } from '../input-output/json-rpc-with-timeout';
 import { EthereumNode } from './ethereum';
 import { JSONRPCMethods } from './jsonrpc-methods';
 
-const execWrapper = (command: string, callback: Function): ChildProcess => {
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+const execWrapper = async (command: string, callback: Function) => {
+  const { exec } = await import('child_process');
   const childProcess = exec(command, { maxBuffer: Infinity });
   return callback(childProcess);
 };

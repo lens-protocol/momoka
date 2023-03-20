@@ -3,7 +3,7 @@ import path from 'path';
 import { runForever } from '../common/helpers';
 import { consoleLogWithLensNodeFootprint } from '../common/logger';
 import { ClaimableValidatorError } from '../data-availability-models/claimable-validator-errors';
-import { FAILED_PROOFS_PATHS } from '../input-output/paths';
+import { failedProofsPath } from '../input-output/paths';
 import { shouldRetry } from '../queue/process-retry-check-da-proofs.queue';
 
 /**
@@ -18,14 +18,15 @@ export const verifierFailedSubmissionsWatcher = async (): Promise<void> => {
       firstRun = false;
     } else {
       try {
+        const failedPath = await failedProofsPath();
         const failedResults = [];
         // Count the number of failed submissions for each error reason
         for (const item in ClaimableValidatorError) {
           if (isNaN(Number(item))) {
             if (!shouldRetry(item as ClaimableValidatorError)) {
-              const errorPath = path.join(FAILED_PROOFS_PATHS, item);
+              const errorPath = path.join(failedPath, item);
               const errorCount = existsSync(errorPath)
-                ? (await fs.readdir(path.join(FAILED_PROOFS_PATHS, item))).length
+                ? (await fs.readdir(path.join(failedPath, item))).length
                 : 0;
 
               failedResults.push([item, errorCount]);
