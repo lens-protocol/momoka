@@ -1467,13 +1467,13 @@ export enum ClaimableValidatorError {
 
 The flow diagram shows the submitter flows in detail; the first submitter will be within the LENS API to allow for easy integration for all. 
 
-<img src="./images/submitter-flows.png">
+<img src="https://statics-polygon-lens.s3.eu-west-1.amazonaws.com/submitter-flows.png">
 
 ## Future of decentralised submitters
 
 This is a rough look at how this could work in the future in a trustless manner. This is not the final solution but a rough idea of how it could work on a very high-level vision.
 
-<img src="./images/submitters-later-vision.png">
+<img src="https://statics-polygon-lens.s3.eu-west-1.amazonaws.com/submitters-later-vision.png">
 
 ## Running
 
