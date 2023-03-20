@@ -1,5 +1,4 @@
 import { Level } from 'level';
-import { ClaimableValidatorError } from '../data-availability-models/claimable-validator-errors';
 import { DATimestampProofsResponse } from '../data-availability-models/data-availability-timestamp-proofs';
 import {
   DAEventType,
@@ -8,6 +7,7 @@ import {
 } from '../data-availability-models/publications/data-availability-structure-publication';
 import { BlockInfo } from '../evm/ethereum';
 import { failedProofsPath, lensDAPath, pathResolver } from './paths';
+import { TxValidatedResult } from './tx-validated-results';
 
 let db: Level | undefined;
 
@@ -18,27 +18,6 @@ export enum DbReference {
   tx_timestamp_proof_metadata = 'tx_timestamp_proof_metadata',
   cursor = 'cursor',
 }
-
-export type TxValidatedResult = TxValidatedFailureResult | TxValidatedSuccessResult;
-
-interface TxValidatedResultBase<TSuccess extends boolean, TDAStructurePublication> {
-  proofTxId: string;
-  success: TSuccess;
-  dataAvailabilityResult: TDAStructurePublication;
-}
-
-export interface TxValidatedFailureResult
-  extends TxValidatedResultBase<
-    false,
-    DAStructurePublication<DAEventType, PublicationTypedData> | undefined
-  > {
-  failureReason: ClaimableValidatorError;
-  extraErrorInfo?: string;
-}
-
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface TxValidatedSuccessResult
-  extends TxValidatedResultBase<true, DAStructurePublication<DAEventType, PublicationTypedData>> {}
 
 /**
  * Starts the LevelDB database.

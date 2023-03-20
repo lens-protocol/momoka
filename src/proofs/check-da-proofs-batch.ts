@@ -27,12 +27,8 @@ import {
   getBundlrBulkTxsAPI,
 } from '../input-output/bundlr/get-bundlr-bulk-txs.api';
 import { TIMEOUT_ERROR } from '../input-output/common';
-import {
-  saveTxDAMetadataDb,
-  saveTxDb,
-  saveTxTimestampProofsMetadataDb,
-  TxValidatedResult,
-} from '../input-output/db';
+import { saveTxDAMetadataDb, saveTxDb, saveTxTimestampProofsMetadataDb } from '../input-output/db';
+import { TxValidatedResult } from '../input-output/tx-validated-results';
 import { failedDAProofQueue } from '../queue/known.queue';
 import { shouldRetry } from '../queue/process-retry-check-da-proofs.queue';
 import { StreamCallback } from '../watchers/models/stream.type';

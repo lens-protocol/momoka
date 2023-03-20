@@ -31,8 +31,8 @@ import {
   getTxDb,
   getTxTimestampProofsMetadataDb,
   saveBlockDb,
-  TxValidatedFailureResult,
 } from '../input-output/db';
+import { TxValidatedFailureResult } from '../input-output/tx-validated-results';
 import { isValidSubmitter, isValidTransactionSubmitter } from '../submitters';
 import { HandlerWorkers } from '../workers/handler-communication.worker';
 import { workerPool } from '../workers/worker-pool';

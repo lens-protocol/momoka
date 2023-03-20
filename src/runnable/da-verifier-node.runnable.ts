@@ -1,5 +1,5 @@
 import { getParam, turnedOffExperimentalWarning } from '../common/helpers';
-import { startDAVerifierNode } from '../index';
+import { startDAVerifierNode } from '../server';
 import { ethereumNode } from './ethereum-node-instance';
 
 turnedOffExperimentalWarning();

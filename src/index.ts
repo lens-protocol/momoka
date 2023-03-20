@@ -10,12 +10,5 @@ export {
   TxValidatedFailureResult,
   TxValidatedResult,
   TxValidatedSuccessResult,
-} from './input-output/db';
-export { checkDAProof } from './proofs/check-da-proof';
+} from './input-output/tx-validated-results';
 export * from './submitters';
-export * from './watchers/models/stream.type';
-export {
-  startDATrustingIndexing,
-  StartDATrustingIndexingRequest,
-} from './watchers/trusting-indexing.watcher';
-export { startDAVerifierNode } from './watchers/verifier.watcher';
