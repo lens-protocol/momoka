@@ -1,6 +1,6 @@
 {
   "name": "@lens-protocol/data-availability-verifier",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "description": "Data availability verifier for the Lens protocol",
   "main": "lib/index.js",
   "types": "./lib/index.d.ts",
