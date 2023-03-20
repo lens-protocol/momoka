@@ -41,7 +41,7 @@ if (!nodeUrl) {
   process.exit(1);
 }
 const environment = (args.options.environment as Environment) || Environment.MUMBAI;
-const deployment = (args.options.deployment as Deployment) || Deployment.STAGING;
+const deployment = (args.options.deployment as Deployment) || Deployment.PRODUCTION;
 
 const concurrencyRaw = args.options.concurrency;
 const concurrency = concurrencyRaw ? Number(concurrencyRaw) : 100;
