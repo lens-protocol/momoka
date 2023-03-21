@@ -1,15 +1,15 @@
 import Utils from '@bundlr-network/client/build/common/utils';
 import { utils } from 'ethers';
 
-import { DAProofsVerifier } from './DAProofChecker';
 import {
   DAEventType,
   DAStructurePublication,
   PublicationTypedData,
 } from '../data-availability-models/publications/data-availability-structure-publication';
 import { deepClone } from '../common/helpers';
+import { DAProofsVerifier } from '../proofs/DAProofChecker';
 
-export class SyncVerifier implements DAProofsVerifier {
+export class ClientDAPProofsVerifier implements DAProofsVerifier {
   extractAddress(
     daPublication: DAStructurePublication<DAEventType, PublicationTypedData>
   ): Promise<string> {

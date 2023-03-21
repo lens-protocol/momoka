@@ -9,7 +9,7 @@ import { TimeoutError } from '../input-output/common';
 import { DAProofsGateway } from '../proofs/DAProofChecker';
 import { getBundlrByIdAPI } from '../input-output/bundlr/get-bundlr-by-id.api';
 
-export class DAProofGateway implements DAProofsGateway {
+export class ClientDAProofGateway implements DAProofsGateway {
   getBlockRange(blockNumbers: number[], ethereumNode: EthereumNode): Promise<BlockInfo[]> {
     return Promise.all(blockNumbers.map((blockNumber) => getBlock(blockNumber, ethereumNode)));
   }

@@ -8,7 +8,7 @@ import {
   PublicationTypedData,
 } from '../data-availability-models/publications/data-availability-structure-publication';
 
-export class WorkerPoolVerifier implements DAProofsVerifier {
+export class DAProofVerifier implements DAProofsVerifier {
   extractAddress(
     daPublication: DAStructurePublication<DAEventType, PublicationTypedData>
   ): Promise<string> {

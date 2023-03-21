@@ -4,6 +4,11 @@
   "description": "Data availability verifier for the Lens protocol",
   "main": "lib/index.js",
   "types": "./lib/index.d.ts",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client/index.js",
+    "./package.json": "./package.json"
+  },
   "files": [
     "lib/**/*",
     "README.md"

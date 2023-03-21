@@ -14,16 +14,16 @@ import {
   DAStructurePublication,
   PublicationTypedData,
 } from '../data-availability-models/publications/data-availability-structure-publication';
-import { DAProofGateway } from './DAProofGateway';
-import { SyncVerifier } from './SyncVerifier';
+import { ClientDAProofGateway } from '../client/ClientDAProofGateway';
+import { DAProofVerifier } from './DAProofVerifier';
 import { DAProofChecker } from './DAProofChecker';
 import { LogFunctionType } from '../common/logger';
 import { TxValidatedFailureResult } from '../input-output/tx-validated-results';
 import { getTxDb } from '../input-output/db';
 import { DAPublicationWithTimestampProofsBatchResult } from '../data-availability-models/data-availability-timestamp-proofs';
 
-const gateway = new DAProofGateway();
-const verifier = new SyncVerifier();
+const gateway = new ClientDAProofGateway();
+const verifier = new DAProofVerifier();
 const checker = new DAProofChecker(verifier, gateway);
 
 /**
