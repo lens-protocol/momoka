@@ -12,6 +12,6 @@ module.exports = {
     '<rootDir>/src/arweave',
     '<rootDir>/src/bundlr',
   ],
-  testPathIgnorePatterns: ['/node_modules/', '/lib/'],
+  testPathIgnorePatterns: ['/node_modules/', '/lib/', '/playground-browser/'],
   verbose: true,
 };

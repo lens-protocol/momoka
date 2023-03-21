@@ -1,14 +1,14 @@
 import { Environment } from '../common/environment';
 import { getParamOrExit } from '../common/helpers';
 import { EthereumNode } from '../evm/ethereum';
-import * as apiCall from '../input-output/bundlr/get-owner-of-transaction.api';
+import { getOwnerOfTransactionAPI } from '../input-output/bundlr/get-owner-of-transaction.api';
 
 import { getSubmitters, isValidSubmitter, isValidTransactionSubmitter } from '../submitters';
 
-jest.mock('../bundlr/get-owner-of-transaction.api');
+jest.mock('../input-output/bundlr/get-owner-of-transaction.api');
 
-export const mockGetOwnerOfTransactionAPI = apiCall.getOwnerOfTransactionAPI as jest.MockedFunction<
-  typeof apiCall.getOwnerOfTransactionAPI
+export const mockGetOwnerOfTransactionAPI = getOwnerOfTransactionAPI as jest.MockedFunction<
+  typeof getOwnerOfTransactionAPI
 >;
 
 const ethereumNode: EthereumNode = {

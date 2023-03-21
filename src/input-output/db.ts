@@ -1,3 +1,4 @@
+import { existsSync, mkdirSync } from 'fs';
 import { Level } from 'level';
 import { DATimestampProofsResponse } from '../data-availability-models/data-availability-timestamp-proofs';
 import {
@@ -26,25 +27,19 @@ export const startDb = async (): Promise<void> => {
   if (db) return;
 
   const path = await pathResolver();
-
   const lens__da = await lensDAPath();
-
-  const fs = await import('fs');
-
-  if (!fs.existsSync(lens__da)) {
-    fs.mkdirSync(lens__da);
+  if (!existsSync(lens__da)) {
+    mkdirSync(lens__da);
   }
 
   const failedProofs = await failedProofsPath();
-
-  if (!fs.existsSync(failedProofs)) {
-    fs.mkdirSync(failedProofs);
+  if (!existsSync(failedProofs)) {
+    mkdirSync(failedProofs);
   }
 
   const dbPath = path.join(lens__da, 'database');
-
-  if (!fs.existsSync(dbPath)) {
-    fs.mkdirSync(dbPath);
+  if (!existsSync(dbPath)) {
+    mkdirSync(dbPath);
   }
 
   db = new Level(dbPath);

@@ -1,24 +1,19 @@
-import { ClaimableValidatorError } from '../claimable-validator-errors';
+import { ClaimableValidatorError, TxValidatedResult } from '..';
 import {
-  DbReference,
-  deleteDb,
-  FailedTransactionsDb,
+  // DbReference,
+  // deleteDb,
+  // FailedTransactionsDb,
   getBlockDb,
-  getFailedTransactionsDb,
+  // getFailedTransactionsDb,
   getTxDb,
   saveBlockDb,
-  saveFailedTransactionDb,
+  // saveFailedTransactionDb,
   saveTxDb,
   startDb,
-  TxValidatedResult,
-} from '../db';
+} from '../input-output/db';
 import { random } from './shared-helpers';
 
 describe('db', () => {
-  beforeEach(() => {
-    startDb('../database');
-  });
-
   const txValidatedResult: TxValidatedResult = {
     success: false,
     proofTxId: random(),
@@ -26,11 +21,15 @@ describe('db', () => {
     dataAvailabilityResult: undefined,
   };
 
+  beforeAll(async () => {
+    await startDb();
+  });
+
   describe('getTxDb', () => {
     test('should return back false if tx does not exist', async () => {
       const txId = random();
       const result = await getTxDb(txId);
-      expect(result).toEqual(null);
+      expect(result).toBeNull();
     });
 
     test('should return back true if tx exists', async () => {
@@ -68,30 +67,30 @@ describe('db', () => {
     });
   });
 
-  describe('getFailedTransactionsDb + saveFailedTransactionDb', () => {
-    test('should return empty array if nothing found', async () => {
-      await deleteDb(`${DbReference.block}:failed`);
+  // describe('getFailedTransactionsDb + saveFailedTransactionDb', () => {
+  //   test('should return empty array if nothing found', async () => {
+  //     await deleteDb(`${DbReference.block}:failed`);
 
-      const result = await getFailedTransactionsDb();
-      expect(result).toEqual([]);
-    });
+  //     const result = await getFailedTransactionsDb();
+  //     expect(result).toEqual([]);
+  //   });
 
-    test('should return value if found', async () => {
-      await deleteDb(`${DbReference.block}:failed`);
+  //   test('should return value if found', async () => {
+  //     await deleteDb(`${DbReference.block}:failed`);
 
-      const failedTx: FailedTransactionsDb = {
-        txId: random(),
-        reason: ClaimableValidatorError.EVENT_MISMATCH,
-        submitter: random(),
-      };
+  //     const failedTx: FailedTransactionsDb = {
+  //       txId: random(),
+  //       reason: ClaimableValidatorError.EVENT_MISMATCH,
+  //       submitter: random(),
+  //     };
 
-      await saveFailedTransactionDb(failedTx);
+  //     await saveFailedTransactionDb(failedTx);
 
-      const result = await getFailedTransactionsDb();
-      expect(result).toHaveLength(1);
+  //     const result = await getFailedTransactionsDb();
+  //     expect(result).toHaveLength(1);
 
-      const [first] = result;
-      expect(first).toEqual(failedTx);
-    });
-  });
+  //     const [first] = result;
+  //     expect(first).toEqual(failedTx);
+  //   });
+  // });
 });

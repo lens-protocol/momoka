@@ -1,12 +1,12 @@
 // apply mocks!
 jest.setTimeout(30000);
-jest.mock('../db');
-jest.mock('../arweave/get-arweave-by-id.api');
+jest.mock('../input-output/db');
+jest.mock('../input-output/arweave/get-arweave-by-id.api');
 jest.mock('../submitters');
 
-import { ClaimableValidatorError } from '../claimable-validator-errors';
+import { ClaimableValidatorError } from '..';
 import { DAPublicationPointerType } from '../data-availability-models/publications/data-availability-structure-publication';
-import { deepClone } from '../helpers';
+import { deepClone } from '../common/helpers';
 import { commentCreatedDelegateArweaveResponse } from './mocks/comment/comment-created-delegate-arweave-response.mock';
 import { commentCreatedWithoutDelegateArweaveResponse } from './mocks/comment/comment-created-without-delegate-arweave-response.mock';
 import * as sharedMocks from './mocks/shared.mock';

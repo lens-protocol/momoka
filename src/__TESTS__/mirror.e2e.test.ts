@@ -1,12 +1,12 @@
 // apply mocks!
 jest.setTimeout(30000);
-jest.mock('../db');
-jest.mock('../arweave/get-arweave-by-id.api');
+jest.mock('../input-output/db');
+jest.mock('../input-output/arweave/get-arweave-by-id.api');
 jest.mock('../submitters');
 
-import { ClaimableValidatorError } from '../claimable-validator-errors';
+import { ClaimableValidatorError } from '..';
 import { DAPublicationPointerType } from '../data-availability-models/publications/data-availability-structure-publication';
-import { deepClone } from '../helpers';
+import { deepClone } from '../common/helpers';
 import { mirrorCreatedDelegateCommentArweaveResponse } from './mocks/mirror/mirror-created-delegate-comment-arweave-response.mock';
 import { mirrorCreatedDelegatePostArweaveResponse } from './mocks/mirror/mirror-created-delegate-post-arweave-response.mock';
 import { mirrorCreatedWithoutDelegateCommentArweaveResponse } from './mocks/mirror/mirror-created-without-delegate-comment-arweave-response.mock';
@@ -21,13 +21,13 @@ describe('mirror', () => {
 
       beforeEach(() => {
         baseMock = mirrorCreatedDelegatePostArweaveResponse;
-        sharedMocks.mockGetArweaveByIdAPI.mockImplementation(async () =>
+        sharedMocks.mockGetArweaveByIdAPI.mockImplementation(() =>
           deepClone(mirrorCreatedDelegatePostArweaveResponse)
         );
       });
 
       describe('should return success when', () => {
-        test('signed by delegate is true', async () => {
+        test('signed by delegate is true', () => {
           expect(baseMock.chainProofs.thisPublication.signedByDelegate).toBe(true);
         });
 
@@ -630,7 +630,7 @@ describe('mirror', () => {
         });
 
         test('EVENT_MISMATCH - referenceModuleReturnData is not empty bytes', async () => {
-          sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+          sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(() => {
             return {
               ...baseMock,
               event: {

@@ -1,4 +1,4 @@
-import { whoSignedTypedData } from '../../publications/publication.base';
+import { whoSignedTypedData } from '../../proofs/publications/publication.base';
 
 describe('publication base', () => {
   describe('whoSignedTypedData', () => {

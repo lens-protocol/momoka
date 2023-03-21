@@ -1,5 +1,5 @@
-import { getArweaveByIdAPI } from '../arweave/get-arweave-by-id.api';
-import { getBundlrByIdAPI } from '../bundlr/get-bundlr-by-id.api';
+import { getArweaveByIdAPI } from '../input-output/arweave/get-arweave-by-id.api';
+import { getBundlrByIdAPI } from '../input-output/bundlr/get-bundlr-by-id.api';
 
 describe('random', () => {
   it('getArweaveByIdAPI', async () => {
