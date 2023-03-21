@@ -17,7 +17,7 @@ export const getSubmitters = (
       case Environment.POLYGON:
         throw new Error('Not implemented yet');
       case Environment.MUMBAI:
-        return ['0x886Bb211aC324dAF3744b2AB0eF20C0aCf73eA59'.toLowerCase()];
+        return ['0xEE3E8f53df70C3A3eeDA2076CDCa17c451aa8F96'.toLowerCase()];
       case Environment.SANDBOX:
         throw new Error('Not implemented yet');
       default:

@@ -193,7 +193,6 @@ export const startDAVerifierNode = async (
 
     if (lastSeenTransaction.edges.length > 0) {
       endCursor = lastSeenTransaction.pageInfo.endCursor;
-      console.log('endCursor', endCursor);
       totalChecked = 0;
     } else {
       endCursor = null;
