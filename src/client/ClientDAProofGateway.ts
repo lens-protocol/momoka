@@ -8,6 +8,7 @@ import { BlockInfo, EthereumNode, getBlock } from '../evm/ethereum';
 import { TimeoutError } from '../input-output/common';
 import { DAProofsGateway } from '../proofs/DAProofChecker';
 import { getBundlrByIdAPI } from '../input-output/bundlr/get-bundlr-by-id.api';
+import { TxValidatedResult } from '../input-output/tx-validated-results';
 
 export class ClientDAProofGateway implements DAProofsGateway {
   getBlockRange(blockNumbers: number[], ethereumNode: EthereumNode): Promise<BlockInfo[]> {
@@ -24,5 +25,10 @@ export class ClientDAProofGateway implements DAProofsGateway {
     timestampId: string
   ): Promise<DATimestampProofsResponse | TimeoutError | null> {
     return getBundlrByIdAPI<DATimestampProofsResponse>(timestampId);
+  }
+
+  // No cache available in the client
+  getTxResultFromCache(): Promise<TxValidatedResult | null> {
+    return Promise.resolve(null);
   }
 }

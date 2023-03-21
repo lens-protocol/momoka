@@ -210,8 +210,6 @@ export const startDAVerifierNode = async (
         50
       );
 
-      console.log(JSON.stringify(transactions, null, 2));
-
       if (!transactions || transactions.txIds.length === 0) {
         lastCheckNothingFound = await waitForNewSubmissions(lastCheckNothingFound);
       } else {

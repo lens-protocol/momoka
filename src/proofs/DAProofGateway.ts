@@ -8,21 +8,55 @@ import { BlockInfo, EthereumNode, getBlock } from '../evm/ethereum';
 import { TimeoutError } from '../input-output/common';
 import { DAProofsGateway } from '../proofs/DAProofChecker';
 import { getBundlrByIdAPI } from '../input-output/bundlr/get-bundlr-by-id.api';
+import {
+  getBlockDb,
+  getTxDAMetadataDb,
+  getTxDb,
+  getTxTimestampProofsMetadataDb,
+  saveBlockDb,
+} from '../input-output/db';
+import { TxValidatedResult } from '../input-output/tx-validated-results';
 
 export class DAProofGateway implements DAProofsGateway {
-  getBlockRange(blockNumbers: number[], ethereumNode: EthereumNode): Promise<BlockInfo[]> {
-    return Promise.all(blockNumbers.map((blockNumber) => getBlock(blockNumber, ethereumNode)));
+  getTxResultFromCache(txId: string): Promise<TxValidatedResult | null> {
+    // Check if the transaction ID exists in the database
+    return getTxDb(txId);
   }
 
-  getDaPublication(
+  getBlockRange(blockNumbers: number[], ethereumNode: EthereumNode): Promise<BlockInfo[]> {
+    return Promise.all(
+      blockNumbers.map(async (blockNumber) => {
+        const cachedBlock = await getBlockDb(blockNumber);
+        if (cachedBlock) {
+          return cachedBlock;
+        }
+
+        const block = await getBlock(blockNumber, ethereumNode);
+
+        // fire and forget!
+        saveBlockDb(block);
+
+        return block;
+      })
+    );
+  }
+
+  async getDaPublication(
     txId: string
   ): Promise<DAStructurePublication<DAEventType, PublicationTypedData> | TimeoutError | null> {
-    return getBundlrByIdAPI<DAStructurePublication<DAEventType, PublicationTypedData>>(txId);
+    return (
+      (await getTxDAMetadataDb(txId)) ||
+      (await getBundlrByIdAPI<DAStructurePublication<DAEventType, PublicationTypedData>>(txId))
+    );
   }
 
-  getTimestampProofs(
-    timestampId: string
+  async getTimestampProofs(
+    timestampId: string,
+    txId: string
   ): Promise<DATimestampProofsResponse | TimeoutError | null> {
-    return getBundlrByIdAPI<DATimestampProofsResponse>(timestampId);
+    return (
+      (await getTxTimestampProofsMetadataDb(txId)) ||
+      (await getBundlrByIdAPI<DATimestampProofsResponse>(timestampId))
+    );
   }
 }

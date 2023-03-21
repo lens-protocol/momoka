@@ -5,6 +5,7 @@ import {
   failureWithContext,
   PromiseResult,
   PromiseWithContextResult,
+  PromiseWithContextResultOrNull,
   success,
   successWithContext,
 } from '../data-availability-models/da-result';
@@ -34,6 +35,7 @@ import {
   isValidPublicationId,
   isValidTypedDataDeadlineTimestamp,
 } from './utils';
+import { TxValidatedFailureResult, TxValidatedResult } from '../input-output/tx-validated-results';
 
 const validResult = 'valid';
 type ValidType = typeof validResult;
@@ -52,6 +54,7 @@ export interface DAProofsVerifier {
 }
 
 export interface DAProofsGateway {
+  getTxResultFromCache(txId: string): Promise<TxValidatedResult | null>;
   getDaPublication(
     txId: string
   ): Promise<DAStructurePublication<DAEventType, PublicationTypedData> | TimeoutError | null>;
@@ -78,7 +81,7 @@ export class DAProofChecker {
    */
 
   public checkDAProofWithMetadata = async (
-    _txId: string,
+    txId: string,
     daPublicationWithTimestampProofs: DAPublicationWithTimestampProofsBatchResult,
     ethereumNode: EthereumNode,
     options: CheckDASubmissionOptions = getDefaultCheckDASubmissionOptions
@@ -86,6 +89,13 @@ export class DAProofChecker {
     DAStructurePublication<DAEventType, PublicationTypedData> | void,
     DAStructurePublication<DAEventType, PublicationTypedData>
   > => {
+    if (!options.byPassDb) {
+      const alreadyChecked = await this.txAlreadyChecked(txId, options.log);
+      if (alreadyChecked) {
+        return alreadyChecked;
+      }
+    }
+
     if (
       !isValidSubmitter(
         ethereumNode.environment,
@@ -122,14 +132,16 @@ export class DAProofChecker {
     DAStructurePublication<DAEventType, PublicationTypedData> | void,
     DAStructurePublication<DAEventType, PublicationTypedData>
   > => {
+    if (!options.byPassDb) {
+      const alreadyChecked = await this.txAlreadyChecked(txId, options.log);
+      if (alreadyChecked) {
+        return alreadyChecked;
+      }
+    }
+
     txId = txId.replace('ar://', ''); // pointers have the ar prefix!
 
     options.log(`Checking the submission`);
-
-    // const daPublication =
-    //   (await getTxDAMetadataDb(txId)) ||
-    //   (await getBundlrByIdAPI<DAStructurePublication<DAEventType, PublicationTypedData>>(txId));
-    //
 
     const daPublication = await this.gateway.getDaPublication(txId);
 
@@ -142,13 +154,6 @@ export class DAProofChecker {
         undefined as any
       );
     }
-
-    // const timestampProofsPayload =
-    //   (await getTxTimestampProofsMetadataDb(txId)) ||
-    //   (await getBundlrByIdAPI<DATimestampProofsResponse>(
-    //     daPublication.timestampProofs.response.id
-    //   ));
-    //
 
     const timestampProofsPayload = await this.gateway.getTimestampProofs(
       daPublication.timestampProofs.response.id,
@@ -352,28 +357,6 @@ export class DAProofChecker {
     } catch (error) {
       return failure(ClaimableValidatorError.BLOCK_CANT_BE_READ_FROM_NODE);
     }
-
-    // try {
-    //   const blocks = await Promise.all(
-    //     blockNumbers.map(async (blockNumber) => {
-    //       const cachedBlock = await getBlockDb(blockNumber);
-    //       if (cachedBlock) {
-    //         return cachedBlock;
-    //       }
-    //
-    //       const block = await getBlock(blockNumber, ethereumNode);
-    //
-    //       // fire and forget!
-    //       saveBlockDb(block);
-    //
-    //       return block;
-    //     })
-    //   );
-    //
-    //   return success(blocks);
-    // } catch (error) {
-    //   return failure(ClaimableValidatorError.BLOCK_CANT_BE_READ_FROM_NODE);
-    // }
   };
 
   /**
@@ -490,5 +473,42 @@ export class DAProofChecker {
       default:
         return failure(ClaimableValidatorError.UNKNOWN);
     }
+  };
+
+  /**
+   * Checks if the given transaction ID has already been checked and returns the corresponding publication.
+   * If the transaction ID is found in the database, returns either a success or failure result depending on whether the
+   * publication was validated successfully or not, respectively.
+   * If the transaction ID is not found in the database, returns null.
+   * @param txId The transaction ID to check
+   * @param log The logging function to use
+   * @returns A promise that resolves to a success or failure result if the publication has already been checked, or null otherwise.
+   */
+  private txAlreadyChecked = async (
+    txId: string,
+    log: LogFunctionType
+  ): PromiseWithContextResultOrNull<
+    DAStructurePublication<DAEventType, PublicationTypedData> | void,
+    DAStructurePublication<DAEventType, PublicationTypedData>
+  > => {
+    // Check if the transaction ID exists in the database
+    const cacheResult = await this.gateway.getTxResultFromCache(txId);
+
+    if (cacheResult) {
+      // If the transaction ID is found, log a message and return the corresponding publication
+      log('Already checked submission');
+
+      if (cacheResult.success) {
+        return successWithContext(cacheResult.dataAvailabilityResult);
+      }
+
+      return failureWithContext(
+        (<TxValidatedFailureResult>cacheResult).failureReason,
+        cacheResult.dataAvailabilityResult!
+      );
+    }
+
+    // If the transaction ID is not found, return null
+    return null;
   };
 }
