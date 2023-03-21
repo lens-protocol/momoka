@@ -9,7 +9,7 @@ import {
 } from '../../../data-availability-models/publications/data-availability-structure-publication';
 import { DAMirrorCreatedEventEmittedResponse } from '../../../data-availability-models/publications/data-availability-structure-publications-events';
 import { EMPTY_BYTE, EthereumNode, getOnChainProfileDetails } from '../../../evm/ethereum';
-import { checkDAProof } from '../../check-da-proof';
+import { DAProofChecker } from "../../check-da-proof";
 import { whoSignedTypedData } from '../publication.base';
 
 export type CheckDAMirrorPublication = DAStructurePublication<
@@ -71,7 +71,9 @@ export const checkDAMirror = async (
   publication: CheckDAMirrorPublication,
   verifyPointer: boolean,
   ethereumNode: EthereumNode,
-  log: LogFunctionType
+  log: LogFunctionType,
+  // TODO: Improve that to avoid cycling dependencies
+  checker: DAProofChecker,
 ): PromiseResult => {
   log('check DA mirror');
 
@@ -88,7 +90,7 @@ export const checkDAMirror = async (
     log('verify pointer first');
 
     // check the pointer!
-    const pointerResult = await checkDAProof(
+    const pointerResult = await checker.checkDAProof(
       publication.chainProofs.pointer.location,
       ethereumNode,
       {

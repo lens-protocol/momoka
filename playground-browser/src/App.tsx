@@ -3,7 +3,7 @@ import {
   Deployment,
   Environment,
   EthereumNode,
-} from '@lens-protocol/data-availability-verifier';
+} from '@lens-protocol/data-availability-verifier/lib/client';
 import './App.css';
 
 const ethereumNode: EthereumNode = {
