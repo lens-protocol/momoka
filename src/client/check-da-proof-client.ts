@@ -9,13 +9,13 @@ import {
   DAStructurePublication,
   PublicationTypedData,
 } from '../data-availability-models/publications/data-availability-structure-publication';
-import { ClientDAProofGateway } from './ClientDAProofGateway';
-import { DAProofChecker } from '../proofs/DAProofChecker';
-import { ClientDAPProofVerifier } from './ClientDAPProofVerifier';
+import { ClientDaProofGateway } from './client-da-proof-gateway';
+import { DaProofChecker } from '../proofs/da-proof-checker';
+import { ClientDaProofVerifier } from './client-da-proof-verifier';
 
-const gateway = new ClientDAProofGateway();
-const verifier = new ClientDAPProofVerifier();
-const checker = new DAProofChecker(verifier, gateway);
+const gateway = new ClientDaProofGateway();
+const verifier = new ClientDaProofVerifier();
+const checker = new DaProofChecker(verifier, gateway);
 
 export const checkDAProof = (
   txId: string,

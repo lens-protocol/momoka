@@ -1,9 +1,10 @@
-import axios from 'axios';
+export interface FetchProvider {
+  get: <TResponse>(url: string, options: { timeout: number }) => Promise<TResponse>;
+}
 
-export const fetchWithTimeout = async <TResponse>(url: string): Promise<TResponse | null> => {
-  const response = await axios.get(url, {
-    timeout: 5000,
-  });
-
-  return response.data as TResponse;
+export const fetchWithTimeout = <TResponse>(
+  url: string,
+  { provider }: { provider: FetchProvider }
+): Promise<TResponse | null> => {
+  return provider.get<TResponse>(url, { timeout: 5000 });
 };

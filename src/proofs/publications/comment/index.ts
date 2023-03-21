@@ -9,7 +9,7 @@ import {
 } from '../../../data-availability-models/publications/data-availability-structure-publication';
 import { DACommentCreatedEventEmittedResponse } from '../../../data-availability-models/publications/data-availability-structure-publications-events';
 import { EMPTY_BYTE, EthereumNode, getOnChainProfileDetails } from '../../../evm/ethereum';
-import { DAProofChecker } from '../../DAProofChecker';
+import { DaProofChecker } from '../../da-proof-checker';
 import { whoSignedTypedData } from '../publication.base';
 
 export type CheckDACommentPublication = DAStructurePublication<
@@ -77,7 +77,7 @@ export const checkDAComment = async (
   verifyPointer: boolean,
   ethereumNode: EthereumNode,
   log: LogFunctionType,
-  checker: DAProofChecker
+  checker: DaProofChecker
 ): PromiseResult => {
   log('check DA comment');
 

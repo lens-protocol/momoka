@@ -1,9 +1,10 @@
-import { BlockInfo } from "../evm/ethereum";
-import { unixTimestampToMilliseconds } from "../common/helpers";
+import { BlockInfo } from '../evm/ethereum';
+import { unixTimestampToMilliseconds } from '../common/helpers';
 import {
   DAEventType,
-  DAStructurePublication, PublicationTypedData
-} from "../data-availability-models/publications/data-availability-structure-publication";
+  DAStructurePublication,
+  PublicationTypedData,
+} from '../data-availability-models/publications/data-availability-structure-publication';
 
 /**
  * Finds the closest block based on timestamp in milliseconds.
@@ -80,5 +81,3 @@ export const isValidEventTimestamp = (
 ): boolean => {
   return daPublication.event.timestamp === daPublication.chainProofs.thisPublication.blockTimestamp;
 };
-
-

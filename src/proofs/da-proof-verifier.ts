@@ -1,4 +1,4 @@
-import { DAProofsVerifier } from './DAProofChecker';
+import { DAProofsVerifier } from './da-proof-checker';
 import { workerPool } from '../workers/worker-pool';
 import { HandlerWorkers } from '../workers/handler-communication.worker';
 import { deepClone } from '../common/helpers';
@@ -7,8 +7,14 @@ import {
   DAStructurePublication,
   PublicationTypedData,
 } from '../data-availability-models/publications/data-availability-structure-publication';
+import { Deployment, Environment } from '../common/environment';
+import { LogFunctionType } from '../common/logger';
+import { TIMEOUT_ERROR, TimeoutError } from '../input-output/common';
+import { getOwnerOfTransactionAPI } from '../input-output/bundlr/get-owner-of-transaction.api';
+import { isValidSubmitter } from '../submitters';
+import { LibCurlProvider } from '../input-output/lib-curl-provider';
 
-export class DAProofVerifier implements DAProofsVerifier {
+export class DaProofVerifier implements DAProofsVerifier {
   extractAddress(
     daPublication: DAStructurePublication<DAEventType, PublicationTypedData>
   ): Promise<string> {
@@ -37,5 +43,24 @@ export class DAProofVerifier implements DAProofsVerifier {
         bundlrUploadResponse: daPublication.timestampProofs.response,
       },
     });
+  }
+
+  async verifyTransactionSubmitter(
+    environment: Environment,
+    txId: string,
+    log: LogFunctionType,
+    deployment?: Deployment
+  ): Promise<boolean | TimeoutError> {
+    const owner = await getOwnerOfTransactionAPI(txId, { provider: new LibCurlProvider() });
+    if (owner === TIMEOUT_ERROR) {
+      return TIMEOUT_ERROR;
+    }
+
+    log('owner result', owner);
+    if (!owner) {
+      return false;
+    }
+
+    return isValidSubmitter(environment, owner, deployment);
   }
 }

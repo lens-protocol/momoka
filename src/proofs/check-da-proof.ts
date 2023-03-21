@@ -9,14 +9,14 @@ import {
   DAStructurePublication,
   PublicationTypedData,
 } from '../data-availability-models/publications/data-availability-structure-publication';
-import { DAProofVerifier } from './DAProofVerifier';
-import { DAProofChecker } from './DAProofChecker';
+import { DaProofVerifier } from './da-proof-verifier';
+import { DaProofChecker } from './da-proof-checker';
 import { DAPublicationWithTimestampProofsBatchResult } from '../data-availability-models/data-availability-timestamp-proofs';
-import { DAProofGateway } from './DAProofGateway';
+import { DaProofGateway } from './da-proof-gateway';
 
-const gateway = new DAProofGateway();
-const verifier = new DAProofVerifier();
-const checker = new DAProofChecker(verifier, gateway);
+const gateway = new DaProofGateway();
+const verifier = new DaProofVerifier();
+const checker = new DaProofChecker(verifier, gateway);
 
 /**
  * Validates a data availability proof of a given transaction on the Arweave network, including the timestamp proofs.

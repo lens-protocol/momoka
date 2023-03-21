@@ -21,7 +21,7 @@ import {
 } from '../data-availability-models/publications/data-availability-structure-publication';
 import { BlockInfo, EthereumNode } from '../evm/ethereum';
 import { TIMEOUT_ERROR, TimeoutError } from '../input-output/common';
-import { isValidSubmitter, isValidTransactionSubmitter } from '../submitters';
+import { isValidSubmitter } from '../submitters';
 import {
   CheckDASubmissionOptions,
   getDefaultCheckDASubmissionOptions,
@@ -36,6 +36,7 @@ import {
   isValidTypedDataDeadlineTimestamp,
 } from './utils';
 import { TxValidatedFailureResult, TxValidatedResult } from '../input-output/tx-validated-results';
+import { Deployment, Environment } from '../common/environment';
 
 const validResult = 'valid';
 type ValidType = typeof validResult;
@@ -51,6 +52,21 @@ export interface DAProofsVerifier {
   verifyTimestampSignature(
     daPublication: DAStructurePublication<DAEventType, PublicationTypedData>
   ): Promise<boolean>;
+
+  /**
+   * Checks if the given Arweave transaction was submitted by a valid submitter for the specified environment.
+   * @param environment The environment to check against.
+   * @param txId The Arweave transaction ID to check the submitter of.
+   * @param log A logging function to use for outputting log messages.
+   * @param deployment The deployment to check against.
+   * @returns A Promise that resolves to true if the submitter is valid, false if it is not valid, or a TimeoutError if the request timed out.
+   */
+  verifyTransactionSubmitter(
+    environment: Environment,
+    txId: string,
+    log: LogFunctionType,
+    deployment?: Deployment
+  ): Promise<boolean | TimeoutError>;
 }
 
 export interface DAProofsGateway {
@@ -65,7 +81,7 @@ export interface DAProofsGateway {
   getBlockRange(blockNumbers: number[], ethereumNode: EthereumNode): Promise<BlockInfo[]>;
 }
 
-export class DAProofChecker {
+export class DaProofChecker {
   constructor(private verifier: DAProofsVerifier, private gateway: DAProofsGateway) {}
 
   /**
@@ -170,7 +186,7 @@ export class DAProofChecker {
       );
     }
 
-    const timestampProofsSubmitter = await isValidTransactionSubmitter(
+    const timestampProofsSubmitter = await this.verifier.verifyTransactionSubmitter(
       ethereumNode.environment,
       daPublication.timestampProofs.response.id,
       options.log,
@@ -315,6 +331,7 @@ export class DAProofChecker {
     | ClaimableValidatorError.TIMESTAMP_PROOF_INVALID_TYPE
     | ClaimableValidatorError.TIMESTAMP_PROOF_INVALID_DA_ID
     | ValidType
+    // eslint-disable-next-line require-await
   > => {
     const valid = this.verifier.verifyTimestampSignature(daPublication);
 

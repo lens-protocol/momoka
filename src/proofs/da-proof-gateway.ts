@@ -6,7 +6,7 @@ import {
 } from '../data-availability-models/publications/data-availability-structure-publication';
 import { BlockInfo, EthereumNode, getBlock } from '../evm/ethereum';
 import { TimeoutError } from '../input-output/common';
-import { DAProofsGateway } from '../proofs/DAProofChecker';
+import { DAProofsGateway } from '../proofs/da-proof-checker';
 import { getBundlrByIdAPI } from '../input-output/bundlr/get-bundlr-by-id.api';
 import {
   getBlockDb,
@@ -16,8 +16,9 @@ import {
   saveBlockDb,
 } from '../input-output/db';
 import { TxValidatedResult } from '../input-output/tx-validated-results';
+import { LibCurlProvider } from '../input-output/lib-curl-provider';
 
-export class DAProofGateway implements DAProofsGateway {
+export class DaProofGateway implements DAProofsGateway {
   getTxResultFromCache(txId: string): Promise<TxValidatedResult | null> {
     // Check if the transaction ID exists in the database
     return getTxDb(txId);
@@ -46,7 +47,9 @@ export class DAProofGateway implements DAProofsGateway {
   ): Promise<DAStructurePublication<DAEventType, PublicationTypedData> | TimeoutError | null> {
     return (
       (await getTxDAMetadataDb(txId)) ||
-      (await getBundlrByIdAPI<DAStructurePublication<DAEventType, PublicationTypedData>>(txId))
+      (await getBundlrByIdAPI<DAStructurePublication<DAEventType, PublicationTypedData>>(txId, {
+        provider: new LibCurlProvider(),
+      }))
     );
   }
 
@@ -56,7 +59,9 @@ export class DAProofGateway implements DAProofsGateway {
   ): Promise<DATimestampProofsResponse | TimeoutError | null> {
     return (
       (await getTxTimestampProofsMetadataDb(txId)) ||
-      (await getBundlrByIdAPI<DATimestampProofsResponse>(timestampId))
+      (await getBundlrByIdAPI<DATimestampProofsResponse>(timestampId, {
+        provider: new LibCurlProvider(),
+      }))
     );
   }
 }
