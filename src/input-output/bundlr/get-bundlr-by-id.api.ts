@@ -14,6 +14,7 @@ export const getBundlrByIdAPI = <T>(txId: string): Promise<T | TimeoutError | nu
       try {
         return await fetchWithTimeout<T>(`${BUNDLR_GATEWAY_TX}${txId}/data`);
       } catch (error) {
+        console.log(error);
         return TIMEOUT_ERROR;
       }
     },

@@ -17,7 +17,7 @@ const gateway = new DAProofGateway();
 const verifier = new SyncVerifier();
 const checker = new DAProofChecker(verifier, gateway);
 
-export const checkDAProof = async (
+export const checkDAProof = (
   txId: string,
   ethereumNode: EthereumNode,
   options: CheckDASubmissionOptions = getDefaultCheckDASubmissionOptions

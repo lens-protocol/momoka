@@ -13,7 +13,7 @@ const ethereumNode: EthereumNode = {
 };
 
 const check = async () => {
-  const result = await checkDAProof('12', ethereumNode);
+  const result = await checkDAProof('SgrwJz3aL5yZwu4cOFoJKTqUKGe8vPyh1MPumyMTx-8', ethereumNode);
   if (result.isSuccess()) {
     console.log('proof valid', result.successResult!);
   }
