@@ -1,5 +1,7 @@
-import Utils from '@bundlr-network/client/build/common/utils';
 import { utils } from 'ethers';
+import Arweave from 'arweave/web';
+import deepHash from 'arweave/web/lib/deepHash';
+import { b64UrlToBuffer } from 'arweave/web/lib/utils';
 
 import {
   DAEventType,
@@ -14,6 +16,25 @@ import { LogFunctionType } from '../common/logger';
 import { TimeoutError, TIMEOUT_ERROR } from '../input-output/common';
 import { getOwnerOfTransactionAPI } from '../input-output/bundlr/get-owner-of-transaction.api';
 import { isValidSubmitter } from '../submitters';
+import { BundlrUploadResponse } from '../data-availability-models/data-availability-timestamp-proofs';
+
+export const verifyReceipt = async ({
+  deadlineHeight,
+  id,
+  public: pubKey,
+  signature,
+  timestamp,
+  version,
+}: BundlrUploadResponse): Promise<boolean> => {
+  const dh = await deepHash([
+    Arweave.utils.stringToBuffer('Bundlr'),
+    Arweave.utils.stringToBuffer(version),
+    Arweave.utils.stringToBuffer(id),
+    Arweave.utils.stringToBuffer(deadlineHeight.toString()),
+    Arweave.utils.stringToBuffer(timestamp.toString()),
+  ]);
+  return await Arweave.crypto.verify(pubKey, dh, b64UrlToBuffer(signature));
+};
 
 export class ClientDaProofVerifier implements DAProofsVerifier {
   extractAddress(
@@ -32,8 +53,7 @@ export class ClientDaProofVerifier implements DAProofsVerifier {
   verifyTimestampSignature(
     daPublication: DAStructurePublication<DAEventType, PublicationTypedData>
   ): Promise<boolean> {
-    // TODO: Understand why tsc fails
-    return Utils.verifyReceipt(daPublication.timestampProofs.response as any);
+    return verifyReceipt(daPublication.timestampProofs.response);
   }
 
   async verifyTransactionSubmitter(
