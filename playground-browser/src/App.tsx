@@ -13,7 +13,7 @@ const ethereumNode: EthereumNode = {
 };
 
 const check = async () => {
-  const result = await checkDAProof('SgrwJz3aL5yZwu4cOFoJKTqUKGe8vPyh1MPumyMTx-8', ethereumNode);
+  const result = await checkDAProof('VlPh9JdZ2SNcnWaqgHFRfycT8xpuoX2MR5LnI95f87w', ethereumNode);
   if (result.isSuccess()) {
     console.log('proof valid', result.successResult!);
   }
@@ -30,7 +30,6 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        {/* <img src={logo} className="App-logo" alt="logo" /> */}
         <p>
           Edit <code>src/App.tsx</code> and save to reload.
         </p>

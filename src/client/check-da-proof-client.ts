@@ -11,10 +11,10 @@ import {
 } from '../data-availability-models/publications/data-availability-structure-publication';
 import { ClientDAProofGateway } from './ClientDAProofGateway';
 import { DAProofChecker } from '../proofs/DAProofChecker';
-import { ClientDAPProofsVerifier } from './ClientDAPProofsVerifier';
+import { ClientDAPProofVerifier } from './ClientDAPProofVerifier';
 
 const gateway = new ClientDAProofGateway();
-const verifier = new ClientDAPProofsVerifier();
+const verifier = new ClientDAPProofVerifier();
 const checker = new DAProofChecker(verifier, gateway);
 
 export const checkDAProof = (

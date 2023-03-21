@@ -9,7 +9,7 @@ import {
 import { deepClone } from '../common/helpers';
 import { DAProofsVerifier } from '../proofs/DAProofChecker';
 
-export class ClientDAPProofsVerifier implements DAProofsVerifier {
+export class ClientDAPProofVerifier implements DAProofsVerifier {
   extractAddress(
     daPublication: DAStructurePublication<DAEventType, PublicationTypedData>
   ): Promise<string> {
