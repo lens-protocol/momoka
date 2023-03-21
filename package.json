@@ -14,7 +14,7 @@
     "README.md"
   ],
   "scripts": {
-    "build": "tsc --declaration",
+    "build": "tsc",
     "eslint:fix": "eslint \"src/**/*.ts\" --quiet --fix",
     "eslint": "eslint \"src/**/*.ts\" --quiet",
     "start:fork": "REQ_TIMEOUT=100000 anvil --fork-url NODE_URL --silent",
@@ -24,7 +24,7 @@
     "debug:playground:workers": "node lib/__PLAYGROUND__/main.js",
     "generate": "graphql-codegen",
     "test": "env-cmd -f .env jest",
-    "lint": "pnpm run prettier && pnpm run tsc",
+    "lint": "pnpm run prettier && pnpm run tsc --noEmit",
     "lint:fix": "pnpm run prettier:fix && pnpm run eslint",
     "prettier:fix": "prettier --write .",
     "prettier": "prettier --check .",

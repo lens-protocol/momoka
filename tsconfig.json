@@ -7,18 +7,16 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
+    "declaration": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "noImplicitReturns": true,
-    "noImplicitThis": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
     "allowSyntheticDefaultImports": true,
-    "sourceMap": false,
     "resolveJsonModule": true,
-    "skipLibCheck": true
+    "sourceMap": false
   },
-  "exclude": ["node_modules", "src/__TESTS__", "lib", "playground-browser"]
+  "include": ["./src"],
+  "exclude": ["./src/__TESTS__"]
 }
