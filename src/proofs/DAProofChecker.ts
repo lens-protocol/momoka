@@ -1,0 +1,494 @@
+import { LogFunctionType } from '../common/logger';
+import { ClaimableValidatorError } from '../data-availability-models/claimable-validator-errors';
+import {
+  failure,
+  failureWithContext,
+  PromiseResult,
+  PromiseWithContextResult,
+  success,
+  successWithContext,
+} from '../data-availability-models/da-result';
+import { DAActionTypes } from '../data-availability-models/data-availability-action-types';
+import {
+  DAPublicationWithTimestampProofsBatchResult,
+  DATimestampProofsResponse,
+} from '../data-availability-models/data-availability-timestamp-proofs';
+import {
+  DAEventType,
+  DAStructurePublication,
+  PublicationTypedData,
+} from '../data-availability-models/publications/data-availability-structure-publication';
+import { BlockInfo, EthereumNode } from '../evm/ethereum';
+import { TIMEOUT_ERROR, TimeoutError } from '../input-output/common';
+import { isValidSubmitter, isValidTransactionSubmitter } from '../submitters';
+import {
+  CheckDASubmissionOptions,
+  getDefaultCheckDASubmissionOptions,
+} from './models/check-da-submisson-options';
+import { checkDAComment, CheckDACommentPublication } from './publications/comment';
+import { checkDAMirror, CheckDAMirrorPublication } from './publications/mirror';
+import { checkDAPost, CheckDAPostPublication } from './publications/post';
+import {
+  getClosestBlock,
+  isValidEventTimestamp,
+  isValidPublicationId,
+  isValidTypedDataDeadlineTimestamp,
+} from './utils';
+
+const validResult = 'valid';
+type ValidType = typeof validResult;
+
+export interface DAProofsVerifier {
+  extractAddress(
+    daPublication: DAStructurePublication<DAEventType, PublicationTypedData>
+  ): Promise<string>;
+
+  /**
+   * Check if bundlr timestamp proofs are valid and verified against bundlr node
+   */
+  verifyTimestampSignature(
+    daPublication: DAStructurePublication<DAEventType, PublicationTypedData>
+  ): Promise<boolean>;
+}
+
+export interface DAProofsGateway {
+  getDaPublication(
+    txId: string
+  ): Promise<DAStructurePublication<DAEventType, PublicationTypedData> | TimeoutError | null>;
+  getTimestampProofs(
+    timestampId: string,
+    txId: string
+  ): Promise<DATimestampProofsResponse | TimeoutError | null>;
+  getBlockRange(blockNumbers: number[], ethereumNode: EthereumNode): Promise<BlockInfo[]>;
+}
+
+export class DAProofChecker {
+  constructor(private verifier: DAProofsVerifier, private gateway: DAProofsGateway) {}
+
+  /**
+   * Checks a data availability proof with metadata, including the timestamp proofs and transaction ID.
+   * If the proof has already been checked, returns the previous result.
+   * If the submitter is invalid, returns an error.
+   * Otherwise, runs the internal proof check and returns the result.
+   * @param txId The transaction ID associated with the proof.
+   * @param daPublicationWithTimestampProofs The data availability publication with associated timestamp proofs.
+   * @param ethereumNode The Ethereum node to use for validation.
+   * @param options Optional options for the check, including logging and pointer verification.
+   * @returns A context result with the validated publication, or an error if validation fails.
+   */
+
+  public checkDAProofWithMetadata = async (
+    _txId: string,
+    daPublicationWithTimestampProofs: DAPublicationWithTimestampProofsBatchResult,
+    ethereumNode: EthereumNode,
+    options: CheckDASubmissionOptions = getDefaultCheckDASubmissionOptions
+  ): PromiseWithContextResult<
+    DAStructurePublication<DAEventType, PublicationTypedData> | void,
+    DAStructurePublication<DAEventType, PublicationTypedData>
+  > => {
+    if (
+      !isValidSubmitter(
+        ethereumNode.environment,
+        daPublicationWithTimestampProofs.submitter,
+        ethereumNode.deployment
+      )
+    ) {
+      return failureWithContext(
+        ClaimableValidatorError.TIMESTAMP_PROOF_NOT_SUBMITTER,
+        daPublicationWithTimestampProofs.daPublication
+      );
+    }
+
+    return await this._checkDAProof(
+      daPublicationWithTimestampProofs.daPublication,
+      daPublicationWithTimestampProofs.timestampProofsData,
+      ethereumNode,
+      options
+    );
+  };
+
+  /**
+   * Validates a data availability proof of a given transaction on the Arweave network, including the timestamp proofs.
+   * @param txId The transaction ID to check.
+   * @param ethereumNode The Ethereum node to use to validate the data availability proof.
+   * @param options The options for validating the data availability proof.
+   * @returns A `Promise` that resolves to a `PromiseResult` containing the validated data availability proof, or `void` if the validation fails.
+   */
+  public checkDAProof = async (
+    txId: string,
+    ethereumNode: EthereumNode,
+    options: CheckDASubmissionOptions = getDefaultCheckDASubmissionOptions
+  ): PromiseWithContextResult<
+    DAStructurePublication<DAEventType, PublicationTypedData> | void,
+    DAStructurePublication<DAEventType, PublicationTypedData>
+  > => {
+    txId = txId.replace('ar://', ''); // pointers have the ar prefix!
+
+    options.log(`Checking the submission`);
+
+    // const daPublication =
+    //   (await getTxDAMetadataDb(txId)) ||
+    //   (await getBundlrByIdAPI<DAStructurePublication<DAEventType, PublicationTypedData>>(txId));
+    //
+
+    const daPublication = await this.gateway.getDaPublication(txId);
+
+    if (!daPublication) {
+      return failureWithContext(ClaimableValidatorError.INVALID_TX_ID, undefined as any);
+    }
+    if (daPublication === TIMEOUT_ERROR) {
+      return failureWithContext(
+        ClaimableValidatorError.CAN_NOT_CONNECT_TO_BUNDLR,
+        undefined as any
+      );
+    }
+
+    // const timestampProofsPayload =
+    //   (await getTxTimestampProofsMetadataDb(txId)) ||
+    //   (await getBundlrByIdAPI<DATimestampProofsResponse>(
+    //     daPublication.timestampProofs.response.id
+    //   ));
+    //
+
+    const timestampProofsPayload = await this.gateway.getTimestampProofs(
+      daPublication.timestampProofs.response.id,
+      txId
+    );
+
+    if (!timestampProofsPayload) {
+      return failureWithContext(ClaimableValidatorError.INVALID_TX_ID, undefined as any);
+    }
+    if (timestampProofsPayload === TIMEOUT_ERROR) {
+      return failureWithContext(
+        ClaimableValidatorError.CAN_NOT_CONNECT_TO_BUNDLR,
+        undefined as any
+      );
+    }
+
+    const timestampProofsSubmitter = await isValidTransactionSubmitter(
+      ethereumNode.environment,
+      daPublication.timestampProofs.response.id,
+      options.log,
+      ethereumNode.deployment
+    );
+    if (timestampProofsSubmitter === TIMEOUT_ERROR) {
+      return failureWithContext(
+        ClaimableValidatorError.CAN_NOT_CONNECT_TO_BUNDLR,
+        undefined as any
+      );
+    }
+    if (!timestampProofsSubmitter) {
+      return failureWithContext(
+        ClaimableValidatorError.TIMESTAMP_PROOF_NOT_SUBMITTER,
+        daPublication
+      );
+    }
+    options.log('timestamp proof valid submitter');
+
+    return await this._checkDAProof(daPublication, timestampProofsPayload, ethereumNode, options);
+  };
+
+  /**
+   * Validates the timestamp proofs and signatures of a given publication
+   * against the timestampProofs and ethereumNode parameters.
+   * @param daPublication The publication to validate.
+   * @param timestampProofs The timestamp proofs to validate the publication against.
+   * @param ethereumNode The Ethereum node to validate the publication against.
+   * @param options The optional parameters to use when checking the publication.
+   * @returns A promise with the result of the validation.
+   */
+  private _checkDAProof = async (
+    daPublication: DAStructurePublication<DAEventType, PublicationTypedData>,
+    timestampProofs: DATimestampProofsResponse,
+    ethereumNode: EthereumNode,
+    { log, byPassDb, verifyPointer }: CheckDASubmissionOptions
+  ): PromiseWithContextResult<
+    DAStructurePublication<DAEventType, PublicationTypedData> | void,
+    DAStructurePublication<DAEventType, PublicationTypedData>
+  > => {
+    if (!daPublication.signature) {
+      return failureWithContext(ClaimableValidatorError.NO_SIGNATURE_SUBMITTER, daPublication);
+    }
+
+    if (!(await this.isValidSignatureSubmitter(daPublication, ethereumNode, log))) {
+      return failureWithContext(ClaimableValidatorError.INVALID_SIGNATURE_SUBMITTER, daPublication);
+    }
+
+    const timestampProofsResult = await this.validatesTimestampProof(
+      daPublication,
+      timestampProofs,
+      log
+    );
+    if (timestampProofsResult !== validResult) {
+      return failureWithContext(timestampProofsResult, daPublication);
+    }
+
+    if (!isValidEventTimestamp(daPublication)) {
+      log('event timestamp does not match the publication timestamp');
+      // the event emitted must match the same timestamp as the block number
+      return failureWithContext(ClaimableValidatorError.INVALID_EVENT_TIMESTAMP, daPublication);
+    }
+
+    if (!isValidTypedDataDeadlineTimestamp(daPublication)) {
+      log('typed data timestamp does not match the publication timestamp');
+      // the event emitted must match the same timestamp as the block number
+      return failureWithContext(
+        ClaimableValidatorError.INVALID_TYPED_DATA_DEADLINE_TIMESTAMP,
+        daPublication
+      );
+    }
+
+    log('event timestamp matches publication timestamp');
+
+    const validateBlockResult = await this.validateChoosenBlock(
+      daPublication.chainProofs.thisPublication.blockNumber,
+      daPublication.timestampProofs.response.timestamp,
+      ethereumNode,
+      log
+    );
+
+    if (validateBlockResult.isFailure()) {
+      return failureWithContext(validateBlockResult.failure!, daPublication);
+    }
+
+    log('event timestamp matches up the on chain block timestamp');
+
+    const daResult = await this.checkDAPublication(daPublication, ethereumNode, {
+      log,
+      byPassDb,
+      verifyPointer,
+    });
+
+    if (daResult.isFailure()) {
+      return failureWithContext(daResult.failure!, daPublication);
+    }
+
+    if (!isValidPublicationId(daPublication)) {
+      log('publicationId does not match the generated one');
+      return failureWithContext(
+        ClaimableValidatorError.GENERATED_PUBLICATION_ID_MISMATCH,
+        daPublication
+      );
+    }
+
+    return successWithContext(daPublication);
+  };
+
+  /**
+   * Checks if the signature submitter is valid.
+   * @param daPublication - The publication to check.
+   * @param ethereumNode - The Ethereum node to use.
+   * @param log - The logging function to use.
+   * @returns True if the signature submitter is valid, false otherwise.
+   *          turned into a promise as its CPU intensive
+   */
+  private isValidSignatureSubmitter = async (
+    daPublication: DAStructurePublication<DAEventType, PublicationTypedData>,
+    ethereumNode: EthereumNode,
+    log: LogFunctionType
+  ): Promise<boolean> => {
+    const signedAddress = await this.verifier.extractAddress(daPublication);
+
+    log('signedAddress', signedAddress);
+
+    return isValidSubmitter(ethereumNode.environment, signedAddress, ethereumNode.deployment);
+  };
+
+  /**
+   * Validates the timestamp proof of the given DA publication against the corresponding timestamp proof payload.
+   * @param daPublication The DA publication to validate the timestamp proof of.
+   * @param timestampProofs The timestamp proof payload to validate the DA publication against.
+   * @param log A logging function to output debug information.
+   * @returns A Promise that resolves with a `ValidType` if the timestamp proof is valid or an error code if it is not.
+   */
+  private validatesTimestampProof = async (
+    daPublication: DAStructurePublication<DAEventType, PublicationTypedData>,
+    timestampProofs: DATimestampProofsResponse,
+    log: LogFunctionType
+  ): Promise<
+    | ClaimableValidatorError.TIMESTAMP_PROOF_INVALID_SIGNATURE
+    | ClaimableValidatorError.TIMESTAMP_PROOF_INVALID_TYPE
+    | ClaimableValidatorError.TIMESTAMP_PROOF_INVALID_DA_ID
+    | ValidType
+  > => {
+    const valid = this.verifier.verifyTimestampSignature(daPublication);
+
+    if (!valid) {
+      log('timestamp proof invalid signature');
+      return ClaimableValidatorError.TIMESTAMP_PROOF_INVALID_SIGNATURE;
+    }
+
+    log('timestamp proof signature valid');
+
+    if (timestampProofs.type !== daPublication.type) {
+      log('timestamp proof type mismatch');
+      return ClaimableValidatorError.TIMESTAMP_PROOF_INVALID_TYPE;
+    }
+
+    if (timestampProofs.dataAvailabilityId !== daPublication.dataAvailabilityId) {
+      log('timestamp proof da id mismatch');
+      return ClaimableValidatorError.TIMESTAMP_PROOF_INVALID_DA_ID;
+    }
+
+    return validResult;
+  };
+
+  /**
+   * Retrieves block information for a range of block numbers.
+   * If a block has been retrieved previously, it will return the cached value instead of querying the network.
+   * Any newly retrieved blocks will be cached for future use.
+   * @param blockNumbers An array of block numbers to retrieve information for
+   * @param ethereumNode The Ethereum node to query for block information
+   * @returns A PromiseResult containing an array of BlockInfo objects, or a TimeoutError if the query times out
+   */
+  private getBlockRange = async (
+    blockNumbers: number[],
+    ethereumNode: EthereumNode
+  ): PromiseResult<BlockInfo[] | void> => {
+    try {
+      const blocks = await this.gateway.getBlockRange(blockNumbers, ethereumNode);
+
+      return success(blocks);
+    } catch (error) {
+      return failure(ClaimableValidatorError.BLOCK_CANT_BE_READ_FROM_NODE);
+    }
+
+    // try {
+    //   const blocks = await Promise.all(
+    //     blockNumbers.map(async (blockNumber) => {
+    //       const cachedBlock = await getBlockDb(blockNumber);
+    //       if (cachedBlock) {
+    //         return cachedBlock;
+    //       }
+    //
+    //       const block = await getBlock(blockNumber, ethereumNode);
+    //
+    //       // fire and forget!
+    //       saveBlockDb(block);
+    //
+    //       return block;
+    //     })
+    //   );
+    //
+    //   return success(blocks);
+    // } catch (error) {
+    //   return failure(ClaimableValidatorError.BLOCK_CANT_BE_READ_FROM_NODE);
+    // }
+  };
+
+  /**
+   * Validate if a block number is the closest one to a given timestamp.
+   * @param blockNumber - The block number to be validated.
+   * @param timestamp - The timestamp to be used to validate the block.
+   * @param ethereumNode - The Ethereum node to be used for block validation.
+   * @param log - The log function used to log debug information.
+   * @returns A PromiseResult containing a success result if the block is validated, or a failure with the corresponding error.
+   */
+  private validateChoosenBlock = async (
+    blockNumber: number,
+    timestamp: number,
+    ethereumNode: EthereumNode,
+    log: LogFunctionType
+  ): PromiseResult => {
+    try {
+      // got the current block, the previous block, and the block in the future!
+      const blockNumbers = [blockNumber - 1, blockNumber, blockNumber + 1];
+
+      const blocksResult = await this.getBlockRange(blockNumbers, ethereumNode);
+
+      if (blocksResult.isFailure()) {
+        return failure(blocksResult.failure!);
+      }
+
+      const blocks = blocksResult.successResult!;
+      log(
+        'blocks',
+        blocks.map((c) => ({ time: c.timestamp * 1000, blockNumber: c.number }))
+      );
+      log('timestamp', timestamp);
+
+      const closestBlock = getClosestBlock(blocks, timestamp);
+
+      // compare block numbers to make sure they are the same
+      if (closestBlock.number !== blockNumber) {
+        log('closestBlock does not match', {
+          closestBlock: closestBlock.number,
+          submittedBlockNumber: blockNumber,
+          closestBlockFull: closestBlock,
+        });
+
+        if (closestBlock.number === blockNumber + 1) {
+          log(
+            `
+        Due to latency with nodes, we allow the next block to be accepted as the closest.
+        When you do a request over the wire, the node provider may not have broadcasted yet,
+        this means you may have 100-300ms latency which cannot be avoided. The signature still
+        needs to conform to the past block, so it's still very valid.
+        `
+          );
+        } else {
+          return failure(ClaimableValidatorError.NOT_CLOSEST_BLOCK);
+        }
+      }
+
+      log('compare done', {
+        choosenBlock: closestBlock.timestamp,
+        timestamp,
+      });
+
+      //TODO look at this again
+      // block times are 2 seconds so this should never ever happen
+      // if (closestBlock.number + 2500 > timestamp) {
+      //   throw new Error(ClaimableValidatorError.BLOCK_TOO_FAR);
+      // }
+
+      return success();
+    } catch (e) {
+      log('validateChoosenBlock error', e);
+      return failure(ClaimableValidatorError.UNKNOWN);
+    }
+  };
+
+  /**
+   * Validates a publication of a DA structure by checking its type and calling the appropriate check function.
+   * @param daPublication The publication to validate.
+   * @param ethereumNode The Ethereum node to use for validation.
+   * @param checkOptions Options for checking the publication.
+   * @returns A PromiseResult indicating the success or failure of the publication check.
+   */
+  private checkDAPublication = async (
+    daPublication: DAStructurePublication<DAEventType, PublicationTypedData>,
+    ethereumNode: EthereumNode,
+    checkOptions: CheckDASubmissionOptions
+  ): PromiseResult => {
+    switch (daPublication.type) {
+      case DAActionTypes.POST_CREATED:
+        if (daPublication.chainProofs.pointer) {
+          return failure(ClaimableValidatorError.INVALID_POINTER_SET_NOT_NEEDED);
+        }
+        return await checkDAPost(
+          daPublication as CheckDAPostPublication,
+          ethereumNode,
+          checkOptions.log
+        );
+      case DAActionTypes.COMMENT_CREATED:
+        return await checkDAComment(
+          daPublication as CheckDACommentPublication,
+          checkOptions.verifyPointer,
+          ethereumNode,
+          checkOptions.log,
+          this
+        );
+      case DAActionTypes.MIRROR_CREATED:
+        return await checkDAMirror(
+          daPublication as CheckDAMirrorPublication,
+          checkOptions.verifyPointer,
+          ethereumNode,
+          checkOptions.log,
+          this
+        );
+      default:
+        return failure(ClaimableValidatorError.UNKNOWN);
+    }
+  };
+}

@@ -1,7 +1,7 @@
 import Utils from '@bundlr-network/client/build/common/utils';
 import { utils } from 'ethers';
 
-import { DAProofsVerifier } from './check-da-proof';
+import { DAProofsVerifier } from './DAProofChecker';
 import {
   DAEventType,
   DAStructurePublication,

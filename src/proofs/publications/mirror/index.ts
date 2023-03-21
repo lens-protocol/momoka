@@ -9,7 +9,7 @@ import {
 } from '../../../data-availability-models/publications/data-availability-structure-publication';
 import { DAMirrorCreatedEventEmittedResponse } from '../../../data-availability-models/publications/data-availability-structure-publications-events';
 import { EMPTY_BYTE, EthereumNode, getOnChainProfileDetails } from '../../../evm/ethereum';
-import { DAProofChecker } from "../../check-da-proof";
+import { DAProofChecker } from '../../DAProofChecker';
 import { whoSignedTypedData } from '../publication.base';
 
 export type CheckDAMirrorPublication = DAStructurePublication<
@@ -73,7 +73,7 @@ export const checkDAMirror = async (
   ethereumNode: EthereumNode,
   log: LogFunctionType,
   // TODO: Improve that to avoid cycling dependencies
-  checker: DAProofChecker,
+  checker: DAProofChecker
 ): PromiseResult => {
   log('check DA mirror');
 

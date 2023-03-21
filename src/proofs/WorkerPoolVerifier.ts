@@ -1,4 +1,4 @@
-import { DAProofsVerifier } from './check-da-proof';
+import { DAProofsVerifier } from './DAProofChecker';
 import { workerPool } from '../workers/worker-pool';
 import { HandlerWorkers } from '../workers/handler-communication.worker';
 import { deepClone } from '../common/helpers';
@@ -8,7 +8,7 @@ import {
   PublicationTypedData,
 } from '../data-availability-models/publications/data-availability-structure-publication';
 
-export class ThreadedVerifier implements DAProofsVerifier {
+export class WorkerPoolVerifier implements DAProofsVerifier {
   extractAddress(
     daPublication: DAStructurePublication<DAEventType, PublicationTypedData>
   ): Promise<string> {
