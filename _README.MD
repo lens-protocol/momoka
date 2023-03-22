@@ -1518,7 +1518,7 @@ $ npx lens-verifier --node 'YOUR_NODE' --environment='MUMBAI|POLYGON' --concurre
 
 ## Installing package
 
-This is a written in node, and this means it can be ran on the client as well as a server; it won't use the DB on the client but can mean you can run proof checks in runtime, which is super powerful. Also you may which to monitor this on your server to index stuff as it comes in.
+This is a written in node, and this means it can be run on the client as well as a server; it won't use the DB on the client but can mean you can run proof checks in runtime, which is super powerful. Also, you may which to monitor this on your server to index stuff as it comes in.
 
 ```bash
 $ npm i @lens-protocol/data-availability-verifier
@@ -1526,15 +1526,41 @@ $ npm i @lens-protocol/data-availability-verifier
 
 <b>Do not use if you do not know what you are doing the basic config works for all production apps</b>
 
-please note if you wish to use a different deployment then `PRODUCTION` you will need to make sure you put `deployment: STAGING` or `deployment: LOCAL` in the `EthereumNode` object. This for most will not be the case.
+Please note if you wish to use a different deployment then `PRODUCTION` you will need to make sure you put `deployment: STAGING` or `deployment: LOCAL` in the `EthereumNode` object. This for most will not be the case.
 
-### Browser usage
+### Client usage
 
-Currently working on fixing the build to work on browsers.
+The package exposes a separate entry point for the client usage (`'@lens-protocol/data-availability-verifier/client'`) to make sure the bundle size is not affected by any polyfills or other node specific code.
+
+Check the `playground-browser` folder for a working example of the client usage.
 
 #### checkDAProof
 
-The `checkDAProof` will return you a failure reason of the enum `ClaimableValidatorError`, and if successful, you be returned the entire `DAStructurePublication`. This can be ran on the client to check in runtime, this can also be ran on any server.
+The `checkDAProof` will return you a failure reason of the enum `ClaimableValidatorError`, and if successful, you be returned the entire `DAStructurePublication`. This is a client specific version of the `checkDAProof` function that doesn't have any caching in place. For the server version, please see the server usage section.
+
+```ts
+import { checkDAProof, EthereumNode, Environment } from '@lens-protocol/data-availability-verifier/client';
+
+const ethereumNode: EthereumNode = {
+  environment: Environment.POLYGON,
+  nodeUrl: YOUR_NODE_URL,
+};
+
+const result = await checkDAProof(PROOF_ID, ethereumNode);
+if (result.isSuccess()) {
+    console.log('proof valid', result.successResult!)
+    return; // all is well!
+}
+
+// it failed!
+console.error('proof invalid do something', result.failure!)
+```
+
+### Server usage
+
+#### checkDAProof
+
+The `checkDAProof` will return you a failure reason of the enum `ClaimableValidatorError`, and if successful, you be returned the entire `DAStructurePublication`. This is a server specific version of the `checkDAProof` function that has caching in place. For the client version, please see the client usage section.
 
 ```ts
 import { checkDAProof, EthereumNode, Environment } from '@lens-protocol/data-availability-verifier';
@@ -1553,8 +1579,6 @@ if (result.isSuccess()) {
 // it failed!
 console.error('proof invalid do something', result.failure!)
 ```
-
-### Server usage
 
 #### startDAVerifierNode
 
@@ -1629,7 +1653,7 @@ startDAVerifierNode(ethereumNode, concurrency, { syncFromHeadOnly: true });
 
 #### startDATrustingIndexing
 
-If you just want to get the data as fast as possible and do not wish to verifiy the proofs, you can use the `startDATrustingIndexing` function. This will stream out the data as fast as possible and will not check the proofs, so does not require a archive node.
+If you just want to get the data as fast as possible and do not wish to verify the proofs, you can use the `startDATrustingIndexing` function. This will stream out the data as fast as possible and will not check the proofs, so does not require an archive node.
 
 ```ts
 import { startDATrustingIndexing, StreamResult, StartDATrustingIndexingRequest } from '@lens-protocol/data-availability-verifier';

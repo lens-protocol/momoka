@@ -11,6 +11,7 @@
   },
   "files": [
     "lib/**/*",
+    "client/**/*",
     "README.md"
   ],
   "scripts": {
