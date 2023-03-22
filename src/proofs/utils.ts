@@ -1,3 +1,4 @@
+import type CryptoInterface from 'arweave/node/lib/crypto/crypto-interface';
 import { BlockInfo } from '../evm/ethereum';
 import { unixTimestampToMilliseconds } from '../common/helpers';
 import {
@@ -5,6 +6,7 @@ import {
   DAStructurePublication,
   PublicationTypedData,
 } from '../data-availability-models/publications/data-availability-structure-publication';
+import { BundlrUploadResponse } from '../data-availability-models/data-availability-timestamp-proofs';
 
 /**
  * Finds the closest block based on timestamp in milliseconds.
@@ -80,4 +82,33 @@ export const isValidEventTimestamp = (
   daPublication: DAStructurePublication<DAEventType, PublicationTypedData>
 ): boolean => {
   return daPublication.event.timestamp === daPublication.chainProofs.thisPublication.blockTimestamp;
+};
+
+type Providers = {
+  stringToBuffer: (str: string) => Uint8Array;
+  b64UrlToBuffer: (str: string) => Uint8Array;
+  deepHash: (str: Uint8Array[]) => Promise<Uint8Array>;
+  crypto: CryptoInterface;
+};
+
+/**
+ * Verifies the signature of a Bundlr upload response.
+ * Copied from https://github.com/Bundlr-Network/js-sdk/blob/main/src/common/utils.ts to make the code isomorphic
+ * and avoid bringing node native modules to client code.
+ * @param response The Bundlr upload response to verify.
+ * @param providers The providers to use for the verification (should be either the one for node or client).
+ */
+export const verifyReceipt = async (
+  { deadlineHeight, id, public: pubKey, signature, timestamp, version }: BundlrUploadResponse,
+  { crypto, b64UrlToBuffer, stringToBuffer, deepHash }: Providers
+): Promise<boolean> => {
+  const dh = await deepHash([
+    stringToBuffer('Bundlr'),
+    stringToBuffer(version),
+    stringToBuffer(id),
+    stringToBuffer(deadlineHeight.toString()),
+    stringToBuffer(timestamp.toString()),
+  ]);
+
+  return await crypto.verify(pubKey, dh, b64UrlToBuffer(signature));
 };
