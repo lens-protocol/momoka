@@ -9,7 +9,7 @@ import {
 } from '../../../data-availability-models/publications/data-availability-structure-publication';
 import { DACommentCreatedEventEmittedResponse } from '../../../data-availability-models/publications/data-availability-structure-publications-events';
 import { EMPTY_BYTE, EthereumNode, getOnChainProfileDetails } from '../../../evm/ethereum';
-import { checkDAProof } from '../../check-da-proof';
+import { DaProofChecker } from '../../da-proof-checker';
 import { whoSignedTypedData } from '../publication.base';
 
 export type CheckDACommentPublication = DAStructurePublication<
@@ -69,13 +69,15 @@ const crossCheckEvent = async (
  * @param verifyPointer If true, the pointer chain will be verified before checking the publication.
  * @param ethereumNode The EthereumNode to use for fetching data from the Ethereum blockchain.
  * @param log A function used for logging output.
+ * @param checker The DAProofChecker to use for checking the proof.
  * @returns A PromiseResult indicating success or failure, along with an optional error message.
  */
 export const checkDAComment = async (
   publication: CheckDACommentPublication,
   verifyPointer: boolean,
   ethereumNode: EthereumNode,
-  log: LogFunctionType
+  log: LogFunctionType,
+  checker: DaProofChecker
 ): PromiseResult => {
   log('check DA comment');
 
@@ -91,7 +93,7 @@ export const checkDAComment = async (
     log('verify pointer first');
 
     // check the pointer!
-    const pointerResult = await checkDAProof(
+    const pointerResult = await checker.checkDAProof(
       publication.chainProofs.pointer.location,
       ethereumNode,
       {
