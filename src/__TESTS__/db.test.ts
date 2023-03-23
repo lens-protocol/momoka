@@ -1,16 +1,5 @@
 import { ClaimableValidatorError, TxValidatedResult } from '..';
-import {
-  // DbReference,
-  // deleteDb,
-  // FailedTransactionsDb,
-  getBlockDb,
-  // getFailedTransactionsDb,
-  getTxDb,
-  saveBlockDb,
-  // saveFailedTransactionDb,
-  saveTxDb,
-  startDb,
-} from '../input-output/db';
+import { getBlockDb, getTxDb, saveBlockDb, saveTxDb, startDb } from '../input-output/db';
 import { random } from './shared-helpers';
 
 describe('db', () => {
@@ -66,31 +55,4 @@ describe('db', () => {
       expect(result).toEqual(block);
     });
   });
-
-  // describe('getFailedTransactionsDb + saveFailedTransactionDb', () => {
-  //   test('should return empty array if nothing found', async () => {
-  //     await deleteDb(`${DbReference.block}:failed`);
-
-  //     const result = await getFailedTransactionsDb();
-  //     expect(result).toEqual([]);
-  //   });
-
-  //   test('should return value if found', async () => {
-  //     await deleteDb(`${DbReference.block}:failed`);
-
-  //     const failedTx: FailedTransactionsDb = {
-  //       txId: random(),
-  //       reason: ClaimableValidatorError.EVENT_MISMATCH,
-  //       submitter: random(),
-  //     };
-
-  //     await saveFailedTransactionDb(failedTx);
-
-  //     const result = await getFailedTransactionsDb();
-  //     expect(result).toHaveLength(1);
-
-  //     const [first] = result;
-  //     expect(first).toEqual(failedTx);
-  //   });
-  // });
 });

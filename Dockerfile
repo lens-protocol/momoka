@@ -7,12 +7,14 @@ COPY tsconfig.json ./
 COPY src ./src
 COPY .env ./
 
+RUN npm install -g pnpm
+
 RUN chown -R node:node /usr/src/app
 
 USER node
 
-RUN npm install
-RUN npm run build
+RUN pnpm i
+RUN pnpm build
 
 COPY lib ./lib
 
