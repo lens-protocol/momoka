@@ -1548,12 +1548,12 @@ const ethereumNode: EthereumNode = {
 
 const result = await checkDAProof(PROOF_ID, ethereumNode);
 if (result.isSuccess()) {
-    console.log('proof valid', result.successResult!)
+    console.log('proof valid', result.successResult)
     return; // all is well!
 }
 
 // it failed!
-console.error('proof invalid do something', result.failure!)
+console.error('proof invalid do something', result.failure)
 ```
 
 ### Server usage
@@ -1572,12 +1572,12 @@ const ethereumNode: EthereumNode = {
 
 const result = await checkDAProof(PROOF_ID, ethereumNode);
 if (result.isSuccess()) {
-    console.log('proof valid', result.successResult!)
+    console.log('proof valid', result.successResult)
     return; // all is well!
 }
 
 // it failed!
-console.error('proof invalid do something', result.failure!)
+console.error('proof invalid do something', result.failure)
 ```
 
 #### startDAVerifierNode

@@ -32,7 +32,7 @@ export const executeSimulationTransaction = async (
   data: string,
   blockNumber: number,
   ethereumNode: EthereumNode
-): PromiseResult<string | void> => {
+): PromiseResult<string> => {
   try {
     return await retryWithTimeout(
       async () => {
@@ -117,7 +117,7 @@ export const getOnChainProfileDetails = async (
   currentPublicationId: string;
   dispatcherAddress: string;
   ownerOfAddress: string;
-} | void> => {
+}> => {
   // Create a new Multicall instance
   const multicall = new Multicall({
     nodeUrl: ethereumNode.nodeUrl,
@@ -266,7 +266,7 @@ export const getLensPubCount = async (
   profileId: string,
   blockNumber: number,
   ethereumNode: EthereumNode
-): PromiseResult<BigNumber | void> => {
+): PromiseResult<BigNumber> => {
   const encodedData = DAlensHubInterface.encodeFunctionData('getPubCount', [profileId]);
 
   try {

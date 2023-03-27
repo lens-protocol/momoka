@@ -66,7 +66,7 @@ const crossCheckEvent = async (
 const generateSimulationData = (
   signedByDelegate: boolean,
   sigRequest: PostWithSig_DispatcherRequest
-): PromiseResult<string | void> => {
+): PromiseResult<string> => {
   try {
     const result = DAlensHubInterface.encodeFunctionData(
       signedByDelegate ? 'postWithSig_Dispatcher' : 'postWithSig',
@@ -90,13 +90,13 @@ const getExpectedResult = async (
   profileId: string,
   blockNumber: number,
   ethereumNode: EthereumNode
-): PromiseResult<BigNumber | void> => {
+): PromiseResult<BigNumber> => {
   const publicationCount = await getLensPubCount(profileId, blockNumber, ethereumNode);
   if (publicationCount.isFailure()) {
-    return failure(publicationCount.failure!);
+    return failure(publicationCount.failure);
   }
 
-  return success(publicationCount.successResult!.add(1));
+  return success(publicationCount.successResult.add(1));
 };
 
 /**
@@ -137,13 +137,13 @@ export const checkDAPost = async (
   );
 
   if (simulationData.isFailure()) {
-    return failure(simulationData.failure!);
+    return failure(simulationData.failure);
   }
 
   // check the signature would of passed using eth_call
   const [simulatedResult, expectedResult] = await Promise.all([
     executeSimulationTransaction(
-      simulationData.successResult!,
+      simulationData.successResult,
       publication.chainProofs.thisPublication.blockNumber,
       ethereumNode
     ),
@@ -156,14 +156,14 @@ export const checkDAPost = async (
 
   if (simulatedResult.isFailure()) {
     log('signature simulation checking failed');
-    return failure(simulationData.failure!);
+    return failure(simulatedResult.failure);
   }
   if (expectedResult.isFailure()) {
     log('expectedResult failed to be fetched');
-    return failure(expectedResult.failure!);
+    return failure(expectedResult.failure);
   }
 
-  if (!expectedResult.successResult!.eq(simulatedResult.successResult!)) {
+  if (!expectedResult.successResult.eq(simulatedResult.successResult)) {
     log('signature simulation checking failed');
     return failure(ClaimableValidatorError.SIMULATION_FAILED);
   }
@@ -173,7 +173,7 @@ export const checkDAPost = async (
   // cross check event and typed data values
   const eventResult = await crossCheckEvent(
     publication.event,
-    BigNumber.from(simulatedResult.successResult!),
+    BigNumber.from(simulatedResult.successResult),
     publication.chainProofs.thisPublication.typedData,
     log
   );

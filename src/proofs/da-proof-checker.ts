@@ -7,7 +7,6 @@ import {
   PromiseWithContextResult,
   PromiseWithContextResultOrNull,
   success,
-  successWithContext,
 } from '../data-availability-models/da-result';
 import { DAActionTypes } from '../data-availability-models/data-availability-action-types';
 import {
@@ -102,7 +101,7 @@ export class DaProofChecker {
     ethereumNode: EthereumNode,
     options: CheckDASubmissionOptions = getDefaultCheckDASubmissionOptions
   ): PromiseWithContextResult<
-    DAStructurePublication<DAEventType, PublicationTypedData> | void,
+    DAStructurePublication<DAEventType, PublicationTypedData>,
     DAStructurePublication<DAEventType, PublicationTypedData>
   > => {
     if (!options.byPassDb) {
@@ -224,7 +223,7 @@ export class DaProofChecker {
     ethereumNode: EthereumNode,
     { log, byPassDb, verifyPointer }: CheckDASubmissionOptions
   ): PromiseWithContextResult<
-    DAStructurePublication<DAEventType, PublicationTypedData> | void,
+    DAStructurePublication<DAEventType, PublicationTypedData>,
     DAStructurePublication<DAEventType, PublicationTypedData>
   > => {
     if (!daPublication.signature) {
@@ -269,7 +268,7 @@ export class DaProofChecker {
     );
 
     if (validateBlockResult.isFailure()) {
-      return failureWithContext(validateBlockResult.failure!, daPublication);
+      return failureWithContext(validateBlockResult.failure, daPublication);
     }
 
     log('event timestamp matches up the on chain block timestamp');
@@ -281,7 +280,7 @@ export class DaProofChecker {
     });
 
     if (daResult.isFailure()) {
-      return failureWithContext(daResult.failure!, daPublication);
+      return failureWithContext(daResult.failure, daPublication);
     }
 
     if (!isValidPublicationId(daPublication)) {
@@ -292,7 +291,7 @@ export class DaProofChecker {
       );
     }
 
-    return successWithContext(daPublication);
+    return success(daPublication);
   };
 
   /**
@@ -366,7 +365,7 @@ export class DaProofChecker {
   private getBlockRange = async (
     blockNumbers: number[],
     ethereumNode: EthereumNode
-  ): PromiseResult<BlockInfo[] | void> => {
+  ): PromiseResult<BlockInfo[]> => {
     try {
       const blocks = await this.gateway.getBlockRange(blockNumbers, ethereumNode);
 
@@ -397,10 +396,10 @@ export class DaProofChecker {
       const blocksResult = await this.getBlockRange(blockNumbers, ethereumNode);
 
       if (blocksResult.isFailure()) {
-        return failure(blocksResult.failure!);
+        return failure(blocksResult.failure);
       }
 
-      const blocks = blocksResult.successResult!;
+      const blocks = blocksResult.successResult;
       log(
         'blocks',
         blocks.map((c) => ({ time: c.timestamp * 1000, blockNumber: c.number }))
@@ -505,7 +504,7 @@ export class DaProofChecker {
     txId: string,
     log: LogFunctionType
   ): PromiseWithContextResultOrNull<
-    DAStructurePublication<DAEventType, PublicationTypedData> | void,
+    DAStructurePublication<DAEventType, PublicationTypedData>,
     DAStructurePublication<DAEventType, PublicationTypedData>
   > => {
     // Check if the transaction ID exists in the database
@@ -516,7 +515,7 @@ export class DaProofChecker {
       log('Already checked submission');
 
       if (cacheResult.success) {
-        return successWithContext(cacheResult.dataAvailabilityResult);
+        return success(cacheResult.dataAvailabilityResult);
       }
 
       return failureWithContext(

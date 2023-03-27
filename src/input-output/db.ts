@@ -8,6 +8,7 @@ import {
 import { BlockInfo } from '../evm/ethereum';
 import { failedProofsPath, lensDAPath, pathResolver } from './paths';
 import { TxValidatedResult } from './tx-validated-results';
+import { invariant } from '../utils/invariant';
 
 let db: Level | undefined;
 
@@ -23,7 +24,7 @@ export enum DbReference {
  * Starts the LevelDB database.
  */
 export const startDb = async (): Promise<void> => {
-  if (db) return;
+  invariant(!db, 'Database already started');
 
   const path = await pathResolver();
 
@@ -55,7 +56,8 @@ export const startDb = async (): Promise<void> => {
  * @param key - The key of the item to be deleted.
  */
 export const deleteDb = (key: string): Promise<void> => {
-  if (!db) return Promise.resolve();
+  invariant(db, 'Database not started');
+
   return db.del(key);
 };
 
@@ -65,7 +67,8 @@ export const deleteDb = (key: string): Promise<void> => {
  * @returns The transaction if it exists, null otherwise.
  */
 export const getTxDb = async (txId: string): Promise<TxValidatedResult | null> => {
-  if (!db) return null;
+  invariant(db, 'Database not started');
+
   try {
     const result = await db.get(`${DbReference.tx}:${txId}`);
     return JSON.parse(result) as TxValidatedResult;
@@ -81,7 +84,8 @@ export const getTxDb = async (txId: string): Promise<TxValidatedResult | null> =
  * @param result - The result of the transaction.
  */
 export const saveTxDb = async (txId: string, result: TxValidatedResult): Promise<void> => {
-  if (!db) return;
+  invariant(db, 'Database not started');
+
   try {
     await db.put(`${DbReference.tx}:${txId}`, JSON.stringify(result));
   } catch (error) {
@@ -96,7 +100,8 @@ export const saveTxDb = async (txId: string, result: TxValidatedResult): Promise
  * @returns The block if it exists, null otherwise.
  */
 export const getBlockDb = async (blockNumber: number): Promise<BlockInfo | null> => {
-  if (!db) return null;
+  invariant(db, 'Database not started');
+
   try {
     const result = await db.get(`${DbReference.block}:${blockNumber}`);
     return JSON.parse(result) as BlockInfo;
@@ -111,7 +116,8 @@ export const getBlockDb = async (blockNumber: number): Promise<BlockInfo | null>
  * @param block - The block to save.
  */
 export const saveBlockDb = async (block: BlockInfo): Promise<void> => {
-  if (!db) return;
+  invariant(db, 'Database not started');
+
   try {
     await db.put(`${DbReference.block}:${block.number}`, JSON.stringify(block));
   } catch (error) {
@@ -125,7 +131,8 @@ export const saveBlockDb = async (block: BlockInfo): Promise<void> => {
  * @returns The last end cursor.
  */
 export const getLastEndCursorDb = async (): Promise<string | null> => {
-  if (!db) return null;
+  invariant(db, 'Database not started');
+
   try {
     return await db.get(DbReference.cursor);
   } catch (e) {
@@ -139,7 +146,8 @@ export const getLastEndCursorDb = async (): Promise<string | null> => {
  * @throws Throws an error if the database is not available.
  */
 export const saveEndCursorDb = async (cursor: string): Promise<void> => {
-  if (!db) return;
+  invariant(db, 'Database not started');
+
   try {
     await db.put(DbReference.cursor, cursor);
   } catch (error) {
@@ -151,7 +159,8 @@ export const saveEndCursorDb = async (cursor: string): Promise<void> => {
  *  Gets the total checked count from the database.
  */
 export const getTotalCheckedCountDb = async (): Promise<number> => {
-  if (!db) return 0;
+  invariant(db, 'Database not started');
+
   try {
     const result = await db.get(`${DbReference.tx}:totalCheckedCount`);
     if (result) {
@@ -169,7 +178,8 @@ export const getTotalCheckedCountDb = async (): Promise<number> => {
  * @param checked The checked count to add to current total
  */
 export const saveTotalCheckedCountDb = async (checked: number): Promise<void> => {
-  if (!db) return;
+  invariant(db, 'Database not started');
+
   try {
     const currentCount = (await getTotalCheckedCountDb()) || 0;
     await db.put(`${DbReference.tx}:totalCheckedCount`, (currentCount + checked).toString());
@@ -188,7 +198,8 @@ export const saveTxDAMetadataDb = async (
   txId: string,
   publication: DAStructurePublication<DAEventType, PublicationTypedData>
 ): Promise<void> => {
-  if (!db) return;
+  invariant(db, 'Database not started');
+
   try {
     await db.put(`${DbReference.tx_da_metadata}:${txId}`, JSON.stringify(publication));
   } catch (error) {
@@ -204,7 +215,8 @@ export const saveTxDAMetadataDb = async (
 export const getTxDAMetadataDb = async (
   txId: string
 ): Promise<DAStructurePublication<DAEventType, PublicationTypedData> | null> => {
-  if (!db) return null;
+  invariant(db, 'Database not started');
+
   try {
     const result = await db.get(`${DbReference.tx_da_metadata}:${txId}`);
     return JSON.parse(result) as DAStructurePublication<DAEventType, PublicationTypedData>;
@@ -223,7 +235,8 @@ export const saveTxTimestampProofsMetadataDb = async (
   txId: string,
   proofs: DATimestampProofsResponse
 ): Promise<void> => {
-  if (!db) return;
+  invariant(db, 'Database not started');
+
   try {
     await db.put(`${DbReference.tx_timestamp_proof_metadata}:${txId}`, JSON.stringify(proofs));
   } catch (error) {
@@ -239,7 +252,8 @@ export const saveTxTimestampProofsMetadataDb = async (
 export const getTxTimestampProofsMetadataDb = async (
   txId: string
 ): Promise<DATimestampProofsResponse | null> => {
-  if (!db) return null;
+  invariant(db, 'Database not started');
+
   try {
     const result = await db.get(`${DbReference.tx_timestamp_proof_metadata}:${txId}`);
     return JSON.parse(result) as DATimestampProofsResponse;

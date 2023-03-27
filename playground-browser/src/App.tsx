@@ -15,12 +15,12 @@ const ethereumNode: EthereumNode = {
 const check = async () => {
   const result = await checkDAProof('VlPh9JdZ2SNcnWaqgHFRfycT8xpuoX2MR5LnI95f87w', ethereumNode);
   if (result.isSuccess()) {
-    console.log('proof valid', result.successResult!);
+    console.log('proof valid', result.successResult);
     return;
   }
 
   // it failed!
-  console.error('proof invalid do something', result.failure!);
+  console.error('proof invalid do something', result.failure);
 
   console.log(ethereumNode);
 };

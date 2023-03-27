@@ -53,7 +53,7 @@ export const checkDAProofWithMetadata = (
   ethereumNode: EthereumNode,
   options: CheckDASubmissionOptions = getDefaultCheckDASubmissionOptions
 ): PromiseWithContextResult<
-  DAStructurePublication<DAEventType, PublicationTypedData> | void,
+  DAStructurePublication<DAEventType, PublicationTypedData>,
   DAStructurePublication<DAEventType, PublicationTypedData>
 > => {
   return checker.checkDAProofWithMetadata(
