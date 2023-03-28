@@ -117,10 +117,10 @@ export const checkDAComment = async (
   );
 
   if (whoSignedResult.isFailure()) {
-    return failure(whoSignedResult.failure!);
+    return failure(whoSignedResult.failure);
   }
 
-  const whoSigned = whoSignedResult.successResult!;
+  const whoSigned = whoSignedResult.successResult;
 
   log('who signed', whoSigned);
 
@@ -131,10 +131,10 @@ export const checkDAComment = async (
     ethereumNode
   );
   if (chainProfileDetailsResult.isFailure()) {
-    return failure(chainProfileDetailsResult.failure!);
+    return failure(chainProfileDetailsResult.failure);
   }
 
-  const details = chainProfileDetailsResult.successResult!;
+  const details = chainProfileDetailsResult.successResult;
 
   if (details.sigNonce !== typedData.value.nonce) {
     log('nonce mismatch', { expected: details.sigNonce, actual: typedData.value.nonce });

@@ -22,7 +22,7 @@ export const whoSignedTypedData = (
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: Record<string, any>,
   signature: SignatureLike
-): PromiseResult<string | void> => {
+): PromiseResult<string> => {
   try {
     const address = utils.verifyTypedData(domain, types, value, signature);
     return Promise.resolve(success(address));

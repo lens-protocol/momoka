@@ -25,10 +25,11 @@
     "debug:playground:workers": "node lib/__PLAYGROUND__/main.js",
     "generate": "graphql-codegen",
     "test": "env-cmd -f .env jest",
-    "lint": "pnpm run prettier && pnpm run tsc --noEmit",
-    "lint:fix": "pnpm run prettier:fix && pnpm run eslint",
+    "lint": "pnpm run prettier && pnpm run eslint && pnpm run tsc",
+    "lint:fix": "pnpm run prettier:fix && pnpm run eslint --fix && pnpm run tsc",
     "prettier:fix": "prettier --write .",
     "prettier": "prettier --check .",
+    "tsc": "tsc --noEmit",
     "prepublishOnly": "pnpm run build",
     "publish": "pnpm publish --access public",
     "preinstall": "npx only-allow pnpm"
