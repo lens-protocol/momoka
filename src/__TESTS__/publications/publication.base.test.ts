@@ -80,7 +80,10 @@ describe('publication base', () => {
         '0x56b1108c5c15aa3344fe87aa0a5b2d827625de8a7283e5cdb21088e30d49cd4203088a336bc9c0fac5cca0a84af84b7227be24e0bef55ece423f25015e807cd71b'
       );
 
-      expect(result.successResult).toEqual('0xD8c789626CDb461ec9347f26DDbA98F9383aa457');
+      expect(result.isSuccess()).toEqual(true);
+      if (result.isSuccess()) {
+        expect(result.successResult).toEqual('0xD8c789626CDb461ec9347f26DDbA98F9383aa457');
+      }
     });
   });
 });

@@ -53,7 +53,7 @@ export const mockImpl__TIMESTAMP_PROOF_INVALID_SIGNATURE = (
 };
 
 export const mockImpl__TIMESTAMP_PROOF_NOT_SUBMITTER = (): void => {
-  mockIsValidTransactionSubmitter.mockImplementationOnce(() => Promise.resolve(false));
+  mockIsValidSubmitter.mockImplementationOnce(() => false);
 };
 
 export const mockImpl__INVALID_EVENT_TIMESTAMP = (
@@ -136,12 +136,6 @@ export const mockIsValidSubmitter = submittors.isValidSubmitter as jest.MockedFu
 >;
 mockIsValidSubmitter.mockImplementation(() => true);
 
-export const mockIsValidTransactionSubmitter =
-  submittors.isValidTransactionSubmitter as jest.MockedFunction<
-    typeof submittors.isValidTransactionSubmitter
-  >;
-mockIsValidTransactionSubmitter.mockImplementation(() => Promise.resolve(true));
-
 const ethereumNode: EthereumNode = {
   environment: getParamOrExit('ETHEREUM_NETWORK') as Environment,
   nodeUrl: getParamOrExit('NODE_URL'),
@@ -162,8 +156,10 @@ export const checkAndValidateDAProof = async (
   expectedError: ClaimableValidatorError
 ): Promise<void> => {
   const result = await callCheckDAProof();
-  expect(result.failure).toEqual(expectedError);
   expect(result.isFailure()).toBe(true);
+  if (result.isFailure()) {
+    expect(result.failure).toEqual({ failure: expectedError });
+  }
 };
 
 export const random = (): string => (Math.random() + 1).toString(36).substring(7);

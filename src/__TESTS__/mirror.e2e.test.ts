@@ -21,7 +21,7 @@ describe('mirror', () => {
 
       beforeEach(() => {
         baseMock = mirrorCreatedDelegatePostArweaveResponse;
-        sharedMocks.mockGetArweaveByIdAPI.mockImplementation(() =>
+        sharedMocks.mockGetArweaveByIdAPI.mockImplementation(async () =>
           deepClone(mirrorCreatedDelegatePostArweaveResponse)
         );
       });
@@ -630,7 +630,7 @@ describe('mirror', () => {
         });
 
         test('EVENT_MISMATCH - referenceModuleReturnData is not empty bytes', async () => {
-          sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(() => {
+          sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
             return {
               ...baseMock,
               event: {

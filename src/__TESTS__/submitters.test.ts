@@ -3,7 +3,7 @@ import { getParamOrExit } from '../common/helpers';
 import { EthereumNode } from '../evm/ethereum';
 import { getOwnerOfTransactionAPI } from '../input-output/bundlr/get-owner-of-transaction.api';
 
-import { getSubmitters, isValidSubmitter, isValidTransactionSubmitter } from '../submitters';
+import { getSubmitters, isValidSubmitter } from '../submitters';
 
 jest.mock('../input-output/bundlr/get-owner-of-transaction.api');
 
@@ -34,27 +34,28 @@ describe('submitters', () => {
     });
   });
 
-  describe('isValidTransactionSubmitter', () => {
-    it('should return false with an invalid submitter', async () => {
-      mockGetOwnerOfTransactionAPI.mockImplementation(() => Promise.resolve('111'));
-      expect(await isValidTransactionSubmitter(ethereumNode.environment, '111', jest.fn())).toEqual(
-        false
-      );
-    });
+  // Function not available anymore
+  // describe('isValidTransactionSubmitter', () => {
+  //   it('should return false with an invalid submitter', async () => {
+  //     mockGetOwnerOfTransactionAPI.mockImplementation(() => Promise.resolve('111'));
+  //     expect(await isValidTransactionSubmitter(ethereumNode.environment, '111', jest.fn())).toEqual(
+  //       false
+  //     );
+  //   });
 
-    it('should return false with an null submitter', async () => {
-      mockGetOwnerOfTransactionAPI.mockImplementation(() => Promise.resolve(null));
-      expect(await isValidTransactionSubmitter(ethereumNode.environment, '111', jest.fn())).toEqual(
-        false
-      );
-    });
+  //   it('should return false with an null submitter', async () => {
+  //     mockGetOwnerOfTransactionAPI.mockImplementation(() => Promise.resolve(null));
+  //     expect(await isValidTransactionSubmitter(ethereumNode.environment, '111', jest.fn())).toEqual(
+  //       false
+  //     );
+  //   });
 
-    it('should return true with an valid submitter', async () => {
-      const submitter = getSubmitters(ethereumNode.environment)[0];
-      mockGetOwnerOfTransactionAPI.mockImplementation(() => Promise.resolve(submitter));
-      expect(
-        await isValidTransactionSubmitter(ethereumNode.environment, submitter, jest.fn())
-      ).toEqual(true);
-    });
-  });
+  //   it('should return true with an valid submitter', async () => {
+  //     const submitter = getSubmitters(ethereumNode.environment)[0];
+  //     mockGetOwnerOfTransactionAPI.mockImplementation(() => Promise.resolve(submitter));
+  //     expect(
+  //       await isValidTransactionSubmitter(ethereumNode.environment, submitter, jest.fn())
+  //     ).toEqual(true);
+  //   });
+  // });
 });
