@@ -9,7 +9,7 @@ import {
 } from '../../../data-availability-models/publications/data-availability-structure-publication';
 import { DAMirrorCreatedEventEmittedResponse } from '../../../data-availability-models/publications/data-availability-structure-publications-events';
 import { EMPTY_BYTE, EthereumNode, getOnChainProfileDetails } from '../../../evm/ethereum';
-import { checkDAProof } from '../../check-da-proof';
+import { DaProofChecker } from '../../da-proof-checker';
 import { whoSignedTypedData } from '../publication.base';
 
 export type CheckDAMirrorPublication = DAStructurePublication<
@@ -71,7 +71,9 @@ export const checkDAMirror = async (
   publication: CheckDAMirrorPublication,
   verifyPointer: boolean,
   ethereumNode: EthereumNode,
-  log: LogFunctionType
+  log: LogFunctionType,
+  // TODO: Improve that to avoid cycling dependencies
+  checker: DaProofChecker
 ): PromiseResult => {
   log('check DA mirror');
 
@@ -88,7 +90,7 @@ export const checkDAMirror = async (
     log('verify pointer first');
 
     // check the pointer!
-    const pointerResult = await checkDAProof(
+    const pointerResult = await checker.checkDAProof(
       publication.chainProofs.pointer.location,
       ethereumNode,
       {
@@ -113,10 +115,10 @@ export const checkDAMirror = async (
   );
 
   if (whoSignedResult.isFailure()) {
-    return failure(whoSignedResult.failure!);
+    return failure(whoSignedResult.failure);
   }
 
-  const whoSigned = whoSignedResult.successResult!;
+  const whoSigned = whoSignedResult.successResult;
 
   log('who signed', whoSigned);
 
@@ -128,10 +130,10 @@ export const checkDAMirror = async (
   );
 
   if (chainProfileDetailsResult.isFailure()) {
-    return failure(chainProfileDetailsResult.failure!);
+    return failure(chainProfileDetailsResult.failure);
   }
 
-  const details = chainProfileDetailsResult.successResult!;
+  const details = chainProfileDetailsResult.successResult;
 
   if (details.sigNonce !== typedData.value.nonce) {
     return failure(ClaimableValidatorError.PUBLICATION_NONCE_INVALID);

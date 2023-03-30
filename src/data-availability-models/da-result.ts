@@ -1,39 +1,37 @@
 import { ClaimableValidatorError } from './claimable-validator-errors';
 
+class Success<TSuccess> {
+  public constructor(public readonly successResult: TSuccess) {}
+
+  public isSuccess(): this is Success<TSuccess> {
+    return true;
+  }
+
+  public isFailure(): this is Failure<never, never> {
+    return false;
+  }
+}
+
+class Failure<TError, TContext = undefined> {
+  public constructor(public readonly failure: TError, public context?: TContext) {}
+
+  public isSuccess(): this is Success<never> {
+    return false;
+  }
+
+  public isFailure(): this is Failure<TError, TContext> {
+    return true;
+  }
+}
+
 /**
  * Represents the result of a data availability check.
  * @template TSuccessResult The type of the successful result.
  * @template TContext The type of the context, which is undefined by default.
  */
-export class DAResult<TSuccessResult, TContext = undefined> {
-  /**
-   * Initializes a new instance of the `DAResult` class.
-   * @param failure The claimable validator error in case of failure.
-   * @param successResult The successful result.
-   * @param context The context associated with the result.
-   */
-  constructor(
-    public failure?: ClaimableValidatorError,
-    public successResult?: TSuccessResult,
-    public context?: TContext
-  ) {}
-
-  /**
-   * Determines whether the data availability check is successful.
-   * @returns `true` if the check is successful; otherwise, `false`.
-   */
-  public isSuccess(): boolean {
-    return this.failure === undefined;
-  }
-
-  /**
-   * Determines whether the data availability check is a failure.
-   * @returns `true` if the check is a failure; otherwise, `false`.
-   */
-  public isFailure(): boolean {
-    return this.failure !== undefined;
-  }
-}
+export type DAResult<TSuccessResult, TContext = undefined> =
+  | Success<TSuccessResult>
+  | Failure<ClaimableValidatorError, TContext>;
 
 /**
  * Represents a Promise of a data availability result.
@@ -53,15 +51,20 @@ export type Result<TSuccessResult = void> = DAResult<TSuccessResult>;
  * @param result The successful result.
  * @returns The successful data availability result.
  */
-export const success = <TResult = void>(result?: TResult): DAResult<TResult> =>
-  new DAResult<TResult>(undefined, result);
+export function success(): Success<void>;
+export function success<T>(result: T): Success<T>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any, prefer-arrow/prefer-arrow-functions
+export function success<T>(result: any = undefined): Success<T> {
+  return new Success(result);
+}
 
 /**
  * Creates a failed data availability result.
- * @param failure The claimable validator error in case of failure.
+ * @param error The claimable validator error in case of failure.
  * @returns The failed data availability result.
  */
-export const failure = (error: ClaimableValidatorError): DAResult<void> => new DAResult(error);
+export const failure = (error: ClaimableValidatorError): Failure<ClaimableValidatorError> =>
+  new Failure(error);
 
 /**
  * Represents a Promise of a data availability result with context.
@@ -85,20 +88,11 @@ export type PromiseWithContextResultOrNull<TSuccessResult, TContext> = Promise<D
 /**
  * Creates a failed data availability result with context.
  * @template TContext The type of the context.
- * @param failure The claimable validator error in case of failure.
+ * @param error The claimable validator error in case of failure.
  * @param context The context associated with the result.
  * @returns The failed data availability result with context.
  */
 export const failureWithContext = <TContext>(
   error: ClaimableValidatorError,
   context: TContext
-): DAResult<void, TContext> => new DAResult(error, undefined, context);
-
-/**
- * Creates a successful data availability result with context.
- * @template TResult The type of the successful result.
- * @param result The successful result.
- * @returns The successful data availability result with context.
- */
-export const successWithContext = <TResult>(result: TResult): DAResult<TResult, TResult> =>
-  new DAResult(undefined, result, result);
+): Failure<ClaimableValidatorError, TContext> => new Failure(error, context);

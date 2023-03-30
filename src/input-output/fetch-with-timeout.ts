@@ -1,25 +1,10 @@
-import axios from 'axios';
-import { curly } from 'node-libcurl';
-import { isNativeNode } from '../common/helpers';
+export interface FetchProvider {
+  get: <TResponse>(url: string, options: { timeout: number }) => Promise<TResponse>;
+}
 
-export const fetchWithTimeout = async <TResponse>(url: string): Promise<TResponse | null> => {
-  if (isNativeNode()) {
-    const { statusCode, data } = await curly.get(url, {
-      httpHeader: ['Content-Type: application/json'],
-      curlyResponseBodyParser: false,
-      timeout: 5000,
-    });
-
-    if (statusCode !== 200) {
-      return null;
-    }
-
-    return JSON.parse(data.toString()) as TResponse;
-  } else {
-    const response = await axios.get(url, {
-      timeout: 5000,
-    });
-
-    return response.data as TResponse;
-  }
+export const fetchWithTimeout = <TResponse>(
+  url: string,
+  { provider }: { provider: FetchProvider }
+): Promise<TResponse | null> => {
+  return provider.get<TResponse>(url, { timeout: 5000 });
 };

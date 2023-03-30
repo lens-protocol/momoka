@@ -1,5 +1,9 @@
-import Utils from '@bundlr-network/client/build/common/utils';
+import deepHash from 'arweave/node/lib/deepHash';
+import Arweave from 'arweave/node';
+import { b64UrlToBuffer } from 'arweave/node/lib/utils';
+
 import { BundlrUploadResponse } from '../../data-availability-models/data-availability-timestamp-proofs';
+import { verifyReceipt } from '../../proofs/utils';
 
 export interface BundlrVerifyReceiptWorkerRequest {
   bundlrUploadResponse: BundlrUploadResponse;
@@ -12,7 +16,10 @@ export interface BundlrVerifyReceiptWorkerRequest {
 export const bundlrVerifyReceiptWorker = (
   request: BundlrVerifyReceiptWorkerRequest
 ): Promise<boolean> => {
-  // bundlr typings are Required<Proofs> but they are sharing the response and request
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return Utils.verifyReceipt(request.bundlrUploadResponse as any);
+  return verifyReceipt(request.bundlrUploadResponse, {
+    crypto: Arweave.crypto,
+    deepHash,
+    b64UrlToBuffer,
+    stringToBuffer: Arweave.utils.stringToBuffer,
+  });
 };

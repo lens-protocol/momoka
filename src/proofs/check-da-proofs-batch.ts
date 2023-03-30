@@ -34,6 +34,7 @@ import { shouldRetry } from '../queue/process-retry-check-da-proofs.queue';
 import { StreamCallback } from '../watchers/models/stream.type';
 import { checkDAProofWithMetadata } from './check-da-proof';
 import { getDefaultCheckDASubmissionOptions } from './models/check-da-submisson-options';
+import { invariant } from '../utils/invariant';
 
 /**
  * Builds a validation result object for a transaction ID and a data availability verification result.
@@ -44,7 +45,7 @@ import { getDefaultCheckDASubmissionOptions } from './models/check-da-submisson-
 const buildTxValidationResult = (
   txId: string,
   result: DAResult<
-    void | DAStructurePublication<DAEventType, PublicationTypedData>,
+    DAStructurePublication<DAEventType, PublicationTypedData>,
     DAStructurePublication<DAEventType, PublicationTypedData>
   >
 ): TxValidatedResult => {
@@ -52,15 +53,15 @@ const buildTxValidationResult = (
     return {
       proofTxId: txId,
       success: true,
-      dataAvailabilityResult: result.successResult!,
+      dataAvailabilityResult: result.successResult,
     };
   }
 
   return {
     proofTxId: txId,
     success: false,
-    failureReason: result.failure!,
-    dataAvailabilityResult: result.context!,
+    failureReason: result.failure,
+    dataAvailabilityResult: result.context,
   };
 };
 
@@ -183,12 +184,12 @@ const processPublication = async (
     });
 
     const { promise: timeoutPromise, timeoutId } = createTimeoutPromise(5000);
-    const result = (await Promise.race([checkPromise, timeoutPromise])) as DAResult<
-      void | DAStructurePublication<DAEventType, PublicationTypedData>,
-      DAStructurePublication<DAEventType, PublicationTypedData>
-    >;
+    const result = await Promise.race([checkPromise, timeoutPromise]);
 
     clearTimeout(timeoutId);
+
+    // TODO: In case of timeout, what would be the best course of action here? Just throw?
+    invariant(result, 'Publication process request timed out');
 
     const txValidatedResult: TxValidatedResult = buildTxValidationResult(txId, result);
 
@@ -202,7 +203,7 @@ const processPublication = async (
     return {
       txId,
       success: result.isSuccess(),
-      claimableValidatorError: result.isFailure() ? result.failure! : undefined,
+      claimableValidatorError: result.isFailure() ? result.failure : undefined,
     };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {

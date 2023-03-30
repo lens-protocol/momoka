@@ -1,7 +1,4 @@
 import { Deployment, Environment } from './common/environment';
-import { LogFunctionType } from './common/logger';
-import { getOwnerOfTransactionAPI } from './input-output/bundlr/get-owner-of-transaction.api';
-import { TimeoutError, TIMEOUT_ERROR } from './input-output/common';
 
 /**
  * Returns the list of submitters based on the given environment and deployment
@@ -70,31 +67,4 @@ export const isValidSubmitter = (
   deployment?: Deployment
 ): boolean => {
   return getSubmitters(environment, deployment).includes(address.toLowerCase());
-};
-
-/**
- * Checks if the given Arweave transaction was submitted by a valid submitter for the specified environment.
- * @param environment The environment to check against.
- * @param txId The Arweave transaction ID to check the submitter of.
- * @param log A logging function to use for outputting log messages.
- * @param deployment The deployment to check against.
- * @returns A Promise that resolves to true if the submitter is valid, false if it is not valid, or a TimeoutError if the request timed out.
- */
-export const isValidTransactionSubmitter = async (
-  environment: Environment,
-  txId: string,
-  log: LogFunctionType,
-  deployment?: Deployment
-): Promise<boolean | TimeoutError> => {
-  const owner = await getOwnerOfTransactionAPI(txId);
-  if (owner === TIMEOUT_ERROR) {
-    return TIMEOUT_ERROR;
-  }
-
-  log('owner result', owner);
-  if (!owner) {
-    return false;
-  }
-
-  return isValidSubmitter(environment, owner, deployment);
 };

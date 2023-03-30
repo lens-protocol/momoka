@@ -1,4 +1,5 @@
 import { resolve as resolvePath } from 'path';
+import { cpus } from 'os';
 import { Worker } from 'worker_threads';
 import { HandlerWorkerData } from './handler-communication.worker';
 
@@ -10,7 +11,7 @@ class WorkerPool {
 
   constructor() {
     // Set the pool size to the number of available CPU cores
-    const size = require('os').cpus().length;
+    const size = cpus().length;
     for (let i = 0; i < size; i++) {
       const worker = new Worker(workerPath);
       worker.on('message', (_result) => {
