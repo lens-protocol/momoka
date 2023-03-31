@@ -1,6 +1,6 @@
 import { ClaimableValidatorError, TxValidatedResult } from '..';
 import { getBlockDb, getTxDb, saveBlockDb, saveTxDb, startDb } from '../input-output/db';
-import { random } from './shared-helpers';
+import { random } from './mocks/shared.mock';
 
 describe('db', () => {
   const txValidatedResult: TxValidatedResult = {
