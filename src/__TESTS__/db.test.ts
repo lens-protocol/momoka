@@ -2,14 +2,14 @@ import { ClaimableValidatorError, TxValidatedResult } from '..';
 import { getBlockDb, getTxDb, saveBlockDb, saveTxDb, startDb } from '../input-output/db';
 import { random } from './mocks/shared.mock';
 
-describe('db', () => {
-  const txValidatedResult: TxValidatedResult = {
-    success: false,
-    proofTxId: random(),
-    failureReason: ClaimableValidatorError.BLOCK_CANT_BE_READ_FROM_NODE,
-    dataAvailabilityResult: undefined,
-  };
+const txValidatedResult: TxValidatedResult = {
+  success: false,
+  proofTxId: random(),
+  failureReason: ClaimableValidatorError.BLOCK_CANT_BE_READ_FROM_NODE,
+  dataAvailabilityResult: undefined,
+};
 
+describe('db', () => {
   beforeAll(async () => {
     await startDb();
   });
