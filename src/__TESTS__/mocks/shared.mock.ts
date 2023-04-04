@@ -1,34 +1,45 @@
-import {
-  checkDAProof,
-  ClaimableValidatorError,
-  Environment,
-  EthereumNode,
-  TxValidatedResult,
-} from '../..';
-import { getParamOrExit } from '../../common/helpers';
-import { PromiseWithContextResult } from '../../data-availability-models/da-result';
+import { PromiseWithContextResult } from "../../data-availability-models/da-result";
 import {
   DAEventType,
   DAStructurePublication,
-  PublicationTypedData,
-} from '../../data-availability-models/publications/data-availability-structure-publication';
-import * as getArweaveByIdAPIDefault from '../../input-output/arweave/get-arweave-by-id.api';
-import * as database from '../../input-output/db';
-import * as submittors from '../../submitters';
-import { postCreatedDelegateArweaveResponse } from './post/post-created-delegate-arweave-response.mock';
+  PublicationTypedData
+} from "../../data-availability-models/publications/data-availability-structure-publication";
+import * as getBundlrByIdAPIDefault from "../../input-output/bundlr/get-bundlr-by-id.api";
+import * as ethereumDefault from "../../evm/ethereum";
+import * as getOwnerOfTransactionAPIDefault from "../../input-output/bundlr/get-owner-of-transaction.api";
+import * as database from "../../input-output/db";
+import * as submittors from "../../submitters";
+import { postCreatedDelegateArweaveResponse } from "./post/post-created-delegate-arweave-response.mock";
+import { when } from "jest-when";
+import { TIMESTAMP_ID } from "./constants";
+import { DATimestampProofsResponse } from "../../data-availability-models/data-availability-timestamp-proofs";
+import { DaProofGateway } from "../../proofs/da-proof-gateway";
+import { ClientDaProofVerifier } from "../../client/client-da-proof-verifier";
+import { DaProofChecker } from "../../proofs/da-proof-checker";
+import { EthereumNode } from "../../evm/ethereum";
+import { Deployment, Environment } from "../../common/environment";
+import { ClaimableValidatorError } from "../../data-availability-models/claimable-validator-errors";
+import { TxValidatedResult } from "../../input-output/tx-validated-results";
 
 export const mockGetTxDb = database.getTxDb as jest.MockedFunction<typeof database.getTxDb>;
 mockGetTxDb.mockImplementation(() => Promise.resolve(null));
 
-export const mockGetArweaveByIdAPI =
-  getArweaveByIdAPIDefault.getArweaveByIdAPI as jest.MockedFunction<
-    typeof getArweaveByIdAPIDefault.getArweaveByIdAPI
-  >;
+export const mockGetDAPublicationByIdAPI = jest.mocked(getBundlrByIdAPIDefault.getBundlrByIdAPI);
+
+export const mockGetDATimestampProofsByIdAPI =
+  when(getBundlrByIdAPIDefault.getBundlrByIdAPI<DATimestampProofsResponse>).calledWith(TIMESTAMP_ID, expect.anything())
+
+const mockGetOwnerOfTimestampProofs =
+  when(getOwnerOfTransactionAPIDefault.getOwnerOfTransactionAPI).calledWith(TIMESTAMP_ID, expect.anything())
+mockGetOwnerOfTimestampProofs.mockImplementation(() => Promise.resolve("0x-fake-address"));
+
+export const mockGetBlock = jest.mocked(ethereumDefault.getBlock);
+export const mockGetOnChainProfileDetails = jest.mocked(ethereumDefault.getOnChainProfileDetails);
 
 export const mockImpl__NO_SIGNATURE_SUBMITTER = (
   baseMock: DAStructurePublication<DAEventType, PublicationTypedData>
 ): void => {
-  mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+  mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
     return {
       ...baseMock,
       signature: undefined,
@@ -39,7 +50,7 @@ export const mockImpl__NO_SIGNATURE_SUBMITTER = (
 export const mockImpl__TIMESTAMP_PROOF_INVALID_SIGNATURE = (
   baseMock: DAStructurePublication<DAEventType, PublicationTypedData>
 ): void => {
-  mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+  mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
     return {
       ...baseMock,
       timestampProofs: {
@@ -59,7 +70,7 @@ export const mockImpl__TIMESTAMP_PROOF_NOT_SUBMITTER = (): void => {
 export const mockImpl__INVALID_EVENT_TIMESTAMP = (
   baseMock: DAStructurePublication<DAEventType, PublicationTypedData>
 ): void => {
-  mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+  mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
     return {
       ...baseMock,
       event: {
@@ -74,7 +85,7 @@ export const mockImpl__INVALID_POINTER_SET = (
   baseMock: DAStructurePublication<DAEventType, PublicationTypedData>,
   pointer: unknown
 ): void => {
-  mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+  mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
     return {
       ...baseMock,
       chainProofs: {
@@ -88,7 +99,7 @@ export const mockImpl__INVALID_POINTER_SET = (
 export const mockImpl__SIMULATION_FAILED_BAD_PROFILE_ID = (
   baseMock: DAStructurePublication<DAEventType, PublicationTypedData>
 ): void => {
-  mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+  mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
     return {
       ...baseMock,
       chainProofs: {
@@ -111,7 +122,7 @@ export const mockImpl__SIMULATION_FAILED_BAD_PROFILE_ID = (
 export const mockImpl__INVALID_FORMATTED_TYPED_DATA = (
   baseMock: DAStructurePublication<DAEventType, PublicationTypedData>
 ): void => {
-  mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+  mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
     return {
       ...baseMock,
       chainProofs: {
@@ -137,25 +148,32 @@ export const mockIsValidSubmitter = submittors.isValidSubmitter as jest.MockedFu
 mockIsValidSubmitter.mockImplementation(() => true);
 
 const ethereumNode: EthereumNode = {
-  environment: getParamOrExit('ETHEREUM_NETWORK') as Environment,
-  nodeUrl: getParamOrExit('NODE_URL'),
+  environment: Environment.MUMBAI,
+  deployment: Deployment.PRODUCTION,
+  nodeUrl: "fake",
 };
 
-export const callCheckDAProof = (): PromiseWithContextResult<
+export const callCheckDAProof = (txId: string): PromiseWithContextResult<
   void | DAStructurePublication<DAEventType, PublicationTypedData>,
   DAStructurePublication<DAEventType, PublicationTypedData>
 > => {
-  return checkDAProof('mocked_tx_id', ethereumNode, {
+  const gateway = new DaProofGateway();
+  const verifier = new ClientDaProofVerifier();
+  const checker = new DaProofChecker(verifier, gateway);
+
+  return checker.checkDAProof(txId, ethereumNode, {
     log: jest.fn(),
     byPassDb: false,
-    verifyPointer: true,
+    // Revert back to verify pointer
+    verifyPointer: false,
   });
 };
 
 export const checkAndValidateDAProof = async (
+  txId: string,
   expectedError: ClaimableValidatorError
 ): Promise<void> => {
-  const result = await callCheckDAProof();
+  const result = await callCheckDAProof(txId);
   expect(result.isFailure()).toBe(true);
   if (result.isFailure()) {
     expect(result.failure).toEqual({ failure: expectedError });
@@ -169,3 +187,7 @@ export const mockTxValidationResult: TxValidatedResult = {
   proofTxId: random(),
   dataAvailabilityResult: postCreatedDelegateArweaveResponse,
 };
+
+export const generateRandomArweaveId = () => {
+  return 'ar://random-id' + random();
+}

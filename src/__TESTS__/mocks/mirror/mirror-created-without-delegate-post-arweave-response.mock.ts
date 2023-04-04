@@ -6,6 +6,7 @@ import {
   DAStructurePublication,
 } from '../../../data-availability-models/publications/data-availability-structure-publication';
 import { DAMirrorCreatedEventEmittedResponse } from '../../../data-availability-models/publications/data-availability-structure-publications-events';
+import { TIMESTAMP_ID } from "../constants";
 
 export const mirrorCreatedWithoutDelegatePostArweaveResponse: DAStructurePublication<
   DAMirrorCreatedEventEmittedResponse,
@@ -19,7 +20,7 @@ export const mirrorCreatedWithoutDelegatePostArweaveResponse: DAStructurePublica
     type: DAProvider.BUNDLR,
     hashPrefix: '1',
     response: {
-      id: 'zdkCXuVzawg3KipWCRVK2fo-yIUoj5IMuIYyFPGA55o',
+      id: TIMESTAMP_ID,
       timestamp: 1674748125246,
       version: '1.0.0',
       public:

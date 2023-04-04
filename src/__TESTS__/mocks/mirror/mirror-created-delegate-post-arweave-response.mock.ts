@@ -1,11 +1,19 @@
-import { DAActionTypes } from '../../../data-availability-models/data-availability-action-types';
-import { DAProvider } from '../../../data-availability-models/data-availability-provider';
-import { CreateMirrorEIP712TypedData } from '../../../data-availability-models/publications/data-availability-publication-typed-data';
+import { DAActionTypes } from "../../../data-availability-models/data-availability-action-types";
+import { DAProvider } from "../../../data-availability-models/data-availability-provider";
+import {
+  CreateMirrorEIP712TypedData
+} from "../../../data-availability-models/publications/data-availability-publication-typed-data";
 import {
   DAPublicationPointerType,
-  DAStructurePublication,
-} from '../../../data-availability-models/publications/data-availability-structure-publication';
-import { DAMirrorCreatedEventEmittedResponse } from '../../../data-availability-models/publications/data-availability-structure-publications-events';
+  DAStructurePublication
+} from "../../../data-availability-models/publications/data-availability-structure-publication";
+import {
+  DAMirrorCreatedEventEmittedResponse
+} from "../../../data-availability-models/publications/data-availability-structure-publications-events";
+import { TIMESTAMP_ID } from "../constants";
+import { DATimestampProofsResponse } from "../../../data-availability-models/data-availability-timestamp-proofs";
+
+const DATA_AVAILABILITY_ID = '6534728f-e7d6-47b6-94d7-8608230c4928';
 
 export const mirrorCreatedDelegatePostArweaveResponse: DAStructurePublication<
   DAMirrorCreatedEventEmittedResponse,
@@ -13,13 +21,13 @@ export const mirrorCreatedDelegatePostArweaveResponse: DAStructurePublication<
 > = {
   signature:
     '0x11a14ad03435338c5548154119cf151f0b827ee4598130ad3220d0fb995c24c658d47bb3f5ac88368fd654b707d74a1d1116f08e86336ddef8351ddb537ace401b',
-  dataAvailabilityId: '6534728f-e7d6-47b6-94d7-8608230c4928',
+  dataAvailabilityId: DATA_AVAILABILITY_ID,
   type: DAActionTypes.MIRROR_CREATED,
   timestampProofs: {
     type: DAProvider.BUNDLR,
     hashPrefix: '1',
     response: {
-      id: 'PX-Xd26m3pu_lkpeRzlBftrRAExFQOsLLEEL6eVPEoY',
+      id: TIMESTAMP_ID,
       timestamp: 1674747937133,
       version: '1.0.0',
       public:
@@ -112,3 +120,8 @@ export const mirrorCreatedDelegatePostArweaveResponse: DAStructurePublication<
     timestamp: 1674747935,
   },
 };
+
+export const mirrorTimestampProofsBundlrResponse: DATimestampProofsResponse = {
+  type: DAActionTypes.MIRROR_CREATED,
+  dataAvailabilityId: DATA_AVAILABILITY_ID,
+}

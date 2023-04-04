@@ -4,6 +4,7 @@ module.exports = {
   testEnvironment: 'node',
   collectCoverage: true,
   coverageDirectory: 'coverage',
+  setupFiles: ['<rootDir>/jest.setup.js'],
   coveragePathIgnorePatterns: [
     'node_modules',
     '<rootDir>/src/__TESTS__',
@@ -14,4 +15,5 @@ module.exports = {
   ],
   testPathIgnorePatterns: ['/node_modules/', '/lib/', '/playground-browser/'],
   verbose: true,
+  testRegex: 'mirror.e2e.test.ts$',
 };

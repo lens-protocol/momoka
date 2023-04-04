@@ -3,6 +3,7 @@ import { DAProvider } from '../../../data-availability-models/data-availability-
 import { CreatePostEIP712TypedData } from '../../../data-availability-models/publications/data-availability-publication-typed-data';
 import { DAStructurePublication } from '../../../data-availability-models/publications/data-availability-structure-publication';
 import { DAPostCreatedEventEmittedResponse } from '../../../data-availability-models/publications/data-availability-structure-publications-events';
+import { TIMESTAMP_ID } from "../constants";
 
 export const postCreatedWithoutDelegateArweaveResponse: DAStructurePublication<
   DAPostCreatedEventEmittedResponse,
@@ -16,7 +17,7 @@ export const postCreatedWithoutDelegateArweaveResponse: DAStructurePublication<
     type: DAProvider.BUNDLR,
     hashPrefix: '1',
     response: {
-      id: 'f7_YMkEqiALN9PCtK5LXxFDlc3EEi20-DWl57KxDMbw',
+      id: TIMESTAMP_ID,
       timestamp: 1674736509185,
       version: '1.0.0',
       public:
