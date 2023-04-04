@@ -1,3 +1,4 @@
+import { Deployment, Environment } from '../common/environment';
 import { LogFunctionType } from '../common/logger';
 import { ClaimableValidatorError } from '../data-availability-models/claimable-validator-errors';
 import {
@@ -20,6 +21,7 @@ import {
 } from '../data-availability-models/publications/data-availability-structure-publication';
 import { BlockInfo, EthereumNode } from '../evm/ethereum';
 import { TIMEOUT_ERROR, TimeoutError } from '../input-output/common';
+import { TxValidatedFailureResult, TxValidatedResult } from '../input-output/tx-validated-results';
 import { isValidSubmitter } from '../submitters';
 import {
   CheckDASubmissionOptions,
@@ -34,8 +36,6 @@ import {
   isValidPublicationId,
   isValidTypedDataDeadlineTimestamp,
 } from './utils';
-import { TxValidatedFailureResult, TxValidatedResult } from '../input-output/tx-validated-results';
-import { Deployment, Environment } from '../common/environment';
 
 const validResult = 'valid';
 type ValidType = typeof validResult;

@@ -15,7 +15,7 @@ import { isValidSubmitter } from '../submitters';
 import { LibCurlProvider } from '../input-output/lib-curl-provider';
 
 export class DaProofVerifier implements DAProofsVerifier {
-  extractAddress(
+  public extractAddress(
     daPublication: DAStructurePublication<DAEventType, PublicationTypedData>
   ): Promise<string> {
     const signature = deepClone(daPublication.signature);
@@ -34,7 +34,7 @@ export class DaProofVerifier implements DAProofsVerifier {
     });
   }
 
-  verifyTimestampSignature(
+  public verifyTimestampSignature(
     daPublication: DAStructurePublication<DAEventType, PublicationTypedData>
   ): Promise<boolean> {
     return workerPool.execute<boolean>({
@@ -45,7 +45,7 @@ export class DaProofVerifier implements DAProofsVerifier {
     });
   }
 
-  async verifyTransactionSubmitter(
+  public async verifyTransactionSubmitter(
     environment: Environment,
     txId: string,
     log: LogFunctionType,

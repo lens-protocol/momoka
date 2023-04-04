@@ -15,7 +15,7 @@
     "noImplicitReturns": true,
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
-    "sourceMap": false
+    "sourceMap": true
   },
   "include": ["./src"],
   "exclude": ["./src/__TESTS__"]

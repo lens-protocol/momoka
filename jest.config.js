@@ -4,6 +4,7 @@ module.exports = {
   testEnvironment: 'node',
   collectCoverage: true,
   coverageDirectory: 'coverage',
+  testRegex: 'mirror.e2e.test.ts$',
   coveragePathIgnorePatterns: [
     'node_modules',
     '<rootDir>/src/__TESTS__',

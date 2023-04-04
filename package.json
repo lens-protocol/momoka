@@ -25,7 +25,6 @@
     "debug:playground:workers": "node lib/__PLAYGROUND__/main.js",
     "generate": "graphql-codegen",
     "test": "env-cmd -f .env jest",
-    "debug:test": "env-cmd -f .env jest",
     "lint": "pnpm run prettier && pnpm run tsc",
     "lint:fix": "pnpm run prettier:fix && pnpm run eslint",
     "prettier:fix": "prettier --write .",

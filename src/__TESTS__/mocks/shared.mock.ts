@@ -12,23 +12,23 @@ import {
   DAStructurePublication,
   PublicationTypedData,
 } from '../../data-availability-models/publications/data-availability-structure-publication';
-import * as getArweaveByIdAPIDefault from '../../input-output/arweave/get-arweave-by-id.api';
+import * as getBundlrByIdAPIDefault from '../../input-output/bundlr/get-bundlr-by-id.api';
 import * as database from '../../input-output/db';
 import * as submittors from '../../submitters';
+// import { workerPool } from '../../workers/worker-pool';
 import { postCreatedDelegateArweaveResponse } from './post/post-created-delegate-arweave-response.mock';
 
 export const mockGetTxDb = database.getTxDb as jest.MockedFunction<typeof database.getTxDb>;
-mockGetTxDb.mockImplementation(() => Promise.resolve(null));
+mockGetTxDb.mockImplementation(async () => null);
 
-export const mockGetArweaveByIdAPI =
-  getArweaveByIdAPIDefault.getArweaveByIdAPI as jest.MockedFunction<
-    typeof getArweaveByIdAPIDefault.getArweaveByIdAPI
-  >;
+export const mockGetBundlrByIdAPI = getBundlrByIdAPIDefault.getBundlrByIdAPI as jest.MockedFunction<
+  typeof getBundlrByIdAPIDefault.getBundlrByIdAPI
+>;
 
 export const mockImpl__NO_SIGNATURE_SUBMITTER = (
   baseMock: DAStructurePublication<DAEventType, PublicationTypedData>
 ): void => {
-  mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+  mockGetBundlrByIdAPI.mockImplementationOnce(async () => {
     return {
       ...baseMock,
       signature: undefined,
@@ -36,10 +36,12 @@ export const mockImpl__NO_SIGNATURE_SUBMITTER = (
   });
 };
 
+// export const mockWorkerPool = workerPool as jest.MockedClass<typeof Worker>;
+
 export const mockImpl__TIMESTAMP_PROOF_INVALID_SIGNATURE = (
   baseMock: DAStructurePublication<DAEventType, PublicationTypedData>
 ): void => {
-  mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+  mockGetBundlrByIdAPI.mockImplementationOnce(async () => {
     return {
       ...baseMock,
       timestampProofs: {
@@ -59,7 +61,7 @@ export const mockImpl__TIMESTAMP_PROOF_NOT_SUBMITTER = (): void => {
 export const mockImpl__INVALID_EVENT_TIMESTAMP = (
   baseMock: DAStructurePublication<DAEventType, PublicationTypedData>
 ): void => {
-  mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+  mockGetBundlrByIdAPI.mockImplementationOnce(async () => {
     return {
       ...baseMock,
       event: {
@@ -74,7 +76,7 @@ export const mockImpl__INVALID_POINTER_SET = (
   baseMock: DAStructurePublication<DAEventType, PublicationTypedData>,
   pointer: unknown
 ): void => {
-  mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+  mockGetBundlrByIdAPI.mockImplementationOnce(async () => {
     return {
       ...baseMock,
       chainProofs: {
@@ -88,7 +90,7 @@ export const mockImpl__INVALID_POINTER_SET = (
 export const mockImpl__SIMULATION_FAILED_BAD_PROFILE_ID = (
   baseMock: DAStructurePublication<DAEventType, PublicationTypedData>
 ): void => {
-  mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+  mockGetBundlrByIdAPI.mockImplementationOnce(async () => {
     return {
       ...baseMock,
       chainProofs: {
@@ -111,7 +113,7 @@ export const mockImpl__SIMULATION_FAILED_BAD_PROFILE_ID = (
 export const mockImpl__INVALID_FORMATTED_TYPED_DATA = (
   baseMock: DAStructurePublication<DAEventType, PublicationTypedData>
 ): void => {
-  mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+  mockGetBundlrByIdAPI.mockImplementationOnce(async () => {
     return {
       ...baseMock,
       chainProofs: {
