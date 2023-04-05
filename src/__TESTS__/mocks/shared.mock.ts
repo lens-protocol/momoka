@@ -1,10 +1,11 @@
 import {
-  checkDAProof,
   ClaimableValidatorError,
+  Deployment,
   Environment,
   EthereumNode,
   TxValidatedResult,
 } from '../..';
+import { checkDAProof } from '../../client';
 import { getParamOrExit } from '../../common/helpers';
 import { PromiseWithContextResult } from '../../data-availability-models/da-result';
 import {
@@ -15,20 +16,20 @@ import {
 import * as getBundlrByIdAPIDefault from '../../input-output/bundlr/get-bundlr-by-id.api';
 import * as database from '../../input-output/db';
 import * as submittors from '../../submitters';
-// import { workerPool } from '../../workers/worker-pool';
 import { postCreatedDelegateArweaveResponse } from './post/post-created-delegate-arweave-response.mock';
 
 export const mockGetTxDb = database.getTxDb as jest.MockedFunction<typeof database.getTxDb>;
 mockGetTxDb.mockImplementation(async () => null);
 
-export const mockGetBundlrByIdAPI = getBundlrByIdAPIDefault.getBundlrByIdAPI as jest.MockedFunction<
-  typeof getBundlrByIdAPIDefault.getBundlrByIdAPI
->;
+export const mockGetDAPublicationByIdAPI =
+  getBundlrByIdAPIDefault.getBundlrByIdAPI as jest.MockedFunction<
+    typeof getBundlrByIdAPIDefault.getBundlrByIdAPI
+  >;
 
 export const mockImpl__NO_SIGNATURE_SUBMITTER = (
   baseMock: DAStructurePublication<DAEventType, PublicationTypedData>
 ): void => {
-  mockGetBundlrByIdAPI.mockImplementationOnce(async () => {
+  mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
     return {
       ...baseMock,
       signature: undefined,
@@ -36,12 +37,10 @@ export const mockImpl__NO_SIGNATURE_SUBMITTER = (
   });
 };
 
-// export const mockWorkerPool = workerPool as jest.MockedClass<typeof Worker>;
-
 export const mockImpl__TIMESTAMP_PROOF_INVALID_SIGNATURE = (
   baseMock: DAStructurePublication<DAEventType, PublicationTypedData>
 ): void => {
-  mockGetBundlrByIdAPI.mockImplementationOnce(async () => {
+  mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
     return {
       ...baseMock,
       timestampProofs: {
@@ -61,7 +60,7 @@ export const mockImpl__TIMESTAMP_PROOF_NOT_SUBMITTER = (): void => {
 export const mockImpl__INVALID_EVENT_TIMESTAMP = (
   baseMock: DAStructurePublication<DAEventType, PublicationTypedData>
 ): void => {
-  mockGetBundlrByIdAPI.mockImplementationOnce(async () => {
+  mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
     return {
       ...baseMock,
       event: {
@@ -76,7 +75,7 @@ export const mockImpl__INVALID_POINTER_SET = (
   baseMock: DAStructurePublication<DAEventType, PublicationTypedData>,
   pointer: unknown
 ): void => {
-  mockGetBundlrByIdAPI.mockImplementationOnce(async () => {
+  mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
     return {
       ...baseMock,
       chainProofs: {
@@ -90,7 +89,7 @@ export const mockImpl__INVALID_POINTER_SET = (
 export const mockImpl__SIMULATION_FAILED_BAD_PROFILE_ID = (
   baseMock: DAStructurePublication<DAEventType, PublicationTypedData>
 ): void => {
-  mockGetBundlrByIdAPI.mockImplementationOnce(async () => {
+  mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
     return {
       ...baseMock,
       chainProofs: {
@@ -113,7 +112,7 @@ export const mockImpl__SIMULATION_FAILED_BAD_PROFILE_ID = (
 export const mockImpl__INVALID_FORMATTED_TYPED_DATA = (
   baseMock: DAStructurePublication<DAEventType, PublicationTypedData>
 ): void => {
-  mockGetBundlrByIdAPI.mockImplementationOnce(async () => {
+  mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
     return {
       ...baseMock,
       chainProofs: {
@@ -141,6 +140,7 @@ mockIsValidSubmitter.mockImplementation(() => true);
 const ethereumNode: EthereumNode = {
   environment: getParamOrExit('ETHEREUM_NETWORK') as Environment,
   nodeUrl: getParamOrExit('NODE_URL'),
+  deployment: Deployment.STAGING,
 };
 
 export const callCheckDAProof = (): PromiseWithContextResult<
@@ -160,7 +160,7 @@ export const checkAndValidateDAProof = async (
   const result = await callCheckDAProof();
   expect(result.isFailure()).toBe(true);
   if (result.isFailure()) {
-    expect(result.failure).toEqual({ failure: expectedError });
+    expect(result.failure).toEqual(expectedError);
   }
 };
 

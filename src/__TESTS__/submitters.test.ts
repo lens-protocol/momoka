@@ -33,29 +33,4 @@ describe('submitters', () => {
       expect(isValidSubmitter(ethereumNode.environment, submitter)).toEqual(true);
     });
   });
-
-  // Function not available anymore
-  // describe('isValidTransactionSubmitter', () => {
-  //   it('should return false with an invalid submitter', async () => {
-  //     mockGetOwnerOfTransactionAPI.mockImplementation(() => Promise.resolve('111'));
-  //     expect(await isValidTransactionSubmitter(ethereumNode.environment, '111', jest.fn())).toEqual(
-  //       false
-  //     );
-  //   });
-
-  //   it('should return false with an null submitter', async () => {
-  //     mockGetOwnerOfTransactionAPI.mockImplementation(() => Promise.resolve(null));
-  //     expect(await isValidTransactionSubmitter(ethereumNode.environment, '111', jest.fn())).toEqual(
-  //       false
-  //     );
-  //   });
-
-  //   it('should return true with an valid submitter', async () => {
-  //     const submitter = getSubmitters(ethereumNode.environment)[0];
-  //     mockGetOwnerOfTransactionAPI.mockImplementation(() => Promise.resolve(submitter));
-  //     expect(
-  //       await isValidTransactionSubmitter(ethereumNode.environment, submitter, jest.fn())
-  //     ).toEqual(true);
-  //   });
-  // });
 });

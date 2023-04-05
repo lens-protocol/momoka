@@ -1,6 +1,7 @@
 import { ClaimableValidatorError, TxValidatedResult } from '..';
 import { getBlockDb, getTxDb, saveBlockDb, saveTxDb, startDb } from '../input-output/db';
-import { random } from './mocks/shared.mock';
+
+const random = () => Math.random().toString(36).substring(7);
 
 const txValidatedResult: TxValidatedResult = {
   success: false,

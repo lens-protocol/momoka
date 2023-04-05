@@ -4,7 +4,7 @@ module.exports = {
   testEnvironment: 'node',
   collectCoverage: true,
   coverageDirectory: 'coverage',
-  testRegex: 'mirror.e2e.test.ts$',
+  setupFiles: ['<rootDir>/src/__TESTS__/config/jest.setup.js'],
   coveragePathIgnorePatterns: [
     'node_modules',
     '<rootDir>/src/__TESTS__',
