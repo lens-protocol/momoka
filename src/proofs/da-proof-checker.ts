@@ -1,11 +1,12 @@
+import { Deployment, Environment } from '../common/environment';
 import { LogFunctionType } from '../common/logger';
 import { ClaimableValidatorError } from '../data-availability-models/claimable-validator-errors';
 import {
-  failure,
-  failureWithContext,
   PromiseResult,
   PromiseWithContextResult,
   PromiseWithContextResultOrNull,
+  failure,
+  failureWithContext,
   success,
 } from '../data-availability-models/da-result';
 import { DAActionTypes } from '../data-availability-models/data-availability-action-types';
@@ -20,22 +21,21 @@ import {
 } from '../data-availability-models/publications/data-availability-structure-publication';
 import { BlockInfo, EthereumNode } from '../evm/ethereum';
 import { TIMEOUT_ERROR, TimeoutError } from '../input-output/common';
+import { TxValidatedFailureResult, TxValidatedResult } from '../input-output/tx-validated-results';
 import { isValidSubmitter } from '../submitters';
 import {
   CheckDASubmissionOptions,
   getDefaultCheckDASubmissionOptions,
 } from './models/check-da-submisson-options';
-import { checkDAComment, CheckDACommentPublication } from './publications/comment';
-import { checkDAMirror, CheckDAMirrorPublication } from './publications/mirror';
-import { checkDAPost, CheckDAPostPublication } from './publications/post';
+import { CheckDACommentPublication, checkDAComment } from './publications/comment';
+import { CheckDAMirrorPublication, checkDAMirror } from './publications/mirror';
+import { CheckDAPostPublication, checkDAPost } from './publications/post';
 import {
   getClosestBlock,
   isValidEventTimestamp,
   isValidPublicationId,
   isValidTypedDataDeadlineTimestamp,
 } from './utils';
-import { TxValidatedFailureResult, TxValidatedResult } from '../input-output/tx-validated-results';
-import { Deployment, Environment } from '../common/environment';
 
 const validResult = 'valid';
 type ValidType = typeof validResult;

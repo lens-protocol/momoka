@@ -6,9 +6,9 @@ import {
   PublicationTypedData,
 } from '../data-availability-models/publications/data-availability-structure-publication';
 import { BlockInfo } from '../evm/ethereum';
+import { invariant } from '../utils/invariant';
 import { failedProofsPath, lensDAPath, pathResolver } from './paths';
 import { TxValidatedResult } from './tx-validated-results';
-import { invariant } from '../utils/invariant';
 
 let db: Level | undefined;
 
@@ -56,7 +56,9 @@ export const startDb = async (): Promise<void> => {
  * @param key - The key of the item to be deleted.
  */
 export const deleteDb = (key: string): Promise<void> => {
-  invariant(db, 'Database not started');
+  if (!db) {
+    return Promise.resolve();
+  }
 
   return db.del(key);
 };
@@ -67,7 +69,9 @@ export const deleteDb = (key: string): Promise<void> => {
  * @returns The transaction if it exists, null otherwise.
  */
 export const getTxDb = async (txId: string): Promise<TxValidatedResult | null> => {
-  invariant(db, 'Database not started');
+  if (!db) {
+    return null;
+  }
 
   try {
     const result = await db.get(`${DbReference.tx}:${txId}`);
@@ -84,7 +88,9 @@ export const getTxDb = async (txId: string): Promise<TxValidatedResult | null> =
  * @param result - The result of the transaction.
  */
 export const saveTxDb = async (txId: string, result: TxValidatedResult): Promise<void> => {
-  invariant(db, 'Database not started');
+  if (!db) {
+    return;
+  }
 
   try {
     await db.put(`${DbReference.tx}:${txId}`, JSON.stringify(result));
@@ -100,7 +106,9 @@ export const saveTxDb = async (txId: string, result: TxValidatedResult): Promise
  * @returns The block if it exists, null otherwise.
  */
 export const getBlockDb = async (blockNumber: number): Promise<BlockInfo | null> => {
-  invariant(db, 'Database not started');
+  if (!db) {
+    return null;
+  }
 
   try {
     const result = await db.get(`${DbReference.block}:${blockNumber}`);
@@ -116,7 +124,9 @@ export const getBlockDb = async (blockNumber: number): Promise<BlockInfo | null>
  * @param block - The block to save.
  */
 export const saveBlockDb = async (block: BlockInfo): Promise<void> => {
-  invariant(db, 'Database not started');
+  if (!db) {
+    return;
+  }
 
   try {
     await db.put(`${DbReference.block}:${block.number}`, JSON.stringify(block));
@@ -198,7 +208,9 @@ export const saveTxDAMetadataDb = async (
   txId: string,
   publication: DAStructurePublication<DAEventType, PublicationTypedData>
 ): Promise<void> => {
-  invariant(db, 'Database not started');
+  if (!db) {
+    return;
+  }
 
   try {
     await db.put(`${DbReference.tx_da_metadata}:${txId}`, JSON.stringify(publication));
@@ -215,7 +227,9 @@ export const saveTxDAMetadataDb = async (
 export const getTxDAMetadataDb = async (
   txId: string
 ): Promise<DAStructurePublication<DAEventType, PublicationTypedData> | null> => {
-  invariant(db, 'Database not started');
+  if (!db) {
+    return null;
+  }
 
   try {
     const result = await db.get(`${DbReference.tx_da_metadata}:${txId}`);
@@ -235,7 +249,9 @@ export const saveTxTimestampProofsMetadataDb = async (
   txId: string,
   proofs: DATimestampProofsResponse
 ): Promise<void> => {
-  invariant(db, 'Database not started');
+  if (!db) {
+    return;
+  }
 
   try {
     await db.put(`${DbReference.tx_timestamp_proof_metadata}:${txId}`, JSON.stringify(proofs));
@@ -252,7 +268,9 @@ export const saveTxTimestampProofsMetadataDb = async (
 export const getTxTimestampProofsMetadataDb = async (
   txId: string
 ): Promise<DATimestampProofsResponse | null> => {
-  invariant(db, 'Database not started');
+  if (!db) {
+    return null;
+  }
 
   try {
     const result = await db.get(`${DbReference.tx_timestamp_proof_metadata}:${txId}`);

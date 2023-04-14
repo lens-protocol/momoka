@@ -1,5 +1,5 @@
 import { retryWithTimeout } from '../../common/helpers';
-import { TimeoutError, TIMEOUT_ERROR } from '../common';
+import { TIMEOUT_ERROR, TimeoutError } from '../common';
 import { FetchProvider, fetchWithTimeout } from '../fetch-with-timeout';
 import { BUNDLR_GATEWAY_TX } from './bundlr-config';
 

@@ -1,18 +1,18 @@
-import { DAProofsVerifier } from './da-proof-checker';
-import { workerPool } from '../workers/worker-pool';
-import { HandlerWorkers } from '../workers/handler-communication.worker';
+import { Deployment, Environment } from '../common/environment';
 import { deepClone } from '../common/helpers';
+import { LogFunctionType } from '../common/logger';
 import {
   DAEventType,
   DAStructurePublication,
   PublicationTypedData,
 } from '../data-availability-models/publications/data-availability-structure-publication';
-import { Deployment, Environment } from '../common/environment';
-import { LogFunctionType } from '../common/logger';
-import { TIMEOUT_ERROR, TimeoutError } from '../input-output/common';
 import { getOwnerOfTransactionAPI } from '../input-output/bundlr/get-owner-of-transaction.api';
-import { isValidSubmitter } from '../submitters';
+import { TIMEOUT_ERROR, TimeoutError } from '../input-output/common';
 import { LibCurlProvider } from '../input-output/lib-curl-provider';
+import { isValidSubmitter } from '../submitters';
+import { HandlerWorkers } from '../workers/handler-communication.worker';
+import { workerPool } from '../workers/worker-pool';
+import { DAProofsVerifier } from './da-proof-checker';
 
 export class DaProofVerifier implements DAProofsVerifier {
   extractAddress(

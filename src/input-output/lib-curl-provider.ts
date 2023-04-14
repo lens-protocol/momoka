@@ -6,6 +6,7 @@ export class LibCurlProvider implements FetchProvider {
     const { statusCode, data } = await curly.get(url, {
       httpHeader: ['Content-Type: application/json'],
       curlyResponseBodyParser: false,
+      followLocation: true,
       timeout,
     });
 

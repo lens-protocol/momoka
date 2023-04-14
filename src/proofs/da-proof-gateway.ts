@@ -5,9 +5,8 @@ import {
   PublicationTypedData,
 } from '../data-availability-models/publications/data-availability-structure-publication';
 import { BlockInfo, EthereumNode, getBlock } from '../evm/ethereum';
-import { TimeoutError } from '../input-output/common';
-import { DAProofsGateway } from '../proofs/da-proof-checker';
 import { getBundlrByIdAPI } from '../input-output/bundlr/get-bundlr-by-id.api';
+import { TimeoutError } from '../input-output/common';
 import {
   getBlockDb,
   getTxDAMetadataDb,
@@ -15,8 +14,9 @@ import {
   getTxTimestampProofsMetadataDb,
   saveBlockDb,
 } from '../input-output/db';
-import { TxValidatedResult } from '../input-output/tx-validated-results';
 import { LibCurlProvider } from '../input-output/lib-curl-provider';
+import { TxValidatedResult } from '../input-output/tx-validated-results';
+import { DAProofsGateway } from '../proofs/da-proof-checker';
 
 export class DaProofGateway implements DAProofsGateway {
   getTxResultFromCache(txId: string): Promise<TxValidatedResult | null> {
