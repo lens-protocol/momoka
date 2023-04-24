@@ -1,13 +1,27 @@
 IN _README to stop people seeing it
 
-# Data Availability Verifier
+# bonsai
 
-The Data Availability Verifier enables you to operate a trustless verifier node that validates LENS DA publications in real-time. Additionally, it can serve as an indexer, allowing you to stream and index the data yourself. This open-source solution relies exclusively on software that you can run independently, without any dependency on LENS. This ensures that even if LENS were to cease operation, you would retain access to your content, maintain proof of ownership, and continue to utilize it, all thanks to a decentralized data availability storage layer.
+# Bonsai Verifier
+
+The Bonsai Verifier enables you to operate a trustless verifier node that validates LENS DA publications in real-time. Additionally, it can serve as an indexer, allowing you to stream and index the data yourself. This open-source solution relies exclusively on software that you can run independently, without any dependency on LENS. This ensures that even if LENS were to cease operation, you would retain access to your content, maintain proof of ownership, and continue to utilize it, all thanks to a decentralized data availability storage layer.
 
 For information on how to run this software, please refer to the [How to run](#running) section.
+
 ## Disclaimer 
 
 We would like to emphasize that this project is currently in its beta phase and incorporates new, innovative technology. As with any cutting-edge solution, there may be potential challenges or undiscovered issues that could arise during its initial stages. We are committed to continually refining and improving our offering, and we appreciate your understanding and patience as we work diligently to perfect this technology. Please feel free to provide feedback or report any issues, as your input is invaluable in helping us enhance the user experience and overall functionality of our project.
+
+## What is Bonsai technical definition? 
+
+Bonsai, a term we've coined, refers to an Optimistic L3 - a hybrid between Optimistic Rollup and Layer 3 (L3) technologies. We've chosen this approach for several reasons:
+
+- Optimistic Rollup is a technique that processes transactions off-chain for enhanced scalability and reduced fees. It typically compresses these transactions back to the main chain, but we've excluded this final step in our implementation.
+- L3, while having various definitions, generally involves technology built on top of Layer 2 (L2). Despite some considering Polygon a combination of side-chain and L2, we utilize the Polygon EVM chain to enable transaction proofs, improving the user experience (UX/UI) and overall experience for LENS users. This is why we designate it as L3.
+
+We describe Bonsai as a hybrid because, in most cases, settlement refers to both storage and verification. However, in this instance, the storage layer is provided by the Data Availability (DA) provider, and the settlement, or proof verification, is conducted using the Polygon chain.
+
+As we continue to refine this technology, the technical name may evolve, but we wanted to clarify the rationale behind the current terminology.
 
 ## What is DA?
 
@@ -34,6 +48,18 @@ The advantage of this approach is that the data is stored on a decentralized lay
 ## What does this mean?
 
 This approach allows LENS to scale to a lot higher TPS, which is currently unattainable with an EVM chain, while also providing a more cost-effective solution. This can be achieved without compromising the core ownership of the social graph, and the indexing process remains familiar for app developers. Using this system is optional; those who prefer can continue to store everything on Polygon. However, if a publication doesn't require the power of a trustless execution layer, there's no need to use the EVM state.
+
+## DA vs polygon side by side
+
+Here are diagrams that show how a transaction would look like on Polygon versus a transaction using the DA layer. These diagrams are meant to provide a simplified high-level overview of how the transactions work, while more detailed information is provided below with all the necessary technical details.
+
+### Polygon
+
+<img src="https://statics-polygon-lens.s3.eu-west-1.amazonaws.com/polygon-transaction.png">
+
+### DA
+
+<img src="https://statics-polygon-lens.s3.eu-west-1.amazonaws.com/da-transaction.png">
 
 ## Submitters
 
