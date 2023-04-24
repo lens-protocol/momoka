@@ -14,7 +14,7 @@ We would like to emphasize that this project is currently in its beta phase and 
 
 ## What is Bonsai technical definition? 
 
-Bonsai, a term we've coined, refers to an Optimistic L3 - a hybrid between Optimistic Rollup and Layer 3 (L3) technologies. We've chosen this approach for several reasons:
+Bonsai, a term we've due to lens brand, refers to an Optimistic L3 - a hybrid between Optimistic Rollup and Layer 3 (L3) technologies. We've chosen this approach for several reasons:
 
 - Optimistic Rollup is a technique that processes transactions off-chain for enhanced scalability and reduced fees. It typically compresses these transactions back to the main chain, but we've excluded this final step in our implementation.
 - L3, while having various definitions, generally involves technology built on top of Layer 2 (L2). Despite some considering Polygon a combination of side-chain and L2, we utilize the Polygon EVM chain to enable transaction proofs, improving the user experience (UX/UI) and overall experience for LENS users. This is why we designate it as L3.
