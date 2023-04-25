@@ -1,7 +1,7 @@
 {
-  "name": "@lens-protocol/data-availability-verifier",
-  "version": "0.0.24",
-  "description": "Data availability verifier for the Lens protocol",
+  "name": "@lens-protocol/bonsai",
+  "version": "0.0.1",
+  "description": "Bonsai node for the Lens protocol",
   "main": "lib/index.js",
   "types": "./lib/index.d.ts",
   "exports": {
@@ -78,6 +78,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lens-protocol/data-availability-verifier.git"
+    "url": "git+https://github.com/lens-protocol/bonsai.git"
   }
 }
