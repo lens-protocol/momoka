@@ -1,24 +1,37 @@
 IN _README to stop people seeing it
 
-# Data Availability Verifier
+# Bonsai
 
-The Data Availability Verifier enables you to operate a trustless verifier node that validates LENS DA publications in real-time. Additionally, it can serve as an indexer, allowing you to stream and index the data yourself. This open-source solution relies exclusively on software that you can run independently, without any dependency on LENS. This ensures that even if LENS were to cease operation, you would retain access to your content, maintain proof of ownership, and continue to utilize it, all thanks to a decentralized data availability storage layer.
-
-For information on how to run this software, please refer to the [How to run](#running) section.
-
-## Disclaimer
+## Disclaimer 
 
 We would like to emphasize that this project is currently in its beta phase and incorporates new, innovative technology. As with any cutting-edge solution, there may be potential challenges or undiscovered issues that could arise during its initial stages. We are committed to continually refining and improving our offering, and we appreciate your understanding and patience as we work diligently to perfect this technology. Please feel free to provide feedback or report any issues, as your input is invaluable in helping us enhance the user experience and overall functionality of our project.
 
+# Bonsai Verifier
+
+The Bonsai Verifier enables you to operate a trustless verifier node that validates LENS DA publications in real-time. Additionally, it can serve as an indexer, allowing you to stream and index the data yourself. This open-source solution relies exclusively on software that you can run independently, without any dependency on LENS. This ensures that even if LENS were to cease operation, you would retain access to your content, maintain proof of ownership, and continue to utilize it, all thanks to a decentralized data availability storage layer.
+
+For information on how to run this software, please refer to the [How to run](#running) section.
+
+## What is Bonsai technical definition? 
+
+Bonsai, a term we've due to lens brand, refers to an Optimistic L3 - a hybrid between Optimistic Rollup and Layer 3 (L3) technologies. We've chosen this approach for several reasons:
+
+- Optimistic Rollup is a technique that processes transactions off-chain for enhanced scalability and reduced fees. It typically compresses these transactions back to the main chain, but we've excluded this final step in our implementation.
+- L3, while having various definitions, generally involves technology built on top of Layer 2 (L2). Despite some considering Polygon a combination of side-chain and L2, we utilize the Polygon EVM chain to enable transaction proofs, improving the user experience (UX/UI) and overall experience for LENS users. This is why we designate it as L3.
+
+We describe Bonsai long form name as an "Optimistic Hybrid-settlement L3" because, in most cases, settlement refers to both storage and verification. However, in this instance, the storage layer is provided by the Data Availability (DA) provider, and the settlement, or proof verification, is conducted using the Polygon chain.
+
+As we continue to refine this technology, the technical name may evolve, but we wanted to clarify the rationale behind the current terminology.
+
 ## What is DA?
 
-DA stands for Data Availability. It refers to the concept of storing data in a decentralized availability layer, which is more cost-effective than storing it on an EVM chain. The DA has no latency, meaning the data is produced and queryable instantly, in contrast to IPFS and EVM chains, which always have latency until they are considered complete. We utilize Arweave and Bundlr for this purpose. Arweave is a decentralized, permanent storage network with over 300 nodes in operation; it is being increasingly adopted by Instagram and various NFT projects. Bundlr enhances Arweave's scalability while providing DA guarantees, enabling the use of EVM wallets to save DA logic and serving as a tool to rapidly push data to Arweave. DA can be used to store actions like posts, comments, mirrors, and more; initially, we are focusing on publications. The goal is to keep the DA layer affordable and scalable while still verifying transactions on Polygon using EVM simulations. DA requires a one-time payment for data storage and is backed by mathematical and hardware history guarantees.
+DA stands for Data Availability. It refers to the concept of storing data in a decentralized availability layer, which is more cost-effective than storing it on an EVM chain. The DA has no latency, meaning the data is produced and queryable instantly, in contrast to IPFS and EVM chains, which always have latency until they are considered complete. We utilize Arweave and Bundlr for this purpose. Arweave is a decentralized, permanent storage network with over 100 nodes in operation (as writing this documentation); it is being increasingly adopted by various NFT projects. Bundlr enhances Arweave's scalability while providing DA guarantees, enabling the use of EVM wallets to save DA logic and serving as a tool to rapidly push data to Arweave. DA can be used to store actions like posts, comments, mirrors, and more; initially, we are focusing on publications. The goal is to keep the DA layer affordable and scalable while still verifying transactions on Polygon using EVM simulations. DA requires a one-time payment for data storage and is backed by mathematical and hardware history guarantees.
 
 Using this software, you can verify that a particular action would have been executed on-chain. The approach involves performing the same signing actions as you would on an EVM chain, but without actually sending the transaction (which consumes gas to store in the EVM state). Instead, you create a DA standard and save it on a DA layer, complete with proofs and all the required information. This enables ANYONE to cross-check the data, providing 100% proof that the action must have been performed by someone capable of creating the transaction signature and submitting it. This can be demonstrated by simulating the transaction. This approach allows LENS to scale while maintaining the core values of "ownership" and "trust" provided by the blockchain.
 
 ## Why do we need to use DA?
 
-EVM can store state indefinitely, but at a cost; blockchains were designed for trustless transactional systems. EVM is secured by the network and mined into the chain; the data on-chain is immutable and verifiable at any time, ensuring trust. However, storing data on-chain is expensive, and EVM machines can only process a limited number of transactions per block based on maximum gas limits. Polygon is a shared block space; scaling beyond 50-100 TPS is infeasible. With 2-second block times, some latency is unavoidable, and max gas limits per block make scaling challenging, if not impossible. For context, Twitter experiences peak rates of 25,000 TPS; while LENS may not require this level of capacity yet, scalability is a critical consideration. This is where DA layers come in; they offer a more affordable solution for storing data with a one-time payment, backed by mathematical guarantees and a history of decreasing hardware costs over time. Moreover, these DA layers are decentralized, preserving this aspect of the system. DA enables scalability beyond 25,000 TPS, and even more; if we aim to revolutionize the world of core social ownership, we must be able to scale accordingly.
+EVM can store state indefinitely, but at a cost; blockchains were designed for trustless transactional systems. EVM is secured by the network and mined into the chain; the data on-chain is immutable and verifiable at any time, ensuring trust. However, storing data on-chain is expensive, and EVM machines can only process a limited number of transactions per block based on maximum gas limits. Polygon is a shared block space; and at the moment has challenges scaling beyond 50-100 TPS. With 2-second block times, some latency is unavoidable, and max gas limits per block make scaling challenging, if not impossible. For context, Twitter experiences peak rates of 25,000 TPS; while LENS may not require this level of capacity yet, scalability is a critical consideration. This is where DA layers come in; they offer a more affordable solution for storing data with a one-time payment, backed by mathematical guarantees and a history of decreasing hardware costs over time. Moreover, these DA layers are decentralized, preserving this aspect of the system. DA enables scalability beyond 25,000 TPS, and even more; if we aim to revolutionize the world of core social ownership, we must be able to scale accordingly.
 
 ## What are transactions on EVM machines?
 
@@ -26,7 +39,7 @@ A transaction on an EVM machine alters some form of state; it is signed by the w
 
 ## How can DA and EVM work together?
 
-LENS is deployed on Polygon, an EVM-based platform. All actions—such as posts, comments, mirrors, follows, and collects are transactions built, signed, and sent to be stored on the EVM machine. In this system, transactions still require a signature from a wallet that would pass the state on-chain, but they are not actually sent. Instead, the transaction signature and typed data are used to create DA metadata, which is then transmitted to a DA layer containing information such as block number, signed typed data, transaction signature, and other crucial details. This data is structured in a way that can be fully verified with just having an archive node.
+LENS is deployed on Polygon, an EVM-based platform. All actions—such as posts, comments, mirrors, follows, and collects are transactions that are built, signed, and sent to be stored on the EVM machine. In the new system, transactions are still built and require a signature from a wallet that would pass the state on-chain, but they are not actually sent. Instead, the transaction signature and typed data are used to create DA metadata, which is then transmitted to a DA layer containing information such as block number, signed typed data, transaction signature, and other crucial details. This data is structured in a way that can be fully verified with just having an archive node.
 
 EVM machines function as large state machines. The EVM JSON-RPC methods allow you to simulate transactions using `eth_call`, determining the outcome of a transaction without actually sending it. You can specify a block number to run the simulation and use the signed typed data transaction with the typed data. This can be done with every `withSig` method on the LENS contracts. With just a Polygon node, anyone can verify that the data on the DA layer is accurate and would have been valid at that point in time. Since the typed data contains expiry times and nonces, it can be proven in a secure manner and cannot be submitted by anyone else.
 
@@ -36,24 +49,36 @@ The advantage of this approach is that the data is stored on a decentralized lay
 
 This approach allows LENS to scale to a lot higher TPS, which is currently unattainable with an EVM chain, while also providing a more cost-effective solution. This can be achieved without compromising the core ownership of the social graph, and the indexing process remains familiar for app developers. Using this system is optional; those who prefer can continue to store everything on Polygon. However, if a publication doesn't require the power of a trustless execution layer, there's no need to use the EVM state.
 
-## Submitters
+## Bonsai vs polygon side by side
+
+Here are diagrams that show how a transaction would look like on Polygon versus a transaction using the DA layer. These diagrams are meant to provide a simplified high-level overview of how the transactions work, while more detailed information is provided below with all the necessary technical details.
+
+### Polygon
+
+<img src="https://statics-polygon-lens.s3.eu-west-1.amazonaws.com/polygon-transaction.png">
+
+### Bonsai
+
+<img src="https://statics-polygon-lens.s3.eu-west-1.amazonaws.com/da-transaction.png">
+
+## Bonsai Submitters
 
 To maintain trust, submitters must be held accountable for their actions and face potential penalties for misconduct. Initially, the submitter whitelist will consist of a single address owned by LENS. As the approach is proven, the system can be expanded to allow anyone to become a submitter, with incentives for good behavior and penalties for bad actors. If submitters have nothing to lose, they could flood the system with invalid submissions, overwhelming verifiers and causing delays. During the beta phase, LENS will be responsible for correcting any errors, with bug bounties planned for the post-beta period. Ultimately, the goal is to have multiple submitters contributing to the system. It's important to note that certain errors, such as `UNKNOWN`, `CAN_NOT_CONNECT_TO_BUNDLR`, `BLOCK_CANT_BE_READ_FROM_NODE`, `DATA_CANT_BE_READ_FROM_NODE`, and `SIMULATION_NODE_COULD_NOT_RUN`, are related to third-party software issues and not considered critical verifier errors. The verifier will retry these errors later to see if they still pass. Over time, the entire system could become decentralized. For now, this beta approach represents the first attempt at scaling using a hybrid module model.
 
-## Submitters' responsibilities
+## Bonsai Submitters' responsibilities
 
 Submitters are responsible for validating, building up DA metadata, and submitting it to Arweave/Bundlr. After generating proofs with the DA submission, the data is uploaded to Arweave via Bundlr, with an instantaneous response. The submitter must provide proofs that anyone can contest. Verifier software listens for DA publications sent from whitelisted submitter addresses and verifies their validity.
 
-## Verifiers
+## Bonsai Verifiers
 
 Verifiers are tasked with monitoring DA publications from submitters and confirming their validity. They must follow specific criteria when evaluating incoming publications, with the primary goal of ensuring the submitter is truthful. Anyone can run a verifier using open-source software and a few commands. The verifier utilizes LevelDB for quick storage of passed results. The code has the capability to use a forked archive node with Foundry's `anvil` for local machine execution. However, for optimal speed, it is recommended to use an archive node directly (Alchemy is suggested but not required). All that's needed to run a verifier is an archive node.
 
-## Current limitations with DA publications
+## Bonsai Current limitations with DA publications
 
 - DA publications must use the `RevertCollectModule` and no `ReferenceModule`. This will be addressed in a future release.
 - For now, DA comments can only be added to other DA publications; they cannot be mixed. This limitation will be explored after the v1 launch.
-- DA mirrors can only duplicate DA publications, not Polygon publications. This issue will be addressed post-v1 launch.
-- DA publications on other DA publications cannot be proven on Polygon, so simulations cannot be run. However, the signatures and transactions can still be verified as valid.
+- DA mirrors can only mirror DA publications, not Polygon publications. This issue will be addressed post-v1 launch.
+- While it's not possible to prove DA publications on other DA publications on Polygon (as they are not on-chain), it's still possible to verify the signatures and transactions as valid. However, simulations cannot be executed in this scenario.
 - When verifying a submission, the pointer is checked as well. Only the first pointer is checked, not unlimited pointers, as the other verifications would have been done by the verifier.
 
 ## Compatibility with signature-free transactions
@@ -62,7 +87,7 @@ A top-class UX is essential for LENS users. DA publications work with the dispat
 
 ## Gasless transactions
 
-DA operations don't require gas, making them free to use. The submitter pays for pinning and storage of metadata on Arweave/Bundlr, which is significantly cheaper than EVM gas prices (up to 1000x cheaper).
+DA operations don't require gas, making them free to use. The app still needs to upload the contentURI to a resolvable location, the submitter pays for storage of DA metadata on Arweave/Bundlr, which is significantly cheaper than EVM gas prices (up to 1000x cheaper).
 
 ## Timestamp proofs for picking the block number
 
@@ -1254,69 +1279,98 @@ This is a DA mirror. Very similar to DA post/comment minus the `type`, `typedDat
 
 ## Validation checks flows
 
-Here are the steps to make it easier to understand how the verifier works; of course, the code is all open source, so you can check. 
+This is written in sudo `node` code to understand the current flow of the validation checks. 
 
-It is easier to explain this in steps then a diagram:
+```ts
+async function validateClaim() {
+  // 1. Fetch DA metadata from Bundlr
+  const metadata = await fetchMetadataFromBundlr();
 
-1. Fetch DA metadata from Bundlr
- |
- v
-2. Check if `signature` is defined
- |-> If not, return `ClaimableValidatorError.NO_SIGNATURE_SUBMITTER`
- |
- v
-3. Verify `signature` with `metadata`
- |-> If not, return `ClaimableValidatorError.INVALID_SIGNATURE_SUBMITTER`
- |
- v
-4. Check timestamp proofs with Bundlr
- |-> If not, return `ClaimableValidatorError.TIMESTAMP_PROOF_INVALID_SIGNATURE`
- |
- v
-5. Check if timestamp proofs submitter is valid
- |-> If not, return `ClaimableValidatorError.TIMESTAMP_PROOF_INVALID_SUBMITTER`
- |
- v
-6. Check if event `timestamp` equals `blockTimestamp`
- |-> If not, return `ClaimableValidatorError.INVALID_EVENT_TIMESTAMP`
- |
- v
-7. Check if block number is closest to timestamp proofs
- |-> If not, return `ClaimableValidatorError.NOT_CLOSEST_BLOCK`
- |
- v
-8. Check if pointer is defined
- |-> If set & `POST`, return `ClaimableValidatorError.INVALID_POINTER_SET_NOT_NEEDED`
- |-> If not set & `MIRROR` or `COMMENT`, return `ClaimableValidatorError.INVALID_POINTER_NOT_SET`
- |
- v
-8.1. Check pointer type (if defined)
- |-> If not `ON_DA`, return `PUBLICATION_NONE_DA`
- |
- v
-9. Verify pointer (if defined) - follow steps from 1
- |-> If fails, return step error
- |
- v
-10. Check if formatted typed data is valid
- |-> If not, return `ClaimableValidatorError.INVALID_FORMATTED_TYPED_DATA`
- |
- v
-11a. If `POST`, simulate transaction using eth_call
- |-> If node error, return `ClaimableValidatorError.SIMULATION_NODE_COULD_NOT_RUN`
- |-> If expected != simulated, return `ClaimableValidatorError.SIMULATION_FAILED`
- |
-11b. If `COMMENT` or `MIRROR`, perform additional checks
- |-> If `sigNonces` != typed data nonce, return `ClaimableValidatorError.PUBLICATION_NONCE_INVALID`
- |-> If dispatcher OR ownerOf != recovered address, return `ClaimableValidatorError.PUBLICATION_SIGNER_NOT_ALLOWED`
- |
- v
-12. Cross-check typed data values with `event`
- |-> If mismatch, return `ClaimableValidatorError.EVENT_MISMATCH`
- |
- v
-13. Check if `publicationId` matches expected ID
-   -> If not, return `ClaimableValidatorError.GENERATED_PUBLICATION_ID_MISMATCH`
+  // 2. Check if `signature` is defined
+  if (!signature) {
+    return BonsaiValidatorError.NO_SIGNATURE_SUBMITTER;
+  }
+
+  // 3. Verify `signature` with `metadata`
+  if (!verifySignature(signature, metadata)) {
+    return BonsaiValidatorError.INVALID_SIGNATURE_SUBMITTER;
+  }
+
+  // 4. Check timestamp proofs with Bundlr
+  if (!await checkTimestampProofs()) {
+    return BonsaiValidatorError.TIMESTAMP_PROOF_INVALID_SIGNATURE;
+  }
+
+  // 5. Check if timestamp proofs submitter is valid
+  if (!isValidTimestampProofsSubmitter()) {
+    return BonsaiValidatorError.TIMESTAMP_PROOF_INVALID_SUBMITTER;
+  }
+
+  // 6. Check if event `timestamp` equals `blockTimestamp`
+  if (eventTimestamp !== blockTimestamp) {
+    return BonsaiValidatorError.INVALID_EVENT_TIMESTAMP;
+  }
+
+  // 7. Check if block number is closest to timestamp proofs
+  if (!isClosestBlock()) {
+    return BonsaiValidatorError.NOT_CLOSEST_BLOCK;
+  }
+
+  // 8. Check if pointer is defined
+  if (isPost() && pointer) {
+    return BonsaiValidatorError.INVALID_POINTER_SET_NOT_NEEDED;
+  } else if (!pointer && (isMirror() || isComment())) {
+    return BonsaiValidatorError.INVALID_POINTER_NOT_SET;
+  }
+
+  // 8.1. Check pointer type (if defined)
+  if (pointer && !isPointerTypeOnDA()) {
+    return PUBLICATION_NONE_DA;
+  }
+
+  // 9. Verify pointer (if defined) - follow steps from 1
+  const pointerStepError = await verifyPointer();
+  if (pointerStepError) {
+    return pointerStepError;
+  }
+
+  // 10. Check if formatted typed data is valid
+  if (!isValidFormattedTypedData()) {
+    return BonsaiValidatorError.INVALID_FORMATTED_TYPED_DATA;
+  }
+
+  // 11a. If `POST`, simulate transaction using eth_call
+  if (isPost()) {
+    const simulationResult = await simulateTransaction();
+    if (simulationResult === 'nodeError') {
+      return BonsaiValidatorError.SIMULATION_NODE_COULD_NOT_RUN;
+    } else if (simulationResult === 'failed') {
+      return BonsaiValidatorError.SIMULATION_FAILED;
+    }
+  }
+  // 11b. If `COMMENT` or `MIRROR`, perform additional checks
+  else {
+    if (!isValidPublicationNonce()) {
+      return BonsaiValidatorError.PUBLICATION_NONCE_INVALID;
+    }
+    if (!isPublicationSignerAllowed()) {
+      return BonsaiValidatorError.PUBLICATION_SIGNER_NOT_ALLOWED;
+    }
+  }
+
+  // 12. Cross-check typed data values with `event`
+  if (!isEventMatchingTypedData()) {
+    return BonsaiValidatorError.EVENT_MISMATCH;
+  }
+
+  // 13. Check if `publicationId` matches expected ID
+  if (!isPublicationIdMatch()) {
+    return BonsaiValidatorError.GENERATED_PUBLICATION_ID_MISMATCH;
+  }
+
+  // all validated!
+}
+```
 
 At this point, you have done all the checks needed, and this is a valid submission! As you see, using signatures and EVM calls, we can verify the data is correct and the submitter is correct without any other third party.
 
@@ -1325,7 +1379,7 @@ At this point, you have done all the checks needed, and this is a valid submissi
 The summary in the code should explain what is being checked for and what it would fail out if it doesn't match. Below is the full list of error cases
 
 ```ts
-export enum ClaimableValidatorError {
+export enum BonsaiValidatorError {
   /**
    * This means the main signature has not been attached to the payload
    */
@@ -1537,7 +1591,7 @@ Check the `playground-browser` folder for a working example of the client usage.
 
 #### checkDAProof
 
-The `checkDAProof` will return you a failure reason of the enum `ClaimableValidatorError`, and if successful, you be returned the entire `DAStructurePublication`. This is a client specific version of the `checkDAProof` function that doesn't have any caching in place. For the server version, please see the server usage section.
+The `checkDAProof` will return you a failure reason of the enum `BonsaiValidatorError`, and if successful, you be returned the entire `DAStructurePublication`. This is a client specific version of the `checkDAProof` function that doesn't have any caching in place. For the server version, please see the server usage section.
 
 ```ts
 import { checkDAProof, EthereumNode, Environment } from '@lens-protocol/data-availability-verifier/client';
@@ -1561,7 +1615,7 @@ console.error('proof invalid do something', result.failure)
 
 #### checkDAProof
 
-The `checkDAProof` will return you a failure reason of the enum `ClaimableValidatorError`, and if successful, you be returned the entire `DAStructurePublication`. This is a server specific version of the `checkDAProof` function that has caching in place. For the client version, please see the client usage section.
+The `checkDAProof` will return you a failure reason of the enum `BonsaiValidatorError`, and if successful, you be returned the entire `DAStructurePublication`. This is a server specific version of the `checkDAProof` function that has caching in place. For the client version, please see the client usage section.
 
 ```ts
 import { checkDAProof, EthereumNode, Environment } from '@lens-protocol/data-availability-verifier';
@@ -1742,3 +1796,4 @@ A special thank you to [Bundlr](https://bundlr.network/) for making this project
 ### Arweave
 
 We also extend our gratitude to [Arweave](https://www.arweave.org/) for providing decentralized storage solutions for our data, contributing to the overall success of the DA project.
+
