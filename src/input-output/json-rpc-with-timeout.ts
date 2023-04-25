@@ -7,7 +7,8 @@ export const RATE_LIMIT_TIME = 1000;
 export const JSONRPCWithTimeout = async <TResponse>(
   url: string,
   method: JSONRPCMethods,
-  params: unknown[]
+  params: unknown[],
+  returnErrorData = false
 ): Promise<TResponse> => {
   const request = {
     id: 0,
@@ -19,6 +20,10 @@ export const JSONRPCWithTimeout = async <TResponse>(
   const response = await axios.post(url, JSON.stringify(request), {
     timeout: 5000,
   });
+
+  if (returnErrorData && response.data.error) {
+    return response.data.error.data as TResponse;
+  }
 
   return response.data.result as TResponse;
 };

@@ -1,9 +1,9 @@
-import { resolve as resolvePath } from 'path';
 import { cpus } from 'os';
+import { resolve as resolvePath } from 'path';
 import { Worker } from 'worker_threads';
 import { HandlerWorkerData } from './handler-communication.worker';
 
-const workerPath = resolvePath(__dirname, 'handler-communication.worker.js');
+// const workerPath = resolvePath(__dirname, 'handler-communication.worker.js');
 
 class WorkerPool {
   private workers: Worker[] = [];
@@ -13,7 +13,10 @@ class WorkerPool {
     // Set the pool size to the number of available CPU cores
     const size = cpus().length;
     for (let i = 0; i < size; i++) {
-      const worker = new Worker(workerPath);
+      const worker = new Worker(
+        // worker path has to be a raw `.js` file so rewrite to `lib`
+        resolvePath(__dirname, '..', '..', 'lib', 'workers', 'handler-communication.worker.js')
+      );
       worker.on('message', (_result) => {
         this.queue.shift()?.();
       });

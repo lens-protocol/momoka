@@ -1,5 +1,5 @@
 import {
-  ClaimableValidatorError,
+  BonsaiValidatorError,
   Deployment,
   Environment,
   EthereumNode,
@@ -155,7 +155,7 @@ export const callCheckDAProof = (): PromiseWithContextResult<
 };
 
 export const checkAndValidateDAProof = async (
-  expectedError: ClaimableValidatorError
+  expectedError: BonsaiValidatorError
 ): Promise<void> => {
   const result = await callCheckDAProof();
   expect(result.isFailure()).toBe(true);

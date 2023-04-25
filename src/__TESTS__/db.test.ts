@@ -1,4 +1,4 @@
-import { ClaimableValidatorError, TxValidatedResult } from '..';
+import { BonsaiValidatorError, TxValidatedResult } from '..';
 import { getBlockDb, getTxDb, saveBlockDb, saveTxDb, startDb } from '../input-output/db';
 
 const random = () => Math.random().toString(36).substring(7);
@@ -6,7 +6,7 @@ const random = () => Math.random().toString(36).substring(7);
 const txValidatedResult: TxValidatedResult = {
   success: false,
   proofTxId: random(),
-  failureReason: ClaimableValidatorError.BLOCK_CANT_BE_READ_FROM_NODE,
+  failureReason: BonsaiValidatorError.BLOCK_CANT_BE_READ_FROM_NODE,
   dataAvailabilityResult: undefined,
 };
 

@@ -45,7 +45,8 @@ export const executeSimulationTransaction = async (
               data,
             },
             numberToHex(blockNumber),
-          ]
+          ],
+          true
         );
 
         if (!ethCall) {
