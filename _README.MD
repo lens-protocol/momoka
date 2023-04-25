@@ -1549,19 +1549,19 @@ The default concurrency is 100, which typically requires a paid archive node. If
 You can install it globally: 
 
 ```bash
-$ npm i @lens-protocol/data-availability-verifier -g
+$ npm i @lens-protocol/bonsai -g
 ```
 
 then you can just run:
 
 ```bash
-$ lens-verifier --node 'YOUR_NODE' --environment='MUMBAI|POLYGON' --concurrency=100 --fromHead=false
+$ bonsai --node 'YOUR_NODE' --environment='MUMBAI|POLYGON' --concurrency=100 --fromHead=false
 ```
 
 you can also just run with npx:
 
 ```bash
-$ npx lens-verifier --node 'YOUR_NODE' --environment='MUMBAI|POLYGON' --concurrency=100 --fromHead=false
+$ npx bonsai --node 'YOUR_NODE' --environment='MUMBAI|POLYGON' --concurrency=100 --fromHead=false
 ```
 
 ### Parameter meanings
@@ -1576,7 +1576,7 @@ $ npx lens-verifier --node 'YOUR_NODE' --environment='MUMBAI|POLYGON' --concurre
 This is a written in node, and this means it can be run on the client as well as a server; it won't use the DB on the client but can mean you can run proof checks in runtime, which is super powerful. Also, you may which to monitor this on your server to index stuff as it comes in.
 
 ```bash
-$ npm i @lens-protocol/data-availability-verifier
+$ npm i @lens-protocol/bonsai
 ```
 
 <b>Do not use if you do not know what you are doing the basic config works for all production apps</b>
@@ -1585,7 +1585,7 @@ Please note if you wish to use a different deployment then `PRODUCTION` you will
 
 ### Client usage
 
-The package exposes a separate entry point for the client usage (`'@lens-protocol/data-availability-verifier/client'`) to make sure the bundle size is not affected by any polyfills or other node specific code.
+The package exposes a separate entry point for the client usage (`'@lens-protocol/bonsai/client'`) to make sure the bundle size is not affected by any polyfills or other node specific code.
 
 Check the `playground-browser` folder for a working example of the client usage.
 
@@ -1594,7 +1594,7 @@ Check the `playground-browser` folder for a working example of the client usage.
 The `checkDAProof` will return you a failure reason of the enum `BonsaiValidatorError`, and if successful, you be returned the entire `DAStructurePublication`. This is a client specific version of the `checkDAProof` function that doesn't have any caching in place. For the server version, please see the server usage section.
 
 ```ts
-import { checkDAProof, EthereumNode, Environment } from '@lens-protocol/data-availability-verifier/client';
+import { checkDAProof, EthereumNode, Environment } from '@lens-protocol/bonsai/client';
 
 const ethereumNode: EthereumNode = {
   environment: Environment.POLYGON,
@@ -1618,7 +1618,7 @@ console.error('proof invalid do something', result.failure)
 The `checkDAProof` will return you a failure reason of the enum `BonsaiValidatorError`, and if successful, you be returned the entire `DAStructurePublication`. This is a server specific version of the `checkDAProof` function that has caching in place. For the client version, please see the client usage section.
 
 ```ts
-import { checkDAProof, EthereumNode, Environment } from '@lens-protocol/data-availability-verifier';
+import { checkDAProof, EthereumNode, Environment } from '@lens-protocol/bonsai';
 
 const ethereumNode: EthereumNode = {
   environment: Environment.POLYGON,
@@ -1640,7 +1640,7 @@ console.error('proof invalid do something', result.failure)
 This will start watching all the DA items coming in and logging it all out in your terminal. you can install the package and run it on your own server.
 
 ```ts
-import { startDAVerifierNode, EthereumNode } from '@lens-protocol/data-availability-verifier';
+import { startDAVerifierNode, EthereumNode } from '@lens-protocol/bonsai';
 
 const ethereumNode: EthereumNode = {
   environment: Environment.POLYGON,
@@ -1659,7 +1659,7 @@ startDAVerifierNode(ethereumNode, concurrency);
 If you wish to index the data yourself, you can use the `startDAVerifierNode` and stream the data out to your own DB using the `StreamCallback`. This will run the verifier node and check the proofs as every new one comes in.
 
 ```ts
-import { startDAVerifierNode, StreamResult, EthereumNode } from '@lens-protocol/data-availability-verifier';
+import { startDAVerifierNode, StreamResult, EthereumNode } from '@lens-protocol/bonsai';
 
 const stream = (result: StreamResult) => {
   console.log('streamed publication', result);
@@ -1692,7 +1692,7 @@ startDAVerifierNode(ethereumNode, concurrency, { stream });
 You may wish to start the verifier from the head of the chain and not resync all the passed, this is useful to just start checking new proofs. You can do this by passing in the `syncFromHeadOnly` option.
 
 ```ts
-import { startDAVerifierNode, StreamResult, EthereumNode } from '@lens-protocol/data-availability-verifier';
+import { startDAVerifierNode, StreamResult, EthereumNode } from '@lens-protocol/bonsai';
 
 const ethereumNode: EthereumNode = {
   environment: Environment.POLYGON,
@@ -1711,7 +1711,7 @@ startDAVerifierNode(ethereumNode, concurrency, { syncFromHeadOnly: true });
 If you just want to get the data as fast as possible and do not wish to verify the proofs, you can use the `startDATrustingIndexing` function. This will stream out the data as fast as possible and will not check the proofs, so does not require an archive node.
 
 ```ts
-import { startDATrustingIndexing, StreamResult, StartDATrustingIndexingRequest } from '@lens-protocol/data-availability-verifier';
+import { startDATrustingIndexing, StreamResult, StartDATrustingIndexingRequest } from '@lens-protocol/bonsai';
 
 const stream = (result: StreamResult) => {
   console.log('streamed publication', result);

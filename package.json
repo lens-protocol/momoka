@@ -74,7 +74,7 @@
   },
   "license": "MIT",
   "bin": {
-    "lens-verifier": "./lib/bin/cli.js"
+    "bonsai": "./lib/bin/cli.js"
   },
   "repository": {
     "type": "git",
