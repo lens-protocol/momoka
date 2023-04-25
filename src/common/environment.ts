@@ -27,6 +27,7 @@ export const environmentToChainId = (environment: Environment): 137 | 80001 => {
     case Environment.POLYGON:
       return 137;
     case Environment.MUMBAI:
+      return 80001;
     case Environment.SANDBOX:
       return 80001;
     default:

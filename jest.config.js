@@ -4,6 +4,7 @@ module.exports = {
   testEnvironment: 'node',
   collectCoverage: true,
   coverageDirectory: 'coverage',
+  setupFiles: ['<rootDir>/src/__TESTS__/config/jest.setup.js'],
   coveragePathIgnorePatterns: [
     'node_modules',
     '<rootDir>/src/__TESTS__',
@@ -12,6 +13,6 @@ module.exports = {
     '<rootDir>/src/arweave',
     '<rootDir>/src/bundlr',
   ],
-  testPathIgnorePatterns: ['/node_modules/', '/lib/'],
+  testPathIgnorePatterns: ['/node_modules/', '/lib/', '/playground-browser/'],
   verbose: true,
 };

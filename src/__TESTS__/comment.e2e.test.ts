@@ -1,12 +1,12 @@
 // apply mocks!
-jest.setTimeout(30000);
-jest.mock('../db');
-jest.mock('../arweave/get-arweave-by-id.api');
+jest.setTimeout(3000);
+jest.mock('../input-output/db');
+jest.mock('../input-output/bundlr/get-bundlr-by-id.api');
 jest.mock('../submitters');
 
-import { ClaimableValidatorError } from '../claimable-validator-errors';
+import { ClaimableValidatorError } from '..';
 import { DAPublicationPointerType } from '../data-availability-models/publications/data-availability-structure-publication';
-import { deepClone } from '../helpers';
+import { deepClone } from '../common/helpers';
 import { commentCreatedDelegateArweaveResponse } from './mocks/comment/comment-created-delegate-arweave-response.mock';
 import { commentCreatedWithoutDelegateArweaveResponse } from './mocks/comment/comment-created-without-delegate-arweave-response.mock';
 import * as sharedMocks from './mocks/shared.mock';
@@ -18,7 +18,7 @@ describe('comment', () => {
 
     beforeEach(() => {
       baseMock = commentCreatedDelegateArweaveResponse;
-      sharedMocks.mockGetArweaveByIdAPI.mockImplementation(async () =>
+      sharedMocks.mockGetDAPublicationByIdAPI.mockImplementation(async () =>
         deepClone(commentCreatedDelegateArweaveResponse)
       );
     });
@@ -96,7 +96,7 @@ describe('comment', () => {
       });
 
       test('PUBLICATION_NONCE_INVALID', async () => {
-        sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+        sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
           return {
             ...baseMock,
             chainProofs: {
@@ -131,7 +131,7 @@ describe('comment', () => {
       });
 
       test('EVENT_MISMATCH - pub id does not match simulated result', async () => {
-        sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+        sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
           return {
             ...baseMock,
             event: {
@@ -145,7 +145,7 @@ describe('comment', () => {
       });
 
       test('EVENT_MISMATCH - profile id does not match typed data', async () => {
-        sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+        sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
           return {
             ...baseMock,
             event: {
@@ -159,7 +159,7 @@ describe('comment', () => {
       });
 
       test('EVENT_MISMATCH - contentURI does not match typed data', async () => {
-        sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+        sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
           return {
             ...baseMock,
             event: {
@@ -173,7 +173,7 @@ describe('comment', () => {
       });
 
       test('EVENT_MISMATCH - profileIdPointed does not match typed data', async () => {
-        sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+        sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
           return {
             ...baseMock,
             event: {
@@ -187,7 +187,7 @@ describe('comment', () => {
       });
 
       test('EVENT_MISMATCH - pubIdPointed does not match typed data', async () => {
-        sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+        sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
           return {
             ...baseMock,
             event: {
@@ -201,7 +201,7 @@ describe('comment', () => {
       });
 
       test('EVENT_MISMATCH - collectModule does not match typed data', async () => {
-        sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+        sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
           return {
             ...baseMock,
             event: {
@@ -215,7 +215,7 @@ describe('comment', () => {
       });
 
       test('EVENT_MISMATCH - collectModuleReturnData is not empty bytes', async () => {
-        sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+        sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
           return {
             ...baseMock,
             event: {
@@ -229,7 +229,7 @@ describe('comment', () => {
       });
 
       test('EVENT_MISMATCH - referenceModule does not match typed data', async () => {
-        sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+        sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
           return {
             ...baseMock,
             event: {
@@ -243,7 +243,7 @@ describe('comment', () => {
       });
 
       test('EVENT_MISMATCH - referenceModuleReturnData is not empty bytes', async () => {
-        sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+        sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
           return {
             ...baseMock,
             event: {
@@ -267,7 +267,7 @@ describe('comment', () => {
 
     beforeEach(() => {
       baseMock = commentCreatedWithoutDelegateArweaveResponse;
-      sharedMocks.mockGetArweaveByIdAPI.mockImplementation(async () =>
+      sharedMocks.mockGetDAPublicationByIdAPI.mockImplementation(async () =>
         deepClone(commentCreatedWithoutDelegateArweaveResponse)
       );
     });
@@ -345,7 +345,7 @@ describe('comment', () => {
       });
 
       test('PUBLICATION_NONCE_INVALID', async () => {
-        sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+        sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
           return {
             ...baseMock,
             chainProofs: {
@@ -380,7 +380,7 @@ describe('comment', () => {
       });
 
       test('EVENT_MISMATCH - pub id does not match simulated result', async () => {
-        sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+        sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
           return {
             ...baseMock,
             event: {
@@ -394,7 +394,7 @@ describe('comment', () => {
       });
 
       test('EVENT_MISMATCH - profile id does not match typed data', async () => {
-        sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+        sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
           return {
             ...baseMock,
             event: {
@@ -408,7 +408,7 @@ describe('comment', () => {
       });
 
       test('EVENT_MISMATCH - contentURI does not match typed data', async () => {
-        sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+        sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
           return {
             ...baseMock,
             event: {
@@ -422,7 +422,7 @@ describe('comment', () => {
       });
 
       test('EVENT_MISMATCH - profileIdPointed does not match typed data', async () => {
-        sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+        sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
           return {
             ...baseMock,
             event: {
@@ -436,7 +436,7 @@ describe('comment', () => {
       });
 
       test('EVENT_MISMATCH - pubIdPointed does not match typed data', async () => {
-        sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+        sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
           return {
             ...baseMock,
             event: {
@@ -450,7 +450,7 @@ describe('comment', () => {
       });
 
       test('EVENT_MISMATCH - collectModule does not match typed data', async () => {
-        sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+        sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
           return {
             ...baseMock,
             event: {
@@ -464,7 +464,7 @@ describe('comment', () => {
       });
 
       test('EVENT_MISMATCH - collectModuleReturnData is not empty bytes', async () => {
-        sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+        sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
           return {
             ...baseMock,
             event: {
@@ -478,7 +478,7 @@ describe('comment', () => {
       });
 
       test('EVENT_MISMATCH - referenceModule does not match typed data', async () => {
-        sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+        sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
           return {
             ...baseMock,
             event: {
@@ -492,7 +492,7 @@ describe('comment', () => {
       });
 
       test('EVENT_MISMATCH - referenceModuleReturnData is not empty bytes', async () => {
-        sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+        sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
           return {
             ...baseMock,
             event: {

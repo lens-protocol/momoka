@@ -1,10 +1,11 @@
 import {
-  checkDAProof,
   ClaimableValidatorError,
+  Deployment,
   Environment,
   EthereumNode,
   TxValidatedResult,
 } from '../..';
+import { checkDAProof } from '../../client';
 import { getParamOrExit } from '../../common/helpers';
 import { PromiseWithContextResult } from '../../data-availability-models/da-result';
 import {
@@ -12,23 +13,23 @@ import {
   DAStructurePublication,
   PublicationTypedData,
 } from '../../data-availability-models/publications/data-availability-structure-publication';
-import * as getArweaveByIdAPIDefault from '../../input-output/arweave/get-arweave-by-id.api';
+import * as getBundlrByIdAPIDefault from '../../input-output/bundlr/get-bundlr-by-id.api';
 import * as database from '../../input-output/db';
 import * as submittors from '../../submitters';
 import { postCreatedDelegateArweaveResponse } from './post/post-created-delegate-arweave-response.mock';
 
 export const mockGetTxDb = database.getTxDb as jest.MockedFunction<typeof database.getTxDb>;
-mockGetTxDb.mockImplementation(() => Promise.resolve(null));
+mockGetTxDb.mockImplementation(async () => null);
 
-export const mockGetArweaveByIdAPI =
-  getArweaveByIdAPIDefault.getArweaveByIdAPI as jest.MockedFunction<
-    typeof getArweaveByIdAPIDefault.getArweaveByIdAPI
+export const mockGetDAPublicationByIdAPI =
+  getBundlrByIdAPIDefault.getBundlrByIdAPI as jest.MockedFunction<
+    typeof getBundlrByIdAPIDefault.getBundlrByIdAPI
   >;
 
 export const mockImpl__NO_SIGNATURE_SUBMITTER = (
   baseMock: DAStructurePublication<DAEventType, PublicationTypedData>
 ): void => {
-  mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+  mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
     return {
       ...baseMock,
       signature: undefined,
@@ -39,7 +40,7 @@ export const mockImpl__NO_SIGNATURE_SUBMITTER = (
 export const mockImpl__TIMESTAMP_PROOF_INVALID_SIGNATURE = (
   baseMock: DAStructurePublication<DAEventType, PublicationTypedData>
 ): void => {
-  mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+  mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
     return {
       ...baseMock,
       timestampProofs: {
@@ -53,13 +54,13 @@ export const mockImpl__TIMESTAMP_PROOF_INVALID_SIGNATURE = (
 };
 
 export const mockImpl__TIMESTAMP_PROOF_NOT_SUBMITTER = (): void => {
-  mockIsValidTransactionSubmitter.mockImplementationOnce(() => Promise.resolve(false));
+  mockIsValidSubmitter.mockImplementationOnce(() => false);
 };
 
 export const mockImpl__INVALID_EVENT_TIMESTAMP = (
   baseMock: DAStructurePublication<DAEventType, PublicationTypedData>
 ): void => {
-  mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+  mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
     return {
       ...baseMock,
       event: {
@@ -74,7 +75,7 @@ export const mockImpl__INVALID_POINTER_SET = (
   baseMock: DAStructurePublication<DAEventType, PublicationTypedData>,
   pointer: unknown
 ): void => {
-  mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+  mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
     return {
       ...baseMock,
       chainProofs: {
@@ -88,7 +89,7 @@ export const mockImpl__INVALID_POINTER_SET = (
 export const mockImpl__SIMULATION_FAILED_BAD_PROFILE_ID = (
   baseMock: DAStructurePublication<DAEventType, PublicationTypedData>
 ): void => {
-  mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+  mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
     return {
       ...baseMock,
       chainProofs: {
@@ -111,7 +112,7 @@ export const mockImpl__SIMULATION_FAILED_BAD_PROFILE_ID = (
 export const mockImpl__INVALID_FORMATTED_TYPED_DATA = (
   baseMock: DAStructurePublication<DAEventType, PublicationTypedData>
 ): void => {
-  mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+  mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
     return {
       ...baseMock,
       chainProofs: {
@@ -136,15 +137,10 @@ export const mockIsValidSubmitter = submittors.isValidSubmitter as jest.MockedFu
 >;
 mockIsValidSubmitter.mockImplementation(() => true);
 
-export const mockIsValidTransactionSubmitter =
-  submittors.isValidTransactionSubmitter as jest.MockedFunction<
-    typeof submittors.isValidTransactionSubmitter
-  >;
-mockIsValidTransactionSubmitter.mockImplementation(() => Promise.resolve(true));
-
 const ethereumNode: EthereumNode = {
   environment: getParamOrExit('ETHEREUM_NETWORK') as Environment,
   nodeUrl: getParamOrExit('NODE_URL'),
+  deployment: Deployment.STAGING,
 };
 
 export const callCheckDAProof = (): PromiseWithContextResult<
@@ -162,8 +158,10 @@ export const checkAndValidateDAProof = async (
   expectedError: ClaimableValidatorError
 ): Promise<void> => {
   const result = await callCheckDAProof();
-  expect(result.failure).toEqual(expectedError);
   expect(result.isFailure()).toBe(true);
+  if (result.isFailure()) {
+    expect(result.failure).toEqual(expectedError);
+  }
 };
 
 export const random = (): string => (Math.random() + 1).toString(36).substring(7);

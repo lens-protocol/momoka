@@ -53,12 +53,10 @@ export class ClientDaProofVerifier implements DAProofsVerifier {
     if (owner === TIMEOUT_ERROR) {
       return TIMEOUT_ERROR;
     }
-
-    log('owner result', owner);
     if (!owner) {
       return false;
     }
-
+    log('owner result', owner);
     return isValidSubmitter(environment, owner, deployment);
   }
 }

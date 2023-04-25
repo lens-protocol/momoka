@@ -309,7 +309,7 @@ export class DaProofChecker {
    * @param log A logging function to output debug information.
    * @returns A Promise that resolves with a `ValidType` if the timestamp proof is valid or an error code if it is not.
    */
-  private validatesTimestampProof = async (
+  private async validatesTimestampProof(
     daPublication: DAStructurePublication<DAEventType, PublicationTypedData>,
     timestampProofs: DATimestampProofsResponse,
     log: LogFunctionType
@@ -319,8 +319,8 @@ export class DaProofChecker {
     | BonsaiValidatorError.TIMESTAMP_PROOF_INVALID_DA_ID
     | ValidType
     // eslint-disable-next-line require-await
-  > => {
-    const valid = this.verifier.verifyTimestampSignature(daPublication);
+  > {
+    const valid = await this.verifier.verifyTimestampSignature(daPublication);
 
     if (!valid) {
       log('timestamp proof invalid signature');
@@ -340,7 +340,7 @@ export class DaProofChecker {
     }
 
     return validResult;
-  };
+  }
 
   /**
    * Retrieves block information for a range of block numbers.
@@ -350,10 +350,10 @@ export class DaProofChecker {
    * @param ethereumNode The Ethereum node to query for block information
    * @returns A PromiseResult containing an array of BlockInfo objects, or a TimeoutError if the query times out
    */
-  private getBlockRange = async (
+  private async getBlockRange(
     blockNumbers: number[],
     ethereumNode: EthereumNode
-  ): PromiseResult<BlockInfo[]> => {
+  ): PromiseResult<BlockInfo[]> {
     try {
       const blocks = await this.gateway.getBlockRange(blockNumbers, ethereumNode);
 
@@ -361,7 +361,7 @@ export class DaProofChecker {
     } catch (error) {
       return failure(BonsaiValidatorError.BLOCK_CANT_BE_READ_FROM_NODE);
     }
-  };
+  }
 
   /**
    * Validate if a block number is the closest one to a given timestamp.
@@ -371,12 +371,12 @@ export class DaProofChecker {
    * @param log - The log function used to log debug information.
    * @returns A PromiseResult containing a success result if the block is validated, or a failure with the corresponding error.
    */
-  private validateChoosenBlock = async (
+  private async validateChoosenBlock(
     blockNumber: number,
     timestamp: number,
     ethereumNode: EthereumNode,
     log: LogFunctionType
-  ): PromiseResult => {
+  ): PromiseResult {
     try {
       // got the current block, the previous block, and the block in the future!
       const blockNumbers = [blockNumber - 1, blockNumber, blockNumber + 1];
@@ -418,10 +418,7 @@ export class DaProofChecker {
         }
       }
 
-      log('compare done', {
-        choosenBlock: closestBlock.timestamp,
-        timestamp,
-      });
+      log('compare done', { choosenBlock: closestBlock.timestamp, timestamp });
 
       //TODO look at this again
       // block times are 2 seconds so this should never ever happen
@@ -434,7 +431,7 @@ export class DaProofChecker {
       log('validateChoosenBlock error', e);
       return failure(BonsaiValidatorError.UNKNOWN);
     }
-  };
+  }
 
   /**
    * Validates a publication of a DA structure by checking its type and calling the appropriate check function.
@@ -443,11 +440,11 @@ export class DaProofChecker {
    * @param checkOptions Options for checking the publication.
    * @returns A PromiseResult indicating the success or failure of the publication check.
    */
-  private checkDAPublication = async (
+  private async checkDAPublication(
     daPublication: DAStructurePublication<DAEventType, PublicationTypedData>,
     ethereumNode: EthereumNode,
     checkOptions: CheckDASubmissionOptions
-  ): PromiseResult => {
+  ): PromiseResult {
     switch (daPublication.type) {
       case DAActionTypes.POST_CREATED:
         if (daPublication.chainProofs.pointer) {
@@ -477,7 +474,7 @@ export class DaProofChecker {
       default:
         return failure(BonsaiValidatorError.UNKNOWN);
     }
-  };
+  }
 
   /**
    * Checks if the given transaction ID has already been checked and returns the corresponding publication.
@@ -488,13 +485,13 @@ export class DaProofChecker {
    * @param log The logging function to use
    * @returns A promise that resolves to a success or failure result if the publication has already been checked, or null otherwise.
    */
-  private txAlreadyChecked = async (
+  private async txAlreadyChecked(
     txId: string,
     log: LogFunctionType
   ): PromiseWithContextResultOrNull<
     DAStructurePublication<DAEventType, PublicationTypedData>,
     DAStructurePublication<DAEventType, PublicationTypedData>
-  > => {
+  > {
     // Check if the transaction ID exists in the database
     const cacheResult = await this.gateway.getTxResultFromCache(txId);
 
@@ -514,5 +511,5 @@ export class DaProofChecker {
 
     // If the transaction ID is not found, return null
     return null;
-  };
+  }
 }

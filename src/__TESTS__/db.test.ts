@@ -1,36 +1,25 @@
-import { ClaimableValidatorError } from '../claimable-validator-errors';
-import {
-  DbReference,
-  deleteDb,
-  FailedTransactionsDb,
-  getBlockDb,
-  getFailedTransactionsDb,
-  getTxDb,
-  saveBlockDb,
-  saveFailedTransactionDb,
-  saveTxDb,
-  startDb,
-  TxValidatedResult,
-} from '../db';
-import { random } from './shared-helpers';
+import { ClaimableValidatorError, TxValidatedResult } from '..';
+import { getBlockDb, getTxDb, saveBlockDb, saveTxDb, startDb } from '../input-output/db';
+
+const random = () => Math.random().toString(36).substring(7);
+
+const txValidatedResult: TxValidatedResult = {
+  success: false,
+  proofTxId: random(),
+  failureReason: ClaimableValidatorError.BLOCK_CANT_BE_READ_FROM_NODE,
+  dataAvailabilityResult: undefined,
+};
 
 describe('db', () => {
-  beforeEach(() => {
-    startDb('../database');
+  beforeAll(async () => {
+    await startDb();
   });
-
-  const txValidatedResult: TxValidatedResult = {
-    success: false,
-    proofTxId: random(),
-    failureReason: ClaimableValidatorError.BLOCK_CANT_BE_READ_FROM_NODE,
-    dataAvailabilityResult: undefined,
-  };
 
   describe('getTxDb', () => {
     test('should return back false if tx does not exist', async () => {
       const txId = random();
       const result = await getTxDb(txId);
-      expect(result).toEqual(null);
+      expect(result).toBeNull();
     });
 
     test('should return back true if tx exists', async () => {
@@ -65,33 +54,6 @@ describe('db', () => {
 
       const result = await getBlockDb(ran as any);
       expect(result).toEqual(block);
-    });
-  });
-
-  describe('getFailedTransactionsDb + saveFailedTransactionDb', () => {
-    test('should return empty array if nothing found', async () => {
-      await deleteDb(`${DbReference.block}:failed`);
-
-      const result = await getFailedTransactionsDb();
-      expect(result).toEqual([]);
-    });
-
-    test('should return value if found', async () => {
-      await deleteDb(`${DbReference.block}:failed`);
-
-      const failedTx: FailedTransactionsDb = {
-        txId: random(),
-        reason: ClaimableValidatorError.EVENT_MISMATCH,
-        submitter: random(),
-      };
-
-      await saveFailedTransactionDb(failedTx);
-
-      const result = await getFailedTransactionsDb();
-      expect(result).toHaveLength(1);
-
-      const [first] = result;
-      expect(first).toEqual(failedTx);
     });
   });
 });

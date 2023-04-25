@@ -1,12 +1,12 @@
 // apply mocks!
 jest.setTimeout(30000);
-jest.mock('../db');
-jest.mock('../arweave/get-arweave-by-id.api');
+jest.mock('../input-output/db');
+jest.mock('../input-output/bundlr/get-bundlr-by-id.api');
 jest.mock('../submitters');
 
-import { ClaimableValidatorError } from '../claimable-validator-errors';
+import { ClaimableValidatorError } from '..';
 import { DAPublicationPointerType } from '../data-availability-models/publications/data-availability-structure-publication';
-import { deepClone } from '../helpers';
+import { deepClone } from '../common/helpers';
 import { mirrorCreatedDelegateCommentArweaveResponse } from './mocks/mirror/mirror-created-delegate-comment-arweave-response.mock';
 import { mirrorCreatedDelegatePostArweaveResponse } from './mocks/mirror/mirror-created-delegate-post-arweave-response.mock';
 import { mirrorCreatedWithoutDelegateCommentArweaveResponse } from './mocks/mirror/mirror-created-without-delegate-comment-arweave-response.mock';
@@ -21,13 +21,13 @@ describe('mirror', () => {
 
       beforeEach(() => {
         baseMock = mirrorCreatedDelegatePostArweaveResponse;
-        sharedMocks.mockGetArweaveByIdAPI.mockImplementation(async () =>
+        sharedMocks.mockGetDAPublicationByIdAPI.mockImplementation(async () =>
           deepClone(mirrorCreatedDelegatePostArweaveResponse)
         );
       });
 
       describe('should return success when', () => {
-        test('signed by delegate is true', async () => {
+        test('signed by delegate is true', () => {
           expect(baseMock.chainProofs.thisPublication.signedByDelegate).toBe(true);
         });
 
@@ -38,6 +38,7 @@ describe('mirror', () => {
         });
 
         test('tx is valid and passes all the simulation checks', async () => {
+          sharedMocks.mockIsValidSubmitter.mockImplementationOnce(() => true);
           const result = await sharedMocks.callCheckDAProof();
           expect(result.isSuccess()).toBe(true);
         });
@@ -46,7 +47,6 @@ describe('mirror', () => {
       describe('should return failure when', () => {
         test('NO_SIGNATURE_SUBMITTER', async () => {
           sharedMocks.mockImpl__NO_SIGNATURE_SUBMITTER(baseMock);
-
           await sharedMocks.checkAndValidateDAProof(ClaimableValidatorError.NO_SIGNATURE_SUBMITTER);
         });
 
@@ -101,7 +101,7 @@ describe('mirror', () => {
         });
 
         test('PUBLICATION_NONCE_INVALID', async () => {
-          sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+          sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
             return {
               ...baseMock,
               chainProofs: {
@@ -136,8 +136,8 @@ describe('mirror', () => {
         });
 
         test('EVENT_MISMATCH - pub id does not match simulated result', async () => {
-          sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
-            return {
+          sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
+            return await {
               ...baseMock,
               event: {
                 ...baseMock.event,
@@ -150,7 +150,7 @@ describe('mirror', () => {
         });
 
         test('EVENT_MISMATCH - profile id does not match typed data', async () => {
-          sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+          sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
             return {
               ...baseMock,
               event: {
@@ -164,7 +164,7 @@ describe('mirror', () => {
         });
 
         test('EVENT_MISMATCH - profileIdPointed does not match typed data', async () => {
-          sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+          sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
             return {
               ...baseMock,
               event: {
@@ -178,7 +178,7 @@ describe('mirror', () => {
         });
 
         test('EVENT_MISMATCH - pubIdPointed does not match typed data', async () => {
-          sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+          sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
             return {
               ...baseMock,
               event: {
@@ -192,7 +192,7 @@ describe('mirror', () => {
         });
 
         test('EVENT_MISMATCH - referenceModule does not match typed data', async () => {
-          sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+          sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
             return {
               ...baseMock,
               event: {
@@ -206,7 +206,7 @@ describe('mirror', () => {
         });
 
         test('EVENT_MISMATCH - referenceModuleReturnData is not empty bytes', async () => {
-          sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+          sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
             return {
               ...baseMock,
               event: {
@@ -232,7 +232,7 @@ describe('mirror', () => {
 
       beforeEach(() => {
         baseMock = mirrorCreatedWithoutDelegatePostArweaveResponse;
-        sharedMocks.mockGetArweaveByIdAPI.mockImplementation(async () =>
+        sharedMocks.mockGetDAPublicationByIdAPI.mockImplementation(async () =>
           deepClone(mirrorCreatedWithoutDelegatePostArweaveResponse)
         );
       });
@@ -312,7 +312,7 @@ describe('mirror', () => {
         });
 
         test('PUBLICATION_NONCE_INVALID', async () => {
-          sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+          sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
             return {
               ...baseMock,
               chainProofs: {
@@ -347,7 +347,7 @@ describe('mirror', () => {
         });
 
         test('EVENT_MISMATCH - pub id does not match simulated result', async () => {
-          sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+          sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
             return {
               ...baseMock,
               event: {
@@ -361,7 +361,7 @@ describe('mirror', () => {
         });
 
         test('EVENT_MISMATCH - profile id does not match typed data', async () => {
-          sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+          sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
             return {
               ...baseMock,
               event: {
@@ -375,7 +375,7 @@ describe('mirror', () => {
         });
 
         test('EVENT_MISMATCH - profileIdPointed does not match typed data', async () => {
-          sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+          sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
             return {
               ...baseMock,
               event: {
@@ -389,7 +389,7 @@ describe('mirror', () => {
         });
 
         test('EVENT_MISMATCH - pubIdPointed does not match typed data', async () => {
-          sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+          sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
             return {
               ...baseMock,
               event: {
@@ -403,7 +403,7 @@ describe('mirror', () => {
         });
 
         test('EVENT_MISMATCH - referenceModule does not match typed data', async () => {
-          sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+          sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
             return {
               ...baseMock,
               event: {
@@ -417,7 +417,7 @@ describe('mirror', () => {
         });
 
         test('EVENT_MISMATCH - referenceModuleReturnData is not empty bytes', async () => {
-          sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+          sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
             return {
               ...baseMock,
               event: {
@@ -445,7 +445,7 @@ describe('mirror', () => {
 
       beforeEach(() => {
         baseMock = mirrorCreatedDelegateCommentArweaveResponse;
-        sharedMocks.mockGetArweaveByIdAPI.mockImplementation(async () =>
+        sharedMocks.mockGetDAPublicationByIdAPI.mockImplementation(async () =>
           deepClone(mirrorCreatedDelegateCommentArweaveResponse)
         );
       });
@@ -525,7 +525,7 @@ describe('mirror', () => {
         });
 
         test('PUBLICATION_NONCE_INVALID', async () => {
-          sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+          sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
             return {
               ...baseMock,
               chainProofs: {
@@ -560,7 +560,7 @@ describe('mirror', () => {
         });
 
         test('EVENT_MISMATCH - pub id does not match simulated result', async () => {
-          sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+          sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
             return {
               ...baseMock,
               event: {
@@ -574,7 +574,7 @@ describe('mirror', () => {
         });
 
         test('EVENT_MISMATCH - profile id does not match typed data', async () => {
-          sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+          sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
             return {
               ...baseMock,
               event: {
@@ -588,7 +588,7 @@ describe('mirror', () => {
         });
 
         test('EVENT_MISMATCH - profileIdPointed does not match typed data', async () => {
-          sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+          sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
             return {
               ...baseMock,
               event: {
@@ -602,7 +602,7 @@ describe('mirror', () => {
         });
 
         test('EVENT_MISMATCH - pubIdPointed does not match typed data', async () => {
-          sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+          sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
             return {
               ...baseMock,
               event: {
@@ -616,7 +616,7 @@ describe('mirror', () => {
         });
 
         test('EVENT_MISMATCH - referenceModule does not match typed data', async () => {
-          sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+          sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
             return {
               ...baseMock,
               event: {
@@ -630,7 +630,7 @@ describe('mirror', () => {
         });
 
         test('EVENT_MISMATCH - referenceModuleReturnData is not empty bytes', async () => {
-          sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+          sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
             return {
               ...baseMock,
               event: {
@@ -656,7 +656,7 @@ describe('mirror', () => {
 
       beforeEach(() => {
         baseMock = mirrorCreatedWithoutDelegateCommentArweaveResponse;
-        sharedMocks.mockGetArweaveByIdAPI.mockImplementation(async () =>
+        sharedMocks.mockGetDAPublicationByIdAPI.mockImplementation(async () =>
           deepClone(mirrorCreatedWithoutDelegateCommentArweaveResponse)
         );
       });
@@ -736,7 +736,7 @@ describe('mirror', () => {
         });
 
         test('PUBLICATION_NONCE_INVALID', async () => {
-          sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+          sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
             return {
               ...baseMock,
               chainProofs: {
@@ -771,7 +771,7 @@ describe('mirror', () => {
         });
 
         test('EVENT_MISMATCH - pub id does not match simulated result', async () => {
-          sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+          sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
             return {
               ...baseMock,
               event: {
@@ -785,7 +785,7 @@ describe('mirror', () => {
         });
 
         test('EVENT_MISMATCH - profile id does not match typed data', async () => {
-          sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+          sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
             return {
               ...baseMock,
               event: {
@@ -799,7 +799,7 @@ describe('mirror', () => {
         });
 
         test('EVENT_MISMATCH - profileIdPointed does not match typed data', async () => {
-          sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+          sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
             return {
               ...baseMock,
               event: {
@@ -813,7 +813,7 @@ describe('mirror', () => {
         });
 
         test('EVENT_MISMATCH - pubIdPointed does not match typed data', async () => {
-          sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+          sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
             return {
               ...baseMock,
               event: {
@@ -827,7 +827,7 @@ describe('mirror', () => {
         });
 
         test('EVENT_MISMATCH - referenceModule does not match typed data', async () => {
-          sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+          sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
             return {
               ...baseMock,
               event: {
@@ -841,7 +841,7 @@ describe('mirror', () => {
         });
 
         test('EVENT_MISMATCH - referenceModuleReturnData is not empty bytes', async () => {
-          sharedMocks.mockGetArweaveByIdAPI.mockImplementationOnce(async () => {
+          sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
             return {
               ...baseMock,
               event: {

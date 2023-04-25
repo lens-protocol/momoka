@@ -1796,3 +1796,4 @@ A special thank you to [Bundlr](https://bundlr.network/) for making this project
 ### Arweave
 
 We also extend our gratitude to [Arweave](https://www.arweave.org/) for providing decentralized storage solutions for our data, contributing to the overall success of the DA project.
+
