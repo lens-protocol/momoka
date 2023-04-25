@@ -2,7 +2,7 @@ import { existsSync, promises as fs } from 'fs';
 import path from 'path';
 import { runForever } from '../common/helpers';
 import { consoleLogWithLensNodeFootprint } from '../common/logger';
-import { ClaimableValidatorError } from '../data-availability-models/claimable-validator-errors';
+import { BonsaiValidatorError } from '../data-availability-models/validator-errors';
 import { failedProofsPath } from '../input-output/paths';
 import { shouldRetry } from '../queue/process-retry-check-da-proofs.queue';
 
@@ -21,9 +21,9 @@ export const verifierFailedSubmissionsWatcher = async (): Promise<void> => {
         const failedPath = await failedProofsPath();
         const failedResults = [];
         // Count the number of failed submissions for each error reason
-        for (const item in ClaimableValidatorError) {
+        for (const item in BonsaiValidatorError) {
           if (isNaN(Number(item))) {
-            if (!shouldRetry(item as ClaimableValidatorError)) {
+            if (!shouldRetry(item as BonsaiValidatorError)) {
               const errorPath = path.join(failedPath, item);
               const errorCount = existsSync(errorPath)
                 ? (await fs.readdir(path.join(failedPath, item))).length

@@ -127,7 +127,7 @@ const processTransactions = async (
   );
 
   const retryTxids = result
-    .filter((c) => !c.success && shouldRetry(c.claimableValidatorError!))
+    .filter((c) => !c.success && shouldRetry(c.validatorError!))
     .map((c) => c.txId);
 
   if (retryTxids.length > 0) {

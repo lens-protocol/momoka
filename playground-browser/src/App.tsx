@@ -8,7 +8,7 @@ import './App.css';
 
 const ethereumNode: EthereumNode = {
   environment: Environment.MUMBAI,
-  nodeUrl: 'https://polygon-mumbai.g.alchemy.com/v2/lvrU-S7p7QDU-TMpm1JeZNbgyIphNx3h',
+  nodeUrl: 'INSERT_NODE_URL_HERE',
   deployment: Deployment.STAGING,
 };
 

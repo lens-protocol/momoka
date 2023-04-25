@@ -1,13 +1,13 @@
 import { existsSync, promises as fs } from 'fs';
 import { runForever } from '../common/helpers';
-import { ClaimableValidatorError } from '../data-availability-models/claimable-validator-errors';
+import { BonsaiValidatorError } from '../data-availability-models/validator-errors';
 import { failedProofsPath, pathResolver } from '../input-output/paths';
 import { Queue } from './base.queue';
 import { failedDAProofQueue } from './known.queue';
 
 export interface ProcessFailedProofQueueRequest {
   txId: string;
-  reason: ClaimableValidatorError;
+  reason: BonsaiValidatorError;
   submitter: string;
 }
 

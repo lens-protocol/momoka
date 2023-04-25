@@ -1,4 +1,4 @@
-import { ClaimableValidatorError } from './claimable-validator-errors';
+import { BonsaiValidatorError } from './validator-errors';
 
 class Success<TSuccess> {
   public constructor(public readonly successResult: TSuccess) {}
@@ -31,7 +31,7 @@ class Failure<TError, TContext = undefined> {
  */
 export type DAResult<TSuccessResult, TContext = undefined> =
   | Success<TSuccessResult>
-  | Failure<ClaimableValidatorError, TContext>;
+  | Failure<BonsaiValidatorError, TContext>;
 
 /**
  * Represents a Promise of a data availability result.
@@ -63,7 +63,7 @@ export function success<T>(result: any = undefined): Success<T> {
  * @param error The claimable validator error in case of failure.
  * @returns The failed data availability result.
  */
-export const failure = (error: ClaimableValidatorError): Failure<ClaimableValidatorError> =>
+export const failure = (error: BonsaiValidatorError): Failure<BonsaiValidatorError> =>
   new Failure(error);
 
 /**
@@ -93,6 +93,6 @@ export type PromiseWithContextResultOrNull<TSuccessResult, TContext> = Promise<D
  * @returns The failed data availability result with context.
  */
 export const failureWithContext = <TContext>(
-  error: ClaimableValidatorError,
+  error: BonsaiValidatorError,
   context: TContext
-): Failure<ClaimableValidatorError, TContext> => new Failure(error, context);
+): Failure<BonsaiValidatorError, TContext> => new Failure(error, context);

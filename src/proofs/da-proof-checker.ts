@@ -1,6 +1,5 @@
 import { Deployment, Environment } from '../common/environment';
 import { LogFunctionType } from '../common/logger';
-import { ClaimableValidatorError } from '../data-availability-models/claimable-validator-errors';
 import {
   PromiseResult,
   PromiseWithContextResult,
@@ -19,6 +18,7 @@ import {
   DAStructurePublication,
   PublicationTypedData,
 } from '../data-availability-models/publications/data-availability-structure-publication';
+import { BonsaiValidatorError } from '../data-availability-models/validator-errors';
 import { BlockInfo, EthereumNode } from '../evm/ethereum';
 import { TIMEOUT_ERROR, TimeoutError } from '../input-output/common';
 import { TxValidatedFailureResult, TxValidatedResult } from '../input-output/tx-validated-results';
@@ -119,7 +119,7 @@ export class DaProofChecker {
       )
     ) {
       return failureWithContext(
-        ClaimableValidatorError.TIMESTAMP_PROOF_NOT_SUBMITTER,
+        BonsaiValidatorError.TIMESTAMP_PROOF_NOT_SUBMITTER,
         daPublicationWithTimestampProofs.daPublication
       );
     }
@@ -161,13 +161,10 @@ export class DaProofChecker {
     const daPublication = await this.gateway.getDaPublication(txId);
 
     if (!daPublication) {
-      return failureWithContext(ClaimableValidatorError.INVALID_TX_ID, undefined as any);
+      return failureWithContext(BonsaiValidatorError.INVALID_TX_ID, undefined as any);
     }
     if (daPublication === TIMEOUT_ERROR) {
-      return failureWithContext(
-        ClaimableValidatorError.CAN_NOT_CONNECT_TO_BUNDLR,
-        undefined as any
-      );
+      return failureWithContext(BonsaiValidatorError.CAN_NOT_CONNECT_TO_BUNDLR, undefined as any);
     }
 
     const timestampProofsPayload = await this.gateway.getTimestampProofs(
@@ -176,13 +173,10 @@ export class DaProofChecker {
     );
 
     if (!timestampProofsPayload) {
-      return failureWithContext(ClaimableValidatorError.INVALID_TX_ID, undefined as any);
+      return failureWithContext(BonsaiValidatorError.INVALID_TX_ID, undefined as any);
     }
     if (timestampProofsPayload === TIMEOUT_ERROR) {
-      return failureWithContext(
-        ClaimableValidatorError.CAN_NOT_CONNECT_TO_BUNDLR,
-        undefined as any
-      );
+      return failureWithContext(BonsaiValidatorError.CAN_NOT_CONNECT_TO_BUNDLR, undefined as any);
     }
 
     const timestampProofsSubmitter = await this.verifier.verifyTransactionSubmitter(
@@ -192,16 +186,10 @@ export class DaProofChecker {
       ethereumNode.deployment
     );
     if (timestampProofsSubmitter === TIMEOUT_ERROR) {
-      return failureWithContext(
-        ClaimableValidatorError.CAN_NOT_CONNECT_TO_BUNDLR,
-        undefined as any
-      );
+      return failureWithContext(BonsaiValidatorError.CAN_NOT_CONNECT_TO_BUNDLR, undefined as any);
     }
     if (!timestampProofsSubmitter) {
-      return failureWithContext(
-        ClaimableValidatorError.TIMESTAMP_PROOF_NOT_SUBMITTER,
-        daPublication
-      );
+      return failureWithContext(BonsaiValidatorError.TIMESTAMP_PROOF_NOT_SUBMITTER, daPublication);
     }
     options.log('timestamp proof valid submitter');
 
@@ -227,11 +215,11 @@ export class DaProofChecker {
     DAStructurePublication<DAEventType, PublicationTypedData>
   > => {
     if (!daPublication.signature) {
-      return failureWithContext(ClaimableValidatorError.NO_SIGNATURE_SUBMITTER, daPublication);
+      return failureWithContext(BonsaiValidatorError.NO_SIGNATURE_SUBMITTER, daPublication);
     }
 
     if (!(await this.isValidSignatureSubmitter(daPublication, ethereumNode, log))) {
-      return failureWithContext(ClaimableValidatorError.INVALID_SIGNATURE_SUBMITTER, daPublication);
+      return failureWithContext(BonsaiValidatorError.INVALID_SIGNATURE_SUBMITTER, daPublication);
     }
 
     const timestampProofsResult = await this.validatesTimestampProof(
@@ -246,14 +234,14 @@ export class DaProofChecker {
     if (!isValidEventTimestamp(daPublication)) {
       log('event timestamp does not match the publication timestamp');
       // the event emitted must match the same timestamp as the block number
-      return failureWithContext(ClaimableValidatorError.INVALID_EVENT_TIMESTAMP, daPublication);
+      return failureWithContext(BonsaiValidatorError.INVALID_EVENT_TIMESTAMP, daPublication);
     }
 
     if (!isValidTypedDataDeadlineTimestamp(daPublication)) {
       log('typed data timestamp does not match the publication timestamp');
       // the event emitted must match the same timestamp as the block number
       return failureWithContext(
-        ClaimableValidatorError.INVALID_TYPED_DATA_DEADLINE_TIMESTAMP,
+        BonsaiValidatorError.INVALID_TYPED_DATA_DEADLINE_TIMESTAMP,
         daPublication
       );
     }
@@ -286,7 +274,7 @@ export class DaProofChecker {
     if (!isValidPublicationId(daPublication)) {
       log('publicationId does not match the generated one');
       return failureWithContext(
-        ClaimableValidatorError.GENERATED_PUBLICATION_ID_MISMATCH,
+        BonsaiValidatorError.GENERATED_PUBLICATION_ID_MISMATCH,
         daPublication
       );
     }
@@ -326,9 +314,9 @@ export class DaProofChecker {
     timestampProofs: DATimestampProofsResponse,
     log: LogFunctionType
   ): Promise<
-    | ClaimableValidatorError.TIMESTAMP_PROOF_INVALID_SIGNATURE
-    | ClaimableValidatorError.TIMESTAMP_PROOF_INVALID_TYPE
-    | ClaimableValidatorError.TIMESTAMP_PROOF_INVALID_DA_ID
+    | BonsaiValidatorError.TIMESTAMP_PROOF_INVALID_SIGNATURE
+    | BonsaiValidatorError.TIMESTAMP_PROOF_INVALID_TYPE
+    | BonsaiValidatorError.TIMESTAMP_PROOF_INVALID_DA_ID
     | ValidType
     // eslint-disable-next-line require-await
   > => {
@@ -336,19 +324,19 @@ export class DaProofChecker {
 
     if (!valid) {
       log('timestamp proof invalid signature');
-      return ClaimableValidatorError.TIMESTAMP_PROOF_INVALID_SIGNATURE;
+      return BonsaiValidatorError.TIMESTAMP_PROOF_INVALID_SIGNATURE;
     }
 
     log('timestamp proof signature valid');
 
     if (timestampProofs.type !== daPublication.type) {
       log('timestamp proof type mismatch');
-      return ClaimableValidatorError.TIMESTAMP_PROOF_INVALID_TYPE;
+      return BonsaiValidatorError.TIMESTAMP_PROOF_INVALID_TYPE;
     }
 
     if (timestampProofs.dataAvailabilityId !== daPublication.dataAvailabilityId) {
       log('timestamp proof da id mismatch');
-      return ClaimableValidatorError.TIMESTAMP_PROOF_INVALID_DA_ID;
+      return BonsaiValidatorError.TIMESTAMP_PROOF_INVALID_DA_ID;
     }
 
     return validResult;
@@ -371,7 +359,7 @@ export class DaProofChecker {
 
       return success(blocks);
     } catch (error) {
-      return failure(ClaimableValidatorError.BLOCK_CANT_BE_READ_FROM_NODE);
+      return failure(BonsaiValidatorError.BLOCK_CANT_BE_READ_FROM_NODE);
     }
   };
 
@@ -426,7 +414,7 @@ export class DaProofChecker {
         `
           );
         } else {
-          return failure(ClaimableValidatorError.NOT_CLOSEST_BLOCK);
+          return failure(BonsaiValidatorError.NOT_CLOSEST_BLOCK);
         }
       }
 
@@ -438,13 +426,13 @@ export class DaProofChecker {
       //TODO look at this again
       // block times are 2 seconds so this should never ever happen
       // if (closestBlock.number + 2500 > timestamp) {
-      //   throw new Error(ClaimableValidatorError.BLOCK_TOO_FAR);
+      //   throw new Error(BonsaiValidatorError.BLOCK_TOO_FAR);
       // }
 
       return success();
     } catch (e) {
       log('validateChoosenBlock error', e);
-      return failure(ClaimableValidatorError.UNKNOWN);
+      return failure(BonsaiValidatorError.UNKNOWN);
     }
   };
 
@@ -463,7 +451,7 @@ export class DaProofChecker {
     switch (daPublication.type) {
       case DAActionTypes.POST_CREATED:
         if (daPublication.chainProofs.pointer) {
-          return failure(ClaimableValidatorError.INVALID_POINTER_SET_NOT_NEEDED);
+          return failure(BonsaiValidatorError.INVALID_POINTER_SET_NOT_NEEDED);
         }
         return await checkDAPost(
           daPublication as CheckDAPostPublication,
@@ -487,7 +475,7 @@ export class DaProofChecker {
           this
         );
       default:
-        return failure(ClaimableValidatorError.UNKNOWN);
+        return failure(BonsaiValidatorError.UNKNOWN);
     }
   };
 

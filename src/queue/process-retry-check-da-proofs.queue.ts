@@ -1,5 +1,5 @@
 import { runForever } from '../common/helpers';
-import { ClaimableValidatorError } from '../data-availability-models/claimable-validator-errors';
+import { BonsaiValidatorError } from '../data-availability-models/validator-errors';
 import { EthereumNode } from '../evm/ethereum';
 import { checkDAProofsBatch } from '../proofs/check-da-proofs-batch';
 import { StreamCallback } from '../watchers/models/stream.type';
@@ -13,17 +13,17 @@ export interface ProcessRetryCheckDAProofsQueueRequest {
 }
 
 /**
- * Claim validation errors whcih should be retried due to network issues out of
+ * Validation errors whcih should be retried due to network issues out of
  * control of the proof verifier.
- * @param claimableValidatorError The claim validation error to check.
+ * @param validatorError The validation error to check.
  */
-export const shouldRetry = (claimableValidatorError: ClaimableValidatorError): boolean => {
+export const shouldRetry = (validatorError: BonsaiValidatorError): boolean => {
   return (
-    claimableValidatorError === ClaimableValidatorError.UNKNOWN ||
-    claimableValidatorError === ClaimableValidatorError.CAN_NOT_CONNECT_TO_BUNDLR ||
-    claimableValidatorError === ClaimableValidatorError.BLOCK_CANT_BE_READ_FROM_NODE ||
-    claimableValidatorError === ClaimableValidatorError.DATA_CANT_BE_READ_FROM_NODE ||
-    claimableValidatorError === ClaimableValidatorError.SIMULATION_NODE_COULD_NOT_RUN
+    validatorError === BonsaiValidatorError.UNKNOWN ||
+    validatorError === BonsaiValidatorError.CAN_NOT_CONNECT_TO_BUNDLR ||
+    validatorError === BonsaiValidatorError.BLOCK_CANT_BE_READ_FROM_NODE ||
+    validatorError === BonsaiValidatorError.DATA_CANT_BE_READ_FROM_NODE ||
+    validatorError === BonsaiValidatorError.SIMULATION_NODE_COULD_NOT_RUN
   );
 };
 

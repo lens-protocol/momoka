@@ -3,8 +3,8 @@ import { BigNumber, ethers } from 'ethers';
 import { Interface } from 'ethers/lib/utils';
 import { Deployment, Environment, environmentToLensHubContract } from '../common/environment';
 import { retryWithTimeout } from '../common/helpers';
-import { ClaimableValidatorError } from '../data-availability-models/claimable-validator-errors';
-import { failure, PromiseResult, success } from '../data-availability-models/da-result';
+import { PromiseResult, failure, success } from '../data-availability-models/da-result';
+import { BonsaiValidatorError } from '../data-availability-models/validator-errors';
 import { JSONRPCWithTimeout, RATE_LIMIT_TIME } from '../input-output/json-rpc-with-timeout';
 import { LENS_HUB_ABI } from './contract-lens/lens-hub-contract-abi';
 import { JSONRPCMethods } from './jsonrpc-methods';
@@ -59,7 +59,7 @@ export const executeSimulationTransaction = async (
       }
     );
   } catch (_error) {
-    return failure(ClaimableValidatorError.SIMULATION_NODE_COULD_NOT_RUN);
+    return failure(BonsaiValidatorError.SIMULATION_NODE_COULD_NOT_RUN);
   }
 };
 
@@ -207,7 +207,7 @@ export const getOnChainProfileDetails = async (
       }
     );
   } catch (_error) {
-    return failure(ClaimableValidatorError.DATA_CANT_BE_READ_FROM_NODE);
+    return failure(BonsaiValidatorError.DATA_CANT_BE_READ_FROM_NODE);
   }
 };
 
@@ -295,6 +295,6 @@ export const getLensPubCount = async (
       }
     );
   } catch (_error) {
-    return failure(ClaimableValidatorError.DATA_CANT_BE_READ_FROM_NODE);
+    return failure(BonsaiValidatorError.DATA_CANT_BE_READ_FROM_NODE);
   }
 };

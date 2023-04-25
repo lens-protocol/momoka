@@ -1,6 +1,5 @@
 import { BigNumber } from 'ethers';
 import { LogFunctionType } from '../../../common/logger';
-import { ClaimableValidatorError } from '../../../data-availability-models/claimable-validator-errors';
 import { failure, PromiseResult, success } from '../../../data-availability-models/da-result';
 import { CreateMirrorEIP712TypedData } from '../../../data-availability-models/publications/data-availability-publication-typed-data';
 import {
@@ -8,6 +7,7 @@ import {
   DAStructurePublication,
 } from '../../../data-availability-models/publications/data-availability-structure-publication';
 import { DAMirrorCreatedEventEmittedResponse } from '../../../data-availability-models/publications/data-availability-structure-publications-events';
+import { BonsaiValidatorError } from '../../../data-availability-models/validator-errors';
 import { EMPTY_BYTE, EthereumNode, getOnChainProfileDetails } from '../../../evm/ethereum';
 import { DaProofChecker } from '../../da-proof-checker';
 import { whoSignedTypedData } from '../publication.base';
@@ -36,7 +36,7 @@ const crossCheckEvent = async (
 
   // check the pub count makes sense from the block!
   if (BigNumber.from(pubCountAtBlock).add(1).toHexString() !== event.pubId) {
-    return await Promise.resolve(failure(ClaimableValidatorError.EVENT_MISMATCH));
+    return await Promise.resolve(failure(BonsaiValidatorError.EVENT_MISMATCH));
   }
 
   log('pub count at block is correct');
@@ -50,7 +50,7 @@ const crossCheckEvent = async (
     event.referenceModuleReturnData !== EMPTY_BYTE ||
     typedData.value.referenceModuleInitData !== EMPTY_BYTE
   ) {
-    return await Promise.resolve(failure(ClaimableValidatorError.EVENT_MISMATCH));
+    return await Promise.resolve(failure(BonsaiValidatorError.EVENT_MISMATCH));
   }
 
   log('cross check event is complete');
@@ -78,12 +78,12 @@ export const checkDAMirror = async (
   log('check DA mirror');
 
   if (!publication.chainProofs.pointer) {
-    return failure(ClaimableValidatorError.PUBLICATION_NO_POINTER);
+    return failure(BonsaiValidatorError.PUBLICATION_NO_POINTER);
   }
 
   // only supports mirrors on DA at the moment
   if (publication.chainProofs.pointer.type !== DAPublicationPointerType.ON_DA) {
-    return failure(ClaimableValidatorError.PUBLICATION_NONE_DA);
+    return failure(BonsaiValidatorError.PUBLICATION_NONE_DA);
   }
 
   if (verifyPointer) {
@@ -101,7 +101,7 @@ export const checkDAMirror = async (
     );
 
     if (pointerResult.isFailure()) {
-      return failure(ClaimableValidatorError.POINTER_FAILED_VERIFICATION);
+      return failure(BonsaiValidatorError.POINTER_FAILED_VERIFICATION);
     }
   }
 
@@ -136,11 +136,11 @@ export const checkDAMirror = async (
   const details = chainProfileDetailsResult.successResult;
 
   if (details.sigNonce !== typedData.value.nonce) {
-    return failure(ClaimableValidatorError.PUBLICATION_NONCE_INVALID);
+    return failure(BonsaiValidatorError.PUBLICATION_NONCE_INVALID);
   }
 
   if (details.dispatcherAddress !== whoSigned && details.ownerOfAddress !== whoSigned) {
-    return failure(ClaimableValidatorError.PUBLICATION_SIGNER_NOT_ALLOWED);
+    return failure(BonsaiValidatorError.PUBLICATION_SIGNER_NOT_ALLOWED);
   }
 
   const eventResult = await crossCheckEvent(

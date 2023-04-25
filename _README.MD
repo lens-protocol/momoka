@@ -1,16 +1,16 @@
 IN _README to stop people seeing it
 
-# bonsai
+# Bonsai
+
+## Disclaimer 
+
+We would like to emphasize that this project is currently in its beta phase and incorporates new, innovative technology. As with any cutting-edge solution, there may be potential challenges or undiscovered issues that could arise during its initial stages. We are committed to continually refining and improving our offering, and we appreciate your understanding and patience as we work diligently to perfect this technology. Please feel free to provide feedback or report any issues, as your input is invaluable in helping us enhance the user experience and overall functionality of our project.
 
 # Bonsai Verifier
 
 The Bonsai Verifier enables you to operate a trustless verifier node that validates LENS DA publications in real-time. Additionally, it can serve as an indexer, allowing you to stream and index the data yourself. This open-source solution relies exclusively on software that you can run independently, without any dependency on LENS. This ensures that even if LENS were to cease operation, you would retain access to your content, maintain proof of ownership, and continue to utilize it, all thanks to a decentralized data availability storage layer.
 
 For information on how to run this software, please refer to the [How to run](#running) section.
-
-## Disclaimer 
-
-We would like to emphasize that this project is currently in its beta phase and incorporates new, innovative technology. As with any cutting-edge solution, there may be potential challenges or undiscovered issues that could arise during its initial stages. We are committed to continually refining and improving our offering, and we appreciate your understanding and patience as we work diligently to perfect this technology. Please feel free to provide feedback or report any issues, as your input is invaluable in helping us enhance the user experience and overall functionality of our project.
 
 ## What is Bonsai technical definition? 
 
@@ -49,7 +49,7 @@ The advantage of this approach is that the data is stored on a decentralized lay
 
 This approach allows LENS to scale to a lot higher TPS, which is currently unattainable with an EVM chain, while also providing a more cost-effective solution. This can be achieved without compromising the core ownership of the social graph, and the indexing process remains familiar for app developers. Using this system is optional; those who prefer can continue to store everything on Polygon. However, if a publication doesn't require the power of a trustless execution layer, there's no need to use the EVM state.
 
-## DA vs polygon side by side
+## Bonsai vs polygon side by side
 
 Here are diagrams that show how a transaction would look like on Polygon versus a transaction using the DA layer. These diagrams are meant to provide a simplified high-level overview of how the transactions work, while more detailed information is provided below with all the necessary technical details.
 
@@ -57,23 +57,23 @@ Here are diagrams that show how a transaction would look like on Polygon versus 
 
 <img src="https://statics-polygon-lens.s3.eu-west-1.amazonaws.com/polygon-transaction.png">
 
-### DA
+### Bonsai
 
 <img src="https://statics-polygon-lens.s3.eu-west-1.amazonaws.com/da-transaction.png">
 
-## Submitters
+## Bonsai Submitters
 
 To maintain trust, submitters must be held accountable for their actions and face potential penalties for misconduct. Initially, the submitter whitelist will consist of a single address owned by LENS. As the approach is proven, the system can be expanded to allow anyone to become a submitter, with incentives for good behavior and penalties for bad actors. If submitters have nothing to lose, they could flood the system with invalid submissions, overwhelming verifiers and causing delays. During the beta phase, LENS will be responsible for correcting any errors, with bug bounties planned for the post-beta period. Ultimately, the goal is to have multiple submitters contributing to the system. It's important to note that certain errors, such as `UNKNOWN`, `CAN_NOT_CONNECT_TO_BUNDLR`, `BLOCK_CANT_BE_READ_FROM_NODE`, `DATA_CANT_BE_READ_FROM_NODE`, and `SIMULATION_NODE_COULD_NOT_RUN`, are related to third-party software issues and not considered critical verifier errors. The verifier will retry these errors later to see if they still pass. Over time, the entire system could become decentralized. For now, this beta approach represents the first attempt at scaling using a hybrid module model.
 
-## Submitters' responsibilities
+## Bonsai Submitters' responsibilities
 
 Submitters are responsible for validating, building up DA metadata, and submitting it to Arweave/Bundlr. After generating proofs with the DA submission, the data is uploaded to Arweave via Bundlr, with an instantaneous response. The submitter must provide proofs that anyone can contest. Verifier software listens for DA publications sent from whitelisted submitter addresses and verifies their validity.
 
-## Verifiers
+## Bonsai Verifiers
 
 Verifiers are tasked with monitoring DA publications from submitters and confirming their validity. They must follow specific criteria when evaluating incoming publications, with the primary goal of ensuring the submitter is truthful. Anyone can run a verifier using open-source software and a few commands. The verifier utilizes LevelDB for quick storage of passed results. The code has the capability to use a forked archive node with Foundry's `anvil` for local machine execution. However, for optimal speed, it is recommended to use an archive node directly (Alchemy is suggested but not required). All that's needed to run a verifier is an archive node.
 
-## Current limitations with DA publications
+## Bonsai Current limitations with DA publications
 
 - DA publications must use the `RevertCollectModule` and no `ReferenceModule`. This will be addressed in a future release.
 - For now, DA comments can only be added to other DA publications; they cannot be mixed. This limitation will be explored after the v1 launch.
@@ -1279,69 +1279,98 @@ This is a DA mirror. Very similar to DA post/comment minus the `type`, `typedDat
 
 ## Validation checks flows
 
-Here are the steps to make it easier to understand how the verifier works; of course, the code is all open source, so you can check. 
+This is written in sudo `node` code to understand the current flow of the validation checks. 
 
-It is easier to explain this in steps then a diagram:
+```ts
+async function validateClaim() {
+  // 1. Fetch DA metadata from Bundlr
+  const metadata = await fetchMetadataFromBundlr();
 
-1. Fetch DA metadata from Bundlr
- |
- v
-2. Check if `signature` is defined
- |-> If not, return `ClaimableValidatorError.NO_SIGNATURE_SUBMITTER`
- |
- v
-3. Verify `signature` with `metadata`
- |-> If not, return `ClaimableValidatorError.INVALID_SIGNATURE_SUBMITTER`
- |
- v
-4. Check timestamp proofs with Bundlr
- |-> If not, return `ClaimableValidatorError.TIMESTAMP_PROOF_INVALID_SIGNATURE`
- |
- v
-5. Check if timestamp proofs submitter is valid
- |-> If not, return `ClaimableValidatorError.TIMESTAMP_PROOF_INVALID_SUBMITTER`
- |
- v
-6. Check if event `timestamp` equals `blockTimestamp`
- |-> If not, return `ClaimableValidatorError.INVALID_EVENT_TIMESTAMP`
- |
- v
-7. Check if block number is closest to timestamp proofs
- |-> If not, return `ClaimableValidatorError.NOT_CLOSEST_BLOCK`
- |
- v
-8. Check if pointer is defined
- |-> If set & `POST`, return `ClaimableValidatorError.INVALID_POINTER_SET_NOT_NEEDED`
- |-> If not set & `MIRROR` or `COMMENT`, return `ClaimableValidatorError.INVALID_POINTER_NOT_SET`
- |
- v
-8.1. Check pointer type (if defined)
- |-> If not `ON_DA`, return `PUBLICATION_NONE_DA`
- |
- v
-9. Verify pointer (if defined) - follow steps from 1
- |-> If fails, return step error
- |
- v
-10. Check if formatted typed data is valid
- |-> If not, return `ClaimableValidatorError.INVALID_FORMATTED_TYPED_DATA`
- |
- v
-11a. If `POST`, simulate transaction using eth_call
- |-> If node error, return `ClaimableValidatorError.SIMULATION_NODE_COULD_NOT_RUN`
- |-> If expected != simulated, return `ClaimableValidatorError.SIMULATION_FAILED`
- |
-11b. If `COMMENT` or `MIRROR`, perform additional checks
- |-> If `sigNonces` != typed data nonce, return `ClaimableValidatorError.PUBLICATION_NONCE_INVALID`
- |-> If dispatcher OR ownerOf != recovered address, return `ClaimableValidatorError.PUBLICATION_SIGNER_NOT_ALLOWED`
- |
- v
-12. Cross-check typed data values with `event`
- |-> If mismatch, return `ClaimableValidatorError.EVENT_MISMATCH`
- |
- v
-13. Check if `publicationId` matches expected ID
-   -> If not, return `ClaimableValidatorError.GENERATED_PUBLICATION_ID_MISMATCH`
+  // 2. Check if `signature` is defined
+  if (!signature) {
+    return BonsaiValidatorError.NO_SIGNATURE_SUBMITTER;
+  }
+
+  // 3. Verify `signature` with `metadata`
+  if (!verifySignature(signature, metadata)) {
+    return BonsaiValidatorError.INVALID_SIGNATURE_SUBMITTER;
+  }
+
+  // 4. Check timestamp proofs with Bundlr
+  if (!await checkTimestampProofs()) {
+    return BonsaiValidatorError.TIMESTAMP_PROOF_INVALID_SIGNATURE;
+  }
+
+  // 5. Check if timestamp proofs submitter is valid
+  if (!isValidTimestampProofsSubmitter()) {
+    return BonsaiValidatorError.TIMESTAMP_PROOF_INVALID_SUBMITTER;
+  }
+
+  // 6. Check if event `timestamp` equals `blockTimestamp`
+  if (eventTimestamp !== blockTimestamp) {
+    return BonsaiValidatorError.INVALID_EVENT_TIMESTAMP;
+  }
+
+  // 7. Check if block number is closest to timestamp proofs
+  if (!isClosestBlock()) {
+    return BonsaiValidatorError.NOT_CLOSEST_BLOCK;
+  }
+
+  // 8. Check if pointer is defined
+  if (isPost() && pointer) {
+    return BonsaiValidatorError.INVALID_POINTER_SET_NOT_NEEDED;
+  } else if (!pointer && (isMirror() || isComment())) {
+    return BonsaiValidatorError.INVALID_POINTER_NOT_SET;
+  }
+
+  // 8.1. Check pointer type (if defined)
+  if (pointer && !isPointerTypeOnDA()) {
+    return PUBLICATION_NONE_DA;
+  }
+
+  // 9. Verify pointer (if defined) - follow steps from 1
+  const pointerStepError = await verifyPointer();
+  if (pointerStepError) {
+    return pointerStepError;
+  }
+
+  // 10. Check if formatted typed data is valid
+  if (!isValidFormattedTypedData()) {
+    return BonsaiValidatorError.INVALID_FORMATTED_TYPED_DATA;
+  }
+
+  // 11a. If `POST`, simulate transaction using eth_call
+  if (isPost()) {
+    const simulationResult = await simulateTransaction();
+    if (simulationResult === 'nodeError') {
+      return BonsaiValidatorError.SIMULATION_NODE_COULD_NOT_RUN;
+    } else if (simulationResult === 'failed') {
+      return BonsaiValidatorError.SIMULATION_FAILED;
+    }
+  }
+  // 11b. If `COMMENT` or `MIRROR`, perform additional checks
+  else {
+    if (!isValidPublicationNonce()) {
+      return BonsaiValidatorError.PUBLICATION_NONCE_INVALID;
+    }
+    if (!isPublicationSignerAllowed()) {
+      return BonsaiValidatorError.PUBLICATION_SIGNER_NOT_ALLOWED;
+    }
+  }
+
+  // 12. Cross-check typed data values with `event`
+  if (!isEventMatchingTypedData()) {
+    return BonsaiValidatorError.EVENT_MISMATCH;
+  }
+
+  // 13. Check if `publicationId` matches expected ID
+  if (!isPublicationIdMatch()) {
+    return BonsaiValidatorError.GENERATED_PUBLICATION_ID_MISMATCH;
+  }
+
+  // all validated!
+}
+```
 
 At this point, you have done all the checks needed, and this is a valid submission! As you see, using signatures and EVM calls, we can verify the data is correct and the submitter is correct without any other third party.
 
@@ -1350,7 +1379,7 @@ At this point, you have done all the checks needed, and this is a valid submissi
 The summary in the code should explain what is being checked for and what it would fail out if it doesn't match. Below is the full list of error cases
 
 ```ts
-export enum ClaimableValidatorError {
+export enum BonsaiValidatorError {
   /**
    * This means the main signature has not been attached to the payload
    */
@@ -1562,7 +1591,7 @@ Check the `playground-browser` folder for a working example of the client usage.
 
 #### checkDAProof
 
-The `checkDAProof` will return you a failure reason of the enum `ClaimableValidatorError`, and if successful, you be returned the entire `DAStructurePublication`. This is a client specific version of the `checkDAProof` function that doesn't have any caching in place. For the server version, please see the server usage section.
+The `checkDAProof` will return you a failure reason of the enum `BonsaiValidatorError`, and if successful, you be returned the entire `DAStructurePublication`. This is a client specific version of the `checkDAProof` function that doesn't have any caching in place. For the server version, please see the server usage section.
 
 ```ts
 import { checkDAProof, EthereumNode, Environment } from '@lens-protocol/data-availability-verifier/client';
@@ -1586,7 +1615,7 @@ console.error('proof invalid do something', result.failure)
 
 #### checkDAProof
 
-The `checkDAProof` will return you a failure reason of the enum `ClaimableValidatorError`, and if successful, you be returned the entire `DAStructurePublication`. This is a server specific version of the `checkDAProof` function that has caching in place. For the client version, please see the client usage section.
+The `checkDAProof` will return you a failure reason of the enum `BonsaiValidatorError`, and if successful, you be returned the entire `DAStructurePublication`. This is a server specific version of the `checkDAProof` function that has caching in place. For the client version, please see the client usage section.
 
 ```ts
 import { checkDAProof, EthereumNode, Environment } from '@lens-protocol/data-availability-verifier';

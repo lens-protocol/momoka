@@ -1,9 +1,9 @@
-import { ClaimableValidatorError } from '../data-availability-models/claimable-validator-errors';
 import {
   DAEventType,
   DAStructurePublication,
   PublicationTypedData,
 } from '../data-availability-models/publications/data-availability-structure-publication';
+import { BonsaiValidatorError } from '../data-availability-models/validator-errors';
 
 export type TxValidatedResult = TxValidatedFailureResult | TxValidatedSuccessResult;
 
@@ -18,7 +18,7 @@ export interface TxValidatedFailureResult
     false,
     DAStructurePublication<DAEventType, PublicationTypedData> | undefined
   > {
-  failureReason: ClaimableValidatorError;
+  failureReason: BonsaiValidatorError;
   extraErrorInfo?: string;
 }
 

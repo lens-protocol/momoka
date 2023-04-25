@@ -6,8 +6,7 @@ import {
   formatDate,
   unixTimestampToMilliseconds,
 } from '../common/helpers';
-import { consoleDynamic, LoggerLevelColours } from '../common/logger';
-import { ClaimableValidatorError } from '../data-availability-models/claimable-validator-errors';
+import { LoggerLevelColours, consoleDynamic } from '../common/logger';
 import { DAResult } from '../data-availability-models/da-result';
 import {
   DAPublicationWithTimestampProofsBatchResult,
@@ -19,11 +18,12 @@ import {
   DAStructurePublication,
   PublicationTypedData,
 } from '../data-availability-models/publications/data-availability-structure-publication';
+import { BonsaiValidatorError } from '../data-availability-models/validator-errors';
 import { anvilForkFrom, getAnvilCurrentBlockNumber } from '../evm/anvil';
 import { EthereumNode } from '../evm/ethereum';
 import {
-  BundlrBulkTxsResponse,
   BundlrBulkTxSuccess,
+  BundlrBulkTxsResponse,
   getBundlrBulkTxsAPI,
 } from '../input-output/bundlr/get-bundlr-bulk-txs.api';
 import { TIMEOUT_ERROR } from '../input-output/common';
@@ -31,10 +31,10 @@ import { saveTxDAMetadataDb, saveTxDb, saveTxTimestampProofsMetadataDb } from '.
 import { TxValidatedResult } from '../input-output/tx-validated-results';
 import { failedDAProofQueue } from '../queue/known.queue';
 import { shouldRetry } from '../queue/process-retry-check-da-proofs.queue';
+import { invariant } from '../utils/invariant';
 import { StreamCallback } from '../watchers/models/stream.type';
 import { checkDAProofWithMetadata } from './check-da-proof';
 import { getDefaultCheckDASubmissionOptions } from './models/check-da-submisson-options';
-import { invariant } from '../utils/invariant';
 
 /**
  * Builds a validation result object for a transaction ID and a data availability verification result.
@@ -159,7 +159,7 @@ const getBundlrBulkTxs = async (txIds: string[]): Promise<BundlrBulkTxsResponse>
 export interface ProofResult {
   txId: string;
   success: boolean;
-  claimableValidatorError?: ClaimableValidatorError;
+  validatorError?: BonsaiValidatorError;
 }
 
 /**
@@ -203,7 +203,7 @@ const processPublication = async (
     return {
       txId,
       success: result.isSuccess(),
-      claimableValidatorError: result.isFailure() ? result.failure : undefined,
+      validatorError: result.isFailure() ? result.failure : undefined,
     };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
@@ -211,7 +211,7 @@ const processPublication = async (
     saveTxDb(txId, {
       proofTxId: txId,
       success: false,
-      failureReason: ClaimableValidatorError.UNKNOWN,
+      failureReason: BonsaiValidatorError.UNKNOWN,
       dataAvailabilityResult: undefined,
       extraErrorInfo: typeof e === 'string' ? e : e.message || undefined,
     });
@@ -219,7 +219,7 @@ const processPublication = async (
     return {
       txId,
       success: false,
-      claimableValidatorError: ClaimableValidatorError.UNKNOWN,
+      validatorError: BonsaiValidatorError.UNKNOWN,
     };
   }
 };
@@ -263,13 +263,13 @@ const processPublications = async (
       } else {
         failedDAProofQueue.enqueue({
           txId: result.txId,
-          reason: result.claimableValidatorError!,
+          reason: result.validatorError!,
           submitter: publication.submitter,
         });
 
         // only log out ones which do not need retrying
-        if (!shouldRetry(result.claimableValidatorError!)) {
-          log(LoggerLevelColours.ERROR, `FAILED - ${result.claimableValidatorError!}`);
+        if (!shouldRetry(result.validatorError!)) {
+          log(LoggerLevelColours.ERROR, `FAILED - ${result.validatorError!}`);
         }
       }
 

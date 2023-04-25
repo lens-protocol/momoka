@@ -1,10 +1,10 @@
 export { Deployment, Environment } from '../common/environment';
-export { ClaimableValidatorError } from '../data-availability-models/claimable-validator-errors';
 export {
   DAEventType,
   DAStructurePublication,
   PublicationTypedData,
 } from '../data-availability-models/publications/data-availability-structure-publication';
+export { BonsaiValidatorError } from '../data-availability-models/validator-errors';
 export { EthereumNode } from '../evm/ethereum';
 export {
   TxValidatedFailureResult,

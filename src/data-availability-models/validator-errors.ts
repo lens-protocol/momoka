@@ -1,7 +1,7 @@
 /**
- * This is a list of all the errors that can be returned from the claimable validator
+ * This is a list of all the errors that can be returned from the bonsai validator
  */
-export enum ClaimableValidatorError {
+export enum BonsaiValidatorError {
   /**
    * This means the main signature has not been attached to the payload
    */
