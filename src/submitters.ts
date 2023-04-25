@@ -15,11 +15,11 @@ export const getSubmitters = (
   if (deployment === Deployment.PRODUCTION) {
     switch (environment) {
       case Environment.POLYGON:
-        throw new Error('Not implemented yet');
+        return ['0xBe29464B9784a0d8956f29630d8bc4D7B5737435'.toLowerCase()];
       case Environment.MUMBAI:
         return ['0xEE3E8f53df70C3A3eeDA2076CDCa17c451aa8F96'.toLowerCase()];
       case Environment.SANDBOX:
-        throw new Error('Not implemented yet');
+        throw new Error('Not Supported');
       default:
         throw new Error('Invalid environment');
     }
@@ -28,11 +28,11 @@ export const getSubmitters = (
   if (deployment === Deployment.STAGING) {
     switch (environment) {
       case Environment.POLYGON:
-        throw new Error('Not implemented yet');
+        throw new Error('Not Supported');
       case Environment.MUMBAI:
-        return ['0x886Bb211aC324dAF3744b2AB0eF20C0aCf73eA59'.toLowerCase()];
+        return ['0x122938FE0d1fC6e00EF1b814cD7e44677e99b4f7'.toLowerCase()];
       case Environment.SANDBOX:
-        throw new Error('Not implemented yet');
+        throw new Error('Not Supported');
       default:
         throw new Error('Invalid environment');
     }
@@ -41,11 +41,11 @@ export const getSubmitters = (
   if (deployment === Deployment.LOCAL) {
     switch (environment) {
       case Environment.POLYGON:
-        throw new Error('Not implemented yet');
+        throw new Error('Not Supported');
       case Environment.MUMBAI:
         return ['0x8Fc176aA6FC843D3422f0C1832f1b9E17be00C1c'.toLowerCase()];
       case Environment.SANDBOX:
-        throw new Error('Not implemented yet');
+        throw new Error('Not Supported');
       default:
         throw new Error('Invalid environment');
     }
