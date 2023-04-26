@@ -78,6 +78,7 @@ export interface DAProofsGateway {
     txId: string
   ): Promise<DATimestampProofsResponse | TimeoutError | null>;
   getBlockRange(blockNumbers: number[], ethereumNode: EthereumNode): Promise<BlockInfo[]>;
+  hasSignatureBeenUsedBefore(signature: string): Promise<boolean>;
 }
 
 export class DaProofChecker {
@@ -108,6 +109,16 @@ export class DaProofChecker {
       const alreadyChecked = await this.txAlreadyChecked(txId, options.log);
       if (alreadyChecked) {
         return alreadyChecked;
+      }
+
+      const signatureAlreadyUsed = await this.gateway.hasSignatureBeenUsedBefore(
+        daPublicationWithTimestampProofs.daPublication.chainProofs.thisPublication.signature
+      );
+      if (signatureAlreadyUsed) {
+        return failureWithContext(
+          BonsaiValidatorError.CHAIN_SIGNATURE_ALREADY_USED,
+          daPublicationWithTimestampProofs.daPublication
+        );
       }
     }
 

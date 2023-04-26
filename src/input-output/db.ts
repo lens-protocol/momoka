@@ -18,6 +18,7 @@ export enum DbReference {
   tx = 'tx',
   tx_da_metadata = 'tx_da_metadata',
   tx_timestamp_proof_metadata = 'tx_timestamp_proof_metadata',
+  tx_signature = 'tx_signature',
   cursor = 'cursor',
 }
 
@@ -88,6 +89,9 @@ export const saveTxDb = async (txId: string, result: TxValidatedResult): Promise
   }
 
   try {
+    if (result.dataAvailabilityResult) {
+      await saveSignatureDb(result.dataAvailabilityResult.chainProofs.thisPublication.signature);
+    }
     await db.put(`${DbReference.tx}:${txId}`, JSON.stringify(result));
   } catch (error) {
     throw new Error('`saveTxDb`- Could not write to into the db - critical error!');
@@ -127,6 +131,44 @@ export const saveBlockDb = async (block: BlockInfo): Promise<void> => {
     await db.put(`${DbReference.block}:${block.number}`, JSON.stringify(block));
   } catch (error) {
     throw new Error('`saveBlockDb` - Could not write to into the db - critical error!');
+  }
+};
+
+/**
+ * Check if a signature has already been used before
+ *
+ * @param signature - The number of the block to get.
+ */
+export const hasSignatureBeenUsedBeforeDb = async (signature: string): Promise<boolean> => {
+  if (!db) {
+    return false;
+  }
+
+  try {
+    // if it does not throw its because it exists
+    await db.get(`${DbReference.tx_signature}:${signature}`);
+    return true;
+  } catch (e) {
+    return false;
+  }
+};
+
+/**
+ * Saves a the signature submitted to the database.
+ *
+ * @param signature - The signature
+ */
+const saveSignatureDb = async (signature: string): Promise<void> => {
+  if (!db) {
+    return;
+  }
+
+  try {
+    await db.put(`${DbReference.tx_signature}:${signature}`, '');
+  } catch (error) {
+    throw new Error(
+      '`saveSignatureSubmittedDb` - Could not write to into the db - critical error!'
+    );
   }
 };
 

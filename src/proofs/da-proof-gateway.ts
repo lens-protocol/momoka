@@ -12,6 +12,7 @@ import {
   getTxDAMetadataDb,
   getTxDb,
   getTxTimestampProofsMetadataDb,
+  hasSignatureBeenUsedBeforeDb,
   saveBlockDb,
 } from '../input-output/db';
 import { LibCurlProvider } from '../input-output/lib-curl-provider';
@@ -19,12 +20,16 @@ import { TxValidatedResult } from '../input-output/tx-validated-results';
 import { DAProofsGateway } from '../proofs/da-proof-checker';
 
 export class DaProofGateway implements DAProofsGateway {
-  getTxResultFromCache(txId: string): Promise<TxValidatedResult | null> {
+  public hasSignatureBeenUsedBefore(signature: string): Promise<boolean> {
+    return hasSignatureBeenUsedBeforeDb(signature);
+  }
+
+  public getTxResultFromCache(txId: string): Promise<TxValidatedResult | null> {
     // Check if the transaction ID exists in the database
     return getTxDb(txId);
   }
 
-  getBlockRange(blockNumbers: number[], ethereumNode: EthereumNode): Promise<BlockInfo[]> {
+  public getBlockRange(blockNumbers: number[], ethereumNode: EthereumNode): Promise<BlockInfo[]> {
     return Promise.all(
       blockNumbers.map(async (blockNumber) => {
         const cachedBlock = await getBlockDb(blockNumber);
@@ -42,7 +47,7 @@ export class DaProofGateway implements DAProofsGateway {
     );
   }
 
-  async getDaPublication(
+  public async getDaPublication(
     txId: string
   ): Promise<DAStructurePublication<DAEventType, PublicationTypedData> | TimeoutError | null> {
     return (
@@ -53,7 +58,7 @@ export class DaProofGateway implements DAProofsGateway {
     );
   }
 
-  async getTimestampProofs(
+  public async getTimestampProofs(
     timestampId: string,
     txId: string
   ): Promise<DATimestampProofsResponse | TimeoutError | null> {

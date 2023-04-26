@@ -136,6 +136,12 @@ export enum BonsaiValidatorError {
   PUBLICATION_SIGNER_NOT_ALLOWED = 'PUBLICATION_SIGNER_NOT_ALLOWED',
 
   /**
+   * This means the evm signature has already been used
+   * Only really starts to be able to be properly used when many submitters
+   */
+  CHAIN_SIGNATURE_ALREADY_USED = 'CHAIN_SIGNATURE_ALREADY_USED',
+
+  /**
    * This means the publication submisson could not pass potentional due to a reorg
    */
   POTENTIAL_REORG = 'POTENTIAL_REORG',
