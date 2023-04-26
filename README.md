@@ -1,8 +1,16 @@
 # Bonsai
-
+                                                                                                                     
+<img src="https://statics-polygon-lens.s3.eu-west-1.amazonaws.com/bonsai/logo.png" />                                                                                                                                                                                                                                       
+                                                                                                                
 ## Disclaimer 
 
 We would like to emphasize that this project is currently in its beta phase and incorporates new, innovative technology. As with any cutting-edge solution, there may be potential challenges or undiscovered issues that could arise during its initial stages. We are committed to continually refining and improving our offering, and we appreciate your understanding and patience as we work diligently to perfect this technology. Please feel free to provide feedback or report any issues, as your input is invaluable in helping us enhance the user experience and overall functionality of our project.
+
+# Bonsai explorer
+
+You can explore all bonsai transactions on the explorer [here](https://bonsai.lens.xyz). It is also open-source https://github.com/lens-protocol/bonsai-explorer.
+
+<img src="https://statics-polygon-lens.s3.eu-west-1.amazonaws.com/bonsai/bonsai-explorer.png" />
 
 # Bonsai Verifier
 
@@ -20,6 +28,8 @@ Bonsai, a term we've due to lens brand, refers to an Optimistic L3 - a hybrid by
 We describe Bonsai long form name as an "Optimistic Hybrid-settlement L3" because, in most cases, settlement refers to both storage and verification. However, in this instance, the storage layer is provided by the Data Availability (DA) provider, and the settlement, or proof verification, is conducted using the Polygon chain.
 
 As we continue to refine this technology, the technical name may evolve, but we wanted to clarify the rationale behind the current terminology.
+
+<img src="https://statics-polygon-lens.s3.eu-west-1.amazonaws.com/bonsai/hyperscale.png">
 
 ## What is DA?
 
@@ -53,19 +63,39 @@ Here are diagrams that show how a transaction would look like on Polygon versus 
 
 ### Polygon
 
-<img src="https://statics-polygon-lens.s3.eu-west-1.amazonaws.com/polygon-transaction.png">
+NEED IMAGE
 
 ### Bonsai
 
-<img src="https://statics-polygon-lens.s3.eu-west-1.amazonaws.com/da-transaction.png">
+<img src="https://statics-polygon-lens.s3.eu-west-1.amazonaws.com/bonsai/Bonsai-flow.svg" />
+
+## Comparison
+
+<img src="https://statics-polygon-lens.s3.eu-west-1.amazonaws.com/bonsai/tech-compare.png" />
+
+## Hyperscale
+
+<img src="https://statics-polygon-lens.s3.eu-west-1.amazonaws.com/bonsai/hyperscale.png" />
 
 ## Bonsai Submitters
 
 To maintain trust, submitters must be held accountable for their actions and face potential penalties for misconduct. Initially, the submitter whitelist will consist of a single address owned by LENS. As the approach is proven, the system can be expanded to allow anyone to become a submitter, with incentives for good behavior and penalties for bad actors. If submitters have nothing to lose, they could flood the system with invalid submissions, overwhelming verifiers and causing delays. During the beta phase, LENS will be responsible for correcting any errors, with bug bounties planned for the post-beta period. Ultimately, the goal is to have multiple submitters contributing to the system. It's important to note that certain errors, such as `UNKNOWN`, `CAN_NOT_CONNECT_TO_BUNDLR`, `BLOCK_CANT_BE_READ_FROM_NODE`, `DATA_CANT_BE_READ_FROM_NODE`, and `SIMULATION_NODE_COULD_NOT_RUN`, `POTENTIAL_REORG` are related to third-party software issues and not considered critical verifier errors. The verifier will retry these errors later to see if they still pass. Over time, the entire system could become decentralized. For now, this beta approach represents the first attempt at scaling using a hybrid module model.
 
-## Bonsai Submitters' responsibilities
+### Bonsai Submitters' responsibilities
 
 Submitters are responsible for validating, building up DA metadata, and submitting it to Arweave/Bundlr. After generating proofs with the DA submission, the data is uploaded to Arweave via Bundlr, with an instantaneous response. The submitter must provide proofs that anyone can contest. Verifier software listens for DA publications sent from whitelisted submitter addresses and verifies their validity.
+
+### Bonsai Submitter flow
+
+The flow diagram shows the submitter flows in detail; the first submitter will be within the LENS API to allow for easy integration for all. 
+
+<img src="https://statics-polygon-lens.s3.eu-west-1.amazonaws.com/bonsai/submitter-flow.svg">
+
+### Bonsai Future of decentralised submitters
+
+This is a rough look at how this could work in the future in a trustless manner. This is not the final solution but a rough idea of how it could work on a very high-level vision.
+
+<img src="https://statics-polygon-lens.s3.eu-west-1.amazonaws.com/bonsai/decentralized-submitters.svg">
 
 ## Bonsai Verifiers
 
@@ -102,6 +132,12 @@ For now, any reorg handling or rechecking must be performed outside of the valid
 If a transaction is part of a reorg and ends up in a different block or not included at all, the proofs should be re-validated using the new blockchain state, ensuring their validity despite the reorg.
 
 As we are not mixing and matching actions we remove a lot of the issues but not all, the edge cases that could cause issues are situations where for example someone sets a dispatcher and then straight away performs an DA action that has the dispatcher sign on their behalf, and then a reorg follows. If the transaction which adds the dispatcher to the profile is not resubmitted or is resubmitted at a higher block number, the proofs would fail. In that case, rerunning the proofs would return a `POTENTIAL_REORG` error which is not "bad" in terms of a submitter doing wrong as they could not of predicted it, you can handle this then as needed. Once we start integrating the cross actions, we will handle such cases within the validator.
+
+## Future of Bonsai
+
+As we said above this is very much in BETA and as we learn, shape and grow the solution we envison the architecture will end up looking something like this, with decentralised submitters and verifiers.
+
+<img src="https://statics-polygon-lens.s3.eu-west-1.amazonaws.com/bonsai/architecture-future.png" />
 
 ## DA publication metadata
 
@@ -1550,18 +1586,6 @@ export enum BonsaiValidatorError {
   UNKNOWN = 'UNKNOWN',
 }
 ```
-
-## Submitter flow
-
-The flow diagram shows the submitter flows in detail; the first submitter will be within the LENS API to allow for easy integration for all. 
-
-<img src="https://statics-polygon-lens.s3.eu-west-1.amazonaws.com/submitter-flows.png">
-
-## Future of decentralised submitters
-
-This is a rough look at how this could work in the future in a trustless manner. This is not the final solution but a rough idea of how it could work on a very high-level vision.
-
-<img src="https://statics-polygon-lens.s3.eu-west-1.amazonaws.com/submitters-later-vision.png">
 
 ## Running
 

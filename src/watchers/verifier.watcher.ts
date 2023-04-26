@@ -49,11 +49,37 @@ const startup = async (
   }
 
   console.log(`
-  _     _____ _   _ ____    ____    _    
- | |   | ____|  || | ___|  |  _ \\  / \\   
- | |   |  _| |  \\| |___ \\  | | | |/ _ \\  
- | |___| |___| |  |___) | | |_| / ___ \\ 
- |_____|_____|_| \\_|____/  |____/_/   \\_\\                                                      
+
+            
+  
+
+
+  
+                                                                                                                           
+BBBBBBBBBBBBBBBBB        OOOOOOOOO     NNNNNNNN        NNNNNNNN   SSSSSSSSSSSSSSS              AAA               IIIIIIIIII
+B::::::::::::::::B     OO:::::::::OO   N:::::::N       N::::::N SS:::::::::::::::S            A:::A              I::::::::I
+B::::::BBBBBB:::::B  OO:::::::::::::OO N::::::::N      N::::::NS:::::SSSSSS::::::S           A:::::A             I::::::::I
+BB:::::B     B:::::BO:::::::OOO:::::::ON:::::::::N     N::::::NS:::::S     SSSSSSS          A:::::::A            II::::::II
+  B::::B     B:::::BO::::::O   O::::::ON::::::::::N    N::::::NS:::::S                     A:::::::::A             I::::I  
+  B::::B     B:::::BO:::::O     O:::::ON:::::::::::N   N::::::NS:::::S                    A:::::A:::::A            I::::I  
+  B::::BBBBBB:::::B O:::::O     O:::::ON:::::::N::::N  N::::::N S::::SSSS                A:::::A A:::::A           I::::I  
+  B:::::::::::::BB  O:::::O     O:::::ON::::::N N::::N N::::::N  SS::::::SSSSS          A:::::A   A:::::A          I::::I  
+  B::::BBBBBB:::::B O:::::O     O:::::ON::::::N  N::::N:::::::N    SSS::::::::SS       A:::::A     A:::::A         I::::I  
+  B::::B     B:::::BO:::::O     O:::::ON::::::N   N:::::::::::N       SSSSSS::::S     A:::::AAAAAAAAA:::::A        I::::I  
+  B::::B     B:::::BO:::::O     O:::::ON::::::N    N::::::::::N            S:::::S   A:::::::::::::::::::::A       I::::I  
+  B::::B     B:::::BO::::::O   O::::::ON::::::N     N:::::::::N            S:::::S  A:::::AAAAAAAAAAAAA:::::A      I::::I  
+BB:::::BBBBBB::::::BO:::::::OOO:::::::ON::::::N      N::::::::NSSSSSSS     S:::::S A:::::A             A:::::A   II::::::II
+B:::::::::::::::::B  OO:::::::::::::OO N::::::N       N:::::::NS::::::SSSSSS:::::SA:::::A               A:::::A  I::::::::I
+B::::::::::::::::B     OO:::::::::OO   N::::::N        N::::::NS:::::::::::::::SSA:::::A                 A:::::A I::::::::I
+BBBBBBBBBBBBBBBBB        OOOOOOOOO     NNNNNNNN         NNNNNNN SSSSSSSSSSSSSSS AAAAAAA                   AAAAAAAIIIIIIIIII
+                                                                                                                           
+                                                                                                                           
+                                                                                                                           
+                                                                                                                           
+                                                                                                                           
+                                                                                                                           
+                                                                                                                           
+                                                   
   `);
 };
 
@@ -149,7 +175,7 @@ const processTransactions = async (
 
 const waitForNewSubmissions = async (lastCheckNothingFound: boolean): Promise<boolean> => {
   if (!lastCheckNothingFound) {
-    consoleLogWithLensNodeFootprint(`waiting for new data availability to be submitted...`);
+    consoleLogWithLensNodeFootprint(`waiting for new bonsai transaction...`);
   }
   lastCheckNothingFound = true;
   await sleep(100);
