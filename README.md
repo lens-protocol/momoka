@@ -1,5 +1,3 @@
-IN _README to stop people seeing it
-
 # Bonsai
 
 ## Disclaimer 
