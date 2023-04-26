@@ -1856,3 +1856,7 @@ A special thank you to [Bundlr](https://bundlr.network/) for making this project
 
 We also extend our gratitude to [Arweave](https://www.arweave.org/) for providing decentralized storage solutions for our data, contributing to the overall success of the DA project.
 
+## Why node?
+
+Our goal was to create a tool that could be verified both on the client and server side, and we found that Node.js was the most suitable option for this purpose. Additionally, we aimed to make it as understandable as possible, and Node.js is renowned for its ease of use and a big languaged used throughout web3 development. As per our roadmap, we plan to migrate a significant portion of this stack to Rust, a more low-level language, to achieve maximum speed once we need it.
+
