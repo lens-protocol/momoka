@@ -1625,7 +1625,7 @@ $ npx bonsai --node 'YOUR_NODE' --environment='MUMBAI|POLYGON' --concurrency=100
 
 ### Parameter meanings
 
-- `--node` - this is the node you wish to connect to, this can be a free node or a paid node, it is recommended to use a paid node for the best performance
+- `--node` - this is the URI of the Polygon archive node you wish to connect to, this can be a free node or a paid node, it is recommended to use a paid node for the best performance. you can get up and running with a node using Alchemy, Infura, or any other similar infrastructure provider
 - `--environment` - this is the environment you wish to run the verifier on, this can be `MUMBAI` or `POLYGON`
 - `--concurrency` - this is the concurrency you wish to run the verifier on, which was talked in depth above
 - `--fromHead` - this is a boolean value, which if set to true will start the verifier from the head of the chain aka the most recent transaction, if set to false it will start from the last block and resync from zero.
