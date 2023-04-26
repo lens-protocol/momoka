@@ -209,7 +209,8 @@ export const startDAVerifierNode = async (
   consoleLogWithLensNodeFootprint('started up..');
 
   if (syncFromHeadOnly) {
-    const lastSeenTransaction = await getDataAvailabilityTransactionsAPI(
+    // try to find the last transactions and start syncing from there again
+    const lastTransaction = await getDataAvailabilityTransactionsAPI(
       ethereumNode.environment,
       ethereumNode.deployment,
       null,
@@ -217,8 +218,8 @@ export const startDAVerifierNode = async (
       1
     );
 
-    if (lastSeenTransaction.edges.length > 0) {
-      endCursor = lastSeenTransaction.pageInfo.endCursor;
+    if (lastTransaction.edges.length > 0) {
+      endCursor = lastTransaction.pageInfo.endCursor;
       totalChecked = 0;
     } else {
       endCursor = null;
