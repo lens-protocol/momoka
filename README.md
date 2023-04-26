@@ -1,6 +1,6 @@
 # Bonsai
                                                                                                                      
-<img src="https://statics-polygon-lens.s3.eu-west-1.amazonaws.com/bonsai/logo.png" />                                                                                                                                                                                                                                       
+<img src="./images/logo.png" />                                                                                                                                                                                                                                       
                                                                                                                 
 ## Disclaimer 
 
@@ -10,7 +10,7 @@ We would like to emphasize that this project is currently in its beta phase and 
 
 You can explore all bonsai transactions on the explorer [here](https://bonsai.lens.xyz). It is also open-source https://github.com/lens-protocol/bonsai-explorer.
 
-<img src="https://statics-polygon-lens.s3.eu-west-1.amazonaws.com/bonsai/bonsai-explorer.png" />
+<img src="./images/bonsai-explorer.jpg" />
 
 # Bonsai Verifier
 
@@ -28,8 +28,6 @@ Bonsai, a term we've due to lens brand, refers to an Optimistic L3 - a hybrid by
 We describe Bonsai long form name as an "Optimistic Hybrid-settlement L3" because, in most cases, settlement refers to both storage and verification. However, in this instance, the storage layer is provided by the Data Availability (DA) provider, and the settlement, or proof verification, is conducted using the Polygon chain.
 
 As we continue to refine this technology, the technical name may evolve, but we wanted to clarify the rationale behind the current terminology.
-
-<img src="https://statics-polygon-lens.s3.eu-west-1.amazonaws.com/bonsai/hyperscale.png">
 
 ## What is DA?
 
@@ -63,19 +61,19 @@ Here are diagrams that show how a transaction would look like on Polygon versus 
 
 ### Polygon
 
-NEED IMAGE
+<img src="./images/current-polygon-flow.jpg" />
 
 ### Bonsai
 
-<img src="https://statics-polygon-lens.s3.eu-west-1.amazonaws.com/bonsai/Bonsai-flow.svg" />
+<img src="./images/bonsai-flow.jpg" />
 
 ## Comparison
 
-<img src="https://statics-polygon-lens.s3.eu-west-1.amazonaws.com/bonsai/tech-compare.png" />
+<img src="./images/tech-comparison.jpg" />
 
 ## Hyperscale
 
-<img src="https://statics-polygon-lens.s3.eu-west-1.amazonaws.com/bonsai/hyperscale.png" />
+<img src="./images/hyperscale-for-data.jpg" />
 
 ## Bonsai Submitters
 
@@ -89,13 +87,13 @@ Submitters are responsible for validating, building up DA metadata, and submitti
 
 The flow diagram shows the submitter flows in detail; the first submitter will be within the LENS API to allow for easy integration for all. 
 
-<img src="https://statics-polygon-lens.s3.eu-west-1.amazonaws.com/bonsai/submitter-flow.svg">
+<img src="./images/submitter-flow.jpg" />
 
 ### Bonsai Future of decentralised submitters
 
 This is a rough look at how this could work in the future in a trustless manner. This is not the final solution but a rough idea of how it could work on a very high-level vision.
 
-<img src="https://statics-polygon-lens.s3.eu-west-1.amazonaws.com/bonsai/decentralized-submitters.svg">
+<img src="./images/decentralized-submitters.jpg" />
 
 ## Bonsai Verifiers
 
@@ -137,7 +135,7 @@ As we are not mixing and matching actions we remove a lot of the issues but not 
 
 As we said above this is very much in BETA and as we learn, shape and grow the solution we envison the architecture will end up looking something like this, with decentralised submitters and verifiers.
 
-<img src="https://statics-polygon-lens.s3.eu-west-1.amazonaws.com/bonsai/architecture-future.png" />
+<img src="./images/bonsai-network.jpg" />
 
 ## DA publication metadata
 
