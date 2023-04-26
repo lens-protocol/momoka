@@ -136,6 +136,11 @@ export enum BonsaiValidatorError {
   PUBLICATION_SIGNER_NOT_ALLOWED = 'PUBLICATION_SIGNER_NOT_ALLOWED',
 
   /**
+   * This means the publication submisson could not pass potentional due to a reorg
+   */
+  POTENTIAL_REORG = 'POTENTIAL_REORG',
+
+  /**
    * unknown error should not happen but catch all
    */
   UNKNOWN = 'UNKNOWN',

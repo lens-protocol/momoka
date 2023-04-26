@@ -14,7 +14,7 @@ For information on how to run this software, please refer to the [How to run](#r
 
 ## What is Bonsai technical definition? 
 
-Bonsai, a term we've due to lens brand, refers to an Optimistic L3 - a hybrid between Optimistic Rollup and Layer 3 (L3) technologies. We've chosen this approach for several reasons:
+Bonsai, a term we've due to lens brand, refers to an Optimistic L3 - a hybrid by taking best from both - Optimistic Rollups and L3 technologies. We've chosen this approach for several reasons:
 
 - Optimistic Rollup is a technique that processes transactions off-chain for enhanced scalability and reduced fees. It typically compresses these transactions back to the main chain, but we've excluded this final step in our implementation.
 - L3, while having various definitions, generally involves technology built on top of Layer 2 (L2). Despite some considering Polygon a combination of side-chain and L2, we utilize the Polygon EVM chain to enable transaction proofs, improving the user experience (UX/UI) and overall experience for LENS users. This is why we designate it as L3.
@@ -41,7 +41,7 @@ A transaction on an EVM machine alters some form of state; it is signed by the w
 
 LENS is deployed on Polygon, an EVM-based platform. All actions—such as posts, comments, mirrors, follows, and collects are transactions that are built, signed, and sent to be stored on the EVM machine. In the new system, transactions are still built and require a signature from a wallet that would pass the state on-chain, but they are not actually sent. Instead, the transaction signature and typed data are used to create DA metadata, which is then transmitted to a DA layer containing information such as block number, signed typed data, transaction signature, and other crucial details. This data is structured in a way that can be fully verified with just having an archive node.
 
-EVM machines function as large state machines. The EVM JSON-RPC methods allow you to simulate transactions using `eth_call`, determining the outcome of a transaction without actually sending it. You can specify a block number to run the simulation and use the signed typed data transaction with the typed data. This can be done with every `withSig` method on the LENS contracts. With just a Polygon node, anyone can verify that the data on the DA layer is accurate and would have been valid at that point in time. Since the typed data contains expiry times and nonces, it can be proven in a secure manner and cannot be submitted by anyone else.
+EVM machines function as large state machines. The EVM JSON-RPC methods allow you to simulate transactions using `eth_call`, determining the outcome of a transaction without actually sending it. You can specify a block number to run the simulation and use the signed typed data transaction with the typed data. This can be done with every `withSig` method on the LENS contracts. With just a Polygon node, anyone can verify that the data on the DA layer is accurate and would have been valid at that point in time. Since the typed data contains expiry times and nonces, it can be proven in a secure manner and can not be submitted by anyone else.
 
 The advantage of this approach is that the data is stored on a decentralized layer, meaning that no centralized entity controls the content. Users retain ownership of their publications, and if any part of LENS were to disappear, all the data would remain verifiable, accessible, and usable by anyone. This demonstrates the power of decentralization, ensuring that users' data cannot be taken away from them.
 
@@ -63,7 +63,7 @@ Here are diagrams that show how a transaction would look like on Polygon versus 
 
 ## Bonsai Submitters
 
-To maintain trust, submitters must be held accountable for their actions and face potential penalties for misconduct. Initially, the submitter whitelist will consist of a single address owned by LENS. As the approach is proven, the system can be expanded to allow anyone to become a submitter, with incentives for good behavior and penalties for bad actors. If submitters have nothing to lose, they could flood the system with invalid submissions, overwhelming verifiers and causing delays. During the beta phase, LENS will be responsible for correcting any errors, with bug bounties planned for the post-beta period. Ultimately, the goal is to have multiple submitters contributing to the system. It's important to note that certain errors, such as `UNKNOWN`, `CAN_NOT_CONNECT_TO_BUNDLR`, `BLOCK_CANT_BE_READ_FROM_NODE`, `DATA_CANT_BE_READ_FROM_NODE`, and `SIMULATION_NODE_COULD_NOT_RUN`, are related to third-party software issues and not considered critical verifier errors. The verifier will retry these errors later to see if they still pass. Over time, the entire system could become decentralized. For now, this beta approach represents the first attempt at scaling using a hybrid module model.
+To maintain trust, submitters must be held accountable for their actions and face potential penalties for misconduct. Initially, the submitter whitelist will consist of a single address owned by LENS. As the approach is proven, the system can be expanded to allow anyone to become a submitter, with incentives for good behavior and penalties for bad actors. If submitters have nothing to lose, they could flood the system with invalid submissions, overwhelming verifiers and causing delays. During the beta phase, LENS will be responsible for correcting any errors, with bug bounties planned for the post-beta period. Ultimately, the goal is to have multiple submitters contributing to the system. It's important to note that certain errors, such as `UNKNOWN`, `CAN_NOT_CONNECT_TO_BUNDLR`, `BLOCK_CANT_BE_READ_FROM_NODE`, `DATA_CANT_BE_READ_FROM_NODE`, and `SIMULATION_NODE_COULD_NOT_RUN`, `POTENTIAL_REORG` are related to third-party software issues and not considered critical verifier errors. The verifier will retry these errors later to see if they still pass. Over time, the entire system could become decentralized. For now, this beta approach represents the first attempt at scaling using a hybrid module model.
 
 ## Bonsai Submitters' responsibilities
 
@@ -92,6 +92,18 @@ DA operations don't require gas, making them free to use. The app still needs to
 ## Timestamp proofs for picking the block number
 
 You might be concerned that a submitter could deceive about which block to submit on, but that's where Bundlr timestamp proofs come into play. In addition, each signature has a deadline that corresponds to the timestamp of an already mined block, rendering the signature invalid if sent. Bundlr enables you to request a timestamp proof that returns the current timestamp while storing it, allowing anyone to verify that the time was generated by them. This becomes our source of truth for determining the appropriate block number to use; we should use the block number closest to the timestamp generated by Bundlr. It's important to note that latency will inevitably occur due to node software, so if it selects a block number and, upon verification, it is one behind, we consider this an acceptable threshold.
+
+## Handling reorgs
+
+A reorg on the EVM chain occurs when the blockchain structure changes, often due to a consensus failure or attack. This can lead to previously confirmed transactions becoming unconfirmed, and vice versa. It has significant security implications, making it crucial to be aware of the potential for reorgs and take measures to mitigate their impact. Developers at Polygon and other organizations working on EVM software are striving to reduce the frequency and depth of reorgs, making the issue less concerning. As a general precaution, waiting before considering a transaction final, much like how centralized exchanges operate, is the safest approach - the longer the wait, the lower the risk of a reorg affecting the transaction. In Bonsai's first beta version, users cannot mix DA actions with EVM on-chain actions, which was implemented intentionally to simplify handling reorgs.
+
+Currently, the validator doesn't recheck proofs once they are validated, as its primary objective is to validate as quickly as possible for the initial proof. However, as we start integrating DA actions with EVM on-chain actions, we will need to incorporate reorg handling and enable the verifier to recheck intelligently.
+
+For now, any reorg handling or rechecking must be performed outside of the validator software. For example, the LENS API also monitors reorgs and re-validates proofs if a reorg affects any DA actions.
+
+If a transaction is part of a reorg and ends up in a different block or not included at all, the proofs should be re-validated using the new blockchain state, ensuring their validity despite the reorg.
+
+As we are not mixing and matching actions we remove a lot of the issues but not all, the edge cases that could cause issues are situations where for example someone sets a dispatcher and then straight away performs an DA action that has the dispatcher sign on their behalf, and then a reorg follows. If the transaction which adds the dispatcher to the profile is not resubmitted or is resubmitted at a higher block number, the proofs would fail. In that case, rerunning the proofs would return a `POTENTIAL_REORG` error which is not "bad" in terms of a submitter doing wrong as they could not of predicted it, you can handle this then as needed. Once we start integrating the cross actions, we will handle such cases within the validator.
 
 ## DA publication metadata
 
@@ -1365,6 +1377,12 @@ async function validateClaim() {
 
   // 13. Check if `publicationId` matches expected ID
   if (!isPublicationIdMatch()) {
+    // 14. Check if it could of been a potential reorg 
+    
+    // if so:
+    return BonsaiValidatorError.POTENTIAL_REORG;
+
+    // if not 
     return BonsaiValidatorError.GENERATED_PUBLICATION_ID_MISMATCH;
   }
 
@@ -1512,6 +1530,11 @@ export enum BonsaiValidatorError {
    * This means the publication submisson was signed by a wallet that is not allowed
    */
   PUBLICATION_SIGNER_NOT_ALLOWED = 'PUBLICATION_SIGNER_NOT_ALLOWED',
+
+  /**
+   * This means the publication submisson could not pass potentional due to a reorg
+   */
+  POTENTIAL_REORG = 'POTENTIAL_REORG',
 
   /**
    * unknown error should not happen but catch all

@@ -50,7 +50,9 @@ export const getDataAvailabilityTransactionsAPI = async (
     .toPromise();
 
   if (!result.data) {
-    throw new Error('No data returned from Bundlr GraphQL API.');
+    throw new Error(
+      'No data returned from Bundlr GraphQL API - normally due to a network drop, will auto retry and 99.9% sort itself out when network is stable again.'
+    );
   }
 
   return result.data.transactions as getDataAvailabilityTransactionsAPIResponse;

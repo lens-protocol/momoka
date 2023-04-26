@@ -65,6 +65,41 @@ export const executeSimulationTransaction = async (
 };
 
 /**
+ * Check if a block hash exists for potential reorgs
+ * @param blockHash - The transaction data to be executed.
+ * @param ethereumNode - The Ethereum node to use for the transaction.
+ * @returns A `DAResult` with the result of the transaction or an error message.
+ */
+export const blockHashExists = async (
+  blockHash: string,
+  ethereumNode: EthereumNode
+): PromiseResult<boolean> => {
+  try {
+    return await retryWithTimeout(
+      async () => {
+        // this returns a full block so can extend typings if you need anything more
+        const block = await JSONRPCWithTimeout<{ transactions: string[] }>(
+          ethereumNode.nodeUrl,
+          JSONRPCMethods.eth_getBlockByHash,
+          [blockHash, false]
+        );
+
+        if (!block) {
+          return success(false);
+        }
+
+        return success(true);
+      },
+      {
+        delayMs: RATE_LIMIT_TIME,
+      }
+    );
+  } catch (_error) {
+    return failure(BonsaiValidatorError.SIMULATION_NODE_COULD_NOT_RUN);
+  }
+};
+
+/**
  * Does this over ethers call as alchemy and some other providers dont like a padding hex number
  * - wont accept 0x01f1a494
  * - will accept 0x1f1a494

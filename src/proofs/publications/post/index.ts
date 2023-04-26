@@ -7,6 +7,7 @@ import { DAPostCreatedEventEmittedResponse } from '../../../data-availability-mo
 import { BonsaiValidatorError } from '../../../data-availability-models/validator-errors';
 import { PostWithSig_DispatcherRequest } from '../../../evm/abi-types/LensHub';
 import {
+  blockHashExists,
   DAlensHubInterface,
   EMPTY_BYTE,
   EthereumNode,
@@ -158,12 +159,23 @@ export const checkDAPost = async (
     log('signature simulation checking failed');
     return failure(simulatedResult.failure);
   }
+
   if (expectedResult.isFailure()) {
     log('expectedResult failed to be fetched');
     return failure(expectedResult.failure);
   }
 
   if (!expectedResult.successResult.eq(simulatedResult.successResult)) {
+    // recheck for `POTENTIAL_REORG`
+    const exists = await blockHashExists(
+      publication.chainProofs.thisPublication.blockHash,
+      ethereumNode
+    );
+    if (!exists) {
+      log('block hash now does not exist this could be a potential reorg');
+      return failure(BonsaiValidatorError.POTENTIAL_REORG);
+    }
+
     log('signature simulation checking failed');
     return failure(BonsaiValidatorError.SIMULATION_FAILED);
   }

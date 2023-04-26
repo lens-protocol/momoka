@@ -231,8 +231,9 @@ export const startDAVerifierNode = async (
 
         await Promise.all([saveEndCursorDb(endCursor!), saveTotalCheckedCountDb(totalChecked)]);
       }
-    } catch (error) {
-      consoleLogWithLensNodeFootprint('Error while checking for new submissions', error);
+    } catch (error: unknown) {
+      const message = (error as Error).message || error;
+      consoleLogWithLensNodeFootprint('Error while checking for new submissions', message);
       await sleep(100);
     }
   });
