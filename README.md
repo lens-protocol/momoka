@@ -71,6 +71,10 @@ Here are diagrams that show how a transaction would look like on Polygon versus 
 
 <img src="./images/tech-comparison.jpg" />
 
+The reason bonsai security is medium and not high is because in theory a submitter could refuse to process transactions from certain users even though validators could do this as well as we only have 1 for now the fix is more. As we increase more submitters this comes down, also the bad submitters could in theory flood the system without any slashing mechanism. This is a problem that will be solved in the future.
+
+We'd like to emphasize that while using Bonsai, you can enjoy the benefits of finality, scalability, and cost-effectiveness. However, there is a slight tradeoff in terms of security, especially until we have many verifiers and submitters in the network. This is similar to what would happen to Ethereum's security if it lost all its validators. It's a tradeoff we're willing to make for now during our beta phase. We firmly believe that the advantages of the DA outweigh the disadvantages, even though we cannot start fully decentralized. Nevertheless, we're committed to working towards that goal with bonsai.
+
 ## Hyperscale
 
 <img src="./images/hyperscale-for-data.jpg" />
@@ -130,6 +134,8 @@ For now, any reorg handling or rechecking must be performed outside of the valid
 If a transaction is part of a reorg and ends up in a different block or not included at all, the proofs should be re-validated using the new blockchain state, ensuring their validity despite the reorg.
 
 As we are not mixing and matching actions we remove a lot of the issues but not all, the edge cases that could cause issues are situations where for example someone sets a dispatcher and then straight away performs an DA action that has the dispatcher sign on their behalf, and then a reorg follows. If the transaction which adds the dispatcher to the profile is not resubmitted or is resubmitted at a higher block number, the proofs would fail. In that case, rerunning the proofs would return a `POTENTIAL_REORG` error which is not "bad" in terms of a submitter doing wrong as they could not of predicted it, you can handle this then as needed. Once we start integrating the cross actions, we will handle such cases within the validator.
+
+A reorg of the blockchain can potentially affect the signing expiry of transactions. In the unlikely scenario of a severe reorg where time goes backwards on a block, it's conceivable that a transaction could be submitted to the chain that you never intended to. While this is a highly improbable edge case, it's essential to be aware of the possibility. As we embark on building the on-chain publications and DA publication connection, we'll delve deeper into these complex topics.
 
 ## Future of Bonsai
 
