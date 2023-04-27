@@ -5,7 +5,7 @@ jest.mock('../input-output/bundlr/get-bundlr-by-id.api');
 jest.mock('../submitters');
 
 import { deepClone } from '../common/helpers';
-import { BonsaiValidatorError } from '../data-availability-models/validator-errors';
+import { MomokaValidatorError } from '../data-availability-models/validator-errors';
 import { postCreatedDelegateArweaveResponse } from './mocks/post/post-created-delegate-arweave-response.mock';
 import { postCreatedWithoutDelegateArweaveResponse } from './mocks/post/post-created-without-delegate-arweave-response.mock';
 import * as sharedMocks from './mocks/shared.mock';
@@ -43,20 +43,20 @@ describe('post', () => {
       test('NO_SIGNATURE_SUBMITTER', async () => {
         sharedMocks.mockImpl__NO_SIGNATURE_SUBMITTER(baseMock);
 
-        await sharedMocks.checkAndValidateDAProof(BonsaiValidatorError.NO_SIGNATURE_SUBMITTER);
+        await sharedMocks.checkAndValidateDAProof(MomokaValidatorError.NO_SIGNATURE_SUBMITTER);
       });
 
       xtest('INVALID_SIGNATURE_SUBMITTER', async () => {
         sharedMocks.mockIsValidSubmitter.mockImplementationOnce(() => false);
 
-        await sharedMocks.checkAndValidateDAProof(BonsaiValidatorError.INVALID_SIGNATURE_SUBMITTER);
+        await sharedMocks.checkAndValidateDAProof(MomokaValidatorError.INVALID_SIGNATURE_SUBMITTER);
       });
 
       test('TIMESTAMP_PROOF_INVALID_SIGNATURE', async () => {
         sharedMocks.mockImpl__TIMESTAMP_PROOF_INVALID_SIGNATURE(baseMock);
 
         await sharedMocks.checkAndValidateDAProof(
-          BonsaiValidatorError.TIMESTAMP_PROOF_INVALID_SIGNATURE
+          MomokaValidatorError.TIMESTAMP_PROOF_INVALID_SIGNATURE
         );
       });
 
@@ -64,39 +64,39 @@ describe('post', () => {
         sharedMocks.mockImpl__TIMESTAMP_PROOF_NOT_SUBMITTER();
 
         await sharedMocks.checkAndValidateDAProof(
-          BonsaiValidatorError.TIMESTAMP_PROOF_NOT_SUBMITTER
+          MomokaValidatorError.TIMESTAMP_PROOF_NOT_SUBMITTER
         );
       });
 
       test('INVALID_EVENT_TIMESTAMP', async () => {
         sharedMocks.mockImpl__INVALID_EVENT_TIMESTAMP(baseMock);
 
-        await sharedMocks.checkAndValidateDAProof(BonsaiValidatorError.INVALID_EVENT_TIMESTAMP);
+        await sharedMocks.checkAndValidateDAProof(MomokaValidatorError.INVALID_EVENT_TIMESTAMP);
       });
 
       xtest('NOT_CLOSEST_BLOCK', async () => {
-        await sharedMocks.checkAndValidateDAProof(BonsaiValidatorError.NOT_CLOSEST_BLOCK);
+        await sharedMocks.checkAndValidateDAProof(MomokaValidatorError.NOT_CLOSEST_BLOCK);
       });
 
       test('INVALID_POINTER_SET_NOT_NEEDED', async () => {
         sharedMocks.mockImpl__INVALID_POINTER_SET(baseMock, 'mocked');
 
         await sharedMocks.checkAndValidateDAProof(
-          BonsaiValidatorError.INVALID_POINTER_SET_NOT_NEEDED
+          MomokaValidatorError.INVALID_POINTER_SET_NOT_NEEDED
         );
       });
 
       test('SIMULATION_FAILED - trying to submit a tx with a profile id not owned', async () => {
         sharedMocks.mockImpl__SIMULATION_FAILED_BAD_PROFILE_ID(baseMock);
 
-        await sharedMocks.checkAndValidateDAProof(BonsaiValidatorError.SIMULATION_FAILED);
+        await sharedMocks.checkAndValidateDAProof(MomokaValidatorError.SIMULATION_FAILED);
       });
 
       test('INVALID_FORMATTED_TYPED_DATA', async () => {
         sharedMocks.mockImpl__INVALID_FORMATTED_TYPED_DATA(baseMock);
 
         await sharedMocks.checkAndValidateDAProof(
-          BonsaiValidatorError.INVALID_FORMATTED_TYPED_DATA
+          MomokaValidatorError.INVALID_FORMATTED_TYPED_DATA
         );
       });
 
@@ -111,7 +111,7 @@ describe('post', () => {
           };
         });
 
-        await sharedMocks.checkAndValidateDAProof(BonsaiValidatorError.EVENT_MISMATCH);
+        await sharedMocks.checkAndValidateDAProof(MomokaValidatorError.EVENT_MISMATCH);
       });
 
       test('EVENT_MISMATCH - profile id does not match typed data', async () => {
@@ -125,7 +125,7 @@ describe('post', () => {
           };
         });
 
-        await sharedMocks.checkAndValidateDAProof(BonsaiValidatorError.EVENT_MISMATCH);
+        await sharedMocks.checkAndValidateDAProof(MomokaValidatorError.EVENT_MISMATCH);
       });
 
       test('EVENT_MISMATCH - contentURI does not match typed data', async () => {
@@ -139,7 +139,7 @@ describe('post', () => {
           };
         });
 
-        await sharedMocks.checkAndValidateDAProof(BonsaiValidatorError.EVENT_MISMATCH);
+        await sharedMocks.checkAndValidateDAProof(MomokaValidatorError.EVENT_MISMATCH);
       });
 
       test('EVENT_MISMATCH - collectModule does not match typed data', async () => {
@@ -153,7 +153,7 @@ describe('post', () => {
           };
         });
 
-        await sharedMocks.checkAndValidateDAProof(BonsaiValidatorError.EVENT_MISMATCH);
+        await sharedMocks.checkAndValidateDAProof(MomokaValidatorError.EVENT_MISMATCH);
       });
 
       test('EVENT_MISMATCH - collectModuleReturnData is not empty bytes', async () => {
@@ -167,7 +167,7 @@ describe('post', () => {
           };
         });
 
-        await sharedMocks.checkAndValidateDAProof(BonsaiValidatorError.EVENT_MISMATCH);
+        await sharedMocks.checkAndValidateDAProof(MomokaValidatorError.EVENT_MISMATCH);
       });
 
       test('EVENT_MISMATCH - referenceModule does not match typed data', async () => {
@@ -181,7 +181,7 @@ describe('post', () => {
           };
         });
 
-        await sharedMocks.checkAndValidateDAProof(BonsaiValidatorError.EVENT_MISMATCH);
+        await sharedMocks.checkAndValidateDAProof(MomokaValidatorError.EVENT_MISMATCH);
       });
 
       test('EVENT_MISMATCH - referenceModuleReturnData is not empty bytes', async () => {
@@ -195,7 +195,7 @@ describe('post', () => {
           };
         });
 
-        await sharedMocks.checkAndValidateDAProof(BonsaiValidatorError.EVENT_MISMATCH);
+        await sharedMocks.checkAndValidateDAProof(MomokaValidatorError.EVENT_MISMATCH);
       });
 
       xtest('SIMULATION_NODE_COULD_NOT_RUN', async () => {});
@@ -235,20 +235,20 @@ describe('post', () => {
       test('NO_SIGNATURE_SUBMITTER', async () => {
         sharedMocks.mockImpl__NO_SIGNATURE_SUBMITTER(baseMock);
 
-        await sharedMocks.checkAndValidateDAProof(BonsaiValidatorError.NO_SIGNATURE_SUBMITTER);
+        await sharedMocks.checkAndValidateDAProof(MomokaValidatorError.NO_SIGNATURE_SUBMITTER);
       });
 
       xtest('INVALID_SIGNATURE_SUBMITTER', async () => {
         sharedMocks.mockIsValidSubmitter.mockImplementationOnce(() => false);
 
-        await sharedMocks.checkAndValidateDAProof(BonsaiValidatorError.INVALID_SIGNATURE_SUBMITTER);
+        await sharedMocks.checkAndValidateDAProof(MomokaValidatorError.INVALID_SIGNATURE_SUBMITTER);
       });
 
       test('TIMESTAMP_PROOF_INVALID_SIGNATURE', async () => {
         sharedMocks.mockImpl__TIMESTAMP_PROOF_INVALID_SIGNATURE(baseMock);
 
         await sharedMocks.checkAndValidateDAProof(
-          BonsaiValidatorError.TIMESTAMP_PROOF_INVALID_SIGNATURE
+          MomokaValidatorError.TIMESTAMP_PROOF_INVALID_SIGNATURE
         );
       });
 
@@ -256,39 +256,39 @@ describe('post', () => {
         sharedMocks.mockImpl__TIMESTAMP_PROOF_NOT_SUBMITTER();
 
         await sharedMocks.checkAndValidateDAProof(
-          BonsaiValidatorError.TIMESTAMP_PROOF_NOT_SUBMITTER
+          MomokaValidatorError.TIMESTAMP_PROOF_NOT_SUBMITTER
         );
       });
 
       test('INVALID_EVENT_TIMESTAMP', async () => {
         sharedMocks.mockImpl__INVALID_EVENT_TIMESTAMP(baseMock);
 
-        await sharedMocks.checkAndValidateDAProof(BonsaiValidatorError.INVALID_EVENT_TIMESTAMP);
+        await sharedMocks.checkAndValidateDAProof(MomokaValidatorError.INVALID_EVENT_TIMESTAMP);
       });
 
       xtest('NOT_CLOSEST_BLOCK', async () => {
-        await sharedMocks.checkAndValidateDAProof(BonsaiValidatorError.NOT_CLOSEST_BLOCK);
+        await sharedMocks.checkAndValidateDAProof(MomokaValidatorError.NOT_CLOSEST_BLOCK);
       });
 
       test('INVALID_POINTER_SET_NOT_NEEDED', async () => {
         sharedMocks.mockImpl__INVALID_POINTER_SET(baseMock, 'mocked');
 
         await sharedMocks.checkAndValidateDAProof(
-          BonsaiValidatorError.INVALID_POINTER_SET_NOT_NEEDED
+          MomokaValidatorError.INVALID_POINTER_SET_NOT_NEEDED
         );
       });
 
       test('SIMULATION_FAILED - trying to submit a tx with a profile id not owned', async () => {
         sharedMocks.mockImpl__SIMULATION_FAILED_BAD_PROFILE_ID(baseMock);
 
-        await sharedMocks.checkAndValidateDAProof(BonsaiValidatorError.SIMULATION_FAILED);
+        await sharedMocks.checkAndValidateDAProof(MomokaValidatorError.SIMULATION_FAILED);
       });
 
       test('INVALID_FORMATTED_TYPED_DATA', async () => {
         sharedMocks.mockImpl__INVALID_FORMATTED_TYPED_DATA(baseMock);
 
         await sharedMocks.checkAndValidateDAProof(
-          BonsaiValidatorError.INVALID_FORMATTED_TYPED_DATA
+          MomokaValidatorError.INVALID_FORMATTED_TYPED_DATA
         );
       });
 
@@ -303,7 +303,7 @@ describe('post', () => {
           };
         });
 
-        await sharedMocks.checkAndValidateDAProof(BonsaiValidatorError.EVENT_MISMATCH);
+        await sharedMocks.checkAndValidateDAProof(MomokaValidatorError.EVENT_MISMATCH);
       });
 
       test('EVENT_MISMATCH - profile id does not match typed data', async () => {
@@ -317,7 +317,7 @@ describe('post', () => {
           };
         });
 
-        await sharedMocks.checkAndValidateDAProof(BonsaiValidatorError.EVENT_MISMATCH);
+        await sharedMocks.checkAndValidateDAProof(MomokaValidatorError.EVENT_MISMATCH);
       });
 
       test('EVENT_MISMATCH - contentURI does not match typed data', async () => {
@@ -331,7 +331,7 @@ describe('post', () => {
           };
         });
 
-        await sharedMocks.checkAndValidateDAProof(BonsaiValidatorError.EVENT_MISMATCH);
+        await sharedMocks.checkAndValidateDAProof(MomokaValidatorError.EVENT_MISMATCH);
       });
 
       test('EVENT_MISMATCH - collectModule does not match typed data', async () => {
@@ -345,7 +345,7 @@ describe('post', () => {
           };
         });
 
-        await sharedMocks.checkAndValidateDAProof(BonsaiValidatorError.EVENT_MISMATCH);
+        await sharedMocks.checkAndValidateDAProof(MomokaValidatorError.EVENT_MISMATCH);
       });
 
       test('EVENT_MISMATCH - collectModuleReturnData is not empty bytes', async () => {
@@ -359,7 +359,7 @@ describe('post', () => {
           };
         });
 
-        await sharedMocks.checkAndValidateDAProof(BonsaiValidatorError.EVENT_MISMATCH);
+        await sharedMocks.checkAndValidateDAProof(MomokaValidatorError.EVENT_MISMATCH);
       });
 
       test('EVENT_MISMATCH - referenceModule does not match typed data', async () => {
@@ -373,7 +373,7 @@ describe('post', () => {
           };
         });
 
-        await sharedMocks.checkAndValidateDAProof(BonsaiValidatorError.EVENT_MISMATCH);
+        await sharedMocks.checkAndValidateDAProof(MomokaValidatorError.EVENT_MISMATCH);
       });
 
       test('EVENT_MISMATCH - referenceModuleReturnData is not empty bytes', async () => {
@@ -387,7 +387,7 @@ describe('post', () => {
           };
         });
 
-        await sharedMocks.checkAndValidateDAProof(BonsaiValidatorError.EVENT_MISMATCH);
+        await sharedMocks.checkAndValidateDAProof(MomokaValidatorError.EVENT_MISMATCH);
       });
 
       xtest('SIMULATION_NODE_COULD_NOT_RUN', async () => {});

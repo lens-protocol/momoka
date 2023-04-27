@@ -5,7 +5,7 @@ import {
   TypedDataDomain,
   TypedDataField,
 } from '../../data-availability-models/data-availability-typed-data';
-import { BonsaiValidatorError } from '../../data-availability-models/validator-errors';
+import { MomokaValidatorError } from '../../data-availability-models/validator-errors';
 
 /**
  * Verifies the provided signature corresponds to the given typed data and returns the address of the signer.
@@ -13,7 +13,7 @@ import { BonsaiValidatorError } from '../../data-availability-models/validator-e
  * @param types The typed data types.
  * @param value The typed data value.
  * @param signature The signature to verify.
- * @returns A `success` result with the signer's address if the signature is valid, or a `failure` result with a `BonsaiValidatorError` if there's an error during the verification process.
+ * @returns A `success` result with the signer's address if the signature is valid, or a `failure` result with a `MomokaValidatorError` if there's an error during the verification process.
             turned into a promise as its minimum CPU intensive
  */
 export const whoSignedTypedData = (
@@ -27,6 +27,6 @@ export const whoSignedTypedData = (
     const address = utils.verifyTypedData(domain, types, value, signature);
     return Promise.resolve(success(address));
   } catch {
-    return Promise.resolve(failure(BonsaiValidatorError.INVALID_FORMATTED_TYPED_DATA));
+    return Promise.resolve(failure(MomokaValidatorError.INVALID_FORMATTED_TYPED_DATA));
   }
 };

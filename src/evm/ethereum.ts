@@ -4,7 +4,7 @@ import { Interface } from 'ethers/lib/utils';
 import { Deployment, Environment, environmentToLensHubContract } from '../common/environment';
 import { retryWithTimeout } from '../common/helpers';
 import { PromiseResult, failure, success } from '../data-availability-models/da-result';
-import { BonsaiValidatorError } from '../data-availability-models/validator-errors';
+import { MomokaValidatorError } from '../data-availability-models/validator-errors';
 import { JSONRPCWithTimeout, RATE_LIMIT_TIME } from '../input-output/json-rpc-with-timeout';
 import { LENS_HUB_ABI } from './contract-lens/lens-hub-contract-abi';
 import { JSONRPCMethods } from './jsonrpc-methods';
@@ -60,7 +60,7 @@ export const executeSimulationTransaction = async (
       }
     );
   } catch (_error) {
-    return failure(BonsaiValidatorError.SIMULATION_NODE_COULD_NOT_RUN);
+    return failure(MomokaValidatorError.SIMULATION_NODE_COULD_NOT_RUN);
   }
 };
 
@@ -95,7 +95,7 @@ export const blockHashExists = async (
       }
     );
   } catch (_error) {
-    return failure(BonsaiValidatorError.SIMULATION_NODE_COULD_NOT_RUN);
+    return failure(MomokaValidatorError.SIMULATION_NODE_COULD_NOT_RUN);
   }
 };
 
@@ -243,7 +243,7 @@ export const getOnChainProfileDetails = async (
       }
     );
   } catch (_error) {
-    return failure(BonsaiValidatorError.DATA_CANT_BE_READ_FROM_NODE);
+    return failure(MomokaValidatorError.DATA_CANT_BE_READ_FROM_NODE);
   }
 };
 
@@ -331,6 +331,6 @@ export const getLensPubCount = async (
       }
     );
   } catch (_error) {
-    return failure(BonsaiValidatorError.DATA_CANT_BE_READ_FROM_NODE);
+    return failure(MomokaValidatorError.DATA_CANT_BE_READ_FROM_NODE);
   }
 };

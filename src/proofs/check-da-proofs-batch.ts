@@ -18,7 +18,7 @@ import {
   DAStructurePublication,
   PublicationTypedData,
 } from '../data-availability-models/publications/data-availability-structure-publication';
-import { BonsaiValidatorError } from '../data-availability-models/validator-errors';
+import { MomokaValidatorError } from '../data-availability-models/validator-errors';
 import { anvilForkFrom, getAnvilCurrentBlockNumber } from '../evm/anvil';
 import { EthereumNode } from '../evm/ethereum';
 import {
@@ -159,7 +159,7 @@ const getBundlrBulkTxs = async (txIds: string[]): Promise<BundlrBulkTxsResponse>
 export interface ProofResult {
   txId: string;
   success: boolean;
-  validatorError?: BonsaiValidatorError;
+  validatorError?: MomokaValidatorError;
 }
 
 /**
@@ -211,7 +211,7 @@ const processPublication = async (
     saveTxDb(txId, {
       proofTxId: txId,
       success: false,
-      failureReason: BonsaiValidatorError.UNKNOWN,
+      failureReason: MomokaValidatorError.UNKNOWN,
       dataAvailabilityResult: undefined,
       extraErrorInfo: typeof e === 'string' ? e : e.message || undefined,
     });
@@ -219,7 +219,7 @@ const processPublication = async (
     return {
       txId,
       success: false,
-      validatorError: BonsaiValidatorError.UNKNOWN,
+      validatorError: MomokaValidatorError.UNKNOWN,
     };
   }
 };

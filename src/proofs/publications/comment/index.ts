@@ -7,7 +7,7 @@ import {
   DAStructurePublication,
 } from '../../../data-availability-models/publications/data-availability-structure-publication';
 import { DACommentCreatedEventEmittedResponse } from '../../../data-availability-models/publications/data-availability-structure-publications-events';
-import { BonsaiValidatorError } from '../../../data-availability-models/validator-errors';
+import { MomokaValidatorError } from '../../../data-availability-models/validator-errors';
 import { EMPTY_BYTE, EthereumNode, getOnChainProfileDetails } from '../../../evm/ethereum';
 import { DaProofChecker } from '../../da-proof-checker';
 import { whoSignedTypedData } from '../publication.base';
@@ -36,7 +36,7 @@ const crossCheckEvent = async (
 
   // check the pub count makes sense from the block!
   if (BigNumber.from(pubCountAtBlock).add(1).toHexString() !== event.pubId) {
-    return await Promise.resolve(failure(BonsaiValidatorError.EVENT_MISMATCH));
+    return await Promise.resolve(failure(MomokaValidatorError.EVENT_MISMATCH));
   }
 
   log('pub count at block is correct');
@@ -54,7 +54,7 @@ const crossCheckEvent = async (
     typedData.value.collectModuleInitData !== EMPTY_BYTE ||
     typedData.value.referenceModuleInitData !== EMPTY_BYTE
   ) {
-    return await Promise.resolve(failure(BonsaiValidatorError.EVENT_MISMATCH));
+    return await Promise.resolve(failure(MomokaValidatorError.EVENT_MISMATCH));
   }
 
   log('cross check event is complete');
@@ -82,11 +82,11 @@ export const checkDAComment = async (
   log('check DA comment');
 
   if (!publication.chainProofs.pointer) {
-    return failure(BonsaiValidatorError.PUBLICATION_NO_POINTER);
+    return failure(MomokaValidatorError.PUBLICATION_NO_POINTER);
   }
 
   if (publication.chainProofs.pointer.type !== DAPublicationPointerType.ON_DA) {
-    return failure(BonsaiValidatorError.PUBLICATION_NONE_DA);
+    return failure(MomokaValidatorError.PUBLICATION_NONE_DA);
   }
 
   if (verifyPointer) {
@@ -103,7 +103,7 @@ export const checkDAComment = async (
       }
     );
     if (pointerResult.isFailure()) {
-      return failure(BonsaiValidatorError.POINTER_FAILED_VERIFICATION);
+      return failure(MomokaValidatorError.POINTER_FAILED_VERIFICATION);
     }
   }
 
@@ -138,11 +138,11 @@ export const checkDAComment = async (
 
   if (details.sigNonce !== typedData.value.nonce) {
     log('nonce mismatch', { expected: details.sigNonce, actual: typedData.value.nonce });
-    return failure(BonsaiValidatorError.PUBLICATION_NONCE_INVALID);
+    return failure(MomokaValidatorError.PUBLICATION_NONCE_INVALID);
   }
 
   if (details.dispatcherAddress !== whoSigned && details.ownerOfAddress !== whoSigned) {
-    return failure(BonsaiValidatorError.PUBLICATION_SIGNER_NOT_ALLOWED);
+    return failure(MomokaValidatorError.PUBLICATION_SIGNER_NOT_ALLOWED);
   }
 
   const eventResult = await crossCheckEvent(

@@ -1,4 +1,4 @@
-# Bonsai
+# Momoka
                                                                                                                      
 <img src="./images/logo.png" />                                                                                                                                                                                                                                       
                                                                                                                 
@@ -6,26 +6,26 @@
 
 We would like to emphasize that this project is currently in its beta phase and incorporates new, innovative technology. As with any cutting-edge solution, there may be potential challenges or undiscovered issues that could arise during its initial stages. We are committed to continually refining and improving our offering, and we appreciate your understanding and patience as we work diligently to perfect this technology. Please feel free to provide feedback or report any issues, as your input is invaluable in helping us enhance the user experience and overall functionality of our project.
 
-# Bonsai explorer
+# Momoka explorer
 
-You can explore all bonsai transactions on the explorer [here](https://bonsai.lens.xyz). It is also open-source https://github.com/lens-protocol/bonsai-explorer.
+You can explore all momoka transactions on the explorer [here](https://momoka.lens.xyz). It is also open-source https://github.com/lens-protocol/momoka-explorer.
 
-<img src="./images/bonsai-explorer.jpg" />
+<img src="./images/momoka-explorer.jpg" />
 
-# Bonsai Verifier
+# Momoka Verifier
 
-The Bonsai Verifier enables you to operate a trustless verifier node that validates LENS DA publications in real-time. Additionally, it can serve as an indexer, allowing you to stream and index the data yourself. This open-source solution relies exclusively on software that you can run independently, without any dependency on LENS. This ensures that even if LENS were to cease operation, you would retain access to your content, maintain proof of ownership, and continue to utilize it, all thanks to a decentralized data availability storage layer.
+The Momoka Verifier enables you to operate a trustless verifier node that validates LENS DA publications in real-time. Additionally, it can serve as an indexer, allowing you to stream and index the data yourself. This open-source solution relies exclusively on software that you can run independently, without any dependency on LENS. This ensures that even if LENS were to cease operation, you would retain access to your content, maintain proof of ownership, and continue to utilize it, all thanks to a decentralized data availability storage layer.
 
 For information on how to run this software, please refer to the [How to run](#running) section.
 
-## What is Bonsai technical definition? 
+## What is Momoka technical definition? 
 
-Bonsai, a term we've due to lens brand, refers to an Optimistic L3 - a hybrid by taking best from both - Optimistic Rollups and L3 technologies. We've chosen this approach for several reasons:
+Momoka, a term we've due to lens brand, refers to an Optimistic L3 - a hybrid by taking best from both - Optimistic Rollups and L3 technologies. We've chosen this approach for several reasons:
 
 - Optimistic Rollup is a technique that processes transactions off-chain for enhanced scalability and reduced fees. It typically compresses these transactions back to the main chain, but we've excluded this final step in our implementation.
 - L3, while having various definitions, generally involves technology built on top of Layer 2 (L2). Despite some considering Polygon a combination of side-chain and L2, we utilize the Polygon EVM chain to enable transaction proofs, improving the user experience (UX/UI) and overall experience for LENS users. This is why we designate it as L3.
 
-We describe Bonsai long form name as an "Optimistic Hybrid-settlement L3" because, in most cases, settlement refers to both storage and verification. However, in this instance, the storage layer is provided by the Data Availability (DA) provider, and the settlement, or proof verification, is conducted using the Polygon chain.
+We describe Momoka long form name as an "Optimistic Hybrid-settlement L3" because, in most cases, settlement refers to both storage and verification. However, in this instance, the storage layer is provided by the Data Availability (DA) provider, and the settlement, or proof verification, is conducted using the Polygon chain.
 
 As we continue to refine this technology, the technical name may evolve, but we wanted to clarify the rationale behind the current terminology.
 
@@ -55,7 +55,7 @@ The advantage of this approach is that the data is stored on a decentralized lay
 
 This approach allows LENS to scale to a lot higher TPS, which is currently unattainable with an EVM chain, while also providing a more cost-effective solution. This can be achieved without compromising the core ownership of the social graph, and the indexing process remains familiar for app developers. Using this system is optional; those who prefer can continue to store everything on Polygon. However, if a publication doesn't require the power of a trustless execution layer, there's no need to use the EVM state.
 
-## Bonsai vs polygon side by side
+## Momoka vs polygon side by side
 
 Here are diagrams that show how a transaction would look like on Polygon versus a transaction using the DA layer. These diagrams are meant to provide a simplified high-level overview of how the transactions work, while more detailed information is provided below with all the necessary technical details.
 
@@ -63,47 +63,47 @@ Here are diagrams that show how a transaction would look like on Polygon versus 
 
 <img src="./images/current-polygon-flow.jpg" />
 
-### Bonsai
+### Momoka
 
-<img src="./images/bonsai-flow.jpg" />
+<img src="./images/momoka-flow.jpg" />
 
 ## Comparison
 
 <img src="./images/tech-comparison.jpg" />
 
-The reason bonsai security is medium and not high is because in theory a submitter could refuse to process transactions from certain users even though validators could do this as well as we only have 1 for now the fix is more. As we increase more submitters this comes down, also the bad submitters could in theory flood the system without any slashing mechanism. This is a problem that will be solved in the future.
+The reason momoka security is medium and not high is because in theory a submitter could refuse to process transactions from certain users even though validators could do this as well as we only have 1 for now the fix is more. As we increase more submitters this comes down, also the bad submitters could in theory flood the system without any slashing mechanism. This is a problem that will be solved in the future.
 
-We'd like to emphasize that while using Bonsai, you can enjoy the benefits of finality, scalability, and cost-effectiveness. However, there is a slight tradeoff in terms of security, especially until we have many verifiers and submitters in the network. This is similar to what would happen to Ethereum's security if it lost all its validators. It's a tradeoff we're willing to make for now during our beta phase. We firmly believe that the advantages of the DA outweigh the disadvantages, even though we cannot start fully decentralized. Nevertheless, we're committed to working towards that goal with bonsai.
+We'd like to emphasize that while using Momoka, you can enjoy the benefits of finality, scalability, and cost-effectiveness. However, there is a slight tradeoff in terms of security, especially until we have many verifiers and submitters in the network. This is similar to what would happen to Ethereum's security if it lost all its validators. It's a tradeoff we're willing to make for now during our beta phase. We firmly believe that the advantages of the DA outweigh the disadvantages, even though we cannot start fully decentralized. Nevertheless, we're committed to working towards that goal with momoka.
 
 ## Hyperscale
 
 <img src="./images/hyperscale-for-data.jpg" />
 
-## Bonsai Submitters
+## Momoka Submitters
 
 To maintain trust, submitters must be held accountable for their actions and face potential penalties for misconduct. Initially, the submitter whitelist will consist of a single address owned by LENS. As the approach is proven, the system can be expanded to allow anyone to become a submitter, with incentives for good behavior and penalties for bad actors. If submitters have nothing to lose, they could flood the system with invalid submissions, overwhelming verifiers and causing delays. During the beta phase, LENS will be responsible for correcting any errors, with bug bounties planned for the post-beta period. Ultimately, the goal is to have multiple submitters contributing to the system. It's important to note that certain errors, such as `UNKNOWN`, `CAN_NOT_CONNECT_TO_BUNDLR`, `BLOCK_CANT_BE_READ_FROM_NODE`, `DATA_CANT_BE_READ_FROM_NODE`, and `SIMULATION_NODE_COULD_NOT_RUN`, `POTENTIAL_REORG` are related to third-party software issues and not considered critical verifier errors. The verifier will retry these errors later to see if they still pass. Over time, the entire system could become decentralized. For now, this beta approach represents the first attempt at scaling using a hybrid module model.
 
-### Bonsai Submitters' responsibilities
+### Momoka Submitters' responsibilities
 
 Submitters are responsible for validating, building up DA metadata, and submitting it to Arweave/Bundlr. After generating proofs with the DA submission, the data is uploaded to Arweave via Bundlr, with an instantaneous response. The submitter must provide proofs that anyone can contest. Verifier software listens for DA publications sent from whitelisted submitter addresses and verifies their validity.
 
-### Bonsai Submitter flow
+### Momoka Submitter flow
 
 The flow diagram shows the submitter flows in detail; the first submitter will be within the LENS API to allow for easy integration for all. 
 
 <img src="./images/submitter-flow.jpg" />
 
-### Bonsai Future of decentralised submitters
+### Momoka Future of decentralised submitters
 
 This is a rough look at how this could work in the future in a trustless manner. This is not the final solution but a rough idea of how it could work on a very high-level vision.
 
 <img src="./images/decentralized-submitters.jpg" />
 
-## Bonsai Verifiers
+## Momoka Verifiers
 
 Verifiers are tasked with monitoring DA publications from submitters and confirming their validity. They must follow specific criteria when evaluating incoming publications, with the primary goal of ensuring the submitter is truthful. Anyone can run a verifier using open-source software and a few commands. The verifier utilizes LevelDB for quick storage of passed results. The code has the capability to use a forked archive node with Foundry's `anvil` for local machine execution. However, for optimal speed, it is recommended to use an archive node directly (Alchemy is suggested but not required). All that's needed to run a verifier is an archive node.
 
-## Bonsai Current limitations with DA publications
+## Momoka Current limitations with DA publications
 
 - DA publications must use the `RevertCollectModule` and no `ReferenceModule`. This will be addressed in a future release.
 - For now, DA comments can only be added to other DA publications; they cannot be mixed. This limitation will be explored after the v1 launch.
@@ -125,7 +125,7 @@ You might be concerned that a submitter could deceive about which block to submi
 
 ## Handling reorgs
 
-A reorg on the EVM chain occurs when the blockchain structure changes, often due to a consensus failure or attack. This can lead to previously confirmed transactions becoming unconfirmed, and vice versa. It has significant security implications, making it crucial to be aware of the potential for reorgs and take measures to mitigate their impact. Developers at Polygon and other organizations working on EVM software are striving to reduce the frequency and depth of reorgs, making the issue less concerning. As a general precaution, waiting before considering a transaction final, much like how centralized exchanges operate, is the safest approach - the longer the wait, the lower the risk of a reorg affecting the transaction. In Bonsai's first beta version, users cannot mix DA actions with EVM on-chain actions, which was implemented intentionally to simplify handling reorgs.
+A reorg on the EVM chain occurs when the blockchain structure changes, often due to a consensus failure or attack. This can lead to previously confirmed transactions becoming unconfirmed, and vice versa. It has significant security implications, making it crucial to be aware of the potential for reorgs and take measures to mitigate their impact. Developers at Polygon and other organizations working on EVM software are striving to reduce the frequency and depth of reorgs, making the issue less concerning. As a general precaution, waiting before considering a transaction final, much like how centralized exchanges operate, is the safest approach - the longer the wait, the lower the risk of a reorg affecting the transaction. In Momoka's first beta version, users cannot mix DA actions with EVM on-chain actions, which was implemented intentionally to simplify handling reorgs.
 
 Currently, the validator doesn't recheck proofs once they are validated, as its primary objective is to validate as quickly as possible for the initial proof. However, as we start integrating DA actions with EVM on-chain actions, we will need to incorporate reorg handling and enable the verifier to recheck intelligently.
 
@@ -137,11 +137,11 @@ As we are not mixing and matching actions we remove a lot of the issues but not 
 
 A reorg of the blockchain can potentially affect the signing expiry of transactions. In the unlikely scenario of a severe reorg where time goes backwards on a block, it's conceivable that a transaction could be submitted to the chain that you never intended to. While this is a highly improbable edge case, it's essential to be aware of the possibility. As we embark on building the on-chain publications and DA publication connection, we'll delve deeper into these complex topics.
 
-## Future of Bonsai
+## Future of Momoka
 
 As we said above this is very much in BETA and as we learn, shape and grow the solution we envison the architecture will end up looking something like this, with decentralised submitters and verifiers.
 
-<img src="./images/bonsai-network.jpg" />
+<img src="./images/momoka-network.jpg" />
 
 ## DA publication metadata
 
@@ -1338,44 +1338,44 @@ async function validateClaim() {
 
   // 2. Check if `signature` is defined
   if (!signature) {
-    return BonsaiValidatorError.NO_SIGNATURE_SUBMITTER;
+    return MomokaValidatorError.NO_SIGNATURE_SUBMITTER;
   }
 
   // 3. Verify `signature` with `metadata`
   if (!verifySignature(signature, metadata)) {
-    return BonsaiValidatorError.INVALID_SIGNATURE_SUBMITTER;
+    return MomokaValidatorError.INVALID_SIGNATURE_SUBMITTER;
   }
 
   // 4. Check timestamp proofs with Bundlr
   if (!await checkTimestampProofs()) {
-    return BonsaiValidatorError.TIMESTAMP_PROOF_INVALID_SIGNATURE;
+    return MomokaValidatorError.TIMESTAMP_PROOF_INVALID_SIGNATURE;
   }
 
   // 5. Check if timestamp proofs submitter is valid
   if (!isValidTimestampProofsSubmitter()) {
-    return BonsaiValidatorError.TIMESTAMP_PROOF_INVALID_SUBMITTER;
+    return MomokaValidatorError.TIMESTAMP_PROOF_INVALID_SUBMITTER;
   }
 
   // 6. Check if event `timestamp` equals `blockTimestamp`
   if (eventTimestamp !== blockTimestamp) {
-    return BonsaiValidatorError.INVALID_EVENT_TIMESTAMP;
+    return MomokaValidatorError.INVALID_EVENT_TIMESTAMP;
   }
 
   // 7. Check if block number is closest to timestamp proofs
   if (!isClosestBlock()) {
-    return BonsaiValidatorError.NOT_CLOSEST_BLOCK;
+    return MomokaValidatorError.NOT_CLOSEST_BLOCK;
   }
 
   // 8. Check if chain signature has already been used
   if (!chainSignatureAlreadyUsed()) {
-    return BonsaiValidatorError.CHAIN_SIGNATURE_ALREADY_USED;
+    return MomokaValidatorError.CHAIN_SIGNATURE_ALREADY_USED;
   }
 
   // 9. Check if pointer is defined
   if (isPost() && pointer) {
-    return BonsaiValidatorError.INVALID_POINTER_SET_NOT_NEEDED;
+    return MomokaValidatorError.INVALID_POINTER_SET_NOT_NEEDED;
   } else if (!pointer && (isMirror() || isComment())) {
-    return BonsaiValidatorError.INVALID_POINTER_NOT_SET;
+    return MomokaValidatorError.INVALID_POINTER_NOT_SET;
   }
 
   // 9.1. Check pointer type (if defined)
@@ -1391,31 +1391,31 @@ async function validateClaim() {
 
   // 11. Check if formatted typed data is valid
   if (!isValidFormattedTypedData()) {
-    return BonsaiValidatorError.INVALID_FORMATTED_TYPED_DATA;
+    return MomokaValidatorError.INVALID_FORMATTED_TYPED_DATA;
   }
 
   // 12a. If `POST`, simulate transaction using eth_call
   if (isPost()) {
     const simulationResult = await simulateTransaction();
     if (simulationResult === 'nodeError') {
-      return BonsaiValidatorError.SIMULATION_NODE_COULD_NOT_RUN;
+      return MomokaValidatorError.SIMULATION_NODE_COULD_NOT_RUN;
     } else if (simulationResult === 'failed') {
-      return BonsaiValidatorError.SIMULATION_FAILED;
+      return MomokaValidatorError.SIMULATION_FAILED;
     }
   }
   // 12b. If `COMMENT` or `MIRROR`, perform additional checks
   else {
     if (!isValidPublicationNonce()) {
-      return BonsaiValidatorError.PUBLICATION_NONCE_INVALID;
+      return MomokaValidatorError.PUBLICATION_NONCE_INVALID;
     }
     if (!isPublicationSignerAllowed()) {
-      return BonsaiValidatorError.PUBLICATION_SIGNER_NOT_ALLOWED;
+      return MomokaValidatorError.PUBLICATION_SIGNER_NOT_ALLOWED;
     }
   }
 
   // 13. Cross-check typed data values with `event`
   if (!isEventMatchingTypedData()) {
-    return BonsaiValidatorError.EVENT_MISMATCH;
+    return MomokaValidatorError.EVENT_MISMATCH;
   }
 
   // 14. Check if `publicationId` matches expected ID
@@ -1423,10 +1423,10 @@ async function validateClaim() {
     // 15. Check if it could of been a potential reorg 
     
     // if so:
-    return BonsaiValidatorError.POTENTIAL_REORG;
+    return MomokaValidatorError.POTENTIAL_REORG;
 
     // if not 
-    return BonsaiValidatorError.GENERATED_PUBLICATION_ID_MISMATCH;
+    return MomokaValidatorError.GENERATED_PUBLICATION_ID_MISMATCH;
   }
 
   // all validated!
@@ -1440,7 +1440,7 @@ At this point, you have done all the checks needed, and this is a valid submissi
 The summary in the code should explain what is being checked for and what it would fail out if it doesn't match. Below is the full list of error cases
 
 ```ts
-export enum BonsaiValidatorError {
+export enum MomokaValidatorError {
   /**
    * This means the main signature has not been attached to the payload
    */
@@ -1608,19 +1608,19 @@ The default concurrency is 100, which typically requires a paid archive node. If
 You can install it globally: 
 
 ```bash
-$ npm i @lens-protocol/bonsai -g
+$ npm i @lens-protocol/momoka -g
 ```
 
 then you can just run:
 
 ```bash
-$ bonsai --node 'YOUR_NODE' --environment='MUMBAI|POLYGON' --concurrency=100 --fromHead=false
+$ momoka --node 'YOUR_NODE' --environment='MUMBAI|POLYGON' --concurrency=100 --fromHead=false
 ```
 
 you can also just run with npx:
 
 ```bash
-$ npx bonsai --node 'YOUR_NODE' --environment='MUMBAI|POLYGON' --concurrency=100 --fromHead=false
+$ npx momoka --node 'YOUR_NODE' --environment='MUMBAI|POLYGON' --concurrency=100 --fromHead=false
 ```
 
 ### Parameter meanings
@@ -1635,7 +1635,7 @@ $ npx bonsai --node 'YOUR_NODE' --environment='MUMBAI|POLYGON' --concurrency=100
 This is a written in node, and this means it can be run on the client as well as a server; it won't use the DB on the client but can mean you can run proof checks in runtime, which is super powerful. Also, you may which to monitor this on your server to index stuff as it comes in.
 
 ```bash
-$ npm i @lens-protocol/bonsai
+$ npm i @lens-protocol/momoka
 ```
 
 <b>Do not use if you do not know what you are doing the basic config works for all production apps</b>
@@ -1644,16 +1644,16 @@ Please note if you wish to use a different deployment then `PRODUCTION` you will
 
 ### Client usage
 
-The package exposes a separate entry point for the client usage (`'@lens-protocol/bonsai/client'`) to make sure the bundle size is not affected by any polyfills or other node specific code.
+The package exposes a separate entry point for the client usage (`'@lens-protocol/momoka/client'`) to make sure the bundle size is not affected by any polyfills or other node specific code.
 
 Check the `playground-browser` folder for a working example of the client usage.
 
 #### checkDAProof
 
-The `checkDAProof` will return you a failure reason of the enum `BonsaiValidatorError`, and if successful, you be returned the entire `DAStructurePublication`. This is a client specific version of the `checkDAProof` function that doesn't have any caching in place. For the server version, please see the server usage section.
+The `checkDAProof` will return you a failure reason of the enum `MomokaValidatorError`, and if successful, you be returned the entire `DAStructurePublication`. This is a client specific version of the `checkDAProof` function that doesn't have any caching in place. For the server version, please see the server usage section.
 
 ```ts
-import { checkDAProof, EthereumNode, Environment } from '@lens-protocol/bonsai/client';
+import { checkDAProof, EthereumNode, Environment } from '@lens-protocol/momoka/client';
 
 const ethereumNode: EthereumNode = {
   environment: Environment.POLYGON,
@@ -1674,10 +1674,10 @@ console.error('proof invalid do something', result.failure)
 
 #### checkDAProof
 
-The `checkDAProof` will return you a failure reason of the enum `BonsaiValidatorError`, and if successful, you be returned the entire `DAStructurePublication`. This is a server specific version of the `checkDAProof` function that has caching in place. For the client version, please see the client usage section.
+The `checkDAProof` will return you a failure reason of the enum `MomokaValidatorError`, and if successful, you be returned the entire `DAStructurePublication`. This is a server specific version of the `checkDAProof` function that has caching in place. For the client version, please see the client usage section.
 
 ```ts
-import { checkDAProof, EthereumNode, Environment } from '@lens-protocol/bonsai';
+import { checkDAProof, EthereumNode, Environment } from '@lens-protocol/momoka';
 
 const ethereumNode: EthereumNode = {
   environment: Environment.POLYGON,
@@ -1699,7 +1699,7 @@ console.error('proof invalid do something', result.failure)
 This will start watching all the DA items coming in and logging it all out in your terminal. you can install the package and run it on your own server.
 
 ```ts
-import { startDAVerifierNode, EthereumNode } from '@lens-protocol/bonsai';
+import { startDAVerifierNode, EthereumNode } from '@lens-protocol/momoka';
 
 const ethereumNode: EthereumNode = {
   environment: Environment.POLYGON,
@@ -1718,7 +1718,7 @@ startDAVerifierNode(ethereumNode, concurrency);
 If you wish to index the data yourself, you can use the `startDAVerifierNode` and stream the data out to your own DB using the `StreamCallback`. This will run the verifier node and check the proofs as every new one comes in.
 
 ```ts
-import { startDAVerifierNode, StreamResult, EthereumNode } from '@lens-protocol/bonsai';
+import { startDAVerifierNode, StreamResult, EthereumNode } from '@lens-protocol/momoka';
 
 const stream = (result: StreamResult) => {
   console.log('streamed publication', result);
@@ -1751,7 +1751,7 @@ startDAVerifierNode(ethereumNode, concurrency, { stream });
 You may wish to start the verifier from the head of the chain and not resync all the passed, this is useful to just start checking new proofs. You can do this by passing in the `syncFromHeadOnly` option.
 
 ```ts
-import { startDAVerifierNode, StreamResult, EthereumNode } from '@lens-protocol/bonsai';
+import { startDAVerifierNode, StreamResult, EthereumNode } from '@lens-protocol/momoka';
 
 const ethereumNode: EthereumNode = {
   environment: Environment.POLYGON,
@@ -1770,7 +1770,7 @@ startDAVerifierNode(ethereumNode, concurrency, { syncFromHeadOnly: true });
 If you just want to get the data as fast as possible and do not wish to verify the proofs, you can use the `startDATrustingIndexing` function. This will stream out the data as fast as possible and will not check the proofs, so does not require an archive node.
 
 ```ts
-import { startDATrustingIndexing, StreamResult, StartDATrustingIndexingRequest } from '@lens-protocol/bonsai';
+import { startDATrustingIndexing, StreamResult, StartDATrustingIndexingRequest } from '@lens-protocol/momoka';
 
 const stream = (result: StreamResult) => {
   console.log('streamed publication', result);

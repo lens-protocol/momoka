@@ -1,8 +1,8 @@
 import {
-  BonsaiValidatorError,
   Deployment,
   Environment,
   EthereumNode,
+  MomokaValidatorError,
   TxValidatedResult,
 } from '../..';
 import { checkDAProof } from '../../client';
@@ -161,7 +161,7 @@ export const callCheckDAProof = (): PromiseWithContextResult<
 };
 
 export const checkAndValidateDAProof = async (
-  expectedError: BonsaiValidatorError
+  expectedError: MomokaValidatorError
 ): Promise<void> => {
   const result = await callCheckDAProof();
   expect(result.isFailure()).toBe(true);

@@ -3,7 +3,7 @@ import {
   DAStructurePublication,
   PublicationTypedData,
 } from '../data-availability-models/publications/data-availability-structure-publication';
-import { BonsaiValidatorError } from '../data-availability-models/validator-errors';
+import { MomokaValidatorError } from '../data-availability-models/validator-errors';
 
 export type TxValidatedResult = TxValidatedFailureResult | TxValidatedSuccessResult;
 
@@ -18,7 +18,7 @@ export interface TxValidatedFailureResult
     false,
     DAStructurePublication<DAEventType, PublicationTypedData> | undefined
   > {
-  failureReason: BonsaiValidatorError;
+  failureReason: MomokaValidatorError;
   extraErrorInfo?: string;
 }
 

@@ -4,7 +4,7 @@ import { failure, PromiseResult, success } from '../../../data-availability-mode
 import { CreatePostEIP712TypedData } from '../../../data-availability-models/publications/data-availability-publication-typed-data';
 import { DAStructurePublication } from '../../../data-availability-models/publications/data-availability-structure-publication';
 import { DAPostCreatedEventEmittedResponse } from '../../../data-availability-models/publications/data-availability-structure-publications-events';
-import { BonsaiValidatorError } from '../../../data-availability-models/validator-errors';
+import { MomokaValidatorError } from '../../../data-availability-models/validator-errors';
 import { PostWithSig_DispatcherRequest } from '../../../evm/abi-types/LensHub';
 import {
   blockHashExists,
@@ -49,7 +49,7 @@ const crossCheckEvent = async (
     typedData.value.collectModuleInitData !== EMPTY_BYTE ||
     typedData.value.referenceModuleInitData !== EMPTY_BYTE
   ) {
-    return await Promise.resolve(failure(BonsaiValidatorError.EVENT_MISMATCH));
+    return await Promise.resolve(failure(MomokaValidatorError.EVENT_MISMATCH));
   }
 
   log('cross check event is complete');
@@ -76,7 +76,7 @@ const generateSimulationData = (
 
     return Promise.resolve(success(result));
   } catch (e) {
-    return Promise.resolve(failure(BonsaiValidatorError.INVALID_FORMATTED_TYPED_DATA));
+    return Promise.resolve(failure(MomokaValidatorError.INVALID_FORMATTED_TYPED_DATA));
   }
 };
 
@@ -173,11 +173,11 @@ export const checkDAPost = async (
     );
     if (!exists) {
       log('block hash now does not exist this could be a potential reorg');
-      return failure(BonsaiValidatorError.POTENTIAL_REORG);
+      return failure(MomokaValidatorError.POTENTIAL_REORG);
     }
 
     log('signature simulation checking failed');
-    return failure(BonsaiValidatorError.SIMULATION_FAILED);
+    return failure(MomokaValidatorError.SIMULATION_FAILED);
   }
 
   log('signature simulation passed!');

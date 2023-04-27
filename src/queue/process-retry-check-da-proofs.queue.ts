@@ -1,5 +1,5 @@
 import { runForever } from '../common/helpers';
-import { BonsaiValidatorError } from '../data-availability-models/validator-errors';
+import { MomokaValidatorError } from '../data-availability-models/validator-errors';
 import { EthereumNode } from '../evm/ethereum';
 import { checkDAProofsBatch } from '../proofs/check-da-proofs-batch';
 import { StreamCallback } from '../watchers/models/stream.type';
@@ -17,13 +17,13 @@ export interface ProcessRetryCheckDAProofsQueueRequest {
  * control of the proof verifier.
  * @param validatorError The validation error to check.
  */
-export const shouldRetry = (validatorError: BonsaiValidatorError): boolean => {
+export const shouldRetry = (validatorError: MomokaValidatorError): boolean => {
   return (
-    validatorError === BonsaiValidatorError.UNKNOWN ||
-    validatorError === BonsaiValidatorError.CAN_NOT_CONNECT_TO_BUNDLR ||
-    validatorError === BonsaiValidatorError.BLOCK_CANT_BE_READ_FROM_NODE ||
-    validatorError === BonsaiValidatorError.DATA_CANT_BE_READ_FROM_NODE ||
-    validatorError === BonsaiValidatorError.SIMULATION_NODE_COULD_NOT_RUN
+    validatorError === MomokaValidatorError.UNKNOWN ||
+    validatorError === MomokaValidatorError.CAN_NOT_CONNECT_TO_BUNDLR ||
+    validatorError === MomokaValidatorError.BLOCK_CANT_BE_READ_FROM_NODE ||
+    validatorError === MomokaValidatorError.DATA_CANT_BE_READ_FROM_NODE ||
+    validatorError === MomokaValidatorError.SIMULATION_NODE_COULD_NOT_RUN
   );
 };
 

@@ -1,7 +1,7 @@
 {
-  "name": "@lens-protocol/bonsai",
-  "version": "1.0.2",
-  "description": "Bonsai node for the Lens protocol",
+  "name": "@lens-protocol/momoka",
+  "version": "1.0.0",
+  "description": "Momoka node for the Lens protocol",
   "main": "lib/index.js",
   "types": "./lib/index.d.ts",
   "exports": {
@@ -75,10 +75,10 @@
   },
   "license": "MIT",
   "bin": {
-    "bonsai": "./lib/bin/cli.js"
+    "momoka": "./lib/bin/cli.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lens-protocol/bonsai.git"
+    "url": "git+https://github.com/lens-protocol/momoka.git"
   }
 }

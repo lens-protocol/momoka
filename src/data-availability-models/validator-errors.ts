@@ -1,7 +1,7 @@
 /**
- * This is a list of all the errors that can be returned from the bonsai validator
+ * This is a list of all the errors that can be returned from the momoka validator
  */
-export enum BonsaiValidatorError {
+export enum MomokaValidatorError {
   /**
    * This means the main signature has not been attached to the payload
    */

@@ -175,7 +175,7 @@ const processTransactions = async (
 
 const waitForNewSubmissions = async (lastCheckNothingFound: boolean): Promise<boolean> => {
   if (!lastCheckNothingFound) {
-    consoleLogWithLensNodeFootprint(`waiting for new bonsai transaction...`);
+    consoleLogWithLensNodeFootprint(`waiting for new momoka transaction...`);
   }
   lastCheckNothingFound = true;
   await sleep(100);
@@ -245,9 +245,7 @@ export const startDAVerifierNode = async (
         if (totalChecked === 0 && !syncFromHeadOnly) {
           consoleLogWithLensNodeFootprint(`Resyncing from start, preparing please wait...`);
         } else {
-          consoleLogWithLensNodeFootprint(
-            `Checking ${transactions.txIds.length} incoming submissons.. ${totalChecked} submissons checked in this nodes history..`
-          );
+          consoleLogWithLensNodeFootprint('Checking incoming submissons..');
         }
 
         const { totalChecked: newTotalChecked, endCursor: newEndCursor } =

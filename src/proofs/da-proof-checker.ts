@@ -18,7 +18,7 @@ import {
   DAStructurePublication,
   PublicationTypedData,
 } from '../data-availability-models/publications/data-availability-structure-publication';
-import { BonsaiValidatorError } from '../data-availability-models/validator-errors';
+import { MomokaValidatorError } from '../data-availability-models/validator-errors';
 import { BlockInfo, EthereumNode } from '../evm/ethereum';
 import { TIMEOUT_ERROR, TimeoutError } from '../input-output/common';
 import { TxValidatedFailureResult, TxValidatedResult } from '../input-output/tx-validated-results';
@@ -116,7 +116,7 @@ export class DaProofChecker {
       );
       if (signatureAlreadyUsed) {
         return failureWithContext(
-          BonsaiValidatorError.CHAIN_SIGNATURE_ALREADY_USED,
+          MomokaValidatorError.CHAIN_SIGNATURE_ALREADY_USED,
           daPublicationWithTimestampProofs.daPublication
         );
       }
@@ -130,7 +130,7 @@ export class DaProofChecker {
       )
     ) {
       return failureWithContext(
-        BonsaiValidatorError.TIMESTAMP_PROOF_NOT_SUBMITTER,
+        MomokaValidatorError.TIMESTAMP_PROOF_NOT_SUBMITTER,
         daPublicationWithTimestampProofs.daPublication
       );
     }
@@ -172,10 +172,10 @@ export class DaProofChecker {
     const daPublication = await this.gateway.getDaPublication(txId);
 
     if (!daPublication) {
-      return failureWithContext(BonsaiValidatorError.INVALID_TX_ID, undefined as any);
+      return failureWithContext(MomokaValidatorError.INVALID_TX_ID, undefined as any);
     }
     if (daPublication === TIMEOUT_ERROR) {
-      return failureWithContext(BonsaiValidatorError.CAN_NOT_CONNECT_TO_BUNDLR, undefined as any);
+      return failureWithContext(MomokaValidatorError.CAN_NOT_CONNECT_TO_BUNDLR, undefined as any);
     }
 
     const timestampProofsPayload = await this.gateway.getTimestampProofs(
@@ -184,10 +184,10 @@ export class DaProofChecker {
     );
 
     if (!timestampProofsPayload) {
-      return failureWithContext(BonsaiValidatorError.INVALID_TX_ID, undefined as any);
+      return failureWithContext(MomokaValidatorError.INVALID_TX_ID, undefined as any);
     }
     if (timestampProofsPayload === TIMEOUT_ERROR) {
-      return failureWithContext(BonsaiValidatorError.CAN_NOT_CONNECT_TO_BUNDLR, undefined as any);
+      return failureWithContext(MomokaValidatorError.CAN_NOT_CONNECT_TO_BUNDLR, undefined as any);
     }
 
     const timestampProofsSubmitter = await this.verifier.verifyTransactionSubmitter(
@@ -197,10 +197,10 @@ export class DaProofChecker {
       ethereumNode.deployment
     );
     if (timestampProofsSubmitter === TIMEOUT_ERROR) {
-      return failureWithContext(BonsaiValidatorError.CAN_NOT_CONNECT_TO_BUNDLR, undefined as any);
+      return failureWithContext(MomokaValidatorError.CAN_NOT_CONNECT_TO_BUNDLR, undefined as any);
     }
     if (!timestampProofsSubmitter) {
-      return failureWithContext(BonsaiValidatorError.TIMESTAMP_PROOF_NOT_SUBMITTER, daPublication);
+      return failureWithContext(MomokaValidatorError.TIMESTAMP_PROOF_NOT_SUBMITTER, daPublication);
     }
     options.log('timestamp proof valid submitter');
 
@@ -226,11 +226,11 @@ export class DaProofChecker {
     DAStructurePublication<DAEventType, PublicationTypedData>
   > => {
     if (!daPublication.signature) {
-      return failureWithContext(BonsaiValidatorError.NO_SIGNATURE_SUBMITTER, daPublication);
+      return failureWithContext(MomokaValidatorError.NO_SIGNATURE_SUBMITTER, daPublication);
     }
 
     if (!(await this.isValidSignatureSubmitter(daPublication, ethereumNode, log))) {
-      return failureWithContext(BonsaiValidatorError.INVALID_SIGNATURE_SUBMITTER, daPublication);
+      return failureWithContext(MomokaValidatorError.INVALID_SIGNATURE_SUBMITTER, daPublication);
     }
 
     const timestampProofsResult = await this.validatesTimestampProof(
@@ -245,14 +245,14 @@ export class DaProofChecker {
     if (!isValidEventTimestamp(daPublication)) {
       log('event timestamp does not match the publication timestamp');
       // the event emitted must match the same timestamp as the block number
-      return failureWithContext(BonsaiValidatorError.INVALID_EVENT_TIMESTAMP, daPublication);
+      return failureWithContext(MomokaValidatorError.INVALID_EVENT_TIMESTAMP, daPublication);
     }
 
     if (!isValidTypedDataDeadlineTimestamp(daPublication)) {
       log('typed data timestamp does not match the publication timestamp');
       // the event emitted must match the same timestamp as the block number
       return failureWithContext(
-        BonsaiValidatorError.INVALID_TYPED_DATA_DEADLINE_TIMESTAMP,
+        MomokaValidatorError.INVALID_TYPED_DATA_DEADLINE_TIMESTAMP,
         daPublication
       );
     }
@@ -285,7 +285,7 @@ export class DaProofChecker {
     if (!isValidPublicationId(daPublication)) {
       log('publicationId does not match the generated one');
       return failureWithContext(
-        BonsaiValidatorError.GENERATED_PUBLICATION_ID_MISMATCH,
+        MomokaValidatorError.GENERATED_PUBLICATION_ID_MISMATCH,
         daPublication
       );
     }
@@ -325,9 +325,9 @@ export class DaProofChecker {
     timestampProofs: DATimestampProofsResponse,
     log: LogFunctionType
   ): Promise<
-    | BonsaiValidatorError.TIMESTAMP_PROOF_INVALID_SIGNATURE
-    | BonsaiValidatorError.TIMESTAMP_PROOF_INVALID_TYPE
-    | BonsaiValidatorError.TIMESTAMP_PROOF_INVALID_DA_ID
+    | MomokaValidatorError.TIMESTAMP_PROOF_INVALID_SIGNATURE
+    | MomokaValidatorError.TIMESTAMP_PROOF_INVALID_TYPE
+    | MomokaValidatorError.TIMESTAMP_PROOF_INVALID_DA_ID
     | ValidType
     // eslint-disable-next-line require-await
   > {
@@ -335,19 +335,19 @@ export class DaProofChecker {
 
     if (!valid) {
       log('timestamp proof invalid signature');
-      return BonsaiValidatorError.TIMESTAMP_PROOF_INVALID_SIGNATURE;
+      return MomokaValidatorError.TIMESTAMP_PROOF_INVALID_SIGNATURE;
     }
 
     log('timestamp proof signature valid');
 
     if (timestampProofs.type !== daPublication.type) {
       log('timestamp proof type mismatch');
-      return BonsaiValidatorError.TIMESTAMP_PROOF_INVALID_TYPE;
+      return MomokaValidatorError.TIMESTAMP_PROOF_INVALID_TYPE;
     }
 
     if (timestampProofs.dataAvailabilityId !== daPublication.dataAvailabilityId) {
       log('timestamp proof da id mismatch');
-      return BonsaiValidatorError.TIMESTAMP_PROOF_INVALID_DA_ID;
+      return MomokaValidatorError.TIMESTAMP_PROOF_INVALID_DA_ID;
     }
 
     return validResult;
@@ -370,7 +370,7 @@ export class DaProofChecker {
 
       return success(blocks);
     } catch (error) {
-      return failure(BonsaiValidatorError.BLOCK_CANT_BE_READ_FROM_NODE);
+      return failure(MomokaValidatorError.BLOCK_CANT_BE_READ_FROM_NODE);
     }
   }
 
@@ -425,7 +425,7 @@ export class DaProofChecker {
         `
           );
         } else {
-          return failure(BonsaiValidatorError.NOT_CLOSEST_BLOCK);
+          return failure(MomokaValidatorError.NOT_CLOSEST_BLOCK);
         }
       }
 
@@ -434,13 +434,13 @@ export class DaProofChecker {
       //TODO look at this again
       // block times are 2 seconds so this should never ever happen
       // if (closestBlock.number + 2500 > timestamp) {
-      //   throw new Error(BonsaiValidatorError.BLOCK_TOO_FAR);
+      //   throw new Error(MomokaValidatorError.BLOCK_TOO_FAR);
       // }
 
       return success();
     } catch (e) {
       log('validateChoosenBlock error', e);
-      return failure(BonsaiValidatorError.UNKNOWN);
+      return failure(MomokaValidatorError.UNKNOWN);
     }
   }
 
@@ -459,7 +459,7 @@ export class DaProofChecker {
     switch (daPublication.type) {
       case DAActionTypes.POST_CREATED:
         if (daPublication.chainProofs.pointer) {
-          return failure(BonsaiValidatorError.INVALID_POINTER_SET_NOT_NEEDED);
+          return failure(MomokaValidatorError.INVALID_POINTER_SET_NOT_NEEDED);
         }
         return await checkDAPost(
           daPublication as CheckDAPostPublication,
@@ -483,7 +483,7 @@ export class DaProofChecker {
           this
         );
       default:
-        return failure(BonsaiValidatorError.UNKNOWN);
+        return failure(MomokaValidatorError.UNKNOWN);
     }
   }
 
