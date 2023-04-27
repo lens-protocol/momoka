@@ -1614,13 +1614,13 @@ $ npm i @lens-protocol/momoka -g
 then you can just run:
 
 ```bash
-$ momoka --node 'YOUR_NODE' --environment='MUMBAI|POLYGON' --concurrency=100 --fromHead=false
+$ momoka --node 'YOUR_NODE' --environment='MUMBAI|POLYGON' --concurrency=20 --fromHead=false
 ```
 
 you can also just run with npx:
 
 ```bash
-$ npx momoka --node 'YOUR_NODE' --environment='MUMBAI|POLYGON' --concurrency=100 --fromHead=false
+$ npx momoka --node 'YOUR_NODE' --environment='MUMBAI|POLYGON' --concurrency=20 --fromHead=false
 ```
 
 ### Parameter meanings
