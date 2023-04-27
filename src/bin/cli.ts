@@ -47,7 +47,7 @@ const concurrencyRaw = args.options.concurrency;
 const concurrency = concurrencyRaw ? Number(concurrencyRaw) : 100;
 
 const syncFromHeadOnlyRaw = args.options.fromHead;
-const syncFromHeadOnly = syncFromHeadOnlyRaw ? Boolean(syncFromHeadOnlyRaw) : false;
+const syncFromHeadOnly = syncFromHeadOnlyRaw === 'true';
 
 startDAVerifierNode(
   {

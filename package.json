@@ -1,6 +1,6 @@
 {
   "name": "@lens-protocol/momoka",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Momoka node for the Lens protocol",
   "main": "lib/index.js",
   "types": "./lib/index.d.ts",
