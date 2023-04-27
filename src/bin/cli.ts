@@ -58,6 +58,6 @@ startDAVerifierNode(
   concurrency,
   { syncFromHeadOnly }
 ).catch((error) => {
-  console.error('DA verifier node failed to startup', error);
+  console.error('momoka node failed to startup', error);
   process.exitCode = 1;
 });
