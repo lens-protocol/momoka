@@ -1620,7 +1620,7 @@ $ momoka --node 'YOUR_NODE' --environment='MUMBAI|POLYGON' --concurrency=20 --fr
 you can also just run with npx:
 
 ```bash
-$ npx momoka --node 'YOUR_NODE' --environment='MUMBAI|POLYGON' --concurrency=20 --fromHead=false
+$ npx @lens-protocol/momoka --node 'YOUR_NODE' --environment='MUMBAI|POLYGON' --concurrency=20 --fromHead=false
 ```
 
 ### Parameter meanings
