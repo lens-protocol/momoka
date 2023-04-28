@@ -7,15 +7,19 @@ COPY tsconfig.json ./
 COPY src ./src
 COPY .env ./
 
+# Install pnpm locally in your project directory
+RUN npm install pnpm
+
+# Install project dependencies using pnpm
+RUN npx pnpm install
+
 RUN chown -R node:node /usr/src/app
 
 USER node
 
-RUN npm install
+# Build the project
 RUN npm run build
-
-COPY lib ./lib
 
 EXPOSE 3008
 
-CMD ["npm", "run", "start:native"]
+CMD ["npm", "run", "start"]
