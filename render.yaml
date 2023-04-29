@@ -1,0 +1,5 @@
+services:
+  - type: worker
+    name: momoka
+    env: docker
+    dockerfilePath: ./Dockerfile.stable
