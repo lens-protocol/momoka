@@ -1,4 +1,4 @@
-FROM node:18.14-alpine as base
+FROM mcr.microsoft.com/devcontainers/typescript-node:18 as base
 
 WORKDIR /usr/src/app
 
