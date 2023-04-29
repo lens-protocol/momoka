@@ -175,7 +175,7 @@ const processTransactions = async (
 
 const waitForNewSubmissions = async (lastCheckNothingFound: boolean): Promise<boolean> => {
   if (!lastCheckNothingFound) {
-    consoleLogWithLensNodeFootprint(`waiting for new momoka transaction...`);
+    consoleLogWithLensNodeFootprint(`waiting for new momoka transactions...`);
   }
   lastCheckNothingFound = true;
   await sleep(100);
@@ -242,10 +242,9 @@ export const startDAVerifierNode = async (
         // count++;
         lastCheckNothingFound = false;
 
-        if (totalChecked === 0 && resync) {
+        if (resync) {
           consoleLogWithLensNodeFootprint(`Resyncing momoka from start, preparing please wait...`);
-        } else {
-          consoleLogWithLensNodeFootprint('Awaiting incoming momoka transactions..');
+          resync = false;
         }
 
         const { totalChecked: newTotalChecked, endCursor: newEndCursor } =
