@@ -13,3 +13,4 @@ src/__PLAYGROUND__/*
 lens__da/*
 .vscode
 .idea
+.env.test

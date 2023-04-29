@@ -1820,6 +1820,23 @@ To build its just:
 $ pnpm build
 ```
 
+### Tests
+
+To run the tests:
+
+create an `.env.test` file with the following (you need to add a mumbai node url)
+
+```bash
+ETHEREUM_NETWORK=MUMBAI
+NODE_URL=MUMBAI_NODE_URL
+DEPLOYMENT=PRODUCTION
+CONCURRENCY=10
+```
+
+```bash
+$ pnpm test
+```
+
 ### Docker
 
 Please note you need a `.env` setup for this to work.

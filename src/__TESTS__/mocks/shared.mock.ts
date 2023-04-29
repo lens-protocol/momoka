@@ -138,6 +138,11 @@ export const mockImpl__INVALID_FORMATTED_TYPED_DATA = (
   });
 };
 
+export const mockGetSubmitters = submittors.getSubmitters as jest.MockedFunction<
+  typeof submittors.getSubmitters
+>;
+mockGetSubmitters.mockImplementation(() => ['0x886Bb211aC324dAF3744b2AB0eF20C0aCf73eA59']);
+
 export const mockIsValidSubmitter = submittors.isValidSubmitter as jest.MockedFunction<
   typeof submittors.isValidSubmitter
 >;

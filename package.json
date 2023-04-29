@@ -24,7 +24,7 @@
     "start:failed": "env-cmd -f .env ts-node src/failed-submissons.runnable.ts",
     "debug:playground": "npm run build && env-cmd -f .env node lib/__PLAYGROUND__/index.js",
     "generate": "graphql-codegen",
-    "test": "npm run build && env-cmd -f .env jest",
+    "test": "npm run build && env-cmd -f .env.test jest",
     "lint": "pnpm run prettier && pnpm run tsc",
     "lint:fix": "pnpm run prettier:fix && pnpm run eslint",
     "prettier:fix": "prettier --write .",
