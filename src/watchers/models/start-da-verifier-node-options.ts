@@ -10,8 +10,8 @@ export interface StartDAVerifierNodeOptions {
   stream?: StreamCallback | undefined;
 
   /**
-   * if true, the verifier node will only sync from the head of the chain from this point onwards
+   * if true, the verifier node will resync back from zero
    * and will not sync from the genesis block
    */
-  syncFromHeadOnly?: boolean | undefined;
+  resync?: boolean | undefined;
 }

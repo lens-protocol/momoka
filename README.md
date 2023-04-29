@@ -1614,21 +1614,23 @@ $ npm i @lens-protocol/momoka -g
 then you can just run:
 
 ```bash
-$ momoka --node 'YOUR_NODE' --environment='MUMBAI|POLYGON' --concurrency=20 --fromHead=false
+$ momoka --node 'YOUR_NODE' --environment='MUMBAI|POLYGON' --concurrency=20
 ```
 
 you can also just run with npx:
 
 ```bash
-$ npx @lens-protocol/momoka --node 'YOUR_NODE' --environment='MUMBAI|POLYGON' --concurrency=20 --fromHead=false
+$ npx @lens-protocol/momoka --node 'YOUR_NODE' --environment='MUMBAI|POLYGON' --concurrency=20
 ```
+
+By default it will not resync all the data, it just start verifying from this point onwards unless you add the parameter `--resync=true` which will start from block 0 and resync all the data.
 
 ### Parameter meanings
 
 - `--node` - this is the URI of the Polygon archive node you wish to connect to, this can be a free node or a paid node, it is recommended to use a paid node for the best performance. you can get up and running with a node using Alchemy, Infura, or any other similar infrastructure provider
 - `--environment` - this is the environment you wish to run the verifier on, this can be `MUMBAI` or `POLYGON`
 - `--concurrency` - this is the concurrency you wish to run the verifier on, which was talked in depth above
-- `--fromHead` - this is a boolean value, which if set to true will start the verifier from the head of the chain aka the most recent transaction, if set to false it will start from the last block and resync from zero.
+- `--resync` - this is a boolean value, which if set to true will start the verifier from the block 0 and resync all transactions from the past, if set to false it will start verifying from this moment onwards.
 
 ## Installing package
 
@@ -1696,7 +1698,7 @@ console.error('proof invalid do something', result.failure)
 
 #### startDAVerifierNode
 
-This will start watching all the DA items coming in and logging it all out in your terminal. you can install the package and run it on your own server.
+This will start watching all the DA items coming in and logging it all out in your terminal. you can install the package and run it on your own server. By default it will not resync all the data, it just start verifying from this point onwards unless you add the parameter which is defined below.
 
 ```ts
 import { startDAVerifierNode, EthereumNode } from '@lens-protocol/momoka';
@@ -1715,7 +1717,7 @@ startDAVerifierNode(ethereumNode, concurrency);
 
 #### startDAVerifierNode - Stream with proofs verified
 
-If you wish to index the data yourself, you can use the `startDAVerifierNode` and stream the data out to your own DB using the `StreamCallback`. This will run the verifier node and check the proofs as every new one comes in.
+If you wish to index the data yourself, you can use the `startDAVerifierNode` and stream the data out to your own DB using the `StreamCallback`. This will run the verifier node and check the proofs as every new one comes in. By default it will not resync all the data, it just start verifying from this point onwards unless you add the parameter which is defined below.
 
 ```ts
 import { startDAVerifierNode, StreamResult, EthereumNode } from '@lens-protocol/momoka';
@@ -1746,9 +1748,9 @@ const concurrency = 100;
 startDAVerifierNode(ethereumNode, concurrency, { stream });
 ```
 
-#### Start verifier from head
+#### Start verifier from block 0
 
-You may wish to start the verifier from the head of the chain and not resync all the passed, this is useful to just start checking new proofs. You can do this by passing in the `syncFromHeadOnly` option.
+You may wish to start the verifier and recheck from the first ever momoka transaction, You can do this by passing in the `resync` option.
 
 ```ts
 import { startDAVerifierNode, StreamResult, EthereumNode } from '@lens-protocol/momoka';
@@ -1762,7 +1764,7 @@ const ethereumNode: EthereumNode = {
 const concurrency = 100;
 
 // it run forever and log out to the terminal
-startDAVerifierNode(ethereumNode, concurrency, { syncFromHeadOnly: true });
+startDAVerifierNode(ethereumNode, concurrency, { resync: true });
 ```
 
 #### startDATrustingIndexing

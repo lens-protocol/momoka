@@ -46,8 +46,8 @@ const deployment = (args.options.deployment as Deployment) || Deployment.PRODUCT
 const concurrencyRaw = args.options.concurrency;
 const concurrency = concurrencyRaw ? Number(concurrencyRaw) : 100;
 
-const syncFromHeadOnlyRaw = args.options.fromHead;
-const syncFromHeadOnly = syncFromHeadOnlyRaw === 'true';
+const resyncRaw = args.options.resync;
+const resync = resyncRaw === 'true';
 
 startDAVerifierNode(
   {
@@ -56,7 +56,7 @@ startDAVerifierNode(
     deployment,
   },
   concurrency,
-  { syncFromHeadOnly }
+  { resync }
 ).catch((error) => {
   console.error('momoka node failed to startup', error);
   process.exitCode = 1;

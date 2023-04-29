@@ -188,12 +188,12 @@ const waitForNewSubmissions = async (lastCheckNothingFound: boolean): Promise<bo
  * @param concurrency The concurrency to use < this is how many TCP it will run at
  * @param options An optional object containing options for the node.
  *                   - stream - A callback function to stream the validation results.
- *                   - syncFromHeadOnly - A boolean to indicate whether to sync from the head of the chain only.
+ *                   - resync - A boolean to indicate whether to sync from the head of the chain only.
  */
 export const startDAVerifierNode = async (
   ethereumNode: EthereumNode,
   concurrency: number,
-  { stream, syncFromHeadOnly }: StartDAVerifierNodeOptions = {}
+  { stream, resync }: StartDAVerifierNodeOptions = {}
 ): Promise<never> => {
   consoleLogWithLensNodeFootprint('DA verification watcher started...');
 
@@ -208,7 +208,7 @@ export const startDAVerifierNode = async (
 
   consoleLogWithLensNodeFootprint('started up..');
 
-  if (syncFromHeadOnly) {
+  if (!resync) {
     // try to find the last transactions and start syncing from there again
     const lastTransaction = await getDataAvailabilityTransactionsAPI(
       ethereumNode.environment,
@@ -228,12 +228,12 @@ export const startDAVerifierNode = async (
 
   return await runForever(async () => {
     try {
-      // fetch 50,000 at a time! we can extend this if we wish for now thats plenty.
+      // fetch 10,000 at a time! we can extend this if we wish for now thats plenty.
       const transactions = await getBulkDataAvailabilityTransactions(
         ethereumNode.environment,
         ethereumNode.deployment,
         endCursor,
-        50
+        10
       );
 
       if (!transactions || transactions.txIds.length === 0) {
@@ -242,10 +242,10 @@ export const startDAVerifierNode = async (
         // count++;
         lastCheckNothingFound = false;
 
-        if (totalChecked === 0 && !syncFromHeadOnly) {
-          consoleLogWithLensNodeFootprint(`Resyncing from start, preparing please wait...`);
+        if (totalChecked === 0 && resync) {
+          consoleLogWithLensNodeFootprint(`Resyncing momoka from start, preparing please wait...`);
         } else {
-          consoleLogWithLensNodeFootprint('Checking incoming submissons..');
+          consoleLogWithLensNodeFootprint('Awaiting incoming momoka transactions..');
         }
 
         const { totalChecked: newTotalChecked, endCursor: newEndCursor } =
