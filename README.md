@@ -1633,7 +1633,7 @@ By default it will not resync all the data, it just start verifying from this po
 
 You can use the `Dockerfile.stable` file to set up a container which will run the latest stable release on Momoka from `npm`. The Dockerfile assumes running on the `POLYGON` environment, and sets concurrency to 100. You can change those if necessary. 
 
-A `NODE_URL` environment variable is required for it to work, which you can set however you'd like depending on how and where you're running the Docker container.
+A few environment variables are required for it to work, which you can set however you'd like depending on how and where you're running the Docker container. Specifically, you need to set `NODE_URL`, `ENVIRONMENT`, and `CONCURRENCY` environment variables.
 
 > NOTE: A `render.yaml` IaC blueprint is also provided which runs `Dockerfile.stable`. If you'd like to use [Render](https://render.com) for hosting your Momoka verifier, you can easily deploy it there by using the Render Blueprint. See their docs on [Infrastructure as Code](https://render.com/docs/infrastructure-as-code) to see how.
 

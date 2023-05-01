@@ -14,5 +14,5 @@ FROM base as runtime
 # Install stable version of momoka
 RUN pnpm add -g @lens-protocol/momoka
 
-# Run using the default shell, this is important to infer the $NODE_URL env variable
-CMD ["sh", "-c", "momoka --node $NODE_URL --environment=POLYGON --concurrency=100 --fromHead=true"]
+# Run using the default shell, this is important to infer the environment variables
+CMD ["sh", "-c", "momoka --node $NODE_URL --environment=$ENVIRONMENT --concurrency=$CONCURRENCY --fromHead=true"]
