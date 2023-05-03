@@ -1605,6 +1605,10 @@ The default concurrency is 100, which typically requires a paid archive node. If
 
 ## Running straight out the box
 
+Currently, you have two options to run it directly. Either by using the npm `momoka` package, or through Docker.
+
+### Running from npm
+
 You can install it globally: 
 
 ```bash
@@ -1624,6 +1628,14 @@ $ npx @lens-protocol/momoka --node 'YOUR_NODE' --environment='MUMBAI|POLYGON' --
 ```
 
 By default it will not resync all the data, it just start verifying from this point onwards unless you add the parameter `--resync=true` which will start from block 0 and resync all the data.
+
+### Running from Docker
+
+You can use the `Dockerfile.stable` file to set up a container which will run the latest stable release on Momoka from `npm`. The Dockerfile assumes running on the `POLYGON` environment, and sets concurrency to 100. You can change those if necessary. 
+
+A few environment variables are required for it to work, which you can set however you'd like depending on how and where you're running the Docker container. Specifically, you need to set `NODE_URL`, `ENVIRONMENT`, and `CONCURRENCY` environment variables.
+
+> NOTE: A `render.yaml` IaC blueprint is also provided which runs `Dockerfile.stable`. If you'd like to use [Render](https://render.com) for hosting your Momoka verifier, you can easily deploy it there by using the Render Blueprint. See their docs on [Infrastructure as Code](https://render.com/docs/infrastructure-as-code) to see how.
 
 ### Parameter meanings
 

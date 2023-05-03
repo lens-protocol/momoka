@@ -1,0 +1,18 @@
+FROM node:18-alpine AS base
+
+# Install pnpm through corepack
+RUN apk update
+RUN apk add --no-cache libc6-compat
+RUN corepack enable
+RUN corepack prepare pnpm@latest --activate
+
+# Specify a path for pnpm global root
+ENV PNPM_HOME=/usr/local/bin
+
+FROM base as runtime
+
+# Install stable version of momoka
+RUN pnpm add -g @lens-protocol/momoka
+
+# Run using the default shell, this is important to infer the environment variables
+CMD ["sh", "-c", "momoka --node $NODE_URL --environment=$ENVIRONMENT --concurrency=$CONCURRENCY --fromHead=true"]
