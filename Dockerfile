@@ -7,8 +7,8 @@ COPY tsconfig.json ./
 COPY src ./src
 COPY .env ./
 
-# Install pnpm locally in your project directory
-RUN npm install pnpm
+# Enable corepack which would install correct version of pnpm
+RUN corepack enable
 
 # Install project dependencies using pnpm
 RUN npx pnpm install
