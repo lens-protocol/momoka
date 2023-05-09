@@ -1,5 +1,7 @@
 # unreleased - fill in any changes you do here!
 
+- fix: Avoid installing `only-allow` during `preinstall` step
+
 ## Features
 
 ## Bug fixes
