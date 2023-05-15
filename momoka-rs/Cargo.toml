@@ -1,0 +1,39 @@
+[package]
+name = "momoka"
+version = "1.0.0"
+edition = "2021"
+authors = ["Josh Stevens <josh@aave.io>"]
+description = "The momoka rs client"
+license = "MIT"
+repository = "https://github.com/lens-protocol/momoka"
+
+[dependencies]
+tokio = { version = "1", features = ["full"] }
+serde_json = "1.0"
+gql_client = "1.0.7"
+reqwest = "0.11.4"
+serde = { version = "1.0", features = ["derive"] }
+base64 = "0.21.0"
+ethers = "2.0.4"
+clap = { version = "4.2.5", features = ["derive"] }
+futures = "0.3"
+async-trait = "0.1.51"
+lazy_static = "1.4.0"
+bundlr-sdk = "0.4.1"
+regex = "1.5"
+json = "0.12"
+chrono = "0.4"
+strum = "0.24.1"
+strum_macros = "0.24.3"
+data-encoding = "2.3.0"
+uuid = { version = "1.3.2", features = ["v4", "serde"] }
+hex = "0.4.3"
+
+[profile.performance]
+inherits = "release"
+lto = "fat"
+codegen-units = 1
+incremental = false
+
+[target.'cfg(all(not(windows), not(target_env = "musl")))'.dependencies]
+jemallocator = "0.5.0"

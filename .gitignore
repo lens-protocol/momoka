@@ -14,3 +14,4 @@ lens__da/*
 .vscode
 .idea
 .env.test
+momoka-rs/target/*
