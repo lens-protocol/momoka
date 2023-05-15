@@ -633,15 +633,23 @@ pub async fn check_proofs(
     tx_ids: &Vec<MomokaTxId>,
     provider_context: &ProviderContext,
 ) -> Result<Vec<Result<(), MomokaVerifierError>>, MomokaVerifierError> {
-    Logger.info(&format!(
-        "Checking proofs for {} transactions",
-        tx_ids.len()
-    ));
+    let amount = tx_ids.len();
+    let is_bulk = amount > 999;
+    if is_bulk {
+        Logger.info(&format!("Fetching {} transactions from bundlr", amount));
+    }
+
     let transactions = get_bulk_transactions_api(&tx_ids).await?;
+
+    if is_bulk {
+        Logger.info(&format!("Fetched {} transactions from bundlr", amount));
+    }
 
     for (id, error) in transactions.failed {
         Logger.error(&format!("{:?} - FAILED - {:?}", id, error));
     }
+
+    Logger.info(&format!("Checking proofs for {} transactions", amount));
 
     process_proofs(transactions.success, provider_context).await
 }
