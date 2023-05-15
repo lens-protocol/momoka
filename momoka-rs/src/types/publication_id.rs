@@ -71,3 +71,63 @@ impl<'a> From<&'a PublicationId> for U256 {
         U256::from_str_radix(&publication_id.as_str(), 16).expect("Invalid hex string")
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_publication_id_new() {
+        let u256 = U256::from(42u64);
+        let publication_id = PublicationId::new(u256);
+
+        // Assert that the PublicationId constructor returns the expected value
+        assert_eq!(publication_id, PublicationId(U256::from(42u64)));
+    }
+
+    #[test]
+    fn test_publication_id_into_inner() {
+        let u256 = U256::from(42u64);
+        let publication_id = PublicationId::new(u256);
+
+        // Assert that the into_inner method returns the expected value
+        assert_eq!(publication_id.into_inner(), U256::from(42u64));
+    }
+
+    #[test]
+    fn test_publication_id_as_str() {
+        let u256 = U256::from(42u64);
+        let publication_id = PublicationId::new(u256);
+
+        // Assert that the as_str method returns the expected value
+        assert_eq!(publication_id.as_str(), "0x2a");
+    }
+
+    #[test]
+    fn test_publication_id_from_u256() {
+        let u256 = U256::from(42u64);
+        let publication_id = PublicationId::from(u256);
+
+        // Assert that the From<U256> implementation returns the expected value
+        assert_eq!(publication_id, PublicationId(U256::from(42u64)));
+    }
+
+    #[test]
+    fn test_publication_id_serde() {
+        let publiation_id = PublicationId::new(U256::from(1));
+
+        let serialized = serde_json::to_string(&publiation_id).unwrap();
+        let deserialized: PublicationId = serde_json::from_str(&serialized).unwrap();
+
+        assert_eq!(deserialized, publiation_id);
+    }
+
+    #[test]
+    fn test_publication_id_fmt() {
+        let u256 = U256::from(42u64);
+        let publication_id = PublicationId::new(u256);
+
+        // Assert that the Display implementation returns the expected value
+        assert_eq!(format!("{}", publication_id), "0x2a");
+    }
+}

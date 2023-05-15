@@ -71,3 +71,86 @@ impl<'a> From<&'a ProfileId> for U256 {
         U256::from_str_radix(&profile_id.as_str(), 16).expect("Invalid profile id")
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[derive(Debug)]
+    struct TestData {
+        u256: U256,
+        profile_id_str: String,
+    }
+
+    fn get_test_data() -> Vec<TestData> {
+        vec![
+            TestData {
+                u256: U256::from(1),
+                profile_id_str: "0x01".to_owned(),
+            },
+            TestData {
+                u256: U256::from_dec_str("10").unwrap(),
+                profile_id_str: "0x0a".to_owned(),
+            },
+            TestData {
+                u256: U256::MAX,
+                profile_id_str:
+                    "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff".to_owned(),
+            },
+        ]
+    }
+
+    #[test]
+    fn test_new_profile_id() {
+        let test_data = get_test_data();
+        for data in test_data {
+            let profile_id = ProfileId::new(data.u256);
+            assert_eq!(profile_id.into_inner(), data.u256);
+        }
+    }
+
+    #[test]
+    fn test_serialize_deserialize_profile_id() {
+        let test_data = get_test_data();
+        for data in test_data {
+            let profile_id = ProfileId::new(data.u256);
+
+            // Serialize the ProfileId and deserialize it back into a new ProfileId
+            let serialized = serde_json::to_string(&profile_id).unwrap();
+            let deserialized: ProfileId = serde_json::from_str(&serialized).unwrap();
+
+            assert_eq!(deserialized, profile_id);
+        }
+    }
+
+    #[test]
+    fn test_display() {
+        let test_data = get_test_data();
+        for data in test_data {
+            let profile_id = ProfileId::new(data.u256);
+            assert_eq!(format!("{}", profile_id), data.profile_id_str);
+        }
+    }
+
+    #[test]
+    fn test_from_profile_id_to_u256() {
+        let test_data = get_test_data();
+        for data in test_data {
+            let profile_id = ProfileId::new(data.u256);
+            let u256: U256 = profile_id.into();
+
+            assert_eq!(u256, data.u256);
+        }
+    }
+
+    #[test]
+    fn test_from_ref_profile_id_to_u256() {
+        let test_data = get_test_data();
+        for data in test_data {
+            let profile_id = ProfileId::new(data.u256);
+            let u256: U256 = (&profile_id).into();
+
+            assert_eq!(u256, data.u256);
+        }
+    }
+}
