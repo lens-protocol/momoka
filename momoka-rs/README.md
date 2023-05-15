@@ -1,4 +1,4 @@
-# momoka-rs
+# momoka_rs
 
 This is the rust implementation of the momoka library. It is currently beta and still recommended you use the momoka-node for now. The rust library will be the main client in the future, the node and client verifier logic will always be supported and maintained so people can verify client side.
 
@@ -12,6 +12,7 @@ $ cargo install momoka
 
 Usage: momoka [OPTIONS]
 
+```bash
 Options:
   -n <NODE>             The URL of the node
   -e <ENVIRONMENT>      The environment (e.g., "MUMBAI" or "POLYGON")
@@ -20,6 +21,7 @@ Options:
   -r                    Flag indicating whether to perform a resync
   -h, --help            Print help
   -V, --version         Print version
+```
 
 ## Usage CLI
 
