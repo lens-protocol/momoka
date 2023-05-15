@@ -1,7 +1,3 @@
-left to do:
-
-- rerun over all of the structs to make sure they are nice and clean (share ethers types where possible)
-
 # momoka-rs
 
 This is the rust implementation of the momoka library. It is currently beta and still recommended you use the momoka-node for now. The rust library will be the main client in the future, the node and client verifier logic will always be supported and maintained so people can verify client side.
