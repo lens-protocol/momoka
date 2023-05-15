@@ -11,7 +11,7 @@ use crate::{
         api::{get_bulk_transactions_api, get_transaction_api},
         verify::verify_timestamp_proofs,
     },
-    cache::{read_cache, set_cache, CacheResult},
+    cache::{read_transaction_cache, set_transaction_cache, TransactionCacheResult, read_signature_cache, set_signature_cache},
     evm::ProviderContext,
     logger::Logger,
     submitter::state::is_valid_submitter,
@@ -403,7 +403,7 @@ async fn process_proof(
 fn cached_tx_id(
     tx_id: &MomokaTxId,
 ) -> Result<Option<Result<(), MomokaVerifierError>>, MomokaVerifierError> {
-    let cached: Option<Arc<CacheResult>> = read_cache(tx_id);
+    let cached: Option<Arc<TransactionCacheResult>> = read_transaction_cache(tx_id);
 
     if let Some(cached_value) = cached {
         if !cached_value.success {
@@ -440,14 +440,36 @@ fn set_tx_cache(
     tx_id: MomokaTxId,
     result: &Result<(), MomokaVerifierError>,
 ) -> Result<(), MomokaVerifierError> {
-    let cache_result = CacheResult {
+    let cache_result = TransactionCacheResult {
         success: result.is_ok(),
         error: result.clone().err(),
     };
 
-    set_cache(tx_id, cache_result);
+    set_transaction_cache(tx_id, cache_result);
 
     Ok(())
+}
+
+/// Checks if the given signature is cached.
+///
+/// # Arguments
+///
+/// * `signature` - The signature to check.
+///
+/// # Returns
+///
+/// A `Result` containing a boolean indicating whether the signature is cached,
+/// or an error if the signature could not be found in the cache.
+///
+/// # Errors
+///
+/// * `MomokaVerifierError::SignatureNotFound` - The signature could not be found in the cache.
+fn cached_signature(
+    signature: &str,
+) -> Result<bool, MomokaVerifierError> {
+    let cached: Option<Arc<()>> = read_signature_cache(signature);
+
+    Ok(cached.is_some())
 }
 
 /// Processes timestamp proofs for a vector of transaction summaries.
@@ -536,14 +558,22 @@ async fn process_proofs(
             }
         }
 
-        let cached = cached_tx_id(&transaction.id)?;
-        if cached.is_some() {
-            return cached.unwrap();
+        let tx_cached = cached_tx_id(&transaction.id)?;
+        if tx_cached.is_some() {
+            return tx_cached.unwrap();
+        }
+
+        let signature = transaction.momoka_tx.signature()?;
+
+        let seen_signature = cached_signature(signature)?;
+        if seen_signature {
+            return Err(MomokaVerifierError::ChainSignatureAlreadyUsed);
         }
 
         let result: Result<(), MomokaVerifierError> =
             process_proof(transaction, provider_context).await;
 
+        set_signature_cache(signature.to_owned());
         set_tx_cache(transaction.id.clone(), &result)?;
 
         match &result {

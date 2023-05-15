@@ -60,7 +60,7 @@ pub enum MomokaVerifierError {
     /// This means the publication submisson was signed by a wallet that is not allowed
     PublicationSignerNotAllowed,
     /// This means the evm signature has already been used Only really starts to be able to be properly used when many submitters
-    ChainSignatureAlreadyUsed, // NOT USED!
+    ChainSignatureAlreadyUsed,
     /// This means the publication submisson could not pass potentional due to a reorg
     PotentialReorg,
     /// internal cache has broken!
