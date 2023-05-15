@@ -49,13 +49,15 @@ pub fn create_provider_context(
     let environment = environment.unwrap_or("POLYGON".to_string());
 
     let etherem_network = Environment::from_str(&environment).unwrap_or_else(|_| {
-        panic!("Invalid value for ENVIRONMENT");
+        Logger.error("Invalid value for ENVIRONMENT");
+        exit(1);
     });
 
     let deployment = deployment.unwrap_or("PRODUCTION".to_string());
 
     let deployment = Deployment::from_str(&deployment).unwrap_or_else(|_| {
-        panic!("Invalid value for DEPLOYMENT");
+        Logger.error("Invalid value for DEPLOYMENT");
+        exit(1);
     });
 
     ProviderContext {
@@ -120,8 +122,21 @@ async fn main() {
         Some(url) => url,
         None => {
             Logger
-                .error("You must define a node URL in -n or --node. This must be an archive node.");
-            exit(2);
+                .warning("YOUR USING A FREE NODE, BUSY TIMES THINGS COULD FAIL DUE TO LOW RATE LIMITS ON THIS NODE.");
+            if args.environment.as_ref().is_none() {
+               "https://rpc.ankr.com/polygon".to_string()
+            } else {
+               let node = match args.environment.as_ref().unwrap().to_string().as_str() {
+                    "MUMBAI" => "https://rpc.ankr.com/polygon_mumbai".to_string(),
+                    "POLYGON" => "https://rpc.ankr.com/polygon".to_string(),
+                    _ => {
+                        Logger.error("Invalid value for ENVIRONMENT");
+                        exit(1);
+                    },
+                };
+
+                node
+            }
         }
     };
 

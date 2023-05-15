@@ -30,15 +30,17 @@ It is easy to run the momoka verifier locally using cargo. You can do so by runn
 ### Verifying live transactions
 
 ```bash
-$ momoka -n="YOUR_NODE"
+$ momoka
 ```
+
+Note if you do not supply a `-n="YOUR_NODE"` it will use a free node which has very low rate limits. If using it for anything in production you should supply your own node.
 
 This will start verifying any incoming momoka transactions live. You can also can specify to resync from transaction 1 by adding the `-r` flag (this needs a node which is paid and has a high rate limit).
 
 ### Verifying a single transaction
 
 ```bash
-$ momoka -n="YOUR_NODE" -t="TX_ID"
+$ momoka -t="TX_ID"
 ```
 
 ### Running locally from source
