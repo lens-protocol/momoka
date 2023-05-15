@@ -6,9 +6,15 @@ left to do:
 
 This is the rust implementation of the momoka library. It is currently beta and still recommended you use the momoka-node for now. The rust library will be the main client in the future, the node and client verifier logic will always be supported and maintained so people can verify client side.
 
+## Installing
+
+```bash
+$ cargo install momoka
+```
+
 ## CLI
 
-Usage: momoka-rs [OPTIONS]
+Usage: momoka [OPTIONS]
 
 Options:
   -n <NODE>             The URL of the node
@@ -26,7 +32,7 @@ It is easy to run the momoka verifier locally using cargo. You can do so by runn
 ### Verifying live transactions
 
 ```bash
-$ momoka-rs -n="YOUR_NODE"
+$ momoka -n="YOUR_NODE"
 ```
 
 This will start verifying any incoming momoka transactions live. You can also can specify to resync from transaction 1 by adding the `-r` flag (this needs a node which is paid and has a high rate limit).
@@ -34,7 +40,7 @@ This will start verifying any incoming momoka transactions live. You can also ca
 ### Verifying a single transaction
 
 ```bash
-$ momoka-rs -n="YOUR_NODE" -t="TX_ID"
+$ momoka -n="YOUR_NODE" -t="TX_ID"
 ```
 
 ### Running locally from source
