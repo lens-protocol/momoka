@@ -173,7 +173,7 @@ async fn main() {
                 let transactions = transactions.unwrap();
                 end_cursor = transactions.next;
 
-                check_proofs(
+                let result = check_proofs(
                     // remove any duplicates
                     &transactions
                         .tx_ids
@@ -184,6 +184,11 @@ async fn main() {
                     &provider_context,
                 )
                 .await;
+
+                if let Err(err) = result {
+                    Logger.error(&format!("Proof check failed: {}", err));
+                    exit(1);
+                }
             }
             Err(err) => {
                 let message = err.to_string();
