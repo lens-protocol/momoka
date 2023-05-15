@@ -5,7 +5,7 @@ use crate::{
     types::{
         transaction::{
             MomokaTransaction, MomokaTransactionName, MomokaTxId, TimestampProofsResponse,
-            TimestampProofsSummary, TransactionSummary,
+            TimestampProofsSummary, TransactionError, TransactionSummary,
         },
         verifier_error::MomokaVerifierError,
     },
@@ -419,17 +419,27 @@ async fn from_base_64<TResult>(
 fn transaction_builder(
     decoded_transaction: &str,
     reference: &BundlrTransactionBase64,
-) -> Result<TransactionSummary, MomokaVerifierError> {
+) -> Result<TransactionSummary, TransactionError> {
     // Parse the decoded transaction data into a JSON value.
-    let json_value: serde_json::Value = serde_json::from_str(&decoded_transaction)
-        .map_err(|_| MomokaVerifierError::InvalidTransactionFormat)?;
+    let json_value: serde_json::Value =
+        serde_json::from_str(&decoded_transaction).map_err(|_| {
+            TransactionError::new(
+                reference.id.clone(),
+                MomokaVerifierError::InvalidTransactionFormat,
+            )
+        })?;
 
     // Get the transaction type from the JSON data and parse it into a `TransactionType` enum.
     let transaction_type = MomokaTransaction::from_json(
         &decoded_transaction,
-        &MomokaTransactionName::from_str(json_value["type"].as_str().unwrap())
-            .map_err(|_| MomokaVerifierError::InvalidTransactionFormat)?,
-    )?;
+        &MomokaTransactionName::from_str(json_value["type"].as_str().unwrap()).map_err(|_| {
+            TransactionError::new(
+                reference.id.clone(),
+                MomokaVerifierError::InvalidTransactionFormat,
+            )
+        })?,
+    )
+    .map_err(|e| TransactionError::new(reference.id.clone(), e))?;
 
     // Construct a `TransactionSummary` struct from the transaction data.
     let transaction_summary = TransactionSummary {
@@ -463,10 +473,15 @@ fn transaction_builder(
 fn transaction_timestamp_proofs_builder(
     decoded_transaction: &str,
     reference: &BundlrTransactionBase64,
-) -> Result<TimestampProofsSummary, MomokaVerifierError> {
+) -> Result<TimestampProofsSummary, TransactionError> {
     // Parse the decoded transaction data into a `TimestampProofsResponse` struct.
-    let response = serde_json::from_str::<TimestampProofsResponse>(&decoded_transaction)
-        .map_err(|_| MomokaVerifierError::InvalidTransactionFormat)?;
+    let response =
+        serde_json::from_str::<TimestampProofsResponse>(&decoded_transaction).map_err(|_| {
+            TransactionError::new(
+                reference.id.clone(),
+                MomokaVerifierError::InvalidTransactionFormat,
+            )
+        })?;
 
     Ok(TimestampProofsSummary {
         id: reference.id.to_owned(),
@@ -584,12 +599,13 @@ pub async fn get_bulk_transactions_api(
                 .filter_map(|tx_result| tx_result.as_mut().ok())
                 .zip(transaction_timestamp_proofs.into_iter())
             {
-                let tx_proofs = tx_proofs_result?;
-                let id = &tx_summary.momoka_tx.get_timestamp_proofs()?.response.id;
+                if let Ok(tx_proofs) = tx_proofs_result {
+                    let id = &tx_summary.momoka_tx.get_timestamp_proofs()?.response.id;
 
-                // should not happen but lets panic just incase
-                assert_eq!(*id, tx_proofs.id);
-                tx_summary.set_timestamp_proofs_response(tx_proofs.response);
+                    // should not happen but lets panic just incase
+                    assert_eq!(*id, tx_proofs.id);
+                    tx_summary.set_timestamp_proofs_response(tx_proofs.response);
+                }
             }
 
             Ok(transactions)
@@ -601,7 +617,10 @@ pub async fn get_bulk_transactions_api(
     for result in results.into_iter().flatten() {
         match result {
             Ok(tx) => combined_response.success.push(tx),
-            Err(err) => return Err(err),
+            Err(tx_error) => {
+                combined_response.failed.insert(tx_error.id, tx_error.error);
+                ()
+            }
         }
     }
 

@@ -800,3 +800,15 @@ impl TransactionSummary {
         self.pointer_transaction_summary = Some(response);
     }
 }
+
+#[derive(Debug, Deserialize)]
+pub struct TransactionError {
+    pub id: MomokaTxId,
+    pub error: MomokaVerifierError,
+}
+
+impl TransactionError {
+    pub fn new(id: MomokaTxId, error: MomokaVerifierError) -> Self {
+        Self { id, error }
+    }
+}

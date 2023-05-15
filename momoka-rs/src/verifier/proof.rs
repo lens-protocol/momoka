@@ -11,7 +11,10 @@ use crate::{
         api::{get_bulk_transactions_api, get_transaction_api},
         verify::verify_timestamp_proofs,
     },
-    cache::{read_transaction_cache, set_transaction_cache, TransactionCacheResult, read_signature_cache, set_signature_cache},
+    cache::{
+        read_signature_cache, read_transaction_cache, set_signature_cache, set_transaction_cache,
+        TransactionCacheResult,
+    },
     evm::ProviderContext,
     logger::Logger,
     submitter::state::is_valid_submitter,
@@ -464,9 +467,7 @@ fn set_tx_cache(
 /// # Errors
 ///
 /// * `MomokaVerifierError::SignatureNotFound` - The signature could not be found in the cache.
-fn cached_signature(
-    signature: &str,
-) -> Result<bool, MomokaVerifierError> {
+fn cached_signature(signature: &str) -> Result<bool, MomokaVerifierError> {
     let cached: Option<Arc<()>> = read_signature_cache(signature);
 
     Ok(cached.is_some())
@@ -638,7 +639,9 @@ pub async fn check_proofs(
     ));
     let transactions = get_bulk_transactions_api(&tx_ids).await?;
 
-    // TODO! log out all the failed ones!
+    for (id, error) in transactions.failed {
+        Logger.error(&format!("{:?} - FAILED - {:?}", id, error));
+    }
 
     process_proofs(transactions.success, provider_context).await
 }
