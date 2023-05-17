@@ -1,7 +1,5 @@
 # unreleased - fill in any changes you do here!
 
-- fix: Avoid installing `only-allow` during `preinstall` step
-
 ## Features
 
 ## Bug fixes
@@ -10,8 +8,12 @@
 
 ###################################################################
 
-# 1.0.0 - 26th April 2023
+# 1.0.0>1.1.0 - 26th April 2023
 
 ## Features
 
 - feat: Initial release 1.0.0
+
+## Fix
+
+- fix: Avoid installing `only-allow` during `preinstall` step
