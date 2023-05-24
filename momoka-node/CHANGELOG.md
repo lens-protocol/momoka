@@ -8,6 +8,12 @@
 
 ###################################################################
 
+# 1.1.1 - 24th May 2023
+
+# Bug fixes
+
+- fix: remove lib-curl and use axios instead on node server to avoid some OS issues
+
 # 1.0.0>1.1.0 - 26th April 2023
 
 ## Features

@@ -1,3 +1,4 @@
+import { AxiosProvider } from '../client/axios-provider';
 import { Deployment, Environment } from '../common/environment';
 import { deepClone } from '../common/helpers';
 import { LogFunctionType } from '../common/logger';
@@ -8,7 +9,6 @@ import {
 } from '../data-availability-models/publications/data-availability-structure-publication';
 import { getOwnerOfTransactionAPI } from '../input-output/bundlr/get-owner-of-transaction.api';
 import { TIMEOUT_ERROR, TimeoutError } from '../input-output/common';
-import { LibCurlProvider } from '../input-output/lib-curl-provider';
 import { isValidSubmitter } from '../submitters';
 import { HandlerWorkers } from '../workers/handler-communication.worker';
 import { workerPool } from '../workers/worker-pool';
@@ -51,7 +51,8 @@ export class DaProofVerifier implements DAProofsVerifier {
     log: LogFunctionType,
     deployment?: Deployment
   ): Promise<boolean | TimeoutError> {
-    const owner = await getOwnerOfTransactionAPI(txId, { provider: new LibCurlProvider() });
+    // use Axios for now as lib curl is causing some issues on different OS
+    const owner = await getOwnerOfTransactionAPI(txId, { provider: new AxiosProvider() });
     if (owner === TIMEOUT_ERROR) {
       return TIMEOUT_ERROR;
     }
