@@ -1,19 +1,19 @@
-import { curly } from 'node-libcurl';
+import axios from 'axios';
 
 export const postWithTimeout = async <TResponse, TBody>(
   url: string,
   body: TBody
 ): Promise<TResponse> => {
-  const { statusCode, data } = await curly.post(url, {
-    postFields: JSON.stringify(body),
-    httpHeader: ['Content-Type: application/json'],
+  const { status, data } = await axios.post(url, body, {
+    headers: {
+      'Content-Type': 'application/json',
+    },
     timeout: 5000,
-    curlyResponseBodyParser: false,
   });
 
-  if (statusCode !== 200) {
-    throw new Error(`postWithTimeout: ${statusCode} - ${data.toString()}`);
+  if (status !== 200) {
+    throw new Error(`postWithTimeout: ${status} - ${data.toString()}`);
   }
 
-  return JSON.parse(data.toString()) as TResponse;
+  return data as TResponse;
 };
