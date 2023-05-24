@@ -1,3 +1,4 @@
+import { AxiosProvider } from '../client/axios-provider';
 import { DATimestampProofsResponse } from '../data-availability-models/data-availability-timestamp-proofs';
 import {
   DAEventType,
@@ -15,7 +16,6 @@ import {
   hasSignatureBeenUsedBeforeDb,
   saveBlockDb,
 } from '../input-output/db';
-import { LibCurlProvider } from '../input-output/lib-curl-provider';
 import { TxValidatedResult } from '../input-output/tx-validated-results';
 import { DAProofsGateway } from '../proofs/da-proof-checker';
 
@@ -53,7 +53,8 @@ export class DaProofGateway implements DAProofsGateway {
     return (
       (await getTxDAMetadataDb(txId)) ||
       (await getBundlrByIdAPI<DAStructurePublication<DAEventType, PublicationTypedData>>(txId, {
-        provider: new LibCurlProvider(),
+        // use Axios for now as lib curl is causing some issues on different OS
+        provider: new AxiosProvider(),
       }))
     );
   }
@@ -65,7 +66,8 @@ export class DaProofGateway implements DAProofsGateway {
     return (
       (await getTxTimestampProofsMetadataDb(txId)) ||
       (await getBundlrByIdAPI<DATimestampProofsResponse>(timestampId, {
-        provider: new LibCurlProvider(),
+        // use Axios for now as lib curl is causing some issues on different OS
+        provider: new AxiosProvider(),
       }))
     );
   }
