@@ -1478,7 +1478,7 @@ This is a DA mirror. Very similar to DA post/comment minus the `type`, `typedDat
 We have 2 implementations of momoka one in node which supports browsers also and one in rust:
 
 - [momoka-node](./momoka-node/) - you can run the node verifier very easily and it also have indexer tools. Alongside this it has packages to run the verifier on the client side.
-- [momoka-rust](./momoka-rust/) - this is currently in beta stage but will be the main implementation going forward to grow momoka as a protocol
+- [momoka-rust](./momoka-rs/) - this is currently in beta stage but will be the main implementation going forward to grow momoka as a protocol
 
 ## Acknowledgements
 
