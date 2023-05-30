@@ -15,7 +15,7 @@ You can explore all momoka transactions on the explorer [here](https://momoka.le
 
 The Momoka Verifier enables you to operate a trustless verifier node that validates LENS DA publications in real-time. Additionally, it can serve as an indexer, allowing you to stream and index the data yourself. This open-source solution relies exclusively on software that you can run independently, without any dependency on LENS. This ensures that even if LENS were to cease operation, you would retain access to your content, maintain proof of ownership, and continue to utilize it, all thanks to a decentralized data availability storage layer.
 
-For information on how to run this software, please refer to the [How to run](#running) section.
+For information on how to run this software, please refer to the [Technical code and how to run a verifier](#technical-code-and-how-to-run-a-verifier) section.
 
 ## What is Momoka technical definition?
 
@@ -1478,7 +1478,7 @@ This is a DA mirror. Very similar to DA post/comment minus the `type`, `typedDat
 We have 2 implementations of momoka one in node which supports browsers also and one in rust:
 
 - [momoka-node](./momoka-node/) - you can run the node verifier very easily and it also have indexer tools. Alongside this it has packages to run the verifier on the client side.
-- [momoka-rust](./momoka-rust/) - this is currently in beta stage but will be the main implementation going forward to grow momoka as a protocol
+- [momoka-rust](./momoka-rs/) - this is currently in beta stage but will be the main implementation going forward to grow momoka as a protocol
 
 ## Acknowledgements
 
