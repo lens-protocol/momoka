@@ -15,7 +15,7 @@ You can explore all momoka transactions on the explorer [here](https://momoka.le
 
 The Momoka Verifier enables you to operate a trustless verifier node that validates LENS DA publications in real-time. Additionally, it can serve as an indexer, allowing you to stream and index the data yourself. This open-source solution relies exclusively on software that you can run independently, without any dependency on LENS. This ensures that even if LENS were to cease operation, you would retain access to your content, maintain proof of ownership, and continue to utilize it, all thanks to a decentralized data availability storage layer.
 
-For information on how to run this software, please refer to the [How to run](#running) section.
+For information on how to run this software, please refer to the [Technical code and how to run a verifier](#technical-code-and-how-to-run-a-verifier) section.
 
 ## What is Momoka technical definition?
 
