@@ -82,8 +82,8 @@ pub struct LensProfileDetails {
 pub async fn get_profile_details(
     lens_hub: Address,
     profile_id: &ProfileId,
-    signed_by_address: &Address,
-    block_number: &u64,
+    signed_by_address: Address,
+    block_number: u64,
     provider: &Provider<RetryClient<Http>>,
 ) -> Result<LensProfileDetails, MomokaVerifierError> {
     let abi: Abi = serde_json::from_str(
@@ -92,14 +92,14 @@ pub async fn get_profile_details(
     )
     .map_err(|_| MomokaVerifierError::SimulationNodeCouldNotRun)?;
 
-    let provider = Arc::new(provider.clone());
+    let provider = Arc::new(&(provider));
 
     let contract = Contract::new(lens_hub, abi, provider.clone());
 
     let profile_id = <&ProfileId as Into<U256>>::into(profile_id);
 
     let sig_nonce_call = contract
-        .method::<_, U256>("sigNonces", (signed_by_address.clone(),))
+        .method::<_, U256>("sigNonces", (signed_by_address,))
         .map_err(|_| MomokaVerifierError::SimulationNodeCouldNotRun)?;
     let get_pub_count = contract
         .method::<_, U256>("getPubCount", profile_id)
@@ -115,7 +115,7 @@ pub async fn get_profile_details(
     let mut multicall = Multicall::new(provider.clone(), None)
         .await
         .map_err(|_| MomokaVerifierError::SimulationNodeCouldNotRun)?
-        .block(BlockNumber::from(block_number.clone()));
+        .block(BlockNumber::from(block_number));
 
     multicall
         .add_call(sig_nonce_call, false)

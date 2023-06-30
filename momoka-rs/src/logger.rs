@@ -7,11 +7,10 @@ pub struct Logger;
 impl Logger {
     fn print_colored_message(&self, color_code: &str, content: &str) {
         println!(
-            "{}LENS VERIFICATION NODE - {} - {}{}",
+            "{}LENS VERIFICATION NODE - {} - {}\x1b[0m",
             color_code,
             get_current_utc_string(),
-            content,
-            "\x1b[0m"
+            content
         );
     }
 

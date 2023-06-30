@@ -91,8 +91,7 @@ fn get_closest_block(blocks: &[Block<H256>; 3], target_timestamp: U256) -> Optio
         .filter(|block| block.number <= target_block_number.as_number())
         .min_by_key(|block| {
             let block_timestamp_ms = block.timestamp.as_u64() * 1000;
-            let difference = (block_timestamp_ms as i64 - target_timestamp_ms as i64).abs();
-            difference
+            (block_timestamp_ms as i64 - target_timestamp_ms as i64).abs()
         })
         .cloned()
 }
@@ -254,7 +253,7 @@ fn extract_address(transaction: &MomokaTransaction) -> Result<Address, MomokaVer
     }
 
     // Convert the inner object to a JSON string
-    let inner_object_string = json::stringify(json::JsonValue::from(inner_object.clone()));
+    let inner_object_string = json::stringify(inner_object.clone());
 
     // Remove the signature from the payload
     let re = Regex::new(SIGNATURE_EXTRACT_PATTERN)
@@ -377,11 +376,11 @@ async fn process_proof(
         transaction_summary
             .momoka_tx
             .third_party_proofs_timestamp()?,
-        &provider_context,
+        provider_context,
     )
     .await?;
 
-    verify_timestamp_proofs_match_transaction(&transaction_summary).await?;
+    verify_timestamp_proofs_match_transaction(transaction_summary).await?;
 
     transaction_summary
         .momoka_tx
@@ -413,14 +412,14 @@ fn cached_tx_id(
             let error = cached_value
                 .error
                 .clone()
-                .unwrap_or_else(|| MomokaVerifierError::CacheError);
-            return Ok(Some(Err(error)));
+                .unwrap_or(MomokaVerifierError::CacheError);
+            Ok(Some(Err(error)))
         } else {
-            return Ok(Some(Ok(())));
+            Ok(Some(Ok(())))
         }
     } else {
         // not in cache
-        return Ok(None);
+        Ok(None)
     }
 }
 
@@ -540,13 +539,13 @@ async fn process_proofs(
             let tx_id: &MomokaTxId = &pointer.location.replace("ar://", "");
 
             let cached = cached_tx_id(tx_id)?;
-            if cached.is_some() {
-                return cached.unwrap();
+            if let Some(cached) = cached {
+                cached.unwrap()
             }
 
             if transaction.pointer_transaction_summary.is_some() {
                 process_proof(
-                    &transaction.pointer_transaction_summary.as_ref().unwrap(),
+                    transaction.pointer_transaction_summary.as_ref().unwrap(),
                     provider_context,
                 )
                 .await
@@ -560,8 +559,8 @@ async fn process_proofs(
         }
 
         let tx_cached = cached_tx_id(&transaction.id)?;
-        if tx_cached.is_some() {
-            return tx_cached.unwrap();
+        if let Some(tx_cached) = tx_cached {
+            tx_cached.unwrap()
         }
 
         let signature = transaction.momoka_tx.signature()?;
@@ -639,7 +638,7 @@ pub async fn check_proofs(
         Logger.info(&format!("Fetching {} transactions from bundlr", amount));
     }
 
-    let transactions = get_bulk_transactions_api(&tx_ids).await?;
+    let transactions = get_bulk_transactions_api(tx_ids).await?;
 
     if is_bulk {
         Logger.info(&format!("Fetched {} transactions from bundlr", amount));

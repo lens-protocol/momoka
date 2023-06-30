@@ -170,7 +170,7 @@ pub async fn get_transactions_api(
     let submitters = get_submitters(environment, deployment);
     let query = get_transactions_query(submitters, limit, end_cursor, order);
 
-    let client = Client::new(&BundlrEndpoint::GraphQl.url());
+    let client = Client::new(BundlrEndpoint::GraphQl.url());
     let response = client
         .query::<TransactionsAPIResponse>(&query)
         .await
@@ -331,7 +331,7 @@ pub struct BundlrBulkTransactionsResponse<TSuccess> {
 async fn get_bulk_transactions_base_64_api(
     tx_ids: &[String],
 ) -> Result<BundlrBulkTransactionsResponse<BundlrTransactionBase64>, MomokaVerifierError> {
-    post_with_timeout(&BundlrEndpoint::BulkTxsData.url(), &tx_ids.to_vec())
+    post_with_timeout(BundlrEndpoint::BulkTxsData.url(), &tx_ids.to_vec())
         .await
         .map_err(|_| MomokaVerifierError::CannotConnectToBundlr)
 }
@@ -385,7 +385,7 @@ async fn from_base_64<TResult>(
             let transaction = String::from_utf8(decoded)
                 .map_err(|_| MomokaVerifierError::InvalidTransactionFormat)?;
 
-            let result = builder(&transaction, &result);
+            let result = builder(&transaction, result);
 
             Ok(result)
         };
@@ -422,7 +422,7 @@ fn transaction_builder(
 ) -> Result<TransactionSummary, TransactionError> {
     // Parse the decoded transaction data into a JSON value.
     let json_value: serde_json::Value =
-        serde_json::from_str(&decoded_transaction).map_err(|_| {
+        serde_json::from_str(decoded_transaction).map_err(|_| {
             TransactionError::new(
                 reference.id.clone(),
                 MomokaVerifierError::InvalidTransactionFormat,
@@ -431,7 +431,7 @@ fn transaction_builder(
 
     // Get the transaction type from the JSON data and parse it into a `TransactionType` enum.
     let transaction_type = MomokaTransaction::from_json(
-        &decoded_transaction,
+        decoded_transaction,
         &MomokaTransactionName::from_str(json_value["type"].as_str().unwrap()).map_err(|_| {
             TransactionError::new(
                 reference.id.clone(),
@@ -476,7 +476,7 @@ fn transaction_timestamp_proofs_builder(
 ) -> Result<TimestampProofsSummary, TransactionError> {
     // Parse the decoded transaction data into a `TimestampProofsResponse` struct.
     let response =
-        serde_json::from_str::<TimestampProofsResponse>(&decoded_transaction).map_err(|_| {
+        serde_json::from_str::<TimestampProofsResponse>(decoded_transaction).map_err(|_| {
             TransactionError::new(
                 reference.id.clone(),
                 MomokaVerifierError::InvalidTransactionFormat,
@@ -510,7 +510,7 @@ pub async fn get_transaction_api(
     let single_transaction = result
         .success
         .pop()
-        .ok_or_else(|| MomokaVerifierError::CannotConnectToBundlr)?;
+        .ok_or(MomokaVerifierError::CannotConnectToBundlr)?;
     Ok(single_transaction)
 }
 
@@ -619,7 +619,6 @@ pub async fn get_bulk_transactions_api(
             Ok(tx) => combined_response.success.push(tx),
             Err(tx_error) => {
                 combined_response.failed.insert(tx_error.id, tx_error.error);
-                ()
             }
         }
     }

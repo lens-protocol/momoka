@@ -56,14 +56,14 @@ async fn simulate_transaction(
     let sig_request = PostWithSigData {
         profile_id: publication.profile_id().clone().into(),
         content_uri: typed_data_value.content_uri.clone(),
-        collect_module: typed_data_value.collect_module.clone(),
+        collect_module: typed_data_value.collect_module,
         collect_module_init_data: typed_data_value.collect_module_init_data.clone().into(),
-        reference_module: typed_data_value.reference_module.clone(),
+        reference_module: typed_data_value.reference_module,
         reference_module_init_data: typed_data_value.reference_module_init_data.clone().into(),
         sig: Eip712Signature {
-            v: sig.v.into(),
-            r: sig.r.into(),
-            s: sig.s.into(),
+            v: sig.v,
+            r: sig.r,
+            s: sig.s,
             deadline: sig.deadline.into(),
         },
     };
@@ -126,11 +126,11 @@ async fn simulate_transaction(
 async fn get_expected_simulation_result(
     lens_hub: &ILensHub<&Provider<RetryClient<Http>>>,
     profile_id: &ProfileId,
-    block_number: &u64,
+    block_number: u64,
 ) -> Result<U256, MomokaVerifierError> {
     let result: U256 = lens_hub
         .get_pub_count(profile_id.clone().into())
-        .block(block_number.clone())
+        .block(block_number)
         .call()
         .await
         .map_err(|_| MomokaVerifierError::DataCantBeReadFromNode)?;
@@ -231,12 +231,12 @@ pub async fn verifier_post(
         provider_context.node.provider(),
     );
 
-    let simulation_result = simulate_transaction(&lens_hub, &publication).await?;
+    let simulation_result = simulate_transaction(&lens_hub, publication).await?;
 
     let expected_simulation_result = get_expected_simulation_result(
         &lens_hub,
         publication.profile_id(),
-        &publication.chain_proofs.this_publication.block_number,
+        publication.chain_proofs.this_publication.block_number,
     )
     .await?;
 

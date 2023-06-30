@@ -33,6 +33,7 @@ pub type MomokaTxId = String;
 /// An enum representing the type of action associated with a transaction.
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+#[allow(clippy::enum_variant_names)]
 pub enum TransactionAction {
     PostCreated,
     CommentCreated,
@@ -227,6 +228,7 @@ impl MirrorCreatedPublication {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[allow(clippy::enum_variant_names)]
 /// An enum representing a Momoka transaction.
 pub enum MomokaTransaction {
     PostCreated(PostCreatedPublication),
@@ -235,6 +237,7 @@ pub enum MomokaTransaction {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[allow(clippy::enum_variant_names)]
 /// An enum representing a Momoka transaction name.
 pub enum MomokaTransactionName {
     PostCreated,
@@ -317,13 +320,13 @@ impl MomokaTransaction {
     pub fn is_valid_event_timestamp(&self) -> Result<bool, MomokaVerifierError> {
         match self {
             MomokaTransaction::CommentCreated(e) => {
-                return Ok(e.event.timestamp == e.chain_proofs.this_publication.block_timestamp);
+                Ok(e.event.timestamp == e.chain_proofs.this_publication.block_timestamp)
             }
             MomokaTransaction::MirrorCreated(e) => {
-                return Ok(e.event.timestamp == e.chain_proofs.this_publication.block_timestamp);
+                Ok(e.event.timestamp == e.chain_proofs.this_publication.block_timestamp)
             }
             MomokaTransaction::PostCreated(e) => {
-                return Ok(e.event.timestamp == e.chain_proofs.this_publication.block_timestamp);
+                Ok(e.event.timestamp == e.chain_proofs.this_publication.block_timestamp)
             }
             _ => Err(MomokaVerifierError::InvalidTransactionType),
         }
@@ -340,16 +343,16 @@ impl MomokaTransaction {
     pub fn is_valid_typed_data_deadline_timestamp(&self) -> Result<bool, MomokaVerifierError> {
         match self {
             MomokaTransaction::CommentCreated(e) => {
-                return Ok(e.chain_proofs.this_publication.typed_data.value.deadline
-                    == e.chain_proofs.this_publication.block_timestamp);
+                Ok(e.chain_proofs.this_publication.typed_data.value.deadline
+                    == e.chain_proofs.this_publication.block_timestamp)
             }
             MomokaTransaction::MirrorCreated(e) => {
-                return Ok(e.chain_proofs.this_publication.typed_data.value.deadline
-                    == e.chain_proofs.this_publication.block_timestamp);
+                Ok(e.chain_proofs.this_publication.typed_data.value.deadline
+                    == e.chain_proofs.this_publication.block_timestamp)
             }
             MomokaTransaction::PostCreated(e) => {
-                return Ok(e.chain_proofs.this_publication.typed_data.value.deadline
-                    == e.chain_proofs.this_publication.block_timestamp);
+                Ok(e.chain_proofs.this_publication.typed_data.value.deadline
+                    == e.chain_proofs.this_publication.block_timestamp)
             }
             _ => Err(MomokaVerifierError::InvalidTransactionType),
         }
@@ -370,15 +373,9 @@ impl MomokaTransaction {
         provider_context: &ProviderContext,
     ) -> Result<(), MomokaVerifierError> {
         match self {
-            MomokaTransaction::CommentCreated(e) => {
-                return verifier_comment(e, provider_context).await;
-            }
-            MomokaTransaction::MirrorCreated(e) => {
-                return verifier_mirror(e, provider_context).await;
-            }
-            MomokaTransaction::PostCreated(e) => {
-                return verifier_post(e, provider_context).await;
-            }
+            MomokaTransaction::CommentCreated(e) => verifier_comment(e, provider_context).await,
+            MomokaTransaction::MirrorCreated(e) => verifier_mirror(e, provider_context).await,
+            MomokaTransaction::PostCreated(e) => verifier_post(e, provider_context).await,
             _ => Err(MomokaVerifierError::InvalidTransactionType),
         }
     }
@@ -791,12 +788,12 @@ pub struct TransactionSummary {
 
 impl TransactionSummary {
     /// Sets the `TimestampProofsResponse` object for the transaction summary.
-    pub fn set_timestamp_proofs_response(&mut self, response: TimestampProofsResponse) -> () {
+    pub fn set_timestamp_proofs_response(&mut self, response: TimestampProofsResponse) {
         self.timestamp_proofs_response = Some(response);
     }
 
     /// Sets the `TransactionSummary` for the pointer
-    pub fn set_pointer_transaction_summary(&mut self, response: Box<TransactionSummary>) -> () {
+    pub fn set_pointer_transaction_summary(&mut self, response: Box<TransactionSummary>) {
         self.pointer_transaction_summary = Some(response);
     }
 }

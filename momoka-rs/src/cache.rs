@@ -33,7 +33,7 @@ pub fn read_transaction_cache(key: &MomokaTxId) -> Option<Arc<TransactionCacheRe
 ///
 /// * `key` - A momoka tx id representing the key to set in the cache.
 /// * `value` - The value to associate with the key in the cache.
-pub fn set_transaction_cache(key: MomokaTxId, value: TransactionCacheResult) -> () {
+pub fn set_transaction_cache(key: MomokaTxId, value: TransactionCacheResult) {
     let cache_value = Arc::new(value);
     TRANSACTION_CACHE.write().unwrap().insert(key, cache_value);
 }
@@ -57,7 +57,7 @@ pub fn read_signature_cache(key: &str) -> Option<Arc<()>> {
 ///
 /// * `key` - A signature representing the key to set in the cache.
 /// * `value` - The value to associate with the key in the cache.
-pub fn set_signature_cache(key: String) -> () {
+pub fn set_signature_cache(key: String) {
     let cache_value = Arc::new(());
     SIGNATURE_CACHE.write().unwrap().insert(key, cache_value);
 }
