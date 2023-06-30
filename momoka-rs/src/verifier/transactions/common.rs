@@ -26,12 +26,12 @@ use crate::types::verifier_error::MomokaVerifierError;
 pub fn recovery_signed_typed_data<TValue: Serialize>(
     signature: &str,
     domain: &EIP712Domain,
-    types: &Vec<Eip712DomainType>,
+    types: &[Eip712DomainType],
     value: &TValue,
     primary_type_name: String,
 ) -> Result<Address, MomokaVerifierError> {
     let mut types_map = BTreeMap::new();
-    types_map.insert(primary_type_name.to_owned(), types.clone());
+    types_map.insert(primary_type_name.to_owned(), types.to_vec());
 
     let message: BTreeMap<String, Value> = serde_json::from_str(
         &serde_json::to_string(value)
@@ -42,7 +42,7 @@ pub fn recovery_signed_typed_data<TValue: Serialize>(
     let typed_data: TypedData = TypedData {
         domain: domain.clone(),
         types: types_map,
-        primary_type: primary_type_name.to_owned(),
+        primary_type: primary_type_name,
         message,
     };
 
@@ -50,7 +50,7 @@ pub fn recovery_signed_typed_data<TValue: Serialize>(
         .encode_eip712()
         .map_err(|_| MomokaVerifierError::InvalidFormattedTypedData)?;
 
-    let signature = Signature::from_str(&signature)
+    let signature = Signature::from_str(signature)
         .map_err(|_| MomokaVerifierError::InvalidFormattedTypedData)?;
 
     let address = signature

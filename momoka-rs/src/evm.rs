@@ -92,7 +92,7 @@ pub fn evm_provider(node_url: &str) -> Provider<RetryClient<Http>> {
             .initial_backoff(Duration::from_millis(500))
             .build(
                 Http::from_str(node_url).unwrap(),
-                Box::new(HttpRateLimitRetryPolicy::default()),
+                Box::<HttpRateLimitRetryPolicy>::default(),
             ),
     )
 }

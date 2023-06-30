@@ -78,5 +78,5 @@ pub fn is_valid_submitter(
     address: &Address,
     deployment: &Deployment,
 ) -> bool {
-    get_submitters(environment, deployment).contains(&address)
+    get_submitters(environment, deployment).contains(address)
 }

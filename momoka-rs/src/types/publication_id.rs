@@ -48,7 +48,7 @@ impl<'de> Deserialize<'de> for PublicationId {
         D: Deserializer<'de>,
     {
         let hex_string = String::deserialize(deserializer)?;
-        let publication_id = U256::from_str_radix(&hex_string.trim_start_matches("0x"), 16)
+        let publication_id = U256::from_str_radix(hex_string.trim_start_matches("0x"), 16)
             .map_err(serde::de::Error::custom)?;
         Ok(PublicationId::new(publication_id))
     }

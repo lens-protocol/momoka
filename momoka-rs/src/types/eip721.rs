@@ -25,7 +25,7 @@ impl TypedDataDomain {
             version: Some(self.version.clone()),
             chain_id: Some(U256::from(self.chain_id)),
             salt: None,
-            verifying_contract: Some(self.verifying_contract.clone()),
+            verifying_contract: Some(self.verifying_contract),
         }
     }
 }
