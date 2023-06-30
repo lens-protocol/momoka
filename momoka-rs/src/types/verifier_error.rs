@@ -71,7 +71,7 @@ pub enum MomokaVerifierError {
 
 impl Display for MomokaVerifierError {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        let error_name = self.to_string();
+        let error_name = self;
         write!(f, "{}", error_name)
     }
 }

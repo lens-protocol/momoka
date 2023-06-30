@@ -26,28 +26,28 @@ use crate::environment::{Deployment, Environment};
 /// ```
 pub fn get_submitters(environment: &Environment, deployment: &Deployment) -> Vec<Address> {
     match deployment {
-        Deployment::PRODUCTION => match environment {
-            Environment::POLYGON => {
+        Deployment::Production => match environment {
+            Environment::Polygon => {
                 vec![Address::from_str("0xBe29464B9784a0d8956f29630d8bc4D7B5737435").unwrap()]
             }
-            Environment::MUMBAI => {
+            Environment::Mumbai => {
                 vec![Address::from_str("0xEE3E8f53df70C3A3eeDA2076CDCa17c451aa8F96").unwrap()]
             }
-            Environment::SANDBOX => panic!("Not Supported"),
+            Environment::Sandbox => panic!("Not Supported"),
         },
-        Deployment::STAGING => match environment {
-            Environment::POLYGON => panic!("Not Supported"),
-            Environment::MUMBAI => {
+        Deployment::Staging => match environment {
+            Environment::Polygon => panic!("Not Supported"),
+            Environment::Mumbai => {
                 vec![Address::from_str("0x122938FE0d1fC6e00EF1b814cD7e44677e99b4f7").unwrap()]
             }
-            Environment::SANDBOX => panic!("Not Supported"),
+            Environment::Sandbox => panic!("Not Supported"),
         },
-        Deployment::LOCAL => match environment {
-            Environment::POLYGON => panic!("Not Supported"),
-            Environment::MUMBAI => {
+        Deployment::Local => match environment {
+            Environment::Polygon => panic!("Not Supported"),
+            Environment::Mumbai => {
                 vec![Address::from_str("0x8Fc176aA6FC843D3422f0C1832f1b9E17be00C1c").unwrap()]
             }
-            Environment::SANDBOX => panic!("Not Supported"),
+            Environment::Sandbox => panic!("Not Supported"),
         },
     }
 }

@@ -54,7 +54,7 @@ pub async fn verify_timestamp_proofs(
         .map_err(|_| MomokaVerifierError::TimestampProofInvalidSignature)?;
 
     // Verify the signature using Arweave's verification algorithm
-    ArweaveSigner::verify(pubk.into(), msg.into(), sig.into())
+    ArweaveSigner::verify(pubk.into(), msg, sig.into())
         .map_err(|_| MomokaVerifierError::TimestampProofInvalidSignature)
 }
 
@@ -74,5 +74,5 @@ async fn test_verify_timestamp_proofs() {
         };
 
     // Verify the timestamp proofs
-    verify_timestamp_proofs(&timestamp_proofs).await.is_ok();
+    let _ = verify_timestamp_proofs(&timestamp_proofs).await.is_ok();
 }

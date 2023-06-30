@@ -5,9 +5,9 @@ use ethers::types::Address;
 /// Represents different deployment environments.
 #[derive(Debug, Clone)]
 pub enum Deployment {
-    PRODUCTION,
-    STAGING,
-    LOCAL,
+    Production,
+    Staging,
+    Local,
 }
 
 impl FromStr for Deployment {
@@ -23,10 +23,10 @@ impl FromStr for Deployment {
     ///
     /// A `Result` containing the parsed `Deployment` variant if successful, or an error if parsing fails.
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
-            "PRODUCTION" => Ok(Deployment::PRODUCTION),
-            "STAGING" => Ok(Deployment::STAGING),
-            "LOCAL" => Ok(Deployment::LOCAL),
+        match s.to_ascii_lowercase().as_str() {
+            "production" => Ok(Deployment::Production),
+            "staging" => Ok(Deployment::Staging),
+            "local" => Ok(Deployment::Local),
             _ => Err(()),
         }
     }
@@ -46,9 +46,9 @@ pub struct EnvironmentInfo {
 /// Represents different network environments.
 #[derive(Debug, Clone)]
 pub enum Environment {
-    POLYGON,
-    MUMBAI,
-    SANDBOX,
+    Polygon,
+    Mumbai,
+    Sandbox,
 }
 
 impl FromStr for Environment {
@@ -64,10 +64,10 @@ impl FromStr for Environment {
     ///
     /// A `Result` containing the parsed `Environment` variant if successful, or an error if parsing fails.
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
-            "POLYGON" => Ok(Environment::POLYGON),
-            "MUMBAI" => Ok(Environment::MUMBAI),
-            "SANDBOX" => Ok(Environment::SANDBOX),
+        match s.to_lowercase().as_str() {
+            "polygon" => Ok(Environment::Polygon),
+            "mumbai" => Ok(Environment::Mumbai),
+            "sandbox" => Ok(Environment::Sandbox),
             _ => Err(()),
         }
     }
@@ -89,8 +89,8 @@ impl FromStr for Environment {
 #[allow(dead_code, unreachable_patterns)]
 pub fn environment_to_chain_id(environment: Environment) -> Result<u32, &'static str> {
     match environment {
-        Environment::POLYGON => Ok(137),
-        Environment::MUMBAI | Environment::SANDBOX => Ok(80001),
+        Environment::Polygon => Ok(137),
+        Environment::Mumbai | Environment::Sandbox => Ok(80001),
         _ => Err("Invalid environment"),
     }
 }
@@ -113,13 +113,13 @@ pub fn environment_to_lens_hub_contract(
     environment: &Environment,
 ) -> Result<Address, &'static str> {
     match environment {
-        Environment::POLYGON => {
+        Environment::Polygon => {
             Ok(Address::from_str("0xDb46d1Dc155634FbC732f92E853b10B288AD5a1d").unwrap())
         }
-        Environment::MUMBAI => {
+        Environment::Mumbai => {
             Ok(Address::from_str("0x60Ae865ee4C725cd04353b5AAb364553f56ceF82").unwrap())
         }
-        Environment::SANDBOX => {
+        Environment::Sandbox => {
             Ok(Address::from_str("0x7582177F9E536aB0b6c721e11f383C326F2Ad1D5").unwrap())
         }
         _ => Err("Invalid environment"),

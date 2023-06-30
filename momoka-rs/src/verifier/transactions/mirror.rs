@@ -121,14 +121,14 @@ pub async fn verifier_mirror(
 
     let profile_details = get_profile_details(
         environment_to_lens_hub_contract(&provider_context.environment).unwrap(),
-        &publication.profile_id(),
-        &address,
-        &publication.chain_proofs.this_publication.block_number,
+        publication.profile_id(),
+        address,
+        publication.chain_proofs.this_publication.block_number,
         &provider_context.node,
     )
     .await?;
 
-    if profile_details.sig_nonce != publication.nonce().clone().into() {
+    if &profile_details.sig_nonce.as_u64() != publication.nonce() {
         return Err(MomokaVerifierError::PublicationNonceInvalid);
     }
 

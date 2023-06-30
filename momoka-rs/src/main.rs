@@ -17,7 +17,7 @@ use logger::Logger;
 use std::collections::HashSet;
 use std::process::exit;
 use std::{str::FromStr, thread::sleep, time::Duration};
-use tokio;
+
 use types::transaction::MomokaTxId;
 use verifier::proof::check_proof;
 
