@@ -124,15 +124,22 @@ async fn main() {
             Logger
                 .warning("YOUR USING A SHARED NODE, BUSY TIMES THINGS COULD FAIL DUE TO LOW RATE LIMITS AND THAT IT IS A SHARED NODE.");
             if args.environment.as_ref().is_none() {
-               "https://polygon-mainnet.g.alchemy.com/v2/yzw8av5xB7xEAJLyoSLRYqKIaxbJ-mby".to_string()
+                "https://polygon-mainnet.g.alchemy.com/v2/yzw8av5xB7xEAJLyoSLRYqKIaxbJ-mby"
+                    .to_string()
             } else {
-               let node = match args.environment.as_ref().unwrap().to_string().as_str() {
-                    "MUMBAI" => "https://polygon-mumbai.g.alchemy.com/v2/aqPaIMBhpTSK9WImCS6ELYuRflnIPRAv".to_string(),
-                    "POLYGON" => "https://polygon-mainnet.g.alchemy.com/v2/yzw8av5xB7xEAJLyoSLRYqKIaxbJ-mby".to_string(),
+                let node = match args.environment.as_ref().unwrap().to_string().as_str() {
+                    "MUMBAI" => {
+                        "https://polygon-mumbai.g.alchemy.com/v2/aqPaIMBhpTSK9WImCS6ELYuRflnIPRAv"
+                            .to_string()
+                    }
+                    "POLYGON" => {
+                        "https://polygon-mainnet.g.alchemy.com/v2/yzw8av5xB7xEAJLyoSLRYqKIaxbJ-mby"
+                            .to_string()
+                    }
                     _ => {
                         Logger.error("Invalid value for ENVIRONMENT");
                         exit(1);
-                    },
+                    }
                 };
 
                 node

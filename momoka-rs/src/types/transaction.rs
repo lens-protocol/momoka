@@ -319,12 +319,15 @@ impl MomokaTransaction {
     /// variant is not supported.
     pub fn is_valid_event_timestamp(&self) -> Result<bool, MomokaVerifierError> {
         match self {
-            MomokaTransaction::CommentCreated(e) => 
-                Ok(e.event.timestamp == e.chain_proofs.this_publication.block_timestamp),
-            MomokaTransaction::MirrorCreated(e) =>
-                Ok(e.event.timestamp == e.chain_proofs.this_publication.block_timestamp),
-            MomokaTransaction::PostCreated(e) =>
-                Ok(e.event.timestamp == e.chain_proofs.this_publication.block_timestamp),
+            MomokaTransaction::CommentCreated(e) => {
+                Ok(e.event.timestamp == e.chain_proofs.this_publication.block_timestamp)
+            }
+            MomokaTransaction::MirrorCreated(e) => {
+                Ok(e.event.timestamp == e.chain_proofs.this_publication.block_timestamp)
+            }
+            MomokaTransaction::PostCreated(e) => {
+                Ok(e.event.timestamp == e.chain_proofs.this_publication.block_timestamp)
+            }
             _ => Err(MomokaVerifierError::InvalidTransactionType),
         }
     }
@@ -339,15 +342,18 @@ impl MomokaTransaction {
     /// type is invalid.
     pub fn is_valid_typed_data_deadline_timestamp(&self) -> Result<bool, MomokaVerifierError> {
         match self {
-            MomokaTransaction::CommentCreated(e) =>
+            MomokaTransaction::CommentCreated(e) => {
                 Ok(e.chain_proofs.this_publication.typed_data.value.deadline
-                    == e.chain_proofs.this_publication.block_timestamp),
-            MomokaTransaction::MirrorCreated(e) =>
+                    == e.chain_proofs.this_publication.block_timestamp)
+            }
+            MomokaTransaction::MirrorCreated(e) => {
                 Ok(e.chain_proofs.this_publication.typed_data.value.deadline
-                    == e.chain_proofs.this_publication.block_timestamp),
-            MomokaTransaction::PostCreated(e) =>
+                    == e.chain_proofs.this_publication.block_timestamp)
+            }
+            MomokaTransaction::PostCreated(e) => {
                 Ok(e.chain_proofs.this_publication.typed_data.value.deadline
-                    == e.chain_proofs.this_publication.block_timestamp),
+                    == e.chain_proofs.this_publication.block_timestamp)
+            }
             _ => Err(MomokaVerifierError::InvalidTransactionType),
         }
     }
@@ -367,12 +373,9 @@ impl MomokaTransaction {
         provider_context: &ProviderContext,
     ) -> Result<(), MomokaVerifierError> {
         match self {
-            MomokaTransaction::CommentCreated(e) =>
-                verifier_comment(e, provider_context).await,
-            MomokaTransaction::MirrorCreated(e) =>
-                verifier_mirror(e, provider_context).await,
-            MomokaTransaction::PostCreated(e) =>
-                verifier_post(e, provider_context).await,
+            MomokaTransaction::CommentCreated(e) => verifier_comment(e, provider_context).await,
+            MomokaTransaction::MirrorCreated(e) => verifier_mirror(e, provider_context).await,
+            MomokaTransaction::PostCreated(e) => verifier_post(e, provider_context).await,
             _ => Err(MomokaVerifierError::InvalidTransactionType),
         }
     }
