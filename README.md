@@ -1,6 +1,7 @@
 # Momoka
 
-<img src="./images/logo.png" />                                                                                                                                                                                                                    
+<img src="./images/logo.png" />
+
 ## Disclaimer
 
 We would like to emphasize that this project is currently in its beta phase and incorporates new, innovative technology. As with any cutting-edge solution, there may be potential challenges or undiscovered issues that could arise during its initial stages. We are committed to continually refining and improving our offering, and we appreciate your understanding and patience as we work diligently to perfect this technology. Please feel free to provide feedback or report any issues, as your input is invaluable in helping us enhance the user experience and overall functionality of our project.
