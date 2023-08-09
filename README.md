@@ -139,7 +139,7 @@ A reorg of the blockchain can potentially affect the signing expiry of transacti
 
 ## Future of Momoka
 
-As we said above this is very much in BETA and as we learn, shape and grow the solution we envison the architecture will end up looking something like this, with decentralised submitters and verifiers.
+As we said above this is very much in BETA and as we learn, shape and grow the solution we envision the architecture will end up looking something like this, with decentralised submitters and verifiers.
 
 <img src="./images/momoka-network.jpg" />
 
@@ -1062,7 +1062,7 @@ This is a DA comment. Very similar to DA post minus the `type`, `typedData` and 
               "type": "string"
             },
             "type": {
-              "description": "the type of the publication on the data availability layer `ON_DA` or `ON_EVM_CHAIN` - for now you can not do a DA publication on a on-chain publication so will always be `ON_DA`",
+              "description": "the type of the publication on the data availability layer `ON_DA` or `ON_EVM_CHAIN` - for now you can not do a DA publication on an on-chain publication so will always be `ON_DA`",
               "type": "string"
             }
           },
