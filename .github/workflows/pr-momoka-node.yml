@@ -29,5 +29,5 @@ jobs:
         run: cd momoka-node && pnpm run build
 
       - name: Run the unit tests
-        run: cd momoka-node && pnpm run test
+        run: cd momoka-node && pnpm run test:ci
 
