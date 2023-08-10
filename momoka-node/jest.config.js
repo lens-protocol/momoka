@@ -4,7 +4,6 @@ const { resolve } = require('path');
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  collectCoverage: true,
   coverageDirectory: 'coverage',
   testRegex: [resolve(__dirname, '/src/__TESTS__/*/.*\\.test\\.ts$')],
   setupFiles: ['<rootDir>/src/__TESTS__/config/jest.setup.js'],
