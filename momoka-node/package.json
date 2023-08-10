@@ -16,15 +16,15 @@
     "README.md"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "rm -rf lib/ && tsc",
     "eslint:fix": "eslint \"src/**/*.ts\" --quiet --fix",
     "eslint": "eslint \"src/**/*.ts\" --quiet",
     "start:fork": "REQ_TIMEOUT=100000 anvil --fork-url NODE_URL --silent",
     "start": "env-cmd -f .env node lib/runnable/da-verifier-node.runnable.js",
     "start:failed": "env-cmd -f .env ts-node src/failed-submissons.runnable.ts",
-    "debug:playground": "npm run build && env-cmd -f .env node lib/__PLAYGROUND__/index.js",
+    "debug:playground": "pnpm run build && env-cmd -f .env node lib/__PLAYGROUND__/index.js",
     "generate": "graphql-codegen",
-    "test": "npm run build && env-cmd -f .env.test jest",
+    "test": "env-cmd -f .env.test jest --forceExit",
     "lint": "pnpm run prettier && pnpm run tsc",
     "lint:fix": "pnpm run prettier:fix && pnpm run eslint",
     "prettier:fix": "prettier --write .",

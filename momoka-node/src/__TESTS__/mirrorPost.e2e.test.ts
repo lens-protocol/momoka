@@ -6,19 +6,19 @@ jest.mock('../submitters');
 import { MomokaValidatorError } from '..';
 import { deepClone } from '../common/helpers';
 import { DAPublicationPointerType } from '../data-availability-models/publications/data-availability-structure-publication';
-import { commentCreatedDelegateArweaveResponse } from './mocks/comment/comment-created-delegate-arweave-response.mock';
-import { commentCreatedWithoutDelegateArweaveResponse } from './mocks/comment/comment-created-without-delegate-arweave-response.mock';
+import { mirrorCreatedDelegatePostArweaveResponse } from './mocks/mirror/mirror-created-delegate-post-arweave-response.mock';
+import { mirrorCreatedWithoutDelegatePostArweaveResponse } from './mocks/mirror/mirror-created-without-delegate-post-arweave-response.mock';
 import * as sharedMocks from './mocks/shared.mock';
 import { mockTxValidationResult } from './mocks/shared.mock';
 
-describe('comment', () => {
+describe('mirror post', () => {
   describe('with delegate', () => {
-    let baseMock = commentCreatedDelegateArweaveResponse;
+    let baseMock = mirrorCreatedDelegatePostArweaveResponse;
 
     beforeAll(() => {
-      baseMock = commentCreatedDelegateArweaveResponse;
+      baseMock = mirrorCreatedDelegatePostArweaveResponse;
       sharedMocks.mockGetDAPublicationByIdAPI.mockImplementation(async () =>
-        deepClone(commentCreatedDelegateArweaveResponse)
+        deepClone(mirrorCreatedDelegatePostArweaveResponse)
       );
     });
 
@@ -28,12 +28,15 @@ describe('comment', () => {
       });
 
       test('txExists in the db already', async () => {
-        sharedMocks.mockGetTxDb.mockImplementationOnce(async () => null);
+        sharedMocks.mockGetTxDb.mockImplementationOnce(
+          async () => await Promise.resolve(mockTxValidationResult)
+        );
         const result = await sharedMocks.callCheckDAProof();
         expect(result.isSuccess()).toBe(true);
       });
 
       test('tx is valid and passes all the simulation checks', async () => {
+        sharedMocks.mockIsValidSubmitter.mockImplementationOnce(() => true);
         const result = await sharedMocks.callCheckDAProof();
         expect(result.isSuccess()).toBe(true);
       });
@@ -47,6 +50,7 @@ describe('comment', () => {
 
       xtest('INVALID_SIGNATURE_SUBMITTER', async () => {
         sharedMocks.mockIsValidSubmitter.mockImplementationOnce(() => false);
+
         await sharedMocks.checkAndValidateDAProof(MomokaValidatorError.INVALID_SIGNATURE_SUBMITTER);
       });
 
@@ -113,12 +117,11 @@ describe('comment', () => {
         await sharedMocks.checkAndValidateDAProof(MomokaValidatorError.PUBLICATION_NONCE_INVALID);
       });
 
-      xtest('PUBLICATION_SIGNER_NOT_ALLOWED', () => {
-        // TODO: implement
-      });
+      xtest('PUBLICATION_SIGNER_NOT_ALLOWED', async () => {});
 
       test('INVALID_FORMATTED_TYPED_DATA', async () => {
         sharedMocks.mockImpl__INVALID_FORMATTED_TYPED_DATA(baseMock);
+
         await sharedMocks.checkAndValidateDAProof(
           MomokaValidatorError.INVALID_FORMATTED_TYPED_DATA
         );
@@ -126,7 +129,7 @@ describe('comment', () => {
 
       test('EVENT_MISMATCH - pub id does not match simulated result', async () => {
         sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
-          return {
+          return await {
             ...baseMock,
             event: {
               ...baseMock.event,
@@ -145,20 +148,6 @@ describe('comment', () => {
             event: {
               ...baseMock.event,
               profileId: '0x02',
-            },
-          };
-        });
-
-        await sharedMocks.checkAndValidateDAProof(MomokaValidatorError.EVENT_MISMATCH);
-      });
-
-      test('EVENT_MISMATCH - contentURI does not match typed data', async () => {
-        sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
-          return {
-            ...baseMock,
-            event: {
-              ...baseMock.event,
-              contentURI: '__mocked_content_uri__',
             },
           };
         });
@@ -194,34 +183,6 @@ describe('comment', () => {
         await sharedMocks.checkAndValidateDAProof(MomokaValidatorError.EVENT_MISMATCH);
       });
 
-      test('EVENT_MISMATCH - collectModule does not match typed data', async () => {
-        sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
-          return {
-            ...baseMock,
-            event: {
-              ...baseMock.event,
-              collectModule: '0x0000000000000000000000000000000000000',
-            },
-          };
-        });
-
-        await sharedMocks.checkAndValidateDAProof(MomokaValidatorError.EVENT_MISMATCH);
-      });
-
-      test('EVENT_MISMATCH - collectModuleReturnData is not empty bytes', async () => {
-        sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
-          return {
-            ...baseMock,
-            event: {
-              ...baseMock.event,
-              collectModuleReturnData: 'not_empty_bytes',
-            },
-          };
-        });
-
-        await sharedMocks.checkAndValidateDAProof(MomokaValidatorError.EVENT_MISMATCH);
-      });
-
       test('EVENT_MISMATCH - referenceModule does not match typed data', async () => {
         sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
           return {
@@ -250,33 +211,31 @@ describe('comment', () => {
         await sharedMocks.checkAndValidateDAProof(MomokaValidatorError.EVENT_MISMATCH);
       });
 
-      xtest('SIMULATION_NODE_COULD_NOT_RUN', () => {
-        // TODO: implement
-      });
+      xtest('SIMULATION_NODE_COULD_NOT_RUN', async () => {});
 
-      xtest('UNKNOWN', () => {
-        // TODO: implement
-      });
+      xtest('INVALID_POINTER_SET_NOT_NEEDED', () => {});
+
+      xtest('UNKNOWN', () => {});
     });
   });
 
   describe('without delegate', () => {
-    let baseMock = commentCreatedWithoutDelegateArweaveResponse;
+    let baseMock = mirrorCreatedWithoutDelegatePostArweaveResponse;
 
     beforeAll(() => {
-      baseMock = commentCreatedWithoutDelegateArweaveResponse;
+      baseMock = mirrorCreatedWithoutDelegatePostArweaveResponse;
       sharedMocks.mockGetDAPublicationByIdAPI.mockImplementation(async () =>
-        deepClone(commentCreatedWithoutDelegateArweaveResponse)
+        deepClone(mirrorCreatedWithoutDelegatePostArweaveResponse)
       );
     });
 
     describe('should return success when', () => {
-      test('signed by delegate is false', () => {
+      test('signed by delegate is false', async () => {
         expect(baseMock.chainProofs.thisPublication.signedByDelegate).toBe(false);
       });
 
       test('txExists in the db already', async () => {
-        sharedMocks.mockGetTxDb.mockImplementationOnce(async () => await mockTxValidationResult);
+        sharedMocks.mockGetTxDb.mockImplementationOnce(async () => mockTxValidationResult);
         const result = await sharedMocks.callCheckDAProof();
         expect(result.isSuccess()).toBe(true);
       });
@@ -363,12 +322,11 @@ describe('comment', () => {
         await sharedMocks.checkAndValidateDAProof(MomokaValidatorError.PUBLICATION_NONCE_INVALID);
       });
 
-      xtest('PUBLICATION_SIGNER_NOT_ALLOWED', async () => {
-        // TODO: implement
-      });
+      xtest('PUBLICATION_SIGNER_NOT_ALLOWED', async () => {});
 
       test('INVALID_FORMATTED_TYPED_DATA', async () => {
         sharedMocks.mockImpl__INVALID_FORMATTED_TYPED_DATA(baseMock);
+
         await sharedMocks.checkAndValidateDAProof(
           MomokaValidatorError.INVALID_FORMATTED_TYPED_DATA
         );
@@ -384,6 +342,7 @@ describe('comment', () => {
             },
           };
         });
+
         await sharedMocks.checkAndValidateDAProof(MomokaValidatorError.EVENT_MISMATCH);
       });
 
@@ -394,19 +353,6 @@ describe('comment', () => {
             event: {
               ...baseMock.event,
               profileId: '0x02',
-            },
-          };
-        });
-        await sharedMocks.checkAndValidateDAProof(MomokaValidatorError.EVENT_MISMATCH);
-      });
-
-      test('EVENT_MISMATCH - contentURI does not match typed data', async () => {
-        sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
-          return {
-            ...baseMock,
-            event: {
-              ...baseMock.event,
-              contentURI: '__mocked_content_uri__',
             },
           };
         });
@@ -442,34 +388,6 @@ describe('comment', () => {
         await sharedMocks.checkAndValidateDAProof(MomokaValidatorError.EVENT_MISMATCH);
       });
 
-      test('EVENT_MISMATCH - collectModule does not match typed data', async () => {
-        sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
-          return {
-            ...baseMock,
-            event: {
-              ...baseMock.event,
-              collectModule: '0x0000000000000000000000000000000000000',
-            },
-          };
-        });
-
-        await sharedMocks.checkAndValidateDAProof(MomokaValidatorError.EVENT_MISMATCH);
-      });
-
-      test('EVENT_MISMATCH - collectModuleReturnData is not empty bytes', async () => {
-        sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
-          return {
-            ...baseMock,
-            event: {
-              ...baseMock.event,
-              collectModuleReturnData: 'not_empty_bytes',
-            },
-          };
-        });
-
-        await sharedMocks.checkAndValidateDAProof(MomokaValidatorError.EVENT_MISMATCH);
-      });
-
       test('EVENT_MISMATCH - referenceModule does not match typed data', async () => {
         sharedMocks.mockGetDAPublicationByIdAPI.mockImplementationOnce(async () => {
           return {
@@ -498,13 +416,11 @@ describe('comment', () => {
         await sharedMocks.checkAndValidateDAProof(MomokaValidatorError.EVENT_MISMATCH);
       });
 
-      xtest('SIMULATION_NODE_COULD_NOT_RUN', () => {
-        // TODO: implement
-      });
+      xtest('SIMULATION_NODE_COULD_NOT_RUN', async () => {});
 
-      xtest('UNKNOWN', () => {
-        // TODO: implement
-      });
+      xtest('INVALID_POINTER_SET_NOT_NEEDED', () => {});
+
+      xtest('UNKNOWN', () => {});
     });
   });
 });

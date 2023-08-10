@@ -1,5 +1,4 @@
 // apply mocks!
-jest.setTimeout(30000);
 jest.mock('../input-output/db');
 jest.mock('../input-output/bundlr/get-bundlr-by-id.api');
 jest.mock('../submitters');
@@ -15,7 +14,7 @@ describe('post', () => {
   describe('with delegate', () => {
     let baseMock = postCreatedDelegateArweaveResponse;
 
-    beforeEach(() => {
+    beforeAll(() => {
       baseMock = postCreatedDelegateArweaveResponse;
       sharedMocks.mockGetDAPublicationByIdAPI.mockImplementation(async () =>
         deepClone(postCreatedDelegateArweaveResponse)
@@ -207,7 +206,7 @@ describe('post', () => {
   describe('without delegate', () => {
     let baseMock = postCreatedWithoutDelegateArweaveResponse;
 
-    beforeEach(() => {
+    beforeAll(() => {
       baseMock = postCreatedWithoutDelegateArweaveResponse;
       sharedMocks.mockGetDAPublicationByIdAPI.mockImplementation(async () =>
         deepClone(postCreatedWithoutDelegateArweaveResponse)
@@ -234,19 +233,16 @@ describe('post', () => {
     describe('should return failure when', () => {
       test('NO_SIGNATURE_SUBMITTER', async () => {
         sharedMocks.mockImpl__NO_SIGNATURE_SUBMITTER(baseMock);
-
         await sharedMocks.checkAndValidateDAProof(MomokaValidatorError.NO_SIGNATURE_SUBMITTER);
       });
 
       xtest('INVALID_SIGNATURE_SUBMITTER', async () => {
         sharedMocks.mockIsValidSubmitter.mockImplementationOnce(() => false);
-
         await sharedMocks.checkAndValidateDAProof(MomokaValidatorError.INVALID_SIGNATURE_SUBMITTER);
       });
 
       test('TIMESTAMP_PROOF_INVALID_SIGNATURE', async () => {
         sharedMocks.mockImpl__TIMESTAMP_PROOF_INVALID_SIGNATURE(baseMock);
-
         await sharedMocks.checkAndValidateDAProof(
           MomokaValidatorError.TIMESTAMP_PROOF_INVALID_SIGNATURE
         );
@@ -254,7 +250,6 @@ describe('post', () => {
 
       test('TIMESTAMP_PROOF_NOT_SUBMITTER', async () => {
         sharedMocks.mockImpl__TIMESTAMP_PROOF_NOT_SUBMITTER();
-
         await sharedMocks.checkAndValidateDAProof(
           MomokaValidatorError.TIMESTAMP_PROOF_NOT_SUBMITTER
         );
@@ -262,7 +257,6 @@ describe('post', () => {
 
       test('INVALID_EVENT_TIMESTAMP', async () => {
         sharedMocks.mockImpl__INVALID_EVENT_TIMESTAMP(baseMock);
-
         await sharedMocks.checkAndValidateDAProof(MomokaValidatorError.INVALID_EVENT_TIMESTAMP);
       });
 
@@ -272,7 +266,6 @@ describe('post', () => {
 
       test('INVALID_POINTER_SET_NOT_NEEDED', async () => {
         sharedMocks.mockImpl__INVALID_POINTER_SET(baseMock, 'mocked');
-
         await sharedMocks.checkAndValidateDAProof(
           MomokaValidatorError.INVALID_POINTER_SET_NOT_NEEDED
         );
@@ -280,13 +273,11 @@ describe('post', () => {
 
       test('SIMULATION_FAILED - trying to submit a tx with a profile id not owned', async () => {
         sharedMocks.mockImpl__SIMULATION_FAILED_BAD_PROFILE_ID(baseMock);
-
         await sharedMocks.checkAndValidateDAProof(MomokaValidatorError.SIMULATION_FAILED);
       });
 
       test('INVALID_FORMATTED_TYPED_DATA', async () => {
         sharedMocks.mockImpl__INVALID_FORMATTED_TYPED_DATA(baseMock);
-
         await sharedMocks.checkAndValidateDAProof(
           MomokaValidatorError.INVALID_FORMATTED_TYPED_DATA
         );
@@ -390,9 +381,13 @@ describe('post', () => {
         await sharedMocks.checkAndValidateDAProof(MomokaValidatorError.EVENT_MISMATCH);
       });
 
-      xtest('SIMULATION_NODE_COULD_NOT_RUN', async () => {});
+      xtest('SIMULATION_NODE_COULD_NOT_RUN', () => {
+        // TODO: implement
+      });
 
-      xtest('UNKNOWN', () => {});
+      xtest('UNKNOWN', () => {
+        // TODO: implement
+      });
     });
   });
 });
