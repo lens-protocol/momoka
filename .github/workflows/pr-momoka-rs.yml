@@ -1,0 +1,22 @@
+name: Build, Lint and Unit Tests for Momoka RUST
+
+on:
+  pull_request:
+    types: [labeled, opened, synchronize, unlabeled]
+    # Run only for the momoka-rs directory
+    paths:
+      - 'momoka-rs/**'
+
+jobs:
+  build-lint-test:
+    name: Build-Lint-Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+  
+      - name: Build 
+        run: cd momoka-rs && cargo build
+      
+      - name: Run the unit tests
+        run: cd momoka-rs && cargo test
