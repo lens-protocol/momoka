@@ -3,7 +3,7 @@ name: Build, Lint and Unit Tests for Momoka NODE
 on:
   pull_request:
     types: [labeled, opened, synchronize, unlabeled]
-    # Run only for the momoka-node directory
+    # Run only when some modifications are perform in the momoka-node directory
     paths:
       - 'momoka-node/**'
 
@@ -30,4 +30,3 @@ jobs:
 
       - name: Run the unit tests
         run: cd momoka-node && pnpm run test:ci
-
