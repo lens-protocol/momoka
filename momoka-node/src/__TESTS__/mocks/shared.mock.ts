@@ -19,13 +19,11 @@ import * as submittors from '../../submitters';
 import { postCreatedDelegateArweaveResponse } from './post/post-created-delegate-arweave-response.mock';
 
 export const mockGetTxDb = database.getTxDb as jest.MockedFunction<typeof database.getTxDb>;
-mockGetTxDb.mockImplementation(async () => null);
 
 export const mockhasSignatureBeenUsedBeforeDb =
   database.hasSignatureBeenUsedBeforeDb as jest.MockedFunction<
     typeof database.hasSignatureBeenUsedBeforeDb
   >;
-mockhasSignatureBeenUsedBeforeDb.mockImplementation(async () => false);
 
 export const mockGetDAPublicationByIdAPI =
   getBundlrByIdAPIDefault.getBundlrByIdAPI as jest.MockedFunction<
