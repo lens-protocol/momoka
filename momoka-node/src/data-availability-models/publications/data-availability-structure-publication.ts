@@ -1,19 +1,6 @@
 import { DAStructureBase } from '../data-availability-structure-base';
-import {
-  CreateCommentEIP712TypedData,
-  CreateMirrorEIP712TypedData,
-  CreatePostEIP712TypedData,
-} from './data-availability-publication-typed-data';
-import {
-  DACommentCreatedEventEmittedResponse,
-  DAMirrorCreatedEventEmittedResponse,
-  DAPostCreatedEventEmittedResponse,
-} from './data-availability-structure-publications-events';
-
-export type PublicationTypedData =
-  | CreatePostEIP712TypedData
-  | CreateCommentEIP712TypedData
-  | CreateMirrorEIP712TypedData;
+import { DAEventType } from './data-availability-structure-publications-events';
+import { PublicationTypedData } from './data-availability-publication-typed-data';
 
 export enum DAPublicationPointerType {
   ON_EVM_CHAIN = 'ON_EVM_CHAIN',
@@ -73,14 +60,9 @@ interface DAStructurePublicationProofs<TTypedData extends PublicationTypedData> 
   } | null;
 }
 
-export type DAEventType =
-  | DAPostCreatedEventEmittedResponse
-  | DACommentCreatedEventEmittedResponse
-  | DAMirrorCreatedEventEmittedResponse;
-
 export interface DAStructurePublication<
-  TEvent extends DAEventType,
-  TTypedData extends PublicationTypedData
+  TEvent extends DAEventType = DAEventType,
+  TTypedData extends PublicationTypedData = PublicationTypedData
 > extends DAStructureBase {
   /**
    * As close if not exactly the same as how the blockchain event was emitted.
@@ -101,6 +83,9 @@ export interface DAStructurePublication<
 
 export interface DAPublicationsBatchResult {
   id: string;
-  daPublication: DAStructurePublication<DAEventType, PublicationTypedData>;
+  daPublication: DAStructurePublication;
   submitter: string;
 }
+
+// TODO: This is done to avoid modifying a lot of files. Remove this when we have time as DAStructurePublication has these as default.
+export { DAEventType, PublicationTypedData };

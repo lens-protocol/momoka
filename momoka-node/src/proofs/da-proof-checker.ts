@@ -13,11 +13,7 @@ import {
   DAPublicationWithTimestampProofsBatchResult,
   DATimestampProofsResponse,
 } from '../data-availability-models/data-availability-timestamp-proofs';
-import {
-  DAEventType,
-  DAStructurePublication,
-  PublicationTypedData,
-} from '../data-availability-models/publications/data-availability-structure-publication';
+import { DAStructurePublication } from '../data-availability-models/publications/data-availability-structure-publication';
 import { MomokaValidatorError } from '../data-availability-models/validator-errors';
 import { BlockInfo, EthereumNode } from '../evm/ethereum';
 import { TIMEOUT_ERROR, TimeoutError } from '../input-output/common';
@@ -27,30 +23,30 @@ import {
   CheckDASubmissionOptions,
   getDefaultCheckDASubmissionOptions,
 } from './models/check-da-submisson-options';
-import { CheckDACommentPublication, checkDAComment } from './publications/comment';
-import { CheckDAMirrorPublication, checkDAMirror } from './publications/mirror';
-import { CheckDAPostPublication, checkDAPost } from './publications/post';
-import {
-  getClosestBlock,
-  isValidEventTimestamp,
-  isValidPublicationId,
-  isValidTypedDataDeadlineTimestamp,
-} from './utils';
+import { checkDAComment } from './publications/comment';
+import { checkDAMirror } from './publications/mirror';
+import { checkDAPost } from './publications/post';
+import { getClosestBlock, isValidEventTimestamp, isValidTypedDataDeadlineTimestamp } from './utils';
+import { createDAPublicationVerifier } from './publications/create-da-publication-verifier';
+import { DAStructureCommentVerifierV1 } from './publications/comment/da-structure-comment-verifier-v1';
+import { DAStructureCommentVerifierV2 } from './publications/comment/da-structure-comment-verifier-v2';
+import { DAStructureMirrorVerifierV1 } from './publications/mirror/da-structure-mirror-verifier-v1';
+import { DAStructureMirrorVerifierV2 } from './publications/mirror/da-structure-mirror-verifier-v2';
+import { DAStructurePostVerifierV1 } from './publications/post/da-structure-post-verifier-v1';
+import { DAStructurePostVerifierV2 } from './publications/post/da-structure-post-verifier-v2';
+import { checkDAQuote } from './publications/quote';
+import { DAStructureQuoteVerifierV2 } from './publications/quote/da-structure-quote-verifier-v2';
 
 const validResult = 'valid';
 type ValidType = typeof validResult;
 
 export interface DAProofsVerifier {
-  extractAddress(
-    daPublication: DAStructurePublication<DAEventType, PublicationTypedData>
-  ): Promise<string>;
+  extractAddress(daPublication: DAStructurePublication): Promise<string>;
 
   /**
    * Check if bundlr timestamp proofs are valid and verified against bundlr node
    */
-  verifyTimestampSignature(
-    daPublication: DAStructurePublication<DAEventType, PublicationTypedData>
-  ): Promise<boolean>;
+  verifyTimestampSignature(daPublication: DAStructurePublication): Promise<boolean>;
 
   /**
    * Checks if the given Arweave transaction was submitted by a valid submitter for the specified environment.
@@ -70,9 +66,7 @@ export interface DAProofsVerifier {
 
 export interface DAProofsGateway {
   getTxResultFromCache(txId: string): Promise<TxValidatedResult | null>;
-  getDaPublication(
-    txId: string
-  ): Promise<DAStructurePublication<DAEventType, PublicationTypedData> | TimeoutError | null>;
+  getDaPublication(txId: string): Promise<DAStructurePublication | TimeoutError | null>;
   getTimestampProofs(
     timestampId: string,
     txId: string
@@ -101,10 +95,7 @@ export class DaProofChecker {
     daPublicationWithTimestampProofs: DAPublicationWithTimestampProofsBatchResult,
     ethereumNode: EthereumNode,
     options: CheckDASubmissionOptions = getDefaultCheckDASubmissionOptions
-  ): PromiseWithContextResult<
-    DAStructurePublication<DAEventType, PublicationTypedData>,
-    DAStructurePublication<DAEventType, PublicationTypedData>
-  > => {
+  ): PromiseWithContextResult<DAStructurePublication, DAStructurePublication> => {
     if (!options.byPassDb) {
       const alreadyChecked = await this.txAlreadyChecked(txId, options.log);
       if (alreadyChecked) {
@@ -154,10 +145,7 @@ export class DaProofChecker {
     txId: string,
     ethereumNode: EthereumNode,
     options: CheckDASubmissionOptions = getDefaultCheckDASubmissionOptions
-  ): PromiseWithContextResult<
-    DAStructurePublication<DAEventType, PublicationTypedData> | void,
-    DAStructurePublication<DAEventType, PublicationTypedData>
-  > => {
+  ): PromiseWithContextResult<DAStructurePublication | void, DAStructurePublication> => {
     if (!options.byPassDb) {
       const alreadyChecked = await this.txAlreadyChecked(txId, options.log);
       if (alreadyChecked) {
@@ -217,14 +205,11 @@ export class DaProofChecker {
    * @returns A promise with the result of the validation.
    */
   private _checkDAProof = async (
-    daPublication: DAStructurePublication<DAEventType, PublicationTypedData>,
+    daPublication: DAStructurePublication,
     timestampProofs: DATimestampProofsResponse,
     ethereumNode: EthereumNode,
     { log, byPassDb, verifyPointer }: CheckDASubmissionOptions
-  ): PromiseWithContextResult<
-    DAStructurePublication<DAEventType, PublicationTypedData>,
-    DAStructurePublication<DAEventType, PublicationTypedData>
-  > => {
+  ): PromiseWithContextResult<DAStructurePublication, DAStructurePublication> => {
     if (!daPublication.signature) {
       return failureWithContext(MomokaValidatorError.NO_SIGNATURE_SUBMITTER, daPublication);
     }
@@ -272,22 +257,19 @@ export class DaProofChecker {
 
     log('event timestamp matches up the on chain block timestamp');
 
-    const daResult = await this.checkDAPublication(daPublication, ethereumNode, {
-      log,
-      byPassDb,
-      verifyPointer,
-    });
+    const daResult = await this.checkDAPublication(
+      daPublication,
+      ethereumNode,
+      {
+        log,
+        byPassDb,
+        verifyPointer,
+      },
+      log
+    );
 
     if (daResult.isFailure()) {
       return failureWithContext(daResult.failure, daPublication);
-    }
-
-    if (!isValidPublicationId(daPublication)) {
-      log('publicationId does not match the generated one');
-      return failureWithContext(
-        MomokaValidatorError.GENERATED_PUBLICATION_ID_MISMATCH,
-        daPublication
-      );
     }
 
     return success(daPublication);
@@ -302,7 +284,7 @@ export class DaProofChecker {
    *          turned into a promise as its CPU intensive
    */
   private isValidSignatureSubmitter = async (
-    daPublication: DAStructurePublication<DAEventType, PublicationTypedData>,
+    daPublication: DAStructurePublication,
     ethereumNode: EthereumNode,
     log: LogFunctionType
   ): Promise<boolean> => {
@@ -321,7 +303,7 @@ export class DaProofChecker {
    * @returns A Promise that resolves with a `ValidType` if the timestamp proof is valid or an error code if it is not.
    */
   private async validatesTimestampProof(
-    daPublication: DAStructurePublication<DAEventType, PublicationTypedData>,
+    daPublication: DAStructurePublication,
     timestampProofs: DATimestampProofsResponse,
     log: LogFunctionType
   ): Promise<
@@ -449,34 +431,49 @@ export class DaProofChecker {
    * @param daPublication The publication to validate.
    * @param ethereumNode The Ethereum node to use for validation.
    * @param checkOptions Options for checking the publication.
+   * @param log A logging function to use for outputting log messages.
    * @returns A PromiseResult indicating the success or failure of the publication check.
    */
   private async checkDAPublication(
-    daPublication: DAStructurePublication<DAEventType, PublicationTypedData>,
+    daPublication: DAStructurePublication,
     ethereumNode: EthereumNode,
-    checkOptions: CheckDASubmissionOptions
+    checkOptions: CheckDASubmissionOptions,
+    log: LogFunctionType
   ): PromiseResult {
+    const publicationVerifier = await createDAPublicationVerifier(daPublication, ethereumNode, log);
+
+    debugger;
+
+    if (!publicationVerifier.verifyPublicationIdMatches()) {
+      log('publicationId does not match the generated one');
+      return failure(MomokaValidatorError.GENERATED_PUBLICATION_ID_MISMATCH);
+    }
+
     switch (daPublication.type) {
       case DAActionTypes.POST_CREATED:
-        if (daPublication.chainProofs.pointer) {
-          return failure(MomokaValidatorError.INVALID_POINTER_SET_NOT_NEEDED);
-        }
-        return await checkDAPost(
-          daPublication as CheckDAPostPublication,
-          ethereumNode,
+        return checkDAPost(
+          publicationVerifier as DAStructurePostVerifierV1 | DAStructurePostVerifierV2,
           checkOptions.log
         );
       case DAActionTypes.COMMENT_CREATED:
-        return await checkDAComment(
-          daPublication as CheckDACommentPublication,
+        return checkDAComment(
+          publicationVerifier as DAStructureCommentVerifierV1 | DAStructureCommentVerifierV2,
           checkOptions.verifyPointer,
           ethereumNode,
           checkOptions.log,
           this
         );
       case DAActionTypes.MIRROR_CREATED:
-        return await checkDAMirror(
-          daPublication as CheckDAMirrorPublication,
+        return checkDAMirror(
+          publicationVerifier as DAStructureMirrorVerifierV1 | DAStructureMirrorVerifierV2,
+          checkOptions.verifyPointer,
+          ethereumNode,
+          checkOptions.log,
+          this
+        );
+      case DAActionTypes.QUOTE_CREATED:
+        return checkDAQuote(
+          publicationVerifier as DAStructureQuoteVerifierV2,
           checkOptions.verifyPointer,
           ethereumNode,
           checkOptions.log,
@@ -499,10 +496,7 @@ export class DaProofChecker {
   private async txAlreadyChecked(
     txId: string,
     log: LogFunctionType
-  ): PromiseWithContextResultOrNull<
-    DAStructurePublication<DAEventType, PublicationTypedData>,
-    DAStructurePublication<DAEventType, PublicationTypedData>
-  > {
+  ): PromiseWithContextResultOrNull<DAStructurePublication, DAStructurePublication> {
     // Check if the transaction ID exists in the database
     const cacheResult = await this.gateway.getTxResultFromCache(txId);
 

@@ -183,7 +183,7 @@ const processPublication = async (
       byPassDb: retryAttempt,
     });
 
-    const { promise: timeoutPromise, timeoutId } = createTimeoutPromise(5000);
+    const { promise: timeoutPromise, timeoutId } = createTimeoutPromise(500000);
     const result = await Promise.race([checkPromise, timeoutPromise]);
 
     clearTimeout(timeoutId);
@@ -207,6 +207,7 @@ const processPublication = async (
     };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
+    debugger;
     // console.log(`FAILED - ${e.message || e}`);
     saveTxDb(txId, {
       proofTxId: txId,
@@ -232,14 +233,14 @@ const processPublication = async (
  * @param concurrency The concurrency to use < this is how many TCP it will run at
  * @param stream The callback to stream the result
  */
-const processPublications = async (
+const processPublications = (
   publications: DAPublicationWithTimestampProofsBatchResult[],
   ethereumNode: EthereumNode,
   retryAttempt: boolean,
   concurrency: number,
   stream?: StreamCallback
 ): Promise<ProofResult[]> => {
-  return await BluebirdPromise.map(
+  return BluebirdPromise.map(
     publications,
     async (publication) => {
       const log = (
@@ -267,10 +268,12 @@ const processPublications = async (
           submitter: publication.submitter,
         });
 
-        // only log out ones which do not need retrying
-        if (!shouldRetry(result.validatorError!)) {
-          log(LoggerLevelColours.ERROR, `FAILED - ${result.validatorError!}`);
-        }
+        const retriable = shouldRetry(result.validatorError!);
+
+        log(
+          LoggerLevelColours.ERROR,
+          `FAILED ${retriable ? '(RETRIABLE)' : ''} - ${result.validatorError!}`
+        );
       }
 
       return result;

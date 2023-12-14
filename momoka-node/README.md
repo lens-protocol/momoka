@@ -71,7 +71,7 @@ Please note if you wish to use a different deployment then `PRODUCTION` you will
 
 The package exposes a separate entry point for the client usage (`'@lens-protocol/momoka/client'`) to make sure the bundle size is not affected by any polyfills or other node specific code.
 
-Check the `playground-browser` folder for a working example of the client usage.
+Check the `playground-browser` folder for a working example of the client usage.    
 
 #### checkDAProof
 

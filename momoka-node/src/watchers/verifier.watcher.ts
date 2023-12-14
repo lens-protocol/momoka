@@ -157,7 +157,7 @@ const processTransactions = async (
     .map((c) => c.txId);
 
   if (retryTxids.length > 0) {
-    retryCheckDAProofsQueue.enqueueWithDelay(
+    void retryCheckDAProofsQueue.enqueueWithDelay(
       {
         txIds: retryTxids,
         ethereumNode,
@@ -215,11 +215,11 @@ export const startDAVerifierNode = async (
       ethereumNode.deployment,
       null,
       DataAvailabilityTransactionsOrderTypes.DESC,
-      1
+      100
     );
 
     if (lastTransaction.edges.length > 0) {
-      endCursor = lastTransaction.pageInfo.endCursor;
+      endCursor = lastTransaction.edges[99].cursor;
       totalChecked = 0;
     } else {
       endCursor = null;
@@ -235,6 +235,8 @@ export const startDAVerifierNode = async (
         endCursor,
         10
       );
+
+      console.log('transactions', transactions);
 
       if (!transactions || transactions.txIds.length === 0) {
         lastCheckNothingFound = await waitForNewSubmissions(lastCheckNothingFound);

@@ -1,12 +1,9 @@
 import type CryptoInterface from 'arweave/node/lib/crypto/crypto-interface';
 import { BlockInfo } from '../evm/ethereum';
 import { unixTimestampToMilliseconds } from '../common/helpers';
-import {
-  DAEventType,
-  DAStructurePublication,
-  PublicationTypedData,
-} from '../data-availability-models/publications/data-availability-structure-publication';
+import { DAStructurePublication } from '../data-availability-models/publications/data-availability-structure-publication';
 import { BundlrUploadResponse } from '../data-availability-models/data-availability-timestamp-proofs';
+import { BigNumberish } from 'ethers';
 
 /**
  * Finds the closest block based on timestamp in milliseconds.
@@ -33,29 +30,17 @@ export const getClosestBlock = (blocks: BlockInfo[], targetTimestamp: number): B
 };
 
 /**
- * Checks if the publication id generated from the given DAStructurePublication matches the publication id of the same
- * DAStructurePublication.
- * @param daPublication The DAStructurePublication to validate.
- * @returns true if the generated publication id matches the publication id of the given DAStructurePublication.
- */
-export const isValidPublicationId = (
-  daPublication: DAStructurePublication<DAEventType, PublicationTypedData>
-): boolean => {
-  const generatedPublicationId = generatePublicationId(daPublication);
-
-  return generatedPublicationId === daPublication.publicationId;
-};
-
-/**
  * Generates the unique ID for a DAStructurePublication.
- * @param daPublication The DAStructurePublication to generate an ID for
+ * @param profileId The profile ID of the publication.
+ * @param publicationId The publication ID of the publication.
+ * @param dataAvailabilityId The data availability ID of the publication.
  */
-const generatePublicationId = (
-  daPublication: DAStructurePublication<DAEventType, PublicationTypedData>
+export const generatePublicationId = (
+  profileId: BigNumberish,
+  publicationId: BigNumberish,
+  dataAvailabilityId: string
 ): string => {
-  return `${daPublication.event.profileId}-${daPublication.event.pubId}-DA-${
-    daPublication.dataAvailabilityId.split('-')[0]
-  }`;
+  return `${profileId}-${publicationId}-DA-${dataAvailabilityId.split('-')[0]}`;
 };
 
 /**
@@ -65,7 +50,7 @@ const generatePublicationId = (
  * @returns True if the typed data deadline timestamp matches the block timestamp, false otherwise.
  */
 export const isValidTypedDataDeadlineTimestamp = (
-  daPublication: DAStructurePublication<DAEventType, PublicationTypedData>
+  daPublication: DAStructurePublication
 ): boolean => {
   return (
     daPublication.chainProofs.thisPublication.typedData.value.deadline ===
@@ -78,9 +63,7 @@ export const isValidTypedDataDeadlineTimestamp = (
  * @param daPublication The DA publication to check.
  * @returns A boolean indicating whether or not the event timestamp matches the publication timestamp.
  */
-export const isValidEventTimestamp = (
-  daPublication: DAStructurePublication<DAEventType, PublicationTypedData>
-): boolean => {
+export const isValidEventTimestamp = (daPublication: DAStructurePublication): boolean => {
   return daPublication.event.timestamp === daPublication.chainProofs.thisPublication.blockTimestamp;
 };
 

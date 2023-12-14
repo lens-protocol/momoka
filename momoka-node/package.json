@@ -17,6 +17,7 @@
   ],
   "scripts": {
     "build": "tsc",
+    "build:watch": "tsc --watch",
     "eslint:fix": "eslint \"src/**/*.ts\" --quiet --fix",
     "eslint": "eslint \"src/**/*.ts\" --quiet",
     "start:fork": "REQ_TIMEOUT=100000 anvil --fork-url NODE_URL --silent",

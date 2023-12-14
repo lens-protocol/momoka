@@ -7,7 +7,7 @@ turnedOffExperimentalWarning();
 const concurrencyRaw = getParam('CONCURRENCY');
 const concurrency = concurrencyRaw ? Number(concurrencyRaw) : 100;
 
-startDAVerifierNode(ethereumNode, concurrency).catch((error) => {
+startDAVerifierNode(ethereumNode, concurrency, { resync: false }).catch((error) => {
   console.error('DA verifier node failed to startup', error);
   process.exitCode = 1;
 });
