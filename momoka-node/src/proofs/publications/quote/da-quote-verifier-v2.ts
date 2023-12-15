@@ -7,7 +7,7 @@ import { BigNumber } from 'ethers';
 import { MomokaValidatorError } from '../../../data-availability-models/validator-errors';
 import { DAPublicationVerifierV2 } from '../da-publication-verifier-v2';
 import { generatePublicationId } from '../../utils';
-import { DAActionTypes } from '../../../data-availability-models/data-availability-action-types';
+import { MomokaActionTypes } from '../../../data-availability-models/data-availability-action-types';
 import { EMPTY_BYTE, EthereumNode } from '../../../evm/ethereum';
 import { arraysEqual } from '../../../utils/arrays-equal';
 
@@ -19,11 +19,13 @@ export type DAQuotePublicationV2 = DAStructurePublication<
 export const isDAQuotePublicationV2 = (
   daPublication: DAStructurePublication
 ): daPublication is DAQuotePublicationV2 => {
-  return daPublication.type === DAActionTypes.QUOTE_CREATED && 'quoteParams' in daPublication.event;
+  return (
+    daPublication.type === MomokaActionTypes.QUOTE_CREATED && 'quoteParams' in daPublication.event
+  );
 };
 
 export class DAQuoteVerifierV2 extends DAPublicationVerifierV2 {
-  public readonly type = DAActionTypes.QUOTE_CREATED;
+  public readonly type = MomokaActionTypes.QUOTE_CREATED;
 
   constructor(
     public readonly daPublication: DAQuotePublicationV2,

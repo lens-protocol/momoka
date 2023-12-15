@@ -13,7 +13,7 @@ import {
   executeSimulationTransaction,
   parseSignature,
 } from '../../../evm/ethereum';
-import { DAActionTypes } from '../../../data-availability-models/data-availability-action-types';
+import { MomokaActionTypes } from '../../../data-availability-models/data-availability-action-types';
 import { PostWithSig_DispatcherRequest } from '../../../evm/abi-types/LensHubV1';
 
 export type DAPostPublicationV1 = DAStructurePublication<
@@ -25,12 +25,12 @@ export const isDAPostPublicationV1 = (
   daPublication: DAStructurePublication
 ): daPublication is DAPostPublicationV1 => {
   return (
-    daPublication.type === DAActionTypes.POST_CREATED && !('postParams' in daPublication.event)
+    daPublication.type === MomokaActionTypes.POST_CREATED && !('postParams' in daPublication.event)
   );
 };
 
 export class DAPostVerifierV1 extends DAPublicationVerifierV1 {
-  public readonly type = DAActionTypes.POST_CREATED;
+  public readonly type = MomokaActionTypes.POST_CREATED;
 
   constructor(
     public readonly daPublication: DAPostPublicationV1,

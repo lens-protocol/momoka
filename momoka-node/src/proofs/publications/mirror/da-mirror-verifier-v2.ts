@@ -7,7 +7,7 @@ import { BigNumber } from 'ethers';
 import { MomokaValidatorError } from '../../../data-availability-models/validator-errors';
 import { DAPublicationVerifierV2 } from '../da-publication-verifier-v2';
 import { generatePublicationId } from '../../utils';
-import { DAActionTypes } from '../../../data-availability-models/data-availability-action-types';
+import { MomokaActionTypes } from '../../../data-availability-models/data-availability-action-types';
 import { EMPTY_BYTE, EthereumNode } from '../../../evm/ethereum';
 import { arraysEqual } from '../../../utils/arrays-equal';
 
@@ -20,12 +20,12 @@ export const isDAMirrorPublicationV2 = (
   daPublication: DAStructurePublication
 ): daPublication is DAMirrorPublicationV2 => {
   return (
-    daPublication.type === DAActionTypes.MIRROR_CREATED && 'mirrorParams' in daPublication.event
+    daPublication.type === MomokaActionTypes.MIRROR_CREATED && 'mirrorParams' in daPublication.event
   );
 };
 
 export class DAMirrorVerifierV2 extends DAPublicationVerifierV2 {
-  public readonly type = DAActionTypes.MIRROR_CREATED;
+  public readonly type = MomokaActionTypes.MIRROR_CREATED;
 
   constructor(
     public readonly daPublication: DAMirrorPublicationV2,

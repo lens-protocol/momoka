@@ -7,7 +7,7 @@ import { failure, PromiseResult, success } from '../../../data-availability-mode
 import { BigNumber } from 'ethers';
 import { MomokaValidatorError } from '../../../data-availability-models/validator-errors';
 import { EMPTY_BYTE, EthereumNode } from '../../../evm/ethereum';
-import { DAActionTypes } from '../../../data-availability-models/data-availability-action-types';
+import { MomokaActionTypes } from '../../../data-availability-models/data-availability-action-types';
 
 export type DACommentPublicationV1 = DAStructurePublication<
   DACommentCreatedEventEmittedResponseV1,
@@ -18,13 +18,13 @@ export const isDACommentPublicationV1 = (
   daPublication: DAStructurePublication
 ): daPublication is DACommentPublicationV1 => {
   return (
-    daPublication.type === DAActionTypes.COMMENT_CREATED &&
+    daPublication.type === MomokaActionTypes.COMMENT_CREATED &&
     !('commentParams' in daPublication.event)
   );
 };
 
 export class DACommentVerifierV1 extends DAPublicationVerifierV1 {
-  public readonly type = DAActionTypes.COMMENT_CREATED;
+  public readonly type = MomokaActionTypes.COMMENT_CREATED;
 
   constructor(
     public readonly daPublication: DACommentPublicationV1,

@@ -8,7 +8,7 @@ import {
   failureWithContext,
   success,
 } from '../data-availability-models/da-result';
-import { DAActionTypes } from '../data-availability-models/data-availability-action-types';
+import { MomokaActionTypes } from '../data-availability-models/data-availability-action-types';
 import {
   DAPublicationWithTimestampProofsBatchResult,
   DATimestampProofsResponse,
@@ -452,9 +452,9 @@ export class DaProofChecker {
     }
 
     switch (publicationVerifier.type) {
-      case DAActionTypes.POST_CREATED:
+      case MomokaActionTypes.POST_CREATED:
         return checkDAPost(publicationVerifier, checkOptions.log);
-      case DAActionTypes.COMMENT_CREATED:
+      case MomokaActionTypes.COMMENT_CREATED:
         return checkDAComment(
           publicationVerifier,
           checkOptions.verifyPointer,
@@ -462,7 +462,7 @@ export class DaProofChecker {
           checkOptions.log,
           this
         );
-      case DAActionTypes.MIRROR_CREATED:
+      case MomokaActionTypes.MIRROR_CREATED:
         return checkDAMirror(
           publicationVerifier,
           checkOptions.verifyPointer,
@@ -470,7 +470,7 @@ export class DaProofChecker {
           checkOptions.log,
           this
         );
-      case DAActionTypes.QUOTE_CREATED:
+      case MomokaActionTypes.QUOTE_CREATED:
         return checkDAQuote(
           publicationVerifier,
           checkOptions.verifyPointer,

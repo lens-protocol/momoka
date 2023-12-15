@@ -1,5 +1,5 @@
-import { DAActionTypes } from '../../../data-availability-models/data-availability-action-types';
-import { DAProvider } from '../../../data-availability-models/data-availability-provider';
+import { MomokaActionTypes } from '../../../data-availability-models/data-availability-action-types';
+import { MomokaProvider } from '../../../data-availability-models/data-availability-provider';
 import {
   DAPublicationPointerType,
   DAStructurePublication,
@@ -14,9 +14,9 @@ export const commentCreatedDelegateArweaveResponse: DAStructurePublication<
   signature:
     '0xd422257695bbc5cd9e75e128c864b1a498fa281673d91d972edafdcc8459fdef7f755343ebf5a39ab32189425df653d2c31b908d9f6142c41ae6b59b125804201b',
   dataAvailabilityId: '1f337269-6e83-4e91-94e0-7da2038d1a8b',
-  type: DAActionTypes.COMMENT_CREATED,
+  type: MomokaActionTypes.COMMENT_CREATED,
   timestampProofs: {
-    type: DAProvider.BUNDLR,
+    type: MomokaProvider.BUNDLR,
     hashPrefix: '1',
     response: {
       id: 'AkE_aGaF0V-gacWAZ8H5G9y79sidDOTKrpFGoMsrQcs',

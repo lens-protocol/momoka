@@ -1,5 +1,5 @@
-import { DAActionTypes } from '../../../data-availability-models/data-availability-action-types';
-import { DAProvider } from '../../../data-availability-models/data-availability-provider';
+import { MomokaActionTypes } from '../../../data-availability-models/data-availability-action-types';
+import { MomokaProvider } from '../../../data-availability-models/data-availability-provider';
 import { CreatePostV1EIP712TypedData } from '../../../data-availability-models/publications/data-availability-publication-typed-data';
 import { DAStructurePublication } from '../../../data-availability-models/publications/data-availability-structure-publication';
 import { DAPostCreatedEventEmittedResponse } from '../../../data-availability-models/publications/data-availability-structure-publications-events';
@@ -11,9 +11,9 @@ export const postCreatedDelegateArweaveResponse: DAStructurePublication<
   signature:
     '0x42c63a72de7442c809a8db23f9994ff3c57b5a2101e8512102ea1238a78181903513c675ea35bd2e912f1a258dabe631fd22b3609e9edcd1a9df799c0ebc03621c',
   dataAvailabilityId: '68d40ddd-a9ae-4843-b9e8-50ed55e27488',
-  type: DAActionTypes.POST_CREATED,
+  type: MomokaActionTypes.POST_CREATED,
   timestampProofs: {
-    type: DAProvider.BUNDLR,
+    type: MomokaProvider.BUNDLR,
     hashPrefix: '1',
     response: {
       id: 'DMGovTZKvZkWCbhgm1mRNi3MrjMl9lJtQ-0ReW4j7Wc',

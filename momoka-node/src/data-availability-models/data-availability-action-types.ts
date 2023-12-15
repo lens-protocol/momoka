@@ -1,4 +1,4 @@
-export enum DAActionTypes {
+export enum MomokaActionTypes {
   POST_CREATED = 'POST_CREATED',
   COMMENT_CREATED = 'COMMENT_CREATED',
   MIRROR_CREATED = 'MIRROR_CREATED',

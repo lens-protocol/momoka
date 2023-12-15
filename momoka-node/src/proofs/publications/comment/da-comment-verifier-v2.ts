@@ -7,7 +7,7 @@ import { BigNumber } from 'ethers';
 import { MomokaValidatorError } from '../../../data-availability-models/validator-errors';
 import { DAPublicationVerifierV2 } from '../da-publication-verifier-v2';
 import { generatePublicationId } from '../../utils';
-import { DAActionTypes } from '../../../data-availability-models/data-availability-action-types';
+import { MomokaActionTypes } from '../../../data-availability-models/data-availability-action-types';
 import { EMPTY_BYTE, EthereumNode } from '../../../evm/ethereum';
 import { arraysEqual } from '../../../utils/arrays-equal';
 
@@ -20,12 +20,13 @@ export const isDACommentPublicationV2 = (
   daPublication: DAStructurePublication
 ): daPublication is DACommentPublicationV2 => {
   return (
-    daPublication.type === DAActionTypes.COMMENT_CREATED && 'commentParams' in daPublication.event
+    daPublication.type === MomokaActionTypes.COMMENT_CREATED &&
+    'commentParams' in daPublication.event
   );
 };
 
 export class DACommentVerifierV2 extends DAPublicationVerifierV2 {
-  public readonly type = DAActionTypes.COMMENT_CREATED;
+  public readonly type = MomokaActionTypes.COMMENT_CREATED;
 
   constructor(
     public readonly daPublication: DACommentPublicationV2,

@@ -153,31 +153,61 @@ We will show you a few examples of the `DA` metadata and then explain each field
 ```js
 {
   signature:'0x87866d620636f62aa3930d8c48be37dac77f96f30a9e06748491934fef75e7884a193d59fc486da3ea35f991bbd37a04ea4997e47f191d626ad2b601e3cc57a71c',
-  dataAvailabilityId: '951a2a24-46fd-4306-8c31-46a8318a905e',
-  type: DAActionTypes.POST_CREATED,
-  timestampProofs: {
-    type: DAProvider.BUNDLR,
-    hashPrefix: '1',
-    response: {
+      dataAvailabilityId
+:
+  '951a2a24-46fd-4306-8c31-46a8318a905e',
+    type
+:
+  MomokaActionTypes.POST_CREATED,
+    timestampProofs
+:
+  {
+    type: MomokaProvider.BUNDLR,
+      hashPrefix
+  :
+    '1',
+      response
+  :
+    {
       id: 'f7_YMkEqiALN9PCtK5LXxFDlc3EEi20-DWl57KxDMbw',
-      timestamp: 1674736509185,
-      version: '1.0.0',
-      public:
-        'sq9JbppKLlAKtQwalfX5DagnGMlTirditXk7y4jgoeA7DEM0Z6cVPE5xMQ9kz_T9VppP6BFHtHyZCZODercEVWipzkr36tfQkR5EDGUQyLivdxUzbWgVkzw7D27PJEa4cd1Uy6r18rYLqERgbRvAZph5YJZmpSJk7r3MwnQquuktjvSpfCLFwSxP1w879-ss_JalM9ICzRi38henONio8gll6GV9-omrWwRMZer_15bspCK5txCwpY137nfKwKD5YBAuzxxcj424M7zlSHlsafBwaRwFbf8gHtW03iJER4lR4GxeY0WvnYaB3KDISHQp53a9nlbmiWO5WcHHYsR83OT2eJ0Pl3RWA-_imk_SNwGQTCjmA6tf_UVwL8HzYS2iyuu85b7iYK9ZQoh8nqbNC6qibICE4h9Fe3bN7AgitIe9XzCTOXDfMr4ahjC8kkqJ1z4zNAI6-Leei_Mgd8JtZh2vqFNZhXK0lSadFl_9Oh3AET7tUds2E7s-6zpRPd9oBZu6-kNuHDRJ6TQhZSwJ9ZO5HYsccb_G_1so72aXJymR9ggJgWr4J3bawAYYnqmvmzGklYOlE_5HVnMxf-UxpT7ztdsHbc9QEH6W2bzwxbpjTczEZs3JCCB3c-NewNHsj9PYM3b5tTlTNP9kNAwPZHWpt11t79LuNkNGt9LfOek',
-      signature:
-        'Requv25_byuhK_k0JPz2tjKLhmqUv1XGt4My88utf8AHpl8awJKPMUQV3LJIQABMXf9ZsM2RZNiPhKEilkefGD-fTqkZZI5ybHooP8hc-lx2mAdM0XfCw-SC-yhdDU3OoOat7bwVy0HvOJm8xc6HpqgdbnTotX3LuPAo_xEV5GxrB5giK1IY8ZBJEsIjZw6okSzEStfmm94zAG44SmtTDXJk0IpeBpQiiZks63quZkPETGR9nfYl9-5D4UjQZHsx1eqV_9Pa4vYMOnTXD5LB8ysi2C576QjJAFICEZtRF2rXyZm1yfWBY8ODrnoZx-RBB5pqAwqrwA4DBI_UBHmbB7lL_3DK4911bZbC03T1KUw5QZn6eWjnoyxIv_UG9B3Bht0UDPIgGXA2tKeUsdrrh2JPAImZIYXEhC5ZWqn-K4TZa586sGwpQVfHFvCuCA-9X6GspXKDqlqbys6sZk70OOhM4827JIs9dw_Hw8rwsPsGIJjP99x2iOnyH8FQynbW8TCnGQcsO7Xevj-1PGnIAsXqQO6E9_NkYAf8LSfsilY63ZhVNPgLnSS2BAR-28SpHW4GjXtN_nVzE1CoLmL3nczMqHTiZ-xalo_enYg0Ydx-ZqHF7cPrB5rQmR_uB_7zPKK5WgStxwVjHRBJ8MLxmW0Sylzf9K6IwwFy50klQHY',
-      deadlineHeight: 1106524,
-      block: 1106524,
-      validatorSignatures: [],
-    },
-  },
+        timestamp
+    :
+      1674736509185,
+        version
+    :
+      '1.0.0',
+        public
+    :
+      'sq9JbppKLlAKtQwalfX5DagnGMlTirditXk7y4jgoeA7DEM0Z6cVPE5xMQ9kz_T9VppP6BFHtHyZCZODercEVWipzkr36tfQkR5EDGUQyLivdxUzbWgVkzw7D27PJEa4cd1Uy6r18rYLqERgbRvAZph5YJZmpSJk7r3MwnQquuktjvSpfCLFwSxP1w879-ss_JalM9ICzRi38henONio8gll6GV9-omrWwRMZer_15bspCK5txCwpY137nfKwKD5YBAuzxxcj424M7zlSHlsafBwaRwFbf8gHtW03iJER4lR4GxeY0WvnYaB3KDISHQp53a9nlbmiWO5WcHHYsR83OT2eJ0Pl3RWA-_imk_SNwGQTCjmA6tf_UVwL8HzYS2iyuu85b7iYK9ZQoh8nqbNC6qibICE4h9Fe3bN7AgitIe9XzCTOXDfMr4ahjC8kkqJ1z4zNAI6-Leei_Mgd8JtZh2vqFNZhXK0lSadFl_9Oh3AET7tUds2E7s-6zpRPd9oBZu6-kNuHDRJ6TQhZSwJ9ZO5HYsccb_G_1so72aXJymR9ggJgWr4J3bawAYYnqmvmzGklYOlE_5HVnMxf-UxpT7ztdsHbc9QEH6W2bzwxbpjTczEZs3JCCB3c-NewNHsj9PYM3b5tTlTNP9kNAwPZHWpt11t79LuNkNGt9LfOek',
+        signature
+    :
+      'Requv25_byuhK_k0JPz2tjKLhmqUv1XGt4My88utf8AHpl8awJKPMUQV3LJIQABMXf9ZsM2RZNiPhKEilkefGD-fTqkZZI5ybHooP8hc-lx2mAdM0XfCw-SC-yhdDU3OoOat7bwVy0HvOJm8xc6HpqgdbnTotX3LuPAo_xEV5GxrB5giK1IY8ZBJEsIjZw6okSzEStfmm94zAG44SmtTDXJk0IpeBpQiiZks63quZkPETGR9nfYl9-5D4UjQZHsx1eqV_9Pa4vYMOnTXD5LB8ysi2C576QjJAFICEZtRF2rXyZm1yfWBY8ODrnoZx-RBB5pqAwqrwA4DBI_UBHmbB7lL_3DK4911bZbC03T1KUw5QZn6eWjnoyxIv_UG9B3Bht0UDPIgGXA2tKeUsdrrh2JPAImZIYXEhC5ZWqn-K4TZa586sGwpQVfHFvCuCA-9X6GspXKDqlqbys6sZk70OOhM4827JIs9dw_Hw8rwsPsGIJjP99x2iOnyH8FQynbW8TCnGQcsO7Xevj-1PGnIAsXqQO6E9_NkYAf8LSfsilY63ZhVNPgLnSS2BAR-28SpHW4GjXtN_nVzE1CoLmL3nczMqHTiZ-xalo_enYg0Ydx-ZqHF7cPrB5rQmR_uB_7zPKK5WgStxwVjHRBJ8MLxmW0Sylzf9K6IwwFy50klQHY',
+        deadlineHeight
+    :
+      1106524,
+        block
+    :
+      1106524,
+        validatorSignatures
+    :
+      [],
+    }
+  ,
+  }
+,
   chainProofs: {
     thisPublication: {
       signature:
         '0xa3a969bd1ecdf7ca416340b513fd751df446b922809bd05f25509a98223b69594e4d0e5c27ce01111f80dd2df8ffd5f1af75bd6d663f55c4186ef773da2168ac1c',
-      signedByDelegate: false,
-      signatureDeadline: 1674736509,
-      typedData: {
+          signedByDelegate
+    :
+      false,
+        signatureDeadline
+    :
+      1674736509,
+        typedData
+    :
+      {
         types: {
           PostWithSig: [
             {
@@ -213,40 +243,86 @@ We will show you a few examples of the `DA` metadata and then explain each field
               type: 'uint256',
             },
           ],
-        },
+        }
+      ,
         domain: {
           name: 'Lens Protocol Profiles',
-          version: '1',
-          chainId: 80001,
-          verifyingContract: '0x60Ae865ee4C725cd04353b5AAb364553f56ceF82',
-        },
+            version
+        :
+          '1',
+            chainId
+        :
+          80001,
+            verifyingContract
+        :
+          '0x60Ae865ee4C725cd04353b5AAb364553f56ceF82',
+        }
+      ,
         value: {
           profileId: '0x18',
-          contentURI: 'ar://NKrOBI6zMU4mnptAGYvirARSvBAU-nkCITQ5-LZkEco',
-          collectModule: '0x5E70fFD2C6D04d65C3abeBa64E93082cfA348dF8',
-          collectModuleInitData: '0x',
-          referenceModule: '0x0000000000000000000000000000000000000000',
-          referenceModuleInitData: '0x',
-          nonce: 243,
-          deadline: 1674736509,
-        },
-      },
+            contentURI
+        :
+          'ar://NKrOBI6zMU4mnptAGYvirARSvBAU-nkCITQ5-LZkEco',
+            collectModule
+        :
+          '0x5E70fFD2C6D04d65C3abeBa64E93082cfA348dF8',
+            collectModuleInitData
+        :
+          '0x',
+            referenceModule
+        :
+          '0x0000000000000000000000000000000000000000',
+            referenceModuleInitData
+        :
+          '0x',
+            nonce
+        :
+          243,
+            deadline
+        :
+          1674736509,
+        }
+      ,
+      }
+    ,
       blockHash: '0x43f670549e740c8b2b7b56967b8a24a546b734c83e05ba20a515faddddc7c345',
-      blockNumber: 31429670,
-      blockTimestamp: 1674736509,
-    },
+        blockNumber
+    :
+      31429670,
+        blockTimestamp
+    :
+      1674736509,
+    }
+  ,
     pointer: null,
-  },
+  }
+,
   publicationId: '0x18-0x3a-DA-951a2a24',
-  event: {
+    event
+:
+  {
     profileId: '0x18',
-    pubId: '0x3a',
-    contentURI: 'ar://NKrOBI6zMU4mnptAGYvirARSvBAU-nkCITQ5-LZkEco',
-    collectModule: '0x5E70fFD2C6D04d65C3abeBa64E93082cfA348dF8',
-    collectModuleReturnData: '0x',
-    referenceModule: '0x0000000000000000000000000000000000000000',
-    referenceModuleReturnData: '0x',
-    timestamp: 1674736509,
+      pubId
+  :
+    '0x3a',
+      contentURI
+  :
+    'ar://NKrOBI6zMU4mnptAGYvirARSvBAU-nkCITQ5-LZkEco',
+      collectModule
+  :
+    '0x5E70fFD2C6D04d65C3abeBa64E93082cfA348dF8',
+      collectModuleReturnData
+  :
+    '0x',
+      referenceModule
+  :
+    '0x0000000000000000000000000000000000000000',
+      referenceModuleReturnData
+  :
+    '0x',
+      timestamp
+  :
+    1674736509,
   }
 }
 ```
@@ -361,31 +437,61 @@ We will show you a few examples of the `DA` metadata and then explain each field
 {
   signature:
     '0xcd9824d89bd3b237ed1230cf914630d756cae83904d835a1e85d37c11dbfab5e42c1f02042469ab29a3ccbd428c9a64576ad77f5876130b9c2bd49e0a83e9b7c1c',
-  dataAvailabilityId: '9a0b1d2b-e36e-48fc-87b4-b5f3f509b494',
-  type: DAActionTypes.COMMENT_CREATED,
-  timestampProofs: {
-    type: DAProvider.BUNDLR,
-    hashPrefix: '1',
-    response: {
+      dataAvailabilityId
+:
+  '9a0b1d2b-e36e-48fc-87b4-b5f3f509b494',
+    type
+:
+  MomokaActionTypes.COMMENT_CREATED,
+    timestampProofs
+:
+  {
+    type: MomokaProvider.BUNDLR,
+      hashPrefix
+  :
+    '1',
+      response
+  :
+    {
       id: 'xtVsUj5j1T4T86IQlJk2u-KubGD5oKIXOJQlU3KyGR0',
-      timestamp: 1674747795383,
-      version: '1.0.0',
-      public:
-        'sq9JbppKLlAKtQwalfX5DagnGMlTirditXk7y4jgoeA7DEM0Z6cVPE5xMQ9kz_T9VppP6BFHtHyZCZODercEVWipzkr36tfQkR5EDGUQyLivdxUzbWgVkzw7D27PJEa4cd1Uy6r18rYLqERgbRvAZph5YJZmpSJk7r3MwnQquuktjvSpfCLFwSxP1w879-ss_JalM9ICzRi38henONio8gll6GV9-omrWwRMZer_15bspCK5txCwpY137nfKwKD5YBAuzxxcj424M7zlSHlsafBwaRwFbf8gHtW03iJER4lR4GxeY0WvnYaB3KDISHQp53a9nlbmiWO5WcHHYsR83OT2eJ0Pl3RWA-_imk_SNwGQTCjmA6tf_UVwL8HzYS2iyuu85b7iYK9ZQoh8nqbNC6qibICE4h9Fe3bN7AgitIe9XzCTOXDfMr4ahjC8kkqJ1z4zNAI6-Leei_Mgd8JtZh2vqFNZhXK0lSadFl_9Oh3AET7tUds2E7s-6zpRPd9oBZu6-kNuHDRJ6TQhZSwJ9ZO5HYsccb_G_1so72aXJymR9ggJgWr4J3bawAYYnqmvmzGklYOlE_5HVnMxf-UxpT7ztdsHbc9QEH6W2bzwxbpjTczEZs3JCCB3c-NewNHsj9PYM3b5tTlTNP9kNAwPZHWpt11t79LuNkNGt9LfOek',
-      signature:
-        'TZh1F7z14pbuHq7IBlHqnhT4PXEa2dQngiL-iHEXot3-w_ScVLyN9naCeuHvAP4mialS62YPucToy4o1UQlMEtTYS2i6C0rPap32xGi2yDA6AtzURf-xELI33em-mr9QIEuOph34t0yRLn3_Bl0n-AV4jyjVSgHdYjUT0vNZx3TbRkBi_v0PgJHDYkyezP_NrZgTomEe_VZmBgozc0J9zzK6atbIdsPnHYDbY3qzTujJEwogVQa311lNZvVe2ND6MR_0EUyVVW0esin6dyYEIPPCrjlFwMMgaoW4vBbGd1d11cRGopYgNvcX_0EuwAWYGwi8XW_GNGyrk4Df14VnOXAuP4NKd5oia820Be1vqwuAs3ubWX0OQ7CttOgohO9ns7CjYg9DVIwY5-AuJd2wAK6eI09fot-lTNVwtMVBvyxQ4GWaYspMcqkpysOY-5ow0wFp7K4Ad1FI4NO71cbEZQWD8ou08_A5Gd2a6qZF2fb7IJKka0aim26N858faf1nqViZfL-aym-AW60ydNav8inrTxVTMXml61WeG4KwlQXDrdoWkEquLB-1mJ-_519ozgy0QjSbyctp4LjpDpdp-yiJvzfweMFVRIKxarVB9Vvc0NFhyllE8sZud8zLBZ7wo7GG_1wijCJaICo-iD_FK97ZegnhotGLzeDC-KqY2vQ',
-      deadlineHeight: 1106619,
-      block: 1106619,
-      validatorSignatures: [],
-    },
-  },
+        timestamp
+    :
+      1674747795383,
+        version
+    :
+      '1.0.0',
+        public
+    :
+      'sq9JbppKLlAKtQwalfX5DagnGMlTirditXk7y4jgoeA7DEM0Z6cVPE5xMQ9kz_T9VppP6BFHtHyZCZODercEVWipzkr36tfQkR5EDGUQyLivdxUzbWgVkzw7D27PJEa4cd1Uy6r18rYLqERgbRvAZph5YJZmpSJk7r3MwnQquuktjvSpfCLFwSxP1w879-ss_JalM9ICzRi38henONio8gll6GV9-omrWwRMZer_15bspCK5txCwpY137nfKwKD5YBAuzxxcj424M7zlSHlsafBwaRwFbf8gHtW03iJER4lR4GxeY0WvnYaB3KDISHQp53a9nlbmiWO5WcHHYsR83OT2eJ0Pl3RWA-_imk_SNwGQTCjmA6tf_UVwL8HzYS2iyuu85b7iYK9ZQoh8nqbNC6qibICE4h9Fe3bN7AgitIe9XzCTOXDfMr4ahjC8kkqJ1z4zNAI6-Leei_Mgd8JtZh2vqFNZhXK0lSadFl_9Oh3AET7tUds2E7s-6zpRPd9oBZu6-kNuHDRJ6TQhZSwJ9ZO5HYsccb_G_1so72aXJymR9ggJgWr4J3bawAYYnqmvmzGklYOlE_5HVnMxf-UxpT7ztdsHbc9QEH6W2bzwxbpjTczEZs3JCCB3c-NewNHsj9PYM3b5tTlTNP9kNAwPZHWpt11t79LuNkNGt9LfOek',
+        signature
+    :
+      'TZh1F7z14pbuHq7IBlHqnhT4PXEa2dQngiL-iHEXot3-w_ScVLyN9naCeuHvAP4mialS62YPucToy4o1UQlMEtTYS2i6C0rPap32xGi2yDA6AtzURf-xELI33em-mr9QIEuOph34t0yRLn3_Bl0n-AV4jyjVSgHdYjUT0vNZx3TbRkBi_v0PgJHDYkyezP_NrZgTomEe_VZmBgozc0J9zzK6atbIdsPnHYDbY3qzTujJEwogVQa311lNZvVe2ND6MR_0EUyVVW0esin6dyYEIPPCrjlFwMMgaoW4vBbGd1d11cRGopYgNvcX_0EuwAWYGwi8XW_GNGyrk4Df14VnOXAuP4NKd5oia820Be1vqwuAs3ubWX0OQ7CttOgohO9ns7CjYg9DVIwY5-AuJd2wAK6eI09fot-lTNVwtMVBvyxQ4GWaYspMcqkpysOY-5ow0wFp7K4Ad1FI4NO71cbEZQWD8ou08_A5Gd2a6qZF2fb7IJKka0aim26N858faf1nqViZfL-aym-AW60ydNav8inrTxVTMXml61WeG4KwlQXDrdoWkEquLB-1mJ-_519ozgy0QjSbyctp4LjpDpdp-yiJvzfweMFVRIKxarVB9Vvc0NFhyllE8sZud8zLBZ7wo7GG_1wijCJaICo-iD_FK97ZegnhotGLzeDC-KqY2vQ',
+        deadlineHeight
+    :
+      1106619,
+        block
+    :
+      1106619,
+        validatorSignatures
+    :
+      [],
+    }
+  ,
+  }
+,
   chainProofs: {
     thisPublication: {
       signature:
         '0x5156c7e636be61a305373df811d8444b7715448e2bde3fe69d388f301270d83d72796c5ef58283c1a9d32b37033a6b567a32addb78aedef0957fbf56956cd2351b',
-      signedByDelegate: false,
-      signatureDeadline: 1674747793,
-      typedData: {
+          signedByDelegate
+    :
+      false,
+        signatureDeadline
+    :
+      1674747793,
+        typedData
+    :
+      {
         types: {
           CommentWithSig: [
             {
@@ -433,49 +539,110 @@ We will show you a few examples of the `DA` metadata and then explain each field
               type: 'uint256',
             },
           ],
-        },
+        }
+      ,
         domain: {
           name: 'Lens Protocol Profiles',
-          version: '1',
-          chainId: 80001,
-          verifyingContract: '0x60Ae865ee4C725cd04353b5AAb364553f56ceF82',
-        },
+            version
+        :
+          '1',
+            chainId
+        :
+          80001,
+            verifyingContract
+        :
+          '0x60Ae865ee4C725cd04353b5AAb364553f56ceF82',
+        }
+      ,
         value: {
           profileId: '0x18',
-          profileIdPointed: '0x18',
-          pubIdPointed: '0x3a',
-          contentURI: 'ar://5JNO_BIyW7sD8crn1PPt3SrCZUKF9t-f8Rs13Zh1w1Q',
-          referenceModule: '0x0000000000000000000000000000000000000000',
-          collectModule: '0x5E70fFD2C6D04d65C3abeBa64E93082cfA348dF8',
-          collectModuleInitData: '0x',
-          referenceModuleInitData: '0x',
-          referenceModuleData: '0x',
-          nonce: 243,
-          deadline: 1674747793,
-        },
-      },
+            profileIdPointed
+        :
+          '0x18',
+            pubIdPointed
+        :
+          '0x3a',
+            contentURI
+        :
+          'ar://5JNO_BIyW7sD8crn1PPt3SrCZUKF9t-f8Rs13Zh1w1Q',
+            referenceModule
+        :
+          '0x0000000000000000000000000000000000000000',
+            collectModule
+        :
+          '0x5E70fFD2C6D04d65C3abeBa64E93082cfA348dF8',
+            collectModuleInitData
+        :
+          '0x',
+            referenceModuleInitData
+        :
+          '0x',
+            referenceModuleData
+        :
+          '0x',
+            nonce
+        :
+          243,
+            deadline
+        :
+          1674747793,
+        }
+      ,
+      }
+    ,
       blockHash: '0x11b2e5b1b7fa87c3a30d10d6f0416f5cb540c30ac7ae4b1be5058d9b5031e172',
-      blockNumber: 31434975,
-      blockTimestamp: 1674747793,
-    },
+        blockNumber
+    :
+      31434975,
+        blockTimestamp
+    :
+      1674747793,
+    }
+  ,
     pointer: {
       location: 'ar://TEoFkgD0m-LLQkfViuCTKfCLK_xpSxzPUNoMjBLnvlI',
-      type: DAPublicationPointerType.ON_DA,
-    },
-  },
+        type
+    :
+      DAPublicationPointerType.ON_DA,
+    }
+  ,
+  }
+,
   publicationId: '0x18-0x3a-DA-9a0b1d2b',
-  event: {
+    event
+:
+  {
     profileId: '0x18',
-    pubId: '0x3a',
-    contentURI: 'ar://5JNO_BIyW7sD8crn1PPt3SrCZUKF9t-f8Rs13Zh1w1Q',
-    profileIdPointed: '0x18',
-    pubIdPointed: '0x3a',
-    referenceModuleData: '0x',
-    collectModule: '0x5E70fFD2C6D04d65C3abeBa64E93082cfA348dF8',
-    collectModuleReturnData: '0x',
-    referenceModule: '0x0000000000000000000000000000000000000000',
-    referenceModuleReturnData: '0x',
-    timestamp: 1674747793,
+      pubId
+  :
+    '0x3a',
+      contentURI
+  :
+    'ar://5JNO_BIyW7sD8crn1PPt3SrCZUKF9t-f8Rs13Zh1w1Q',
+      profileIdPointed
+  :
+    '0x18',
+      pubIdPointed
+  :
+    '0x3a',
+      referenceModuleData
+  :
+    '0x',
+      collectModule
+  :
+    '0x5E70fFD2C6D04d65C3abeBa64E93082cfA348dF8',
+      collectModuleReturnData
+  :
+    '0x',
+      referenceModule
+  :
+    '0x0000000000000000000000000000000000000000',
+      referenceModuleReturnData
+  :
+    '0x',
+      timestamp
+  :
+    1674747793,
   }
 }
 ```
@@ -624,37 +791,74 @@ We will show you a few examples of the `DA` metadata and then explain each field
 {
   signature:
     '0x1683ef107f09a291ebbe8f4bfc4f628ff9be10f661d0d18048c31a8b1ca981d948ef12c591e5d762e952bc287e57838b031a6451f2b8a58cfc5cedb565c742661b',
-  dataAvailabilityId: '538ca9c4-682b-41d2-9b8a-52ede43728d7',
-  type: DAActionTypes.MIRROR_CREATED,
-  timestampProofs: {
-    type: DAProvider.BUNDLR,
-    hashPrefix: '1',
-    response: {
+      dataAvailabilityId
+:
+  '538ca9c4-682b-41d2-9b8a-52ede43728d7',
+    type
+:
+  MomokaActionTypes.MIRROR_CREATED,
+    timestampProofs
+:
+  {
+    type: MomokaProvider.BUNDLR,
+      hashPrefix
+  :
+    '1',
+      response
+  :
+    {
       id: 'zdkCXuVzawg3KipWCRVK2fo-yIUoj5IMuIYyFPGA55o',
-      timestamp: 1674748125246,
-      version: '1.0.0',
-      public:
-        'sq9JbppKLlAKtQwalfX5DagnGMlTirditXk7y4jgoeA7DEM0Z6cVPE5xMQ9kz_T9VppP6BFHtHyZCZODercEVWipzkr36tfQkR5EDGUQyLivdxUzbWgVkzw7D27PJEa4cd1Uy6r18rYLqERgbRvAZph5YJZmpSJk7r3MwnQquuktjvSpfCLFwSxP1w879-ss_JalM9ICzRi38henONio8gll6GV9-omrWwRMZer_15bspCK5txCwpY137nfKwKD5YBAuzxxcj424M7zlSHlsafBwaRwFbf8gHtW03iJER4lR4GxeY0WvnYaB3KDISHQp53a9nlbmiWO5WcHHYsR83OT2eJ0Pl3RWA-_imk_SNwGQTCjmA6tf_UVwL8HzYS2iyuu85b7iYK9ZQoh8nqbNC6qibICE4h9Fe3bN7AgitIe9XzCTOXDfMr4ahjC8kkqJ1z4zNAI6-Leei_Mgd8JtZh2vqFNZhXK0lSadFl_9Oh3AET7tUds2E7s-6zpRPd9oBZu6-kNuHDRJ6TQhZSwJ9ZO5HYsccb_G_1so72aXJymR9ggJgWr4J3bawAYYnqmvmzGklYOlE_5HVnMxf-UxpT7ztdsHbc9QEH6W2bzwxbpjTczEZs3JCCB3c-NewNHsj9PYM3b5tTlTNP9kNAwPZHWpt11t79LuNkNGt9LfOek',
-      signature:
-        'IJjhzO0D4ioq9Gc0mghnxvOIkrZdmrqkc_UpMkL9R-qulzvkZ_LY4QRQxP-rNAm-ZIoN3Jep9zefjTaRRvU6mhc6hKZaMWC4XvWW_IXl5TZH1eOfq0JENjoRoZ75IdwicJXtc9c7obeNs84hXqlNHJXUoQfC2mEjkqiRpK_Vz43Hxn-3ZkrNvNEM1cpbl5hJU3UP0iCQnJQPiTgiojnhTBgRoIEpLQBFdoF1IRXUH4J4TBCMoX5MzG5PUj_FJkJiYX_SM0iaiDi0y-6-IsvOu1o32UWVgmDa-PbTrd6kGuDdd3Ys4HHyjGbS4NGkbu-coMW7RdkCegowgrXvzDoVxG0pVKoMK7ndOfZJJlud3jonqcDDI0vESSVdt_DDMOjkqdHiyWdVWcDlS0TnToIdwuOgaHDgpoqFjPUd5GwE40QFix6QflbxfcFqleru9eDY4_hufxMYEWK3DiSN6QIe6jQg6-9ZLFvD4Chr_bxL48UkfwDx-Y7EZo5tb6uzwzEqAfXEb5ITyzVrEgo1sXEDKKkkNQ7C5Hq2mryWKRXHUtXkKErI1P_bNRp2GXumO30uwZfpsMcAtFPCsPMnm1j4aqhFjcpVk9HpFPa6DcCuX6U8T3MODbJbNPxFc_Pdt5wcLo6EcLEnnQTIvQEIj_aQvh__rh79d6XHckI1TL-9gAM',
-      deadlineHeight: 1106621,
-      block: 1106621,
-      validatorSignatures: [],
-    },
-  },
+        timestamp
+    :
+      1674748125246,
+        version
+    :
+      '1.0.0',
+        public
+    :
+      'sq9JbppKLlAKtQwalfX5DagnGMlTirditXk7y4jgoeA7DEM0Z6cVPE5xMQ9kz_T9VppP6BFHtHyZCZODercEVWipzkr36tfQkR5EDGUQyLivdxUzbWgVkzw7D27PJEa4cd1Uy6r18rYLqERgbRvAZph5YJZmpSJk7r3MwnQquuktjvSpfCLFwSxP1w879-ss_JalM9ICzRi38henONio8gll6GV9-omrWwRMZer_15bspCK5txCwpY137nfKwKD5YBAuzxxcj424M7zlSHlsafBwaRwFbf8gHtW03iJER4lR4GxeY0WvnYaB3KDISHQp53a9nlbmiWO5WcHHYsR83OT2eJ0Pl3RWA-_imk_SNwGQTCjmA6tf_UVwL8HzYS2iyuu85b7iYK9ZQoh8nqbNC6qibICE4h9Fe3bN7AgitIe9XzCTOXDfMr4ahjC8kkqJ1z4zNAI6-Leei_Mgd8JtZh2vqFNZhXK0lSadFl_9Oh3AET7tUds2E7s-6zpRPd9oBZu6-kNuHDRJ6TQhZSwJ9ZO5HYsccb_G_1so72aXJymR9ggJgWr4J3bawAYYnqmvmzGklYOlE_5HVnMxf-UxpT7ztdsHbc9QEH6W2bzwxbpjTczEZs3JCCB3c-NewNHsj9PYM3b5tTlTNP9kNAwPZHWpt11t79LuNkNGt9LfOek',
+        signature
+    :
+      'IJjhzO0D4ioq9Gc0mghnxvOIkrZdmrqkc_UpMkL9R-qulzvkZ_LY4QRQxP-rNAm-ZIoN3Jep9zefjTaRRvU6mhc6hKZaMWC4XvWW_IXl5TZH1eOfq0JENjoRoZ75IdwicJXtc9c7obeNs84hXqlNHJXUoQfC2mEjkqiRpK_Vz43Hxn-3ZkrNvNEM1cpbl5hJU3UP0iCQnJQPiTgiojnhTBgRoIEpLQBFdoF1IRXUH4J4TBCMoX5MzG5PUj_FJkJiYX_SM0iaiDi0y-6-IsvOu1o32UWVgmDa-PbTrd6kGuDdd3Ys4HHyjGbS4NGkbu-coMW7RdkCegowgrXvzDoVxG0pVKoMK7ndOfZJJlud3jonqcDDI0vESSVdt_DDMOjkqdHiyWdVWcDlS0TnToIdwuOgaHDgpoqFjPUd5GwE40QFix6QflbxfcFqleru9eDY4_hufxMYEWK3DiSN6QIe6jQg6-9ZLFvD4Chr_bxL48UkfwDx-Y7EZo5tb6uzwzEqAfXEb5ITyzVrEgo1sXEDKKkkNQ7C5Hq2mryWKRXHUtXkKErI1P_bNRp2GXumO30uwZfpsMcAtFPCsPMnm1j4aqhFjcpVk9HpFPa6DcCuX6U8T3MODbJbNPxFc_Pdt5wcLo6EcLEnnQTIvQEIj_aQvh__rh79d6XHckI1TL-9gAM',
+        deadlineHeight
+    :
+      1106621,
+        block
+    :
+      1106621,
+        validatorSignatures
+    :
+      [],
+    }
+  ,
+  }
+,
   chainProofs: {
     thisPublication: {
       signature:
         '0x59cb0d34ef20e93e4073cadec0d05eb8ef9a6af4b55d7ddea099666f83509d193e554c4149856ddb36ac3a4601c7f4e12fc413e016b6d4b314846eb3222b2e9b1b',
-      signedByDelegate: false,
-      signatureDeadline: 1674748123,
-      typedData: {
+          signedByDelegate
+    :
+      false,
+        signatureDeadline
+    :
+      1674748123,
+        typedData
+    :
+      {
         domain: {
           name: 'Lens Protocol Profiles',
-          version: '1',
-          chainId: 80001,
-          verifyingContract: '0x60Ae865ee4C725cd04353b5AAb364553f56ceF82',
-        },
+            version
+        :
+          '1',
+            chainId
+        :
+          80001,
+            verifyingContract
+        :
+          '0x60Ae865ee4C725cd04353b5AAb364553f56ceF82',
+        }
+      ,
         types: {
           MirrorWithSig: [
             {
@@ -690,37 +894,79 @@ We will show you a few examples of the `DA` metadata and then explain each field
               type: 'uint256',
             },
           ],
-        },
+        }
+      ,
         value: {
           profileId: '0x18',
-          profileIdPointed: '0x18',
-          pubIdPointed: '0x3a',
-          referenceModuleData: '0x',
-          referenceModule: '0x0000000000000000000000000000000000000000',
-          referenceModuleInitData: '0x',
-          deadline: 1674748123,
-          nonce: 243,
-        },
-      },
+            profileIdPointed
+        :
+          '0x18',
+            pubIdPointed
+        :
+          '0x3a',
+            referenceModuleData
+        :
+          '0x',
+            referenceModule
+        :
+          '0x0000000000000000000000000000000000000000',
+            referenceModuleInitData
+        :
+          '0x',
+            deadline
+        :
+          1674748123,
+            nonce
+        :
+          243,
+        }
+      ,
+      }
+    ,
       blockHash: '0x0fb258841acaf93b998028bfc7296b840a80cdc76ffd999d5101bc72cf2daf78',
-      blockNumber: 31435129,
-      blockTimestamp: 1674748123,
-    },
+        blockNumber
+    :
+      31435129,
+        blockTimestamp
+    :
+      1674748123,
+    }
+  ,
     pointer: {
       location: 'ar://ff9CtLecXt1HBFBR-SoRz8tLjPjBo8gxbmy7kmFpJl4',
-      type: DAPublicationPointerType.ON_DA,
-    },
-  },
+        type
+    :
+      DAPublicationPointerType.ON_DA,
+    }
+  ,
+  }
+,
   publicationId: '0x18-0x3a-DA-538ca9c4',
-  event: {
+    event
+:
+  {
     profileId: '0x18',
-    pubId: '0x3a',
-    profileIdPointed: '0x18',
-    pubIdPointed: '0x3a',
-    referenceModuleData: '0x',
-    referenceModule: '0x0000000000000000000000000000000000000000',
-    referenceModuleReturnData: '0x',
-    timestamp: 1674748123,
+      pubId
+  :
+    '0x3a',
+      profileIdPointed
+  :
+    '0x18',
+      pubIdPointed
+  :
+    '0x3a',
+      referenceModuleData
+  :
+    '0x',
+      referenceModule
+  :
+    '0x0000000000000000000000000000000000000000',
+      referenceModuleReturnData
+  :
+    '0x',
+      timestamp
+  :
+    1674748123,
   }
 }
 ```
