@@ -30,7 +30,7 @@ export const getSubmitters = (
       case Environment.POLYGON:
         throw new Error('Not Supported');
       case Environment.MUMBAI:
-        return ['0x122938FE0d1fC6e00EF1b814cD7e44677e99b4f7'.toLowerCase()];
+        return ['0x55307bfae6DF8988F59FE20272bC68792b130415'.toLowerCase()];
       case Environment.SANDBOX:
         throw new Error('Not Supported');
       default:
