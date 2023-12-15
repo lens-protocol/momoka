@@ -4,7 +4,7 @@ import { DAPublicationPointerType } from '../../../data-availability-models/publ
 import { MomokaValidatorError } from '../../../data-availability-models/validator-errors';
 import { EthereumNode } from '../../../evm/ethereum';
 import { DaProofChecker } from '../../da-proof-checker';
-import { DAStructureQuoteVerifierV2 } from './da-structure-quote-verifier-v2';
+import { DAQuoteVerifierV2 } from './da-quote-verifier-v2';
 
 /**
  * Checks if the given DAQuotePublication is valid by verifying the proof chain, cross-checking against the event, and
@@ -17,7 +17,7 @@ import { DAStructureQuoteVerifierV2 } from './da-structure-quote-verifier-v2';
  * @returns A PromiseResult indicating success or failure, along with an optional error message.
  */
 export const checkDAQuote = async (
-  daPublicationVerifier: DAStructureQuoteVerifierV2,
+  daPublicationVerifier: DAQuoteVerifierV2,
   verifyPointer: boolean,
   ethereumNode: EthereumNode,
   log: LogFunctionType,

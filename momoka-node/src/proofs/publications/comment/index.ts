@@ -4,8 +4,8 @@ import { DAPublicationPointerType } from '../../../data-availability-models/publ
 import { MomokaValidatorError } from '../../../data-availability-models/validator-errors';
 import { EthereumNode } from '../../../evm/ethereum';
 import { DaProofChecker } from '../../da-proof-checker';
-import { DAStructureCommentVerifierV1 } from './da-structure-comment-verifier-v1';
-import { DAStructureCommentVerifierV2 } from './da-structure-comment-verifier-v2';
+import { DACommentVerifierV1 } from './da-comment-verifier-v1';
+import { DACommentVerifierV2 } from './da-comment-verifier-v2';
 
 /**
  * Checks if the given DACommentPublication is valid by verifying the proof chain, cross-checking against the event, and
@@ -18,7 +18,7 @@ import { DAStructureCommentVerifierV2 } from './da-structure-comment-verifier-v2
  * @returns A PromiseResult indicating success or failure, along with an optional error message.
  */
 export const checkDAComment = async (
-  daPublicationVerifier: DAStructureCommentVerifierV1 | DAStructureCommentVerifierV2,
+  daPublicationVerifier: DACommentVerifierV1 | DACommentVerifierV2,
   verifyPointer: boolean,
   ethereumNode: EthereumNode,
   log: LogFunctionType,

@@ -4,8 +4,8 @@ import { DAPublicationPointerType } from '../../../data-availability-models/publ
 import { MomokaValidatorError } from '../../../data-availability-models/validator-errors';
 import { EthereumNode } from '../../../evm/ethereum';
 import { DaProofChecker } from '../../da-proof-checker';
-import { DAStructureMirrorVerifierV1 } from './da-structure-mirror-verifier-v1';
-import { DAStructureMirrorVerifierV2 } from './da-structure-mirror-verifier-v2';
+import { DAMirrorVerifierV1 } from './da-mirror-verifier-v1';
+import { DAMirrorVerifierV2 } from './da-mirror-verifier-v2';
 
 /**
  * Checks if the given DAMirrorPublication is valid by verifying the proof chain, cross-checking against the event, and
@@ -18,7 +18,7 @@ import { DAStructureMirrorVerifierV2 } from './da-structure-mirror-verifier-v2';
  * @returns A PromiseResult indicating success or failure, along with an optional error message.
  */
 export const checkDAMirror = async (
-  daPublicationVerifier: DAStructureMirrorVerifierV1 | DAStructureMirrorVerifierV2,
+  daPublicationVerifier: DAMirrorVerifierV1 | DAMirrorVerifierV2,
   verifyPointer: boolean,
   ethereumNode: EthereumNode,
   log: LogFunctionType,

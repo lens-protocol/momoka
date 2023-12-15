@@ -215,11 +215,11 @@ export const startDAVerifierNode = async (
       ethereumNode.deployment,
       null,
       DataAvailabilityTransactionsOrderTypes.DESC,
-      1000
+      1
     );
 
     if (lastTransaction.edges.length > 0) {
-      endCursor = lastTransaction.edges[lastTransaction.edges.length - 1].cursor;
+      endCursor = lastTransaction.pageInfo.endCursor;
       totalChecked = 0;
     } else {
       endCursor = null;

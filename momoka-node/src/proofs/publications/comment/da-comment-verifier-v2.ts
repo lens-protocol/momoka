@@ -24,7 +24,7 @@ export const isDACommentPublicationV2 = (
   );
 };
 
-export class DAStructureCommentVerifierV2 extends DAPublicationVerifierV2 {
+export class DACommentVerifierV2 extends DAPublicationVerifierV2 {
   public readonly type = DAActionTypes.COMMENT_CREATED;
 
   constructor(

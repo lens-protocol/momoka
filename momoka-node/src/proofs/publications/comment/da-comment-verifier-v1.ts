@@ -1,39 +1,40 @@
 import { DAStructurePublication } from '../../../data-availability-models/publications/data-availability-structure-publication';
-import { DAMirrorCreatedEventEmittedResponseV1 } from '../../../data-availability-models/publications/data-availability-structure-publications-events';
+import { DACommentCreatedEventEmittedResponseV1 } from '../../../data-availability-models/publications/data-availability-structure-publications-events';
 import { DAPublicationVerifierV1 } from '../da-publication-verifier-v1';
+import { CreateCommentV1EIP712TypedData } from '../../../data-availability-models/publications/data-availability-publication-typed-data';
 import { LogFunctionType } from '../../../common/logger';
 import { failure, PromiseResult, success } from '../../../data-availability-models/da-result';
 import { BigNumber } from 'ethers';
 import { MomokaValidatorError } from '../../../data-availability-models/validator-errors';
 import { EMPTY_BYTE, EthereumNode } from '../../../evm/ethereum';
-import { CreateMirrorV1EIP712TypedData } from '../../../data-availability-models/publications/data-availability-publication-typed-data';
 import { DAActionTypes } from '../../../data-availability-models/data-availability-action-types';
 
-export type DAMirrorPublicationV1 = DAStructurePublication<
-  DAMirrorCreatedEventEmittedResponseV1,
-  CreateMirrorV1EIP712TypedData
+export type DACommentPublicationV1 = DAStructurePublication<
+  DACommentCreatedEventEmittedResponseV1,
+  CreateCommentV1EIP712TypedData
 >;
 
-export const isDAMirrorPublicationV1 = (
+export const isDACommentPublicationV1 = (
   daPublication: DAStructurePublication
-): daPublication is DAMirrorPublicationV1 => {
+): daPublication is DACommentPublicationV1 => {
   return (
-    daPublication.type === DAActionTypes.MIRROR_CREATED && !('mirrorParams' in daPublication.event)
+    daPublication.type === DAActionTypes.COMMENT_CREATED &&
+    !('commentParams' in daPublication.event)
   );
 };
 
-export class DAStructureMirrorVerifierV1 extends DAPublicationVerifierV1 {
-  public readonly type = DAActionTypes.MIRROR_CREATED;
+export class DACommentVerifierV1 extends DAPublicationVerifierV1 {
+  public readonly type = DAActionTypes.COMMENT_CREATED;
 
   constructor(
-    public readonly daPublication: DAMirrorPublicationV1,
+    public readonly daPublication: DACommentPublicationV1,
     ethereumNode: EthereumNode,
     log: LogFunctionType
   ) {
     super(daPublication, ethereumNode, log);
   }
 
-  verifyEventWithTypedData(pubCountAtBlock: string): PromiseResult {
+  public verifyEventWithTypedData(pubCountAtBlock: string): PromiseResult {
     const event = this.daPublication.event;
     const typedData = this.daPublication.chainProofs.thisPublication.typedData;
 
@@ -50,10 +51,14 @@ export class DAStructureMirrorVerifierV1 extends DAPublicationVerifierV1 {
     // compare all others!
     if (
       typedData.value.profileId !== event.profileId ||
+      typedData.value.contentURI !== event.contentURI ||
       typedData.value.profileIdPointed !== event.profileIdPointed ||
       typedData.value.pubIdPointed !== event.pubIdPointed ||
+      typedData.value.collectModule !== event.collectModule ||
+      event.collectModuleReturnData !== EMPTY_BYTE ||
       typedData.value.referenceModule !== event.referenceModule ||
       event.referenceModuleReturnData !== EMPTY_BYTE ||
+      typedData.value.collectModuleInitData !== EMPTY_BYTE ||
       typedData.value.referenceModuleInitData !== EMPTY_BYTE
     ) {
       return Promise.resolve(failure(MomokaValidatorError.EVENT_MISMATCH));

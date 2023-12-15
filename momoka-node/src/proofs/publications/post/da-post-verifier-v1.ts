@@ -29,7 +29,7 @@ export const isDAPostPublicationV1 = (
   );
 };
 
-export class DAStructurePostVerifierV1 extends DAPublicationVerifierV1 {
+export class DAPostVerifierV1 extends DAPublicationVerifierV1 {
   public readonly type = DAActionTypes.POST_CREATED;
 
   constructor(

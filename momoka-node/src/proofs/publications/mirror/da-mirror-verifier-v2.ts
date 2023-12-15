@@ -1,6 +1,6 @@
 import { DAStructurePublication } from '../../../data-availability-models/publications/data-availability-structure-publication';
-import { DAQuoteCreatedEventEmittedResponseV2 } from '../../../data-availability-models/publications/data-availability-structure-publications-events';
-import { CreateQuoteV2EIP712TypedData } from '../../../data-availability-models/publications/data-availability-publication-typed-data';
+import { DAMirrorCreatedEventEmittedResponseV2 } from '../../../data-availability-models/publications/data-availability-structure-publications-events';
+import { CreateMirrorV2EIP712TypedData } from '../../../data-availability-models/publications/data-availability-publication-typed-data';
 import { LogFunctionType } from '../../../common/logger';
 import { failure, PromiseResult, success } from '../../../data-availability-models/da-result';
 import { BigNumber } from 'ethers';
@@ -11,22 +11,24 @@ import { DAActionTypes } from '../../../data-availability-models/data-availabili
 import { EMPTY_BYTE, EthereumNode } from '../../../evm/ethereum';
 import { arraysEqual } from '../../../utils/arrays-equal';
 
-export type DAQuotePublicationV2 = DAStructurePublication<
-  DAQuoteCreatedEventEmittedResponseV2,
-  CreateQuoteV2EIP712TypedData
+export type DAMirrorPublicationV2 = DAStructurePublication<
+  DAMirrorCreatedEventEmittedResponseV2,
+  CreateMirrorV2EIP712TypedData
 >;
 
-export const isDAQuotePublicationV2 = (
+export const isDAMirrorPublicationV2 = (
   daPublication: DAStructurePublication
-): daPublication is DAQuotePublicationV2 => {
-  return daPublication.type === DAActionTypes.QUOTE_CREATED && 'quoteParams' in daPublication.event;
+): daPublication is DAMirrorPublicationV2 => {
+  return (
+    daPublication.type === DAActionTypes.MIRROR_CREATED && 'mirrorParams' in daPublication.event
+  );
 };
 
-export class DAStructureQuoteVerifierV2 extends DAPublicationVerifierV2 {
-  public readonly type = DAActionTypes.QUOTE_CREATED;
+export class DAMirrorVerifierV2 extends DAPublicationVerifierV2 {
+  public readonly type = DAActionTypes.MIRROR_CREATED;
 
   constructor(
-    public readonly daPublication: DAQuotePublicationV2,
+    public readonly daPublication: DAMirrorPublicationV2,
     ethereumNode: EthereumNode,
     log: LogFunctionType
   ) {
@@ -35,7 +37,7 @@ export class DAStructureQuoteVerifierV2 extends DAPublicationVerifierV2 {
 
   verifyPublicationIdMatches(): PromiseResult {
     const generatedPublicationId = generatePublicationId(
-      this.daPublication.event.quoteParams.profileId,
+      this.daPublication.event.mirrorParams.profileId,
       this.daPublication.event.pubId,
       this.daPublication.dataAvailabilityId
     );
@@ -65,22 +67,13 @@ export class DAStructureQuoteVerifierV2 extends DAPublicationVerifierV2 {
 
     // compare all others!
     if (
-      typedData.value.profileId !== event.quoteParams.profileId ||
-      typedData.value.contentURI !== event.quoteParams.contentURI ||
-      typedData.value.pointedProfileId !== event.quoteParams.pointedProfileId ||
-      typedData.value.pointedPubId !== event.quoteParams.pointedPubId ||
-      !arraysEqual(typedData.value.actionModules, event.quoteParams.actionModules) ||
-      !arraysEqual(
-        typedData.value.actionModulesInitDatas,
-        event.quoteParams.actionModulesInitDatas
-      ) ||
-      typedData.value.referenceModule !== event.quoteParams.referenceModule ||
-      typedData.value.referenceModuleInitData !== event.quoteParams.referenceModuleInitData ||
-      !arraysEqual(typedData.value.referrerProfileIds, event.quoteParams.referrerProfileIds) ||
-      !arraysEqual(typedData.value.referrerPubIds, event.quoteParams.referrerPubIds) ||
-      event.actionModulesInitReturnDatas.length !== 0 ||
-      event.referenceModuleReturnData !== EMPTY_BYTE ||
-      event.referenceModuleInitReturnData !== EMPTY_BYTE
+      typedData.value.profileId !== event.mirrorParams.profileId ||
+      typedData.value.metadataURI !== event.mirrorParams.metadataURI ||
+      typedData.value.pointedProfileId !== event.mirrorParams.pointedProfileId ||
+      typedData.value.pointedPubId !== event.mirrorParams.pointedPubId ||
+      !arraysEqual(typedData.value.referrerProfileIds, event.mirrorParams.referrerProfileIds) ||
+      !arraysEqual(typedData.value.referrerPubIds, event.mirrorParams.referrerPubIds) ||
+      event.referenceModuleReturnData !== EMPTY_BYTE
     ) {
       return Promise.resolve(failure(MomokaValidatorError.EVENT_MISMATCH));
     }

@@ -183,7 +183,7 @@ const processPublication = async (
       byPassDb: retryAttempt,
     });
 
-    const { promise: timeoutPromise, timeoutId } = createTimeoutPromise(500000);
+    const { promise: timeoutPromise, timeoutId } = createTimeoutPromise(5000);
     const result = await Promise.race([checkPromise, timeoutPromise]);
 
     clearTimeout(timeoutId);

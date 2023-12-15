@@ -30,7 +30,7 @@ export const isDAPostPublicationV2 = (
   return daPublication.type === DAActionTypes.POST_CREATED && 'postParams' in daPublication.event;
 };
 
-export class DAStructurePostVerifierV2 extends DAPublicationVerifierV2 {
+export class DAPostVerifierV2 extends DAPublicationVerifierV2 {
   public readonly type = DAActionTypes.POST_CREATED;
 
   constructor(
