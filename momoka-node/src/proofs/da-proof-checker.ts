@@ -445,9 +445,10 @@ export class DaProofChecker {
 
     const publicationVerifier = publicationVerifierResult.successResult;
 
-    if (!publicationVerifier.verifyPublicationIdMatches()) {
-      log('publicationId does not match the generated one');
-      return failure(MomokaValidatorError.GENERATED_PUBLICATION_ID_MISMATCH);
+    const publicationIdMatchesResult = await publicationVerifier.verifyPublicationIdMatches();
+
+    if (publicationIdMatchesResult.isFailure()) {
+      return failure(publicationIdMatchesResult.failure);
     }
 
     switch (publicationVerifier.type) {

@@ -19,7 +19,7 @@ export abstract class DAPublicationVerifierV2 {
     this.lensHubGateway = new LensHubV2Gateway(ethereumNode);
   }
 
-  abstract verifyPublicationIdMatches(): boolean;
+  abstract verifyPublicationIdMatches(): PromiseResult;
 
   public async verifySigner(): PromiseResult<{
     currentPublicationId: string;

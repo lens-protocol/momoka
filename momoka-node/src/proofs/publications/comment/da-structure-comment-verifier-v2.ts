@@ -34,14 +34,20 @@ export class DAStructureCommentVerifierV2 extends DAPublicationVerifierV2 {
     super(daPublication, ethereumNode, log);
   }
 
-  verifyPublicationIdMatches(): boolean {
+  verifyPublicationIdMatches(): PromiseResult {
     const generatedPublicationId = generatePublicationId(
       this.daPublication.event.commentParams.profileId,
       this.daPublication.event.pubId,
       this.daPublication.dataAvailabilityId
     );
 
-    return generatedPublicationId === this.daPublication.publicationId;
+    if (generatedPublicationId !== this.daPublication.publicationId) {
+      this.log('publicationId does not match the generated one');
+
+      return Promise.resolve(failure(MomokaValidatorError.GENERATED_PUBLICATION_ID_MISMATCH));
+    }
+
+    return Promise.resolve(success());
   }
 
   verifyEventWithTypedData(pubCountAtBlock: string): PromiseResult {

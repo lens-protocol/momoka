@@ -20,14 +20,20 @@ export abstract class DAPublicationVerifierV1 {
     this.lensHubGateway = new LensHubV1Gateway(ethereumNode);
   }
 
-  public verifyPublicationIdMatches(): boolean {
+  public verifyPublicationIdMatches(): PromiseResult {
     const generatedPublicationId = generatePublicationId(
       this.daPublication.event.profileId,
       this.daPublication.event.pubId,
       this.daPublication.dataAvailabilityId
     );
 
-    return generatedPublicationId === this.daPublication.publicationId;
+    if (generatedPublicationId !== this.daPublication.publicationId) {
+      this.log('publicationId does not match the generated one');
+
+      return Promise.resolve(failure(MomokaValidatorError.GENERATED_PUBLICATION_ID_MISMATCH));
+    }
+
+    return Promise.resolve(success());
   }
 
   public async verifySigner(): PromiseResult<{
