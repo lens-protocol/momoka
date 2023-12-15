@@ -1,5 +1,7 @@
 # unreleased - fill in any changes you do here!
 
+- feat: add support for lens v2 publications
+
 ## Features
 
 ## Bug fixes

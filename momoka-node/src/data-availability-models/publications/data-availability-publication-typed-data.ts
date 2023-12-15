@@ -55,7 +55,6 @@ interface CreateCommentV2EIP712TypedDataValue extends EIP712TypedDataValueBase {
   contentURI: string;
   pointedProfileId: string;
   pointedPubId: string;
-  // TODO: check if array is correct
   referrerProfileIds: string[];
   referrerPubIds: string[];
   referenceModuleData: string;
@@ -121,7 +120,6 @@ interface CreatQuoteV2EIP712TypedDataValue extends EIP712TypedDataValueBase {
   contentURI: string;
   pointedProfileId: string;
   pointedPubId: string;
-  // TODO: check if array is correct
   referrerProfileIds: string[];
   referrerPubIds: string[];
   referenceModuleData: string;
