@@ -56,7 +56,6 @@ export class LensHubV2Gateway {
     isSignerApprovedExecutor: boolean;
     ownerOfAddress: string;
   }> {
-    debugger;
     // Create a new Multicall instance
     const multicall = new Multicall({
       nodeUrl: this.ethereumNode.nodeUrl,
@@ -125,13 +124,10 @@ export class LensHubV2Gateway {
           const decodedResultData = ethers.utils.defaultAbiCoder.decode(outputTypes, result);
           const resultData = decodedResultData[2];
 
-          // todo check this
           const [decodedGetProfileResponse] = DALensHubInterface.decodeFunctionResult(
             'getProfile',
             resultData[1].returnData
           );
-
-          debugger;
 
           // bit ugly but we need to decode the return data
           // we know the order of stuff from the above ContractCallContext::calls

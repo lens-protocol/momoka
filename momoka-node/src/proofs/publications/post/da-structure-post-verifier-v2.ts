@@ -15,9 +15,9 @@ import {
 } from '../../../evm/ethereum';
 import { PostParamsRequest } from '../../../evm/abi-types/LensHubV2';
 import { whoSignedTypedData } from '../publication.base';
-import { arraysEqual } from '../../../utils/arrays-equal';
 import { DAPublicationVerifierV2 } from '../da-publication-verifier-v2';
 import { generatePublicationId } from '../../utils';
+import { arraysEqual } from '../../../utils/arrays-equal';
 
 export type DAPostPublicationV2 = DAStructurePublication<
   DAPostCreatedEventEmittedResponseV2,
@@ -157,15 +157,19 @@ export class DAStructurePostVerifierV2 extends DAPublicationVerifierV2 {
     this.log('cross check event with typed data value');
 
     // compare all others!
-    // TODO: verify others
     if (
       !BigNumber.from(simulatedPubResult).eq(event.pubId) ||
       typedData.value.profileId !== event.postParams.profileId ||
       typedData.value.contentURI !== event.postParams.contentURI ||
       !arraysEqual(typedData.value.actionModules, event.postParams.actionModules) ||
+      !arraysEqual(
+        typedData.value.actionModulesInitDatas,
+        event.postParams.actionModulesInitDatas
+      ) ||
       typedData.value.referenceModule !== event.postParams.referenceModule ||
-      event.referenceModuleInitReturnData !== EMPTY_BYTE ||
-      typedData.value.referenceModuleInitData !== EMPTY_BYTE
+      typedData.value.referenceModuleInitData !== event.postParams.referenceModuleInitData ||
+      event.actionModulesInitReturnDatas.length !== 0 ||
+      event.referenceModuleInitReturnData !== EMPTY_BYTE
     ) {
       return Promise.resolve(failure(MomokaValidatorError.EVENT_MISMATCH));
     }

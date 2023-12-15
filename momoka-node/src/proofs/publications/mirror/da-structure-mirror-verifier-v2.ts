@@ -9,6 +9,7 @@ import { DAPublicationVerifierV2 } from '../da-publication-verifier-v2';
 import { generatePublicationId } from '../../utils';
 import { DAActionTypes } from '../../../data-availability-models/data-availability-action-types';
 import { EMPTY_BYTE, EthereumNode } from '../../../evm/ethereum';
+import { arraysEqual } from '../../../utils/arrays-equal';
 
 export type DAMirrorPublicationV2 = DAStructurePublication<
   DAMirrorCreatedEventEmittedResponseV2,
@@ -65,14 +66,14 @@ export class DAStructureMirrorVerifierV2 extends DAPublicationVerifierV2 {
     this.log('pub count at block is correct');
 
     // compare all others!
-    // TODO: verify others
     if (
       typedData.value.profileId !== event.mirrorParams.profileId ||
+      typedData.value.metadataURI !== event.mirrorParams.metadataURI ||
       typedData.value.pointedProfileId !== event.mirrorParams.pointedProfileId ||
       typedData.value.pointedPubId !== event.mirrorParams.pointedPubId ||
-      typedData.value.metadataURI !== event.mirrorParams.metadataURI ||
-      event.referenceModuleReturnData !== EMPTY_BYTE ||
-      typedData.value.referenceModuleData !== EMPTY_BYTE
+      !arraysEqual(typedData.value.referrerProfileIds, event.mirrorParams.referrerProfileIds) ||
+      !arraysEqual(typedData.value.referrerPubIds, event.mirrorParams.referrerPubIds) ||
+      event.referenceModuleReturnData !== EMPTY_BYTE
     ) {
       return Promise.resolve(failure(MomokaValidatorError.EVENT_MISMATCH));
     }

@@ -8,7 +8,8 @@ import { MomokaValidatorError } from '../../../data-availability-models/validato
 import { DAPublicationVerifierV2 } from '../da-publication-verifier-v2';
 import { generatePublicationId } from '../../utils';
 import { DAActionTypes } from '../../../data-availability-models/data-availability-action-types';
-import { EthereumNode } from '../../../evm/ethereum';
+import { EMPTY_BYTE, EthereumNode } from '../../../evm/ethereum';
+import { arraysEqual } from '../../../utils/arrays-equal';
 
 export type DACommentPublicationV2 = DAStructurePublication<
   DACommentCreatedEventEmittedResponseV2,
@@ -65,12 +66,23 @@ export class DAStructureCommentVerifierV2 extends DAPublicationVerifierV2 {
     this.log('pub count at block is correct');
 
     // compare all others!
-    // TODO: verify others
     if (
       typedData.value.profileId !== event.commentParams.profileId ||
       typedData.value.contentURI !== event.commentParams.contentURI ||
       typedData.value.pointedProfileId !== event.commentParams.pointedProfileId ||
-      typedData.value.pointedPubId !== event.commentParams.pointedPubId
+      typedData.value.pointedPubId !== event.commentParams.pointedPubId ||
+      !arraysEqual(typedData.value.actionModules, event.commentParams.actionModules) ||
+      !arraysEqual(
+        typedData.value.actionModulesInitDatas,
+        event.commentParams.actionModulesInitDatas
+      ) ||
+      typedData.value.referenceModule !== event.commentParams.referenceModule ||
+      typedData.value.referenceModuleInitData !== event.commentParams.referenceModuleInitData ||
+      !arraysEqual(typedData.value.referrerProfileIds, event.commentParams.referrerProfileIds) ||
+      !arraysEqual(typedData.value.referrerPubIds, event.commentParams.referrerPubIds) ||
+      event.actionModulesInitReturnDatas.length !== 0 ||
+      event.referenceModuleReturnData !== EMPTY_BYTE ||
+      event.referenceModuleInitReturnData !== EMPTY_BYTE
     ) {
       return Promise.resolve(failure(MomokaValidatorError.EVENT_MISMATCH));
     }

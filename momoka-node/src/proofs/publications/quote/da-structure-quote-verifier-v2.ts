@@ -8,7 +8,8 @@ import { MomokaValidatorError } from '../../../data-availability-models/validato
 import { DAPublicationVerifierV2 } from '../da-publication-verifier-v2';
 import { generatePublicationId } from '../../utils';
 import { DAActionTypes } from '../../../data-availability-models/data-availability-action-types';
-import { EthereumNode } from '../../../evm/ethereum';
+import { EMPTY_BYTE, EthereumNode } from '../../../evm/ethereum';
+import { arraysEqual } from '../../../utils/arrays-equal';
 
 export type DAQuotePublicationV2 = DAStructurePublication<
   DAQuoteCreatedEventEmittedResponseV2,
@@ -63,12 +64,23 @@ export class DAStructureQuoteVerifierV2 extends DAPublicationVerifierV2 {
     this.log('pub count at block is correct');
 
     // compare all others!
-    // TODO: verify others
     if (
       typedData.value.profileId !== event.quoteParams.profileId ||
       typedData.value.contentURI !== event.quoteParams.contentURI ||
       typedData.value.pointedProfileId !== event.quoteParams.pointedProfileId ||
-      typedData.value.pointedPubId !== event.quoteParams.pointedPubId
+      typedData.value.pointedPubId !== event.quoteParams.pointedPubId ||
+      !arraysEqual(typedData.value.actionModules, event.quoteParams.actionModules) ||
+      !arraysEqual(
+        typedData.value.actionModulesInitDatas,
+        event.quoteParams.actionModulesInitDatas
+      ) ||
+      typedData.value.referenceModule !== event.quoteParams.referenceModule ||
+      typedData.value.referenceModuleInitData !== event.quoteParams.referenceModuleInitData ||
+      !arraysEqual(typedData.value.referrerProfileIds, event.quoteParams.referrerProfileIds) ||
+      !arraysEqual(typedData.value.referrerPubIds, event.quoteParams.referrerPubIds) ||
+      event.actionModulesInitReturnDatas.length !== 0 ||
+      event.referenceModuleReturnData !== EMPTY_BYTE ||
+      event.referenceModuleInitReturnData !== EMPTY_BYTE
     ) {
       return Promise.resolve(failure(MomokaValidatorError.EVENT_MISMATCH));
     }
