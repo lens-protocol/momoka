@@ -8,9 +8,7 @@ import { MomokaValidatorError } from '../../../data-availability-models/validato
 import { DAPublicationVerifierV2 } from '../da-publication-verifier-v2';
 import { generatePublicationId } from '../../utils';
 import { DAActionTypes } from '../../../data-availability-models/data-availability-action-types';
-import { LensHubV2Gateway } from '../../../evm/gateway/LensHubV2Gateway';
 import { EthereumNode } from '../../../evm/ethereum';
-import { whoSignedTypedData } from '../publication.base';
 
 export type DACommentPublicationV2 = DAStructurePublication<
   DACommentCreatedEventEmittedResponseV2,
@@ -26,64 +24,14 @@ export const isDACommentPublicationV2 = (
 };
 
 export class DAStructureCommentVerifierV2 extends DAPublicationVerifierV2 {
-  private readonly lensHubGateway: LensHubV2Gateway;
+  public readonly type = DAActionTypes.COMMENT_CREATED;
 
   constructor(
     public readonly daPublication: DACommentPublicationV2,
-    readonly ethereumNode: EthereumNode,
-    private readonly log: LogFunctionType
+    ethereumNode: EthereumNode,
+    log: LogFunctionType
   ) {
-    super(daPublication);
-
-    this.lensHubGateway = new LensHubV2Gateway(ethereumNode);
-  }
-
-  public async verifySigner(): PromiseResult<{
-    currentPublicationId: string;
-    ownerOfAddress: string;
-  }> {
-    const typedData = this.daPublication.chainProofs.thisPublication.typedData;
-
-    const whoSignedResult = await whoSignedTypedData(
-      typedData.domain,
-      typedData.types,
-      typedData.value,
-      this.daPublication.chainProofs.thisPublication.signature
-    );
-
-    if (whoSignedResult.isFailure()) {
-      return failure(whoSignedResult.failure);
-    }
-
-    const whoSigned = whoSignedResult.successResult;
-
-    this.log('who signed', whoSigned);
-
-    const chainProfileDetailsResult = await this.lensHubGateway.getOnChainProfileDetails(
-      this.daPublication.chainProofs.thisPublication.blockNumber,
-      typedData.value.profileId,
-      whoSigned
-    );
-    debugger;
-    if (chainProfileDetailsResult.isFailure()) {
-      return failure(chainProfileDetailsResult.failure);
-    }
-
-    const details = chainProfileDetailsResult.successResult;
-
-    if (details.nonces !== typedData.value.nonce) {
-      this.log('nonce mismatch', { expected: details.nonces, actual: typedData.value.nonce });
-      return failure(MomokaValidatorError.PUBLICATION_NONCE_INVALID);
-    }
-
-    if (details.ownerOfAddress !== whoSigned && !details.isSignerApprovedExecutor) {
-      return failure(MomokaValidatorError.PUBLICATION_SIGNER_NOT_ALLOWED);
-    }
-
-    return success({
-      currentPublicationId: details.currentPublicationId,
-      ownerOfAddress: details.ownerOfAddress,
-    });
+    super(daPublication, ethereumNode, log);
   }
 
   verifyPublicationIdMatches(): boolean {

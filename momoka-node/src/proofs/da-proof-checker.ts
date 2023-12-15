@@ -28,14 +28,7 @@ import { checkDAMirror } from './publications/mirror';
 import { checkDAPost } from './publications/post';
 import { getClosestBlock, isValidEventTimestamp, isValidTypedDataDeadlineTimestamp } from './utils';
 import { createDAPublicationVerifier } from './publications/create-da-publication-verifier';
-import { DAStructureCommentVerifierV1 } from './publications/comment/da-structure-comment-verifier-v1';
-import { DAStructureCommentVerifierV2 } from './publications/comment/da-structure-comment-verifier-v2';
-import { DAStructureMirrorVerifierV1 } from './publications/mirror/da-structure-mirror-verifier-v1';
-import { DAStructureMirrorVerifierV2 } from './publications/mirror/da-structure-mirror-verifier-v2';
-import { DAStructurePostVerifierV1 } from './publications/post/da-structure-post-verifier-v1';
-import { DAStructurePostVerifierV2 } from './publications/post/da-structure-post-verifier-v2';
 import { checkDAQuote } from './publications/quote';
-import { DAStructureQuoteVerifierV2 } from './publications/quote/da-structure-quote-verifier-v2';
 
 const validResult = 'valid';
 type ValidType = typeof validResult;
@@ -440,24 +433,29 @@ export class DaProofChecker {
     checkOptions: CheckDASubmissionOptions,
     log: LogFunctionType
   ): PromiseResult {
-    const publicationVerifier = await createDAPublicationVerifier(daPublication, ethereumNode, log);
+    const publicationVerifierResult = await createDAPublicationVerifier(
+      daPublication,
+      ethereumNode,
+      log
+    );
+
+    if (publicationVerifierResult.isFailure()) {
+      return failure(publicationVerifierResult.failure);
+    }
+
+    const publicationVerifier = publicationVerifierResult.successResult;
 
     if (!publicationVerifier.verifyPublicationIdMatches()) {
       log('publicationId does not match the generated one');
       return failure(MomokaValidatorError.GENERATED_PUBLICATION_ID_MISMATCH);
     }
 
-    console.log('type', publicationVerifier.daPublication.type);
-
-    switch (publicationVerifier.daPublication.type) {
+    switch (publicationVerifier.type) {
       case DAActionTypes.POST_CREATED:
-        return checkDAPost(
-          publicationVerifier as DAStructurePostVerifierV1 | DAStructurePostVerifierV2,
-          checkOptions.log
-        );
+        return checkDAPost(publicationVerifier, checkOptions.log);
       case DAActionTypes.COMMENT_CREATED:
         return checkDAComment(
-          publicationVerifier as DAStructureCommentVerifierV1 | DAStructureCommentVerifierV2,
+          publicationVerifier,
           checkOptions.verifyPointer,
           ethereumNode,
           checkOptions.log,
@@ -465,7 +463,7 @@ export class DaProofChecker {
         );
       case DAActionTypes.MIRROR_CREATED:
         return checkDAMirror(
-          publicationVerifier as DAStructureMirrorVerifierV1 | DAStructureMirrorVerifierV2,
+          publicationVerifier,
           checkOptions.verifyPointer,
           ethereumNode,
           checkOptions.log,
@@ -473,14 +471,14 @@ export class DaProofChecker {
         );
       case DAActionTypes.QUOTE_CREATED:
         return checkDAQuote(
-          publicationVerifier as DAStructureQuoteVerifierV2,
+          publicationVerifier,
           checkOptions.verifyPointer,
           ethereumNode,
           checkOptions.log,
           this
         );
       default:
-        return failure(MomokaValidatorError.UNKNOWN);
+        return failure(MomokaValidatorError.PUBLICATION_NOT_RECOGNIZED);
     }
   }
 

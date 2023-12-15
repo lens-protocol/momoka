@@ -193,7 +193,7 @@ const processPublication = async (
 
     const txValidatedResult: TxValidatedResult = buildTxValidationResult(txId, result);
 
-    saveTxDb(txId, txValidatedResult);
+    void saveTxDb(txId, txValidatedResult);
 
     if (stream) {
       // stream the result to the callback defined
@@ -207,7 +207,6 @@ const processPublication = async (
     };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
-    debugger;
     // console.log(`FAILED - ${e.message || e}`);
     saveTxDb(txId, {
       proofTxId: txId,
@@ -331,7 +330,7 @@ export const checkDAProofsBatch = async (
     daPublications
   );
 
-  return await processPublications(
+  return processPublications(
     daPublicationsWithTimestampProofs,
     ethereumNode,
     retryAttempt,

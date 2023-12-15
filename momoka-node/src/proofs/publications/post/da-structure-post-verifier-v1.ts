@@ -15,7 +15,6 @@ import {
 } from '../../../evm/ethereum';
 import { DAActionTypes } from '../../../data-availability-models/data-availability-action-types';
 import { PostWithSig_DispatcherRequest } from '../../../evm/abi-types/LensHubV1';
-import { LensHubV1Gateway } from '../../../evm/gateway/LensHubV1Gateway';
 
 export type DAPostPublicationV1 = DAStructurePublication<
   DAPostCreatedEventEmittedResponseV1,
@@ -31,15 +30,14 @@ export const isDAPostPublicationV1 = (
 };
 
 export class DAStructurePostVerifierV1 extends DAPublicationVerifierV1 {
-  private readonly lensHubGateway: LensHubV1Gateway;
+  public readonly type = DAActionTypes.POST_CREATED;
+
   constructor(
     public readonly daPublication: DAPostPublicationV1,
-    private readonly ethereumNode: EthereumNode,
-    private readonly log: LogFunctionType
+    ethereumNode: EthereumNode,
+    log: LogFunctionType
   ) {
-    super(daPublication);
-
-    this.lensHubGateway = new LensHubV1Gateway(ethereumNode);
+    super(daPublication, ethereumNode, log);
   }
 
   async verifySimulation(): PromiseResult<string> {

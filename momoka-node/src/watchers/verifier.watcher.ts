@@ -218,8 +218,6 @@ export const startDAVerifierNode = async (
       1000
     );
 
-    console.log('lastTransaction', lastTransaction.edges.length);
-
     if (lastTransaction.edges.length > 0) {
       endCursor = lastTransaction.edges[lastTransaction.edges.length - 1].cursor;
       totalChecked = 0;

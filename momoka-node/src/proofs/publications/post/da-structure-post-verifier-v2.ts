@@ -13,7 +13,6 @@ import {
   executeSimulationTransaction,
   parseSignature,
 } from '../../../evm/ethereum';
-import { LensHubV2Gateway } from '../../../evm/gateway/LensHubV2Gateway';
 import { PostParamsRequest } from '../../../evm/abi-types/LensHubV2';
 import { whoSignedTypedData } from '../publication.base';
 import { arraysEqual } from '../../../utils/arrays-equal';
@@ -32,15 +31,14 @@ export const isDAPostPublicationV2 = (
 };
 
 export class DAStructurePostVerifierV2 extends DAPublicationVerifierV2 {
-  private readonly lensHubGateway: LensHubV2Gateway;
+  public readonly type = DAActionTypes.POST_CREATED;
+
   constructor(
     public readonly daPublication: DAPostPublicationV2,
-    private readonly ethereumNode: EthereumNode,
-    private readonly log: LogFunctionType
+    ethereumNode: EthereumNode,
+    log: LogFunctionType
   ) {
-    super(daPublication);
-
-    this.lensHubGateway = new LensHubV2Gateway(ethereumNode);
+    super(daPublication, ethereumNode, log);
   }
 
   // todo return promise result

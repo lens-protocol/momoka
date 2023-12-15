@@ -60,6 +60,7 @@ interface DAStructurePublicationProofs<TTypedData extends PublicationTypedData> 
   } | null;
 }
 
+// TODO: Refactor to discriminated union by `type` so narrowing works properly
 export interface DAStructurePublication<
   TEvent extends DAEventType = DAEventType,
   TTypedData extends PublicationTypedData = PublicationTypedData

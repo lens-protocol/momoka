@@ -1,5 +1,4 @@
 import { DAStructurePublication } from '../../data-availability-models/publications/data-availability-structure-publication';
-import { DaPublicationVerifierBase } from './da-publication-verifier-base';
 import { DAActionTypes } from '../../data-availability-models/data-availability-action-types';
 import {
   DAStructureCommentVerifierV1,
@@ -31,50 +30,94 @@ import {
   DAStructureQuoteVerifierV2,
   isDAQuotePublicationV2,
 } from './quote/da-structure-quote-verifier-v2';
+import { failure, PromiseResult, success } from '../../data-availability-models/da-result';
+import { MomokaValidatorError } from '../../data-availability-models/validator-errors';
+
+export type DAPublicationVerifier =
+  | DAStructurePostVerifierV1
+  | DAStructurePostVerifierV2
+  | DAStructureCommentVerifierV1
+  | DAStructureCommentVerifierV2
+  | DAStructureMirrorVerifierV1
+  | DAStructureMirrorVerifierV2
+  | DAStructureQuoteVerifierV2;
 
 export const createDAPublicationVerifier = (
   daPublication: DAStructurePublication,
   ethereumNode: EthereumNode,
   log: LogFunctionType
-): DaPublicationVerifierBase | DAStructurePostVerifierV2 => {
+): PromiseResult<DAPublicationVerifier> => {
   switch (daPublication.type) {
     case DAActionTypes.POST_CREATED:
       if (isDAPostPublicationV1(daPublication)) {
-        return new DAStructurePostVerifierV1(daPublication, ethereumNode, log);
+        log('verifying post v1');
+        return Promise.resolve(
+          success(new DAStructurePostVerifierV1(daPublication, ethereumNode, log))
+        );
       }
 
       if (isDAPostPublicationV2(daPublication)) {
-        return new DAStructurePostVerifierV2(daPublication, ethereumNode, log);
+        log('verifying post v2');
+
+        return Promise.resolve(
+          success(new DAStructurePostVerifierV2(daPublication, ethereumNode, log))
+        );
       }
 
-      throw new Error('Unknown post publication type');
+      log('post was not recognized as v1 or v2');
+
+      return Promise.resolve(failure(MomokaValidatorError.PUBLICATION_NOT_RECOGNIZED));
     case DAActionTypes.COMMENT_CREATED:
       if (isDACommentPublicationV1(daPublication)) {
-        return new DAStructureCommentVerifierV1(daPublication, ethereumNode, log);
+        log('verifying comment v1');
+
+        return Promise.resolve(
+          success(new DAStructureCommentVerifierV1(daPublication, ethereumNode, log))
+        );
       }
 
       if (isDACommentPublicationV2(daPublication)) {
-        return new DAStructureCommentVerifierV2(daPublication, ethereumNode, log);
+        log('verifying comment v2');
+
+        return Promise.resolve(
+          success(new DAStructureCommentVerifierV2(daPublication, ethereumNode, log))
+        );
       }
 
-      throw new Error('Unknown comment publication type');
+      log('comment was not recognized as v1 or v2');
+
+      return Promise.resolve(failure(MomokaValidatorError.PUBLICATION_NOT_RECOGNIZED));
     case DAActionTypes.MIRROR_CREATED:
       if (isDAMirrorPublicationV1(daPublication)) {
-        return new DAStructureMirrorVerifierV1(daPublication, ethereumNode, log);
+        log('verifying mirror v1');
+
+        return Promise.resolve(
+          success(new DAStructureMirrorVerifierV1(daPublication, ethereumNode, log))
+        );
       }
       if (isDAMirrorPublicationV2(daPublication)) {
-        return new DAStructureMirrorVerifierV2(daPublication, ethereumNode, log);
+        log('verifying mirror v2');
+
+        return Promise.resolve(
+          success(new DAStructureMirrorVerifierV2(daPublication, ethereumNode, log))
+        );
       }
 
-      throw new Error('Unknown mirror publication type');
+      log('mirror was not recognized as v1 or v2');
 
+      return Promise.resolve(failure(MomokaValidatorError.PUBLICATION_NOT_RECOGNIZED));
     case DAActionTypes.QUOTE_CREATED:
       if (isDAQuotePublicationV2(daPublication)) {
-        return new DAStructureQuoteVerifierV2(daPublication, ethereumNode, log);
-      }
+        log('verifying quote v2');
 
-      throw new Error('Unknown mirror publication type');
+        return Promise.resolve(
+          success(new DAStructureQuoteVerifierV2(daPublication, ethereumNode, log))
+        );
+      }
+      log('quote was not recognized as v2');
+
+      return Promise.resolve(failure(MomokaValidatorError.PUBLICATION_NOT_RECOGNIZED));
     default:
-      throw new Error('Unknown publication type');
+      return Promise.resolve(failure(MomokaValidatorError.PUBLICATION_NOT_RECOGNIZED));
   }
 };
