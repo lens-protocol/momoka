@@ -38,24 +38,24 @@ export const checkDAMirror = async (
     return failure(MomokaValidatorError.PUBLICATION_NONE_DA);
   }
 
-  // if (verifyPointer) {
-  //   log('verify pointer first');
-  //
-  //   // check the pointer!
-  //   const pointerResult = await checker.checkDAProof(
-  //     publication.chainProofs.pointer.location,
-  //     ethereumNode,
-  //     {
-  //       verifyPointer: false,
-  //       byPassDb: false,
-  //       log,
-  //     }
-  //   );
-  //
-  //   if (pointerResult.isFailure()) {
-  //     return failure(MomokaValidatorError.POINTER_FAILED_VERIFICATION);
-  //   }
-  // }
+  if (verifyPointer) {
+    log('verify pointer first');
+
+    // check the pointer!
+    const pointerResult = await checker.checkDAProof(
+      publication.chainProofs.pointer.location,
+      ethereumNode,
+      {
+        verifyPointer: false,
+        byPassDb: false,
+        log,
+      }
+    );
+
+    if (pointerResult.isFailure()) {
+      return failure(MomokaValidatorError.POINTER_FAILED_VERIFICATION);
+    }
+  }
 
   const signerResult = await daPublicationVerifier.verifySigner();
 

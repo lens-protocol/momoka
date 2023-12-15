@@ -215,11 +215,13 @@ export const startDAVerifierNode = async (
       ethereumNode.deployment,
       null,
       DataAvailabilityTransactionsOrderTypes.DESC,
-      100
+      1000
     );
 
+    console.log('lastTransaction', lastTransaction.edges.length);
+
     if (lastTransaction.edges.length > 0) {
-      endCursor = lastTransaction.edges[99].cursor;
+      endCursor = lastTransaction.edges[lastTransaction.edges.length - 1].cursor;
       totalChecked = 0;
     } else {
       endCursor = null;
@@ -235,8 +237,6 @@ export const startDAVerifierNode = async (
         endCursor,
         10
       );
-
-      console.log('transactions', transactions);
 
       if (!transactions || transactions.txIds.length === 0) {
         lastCheckNothingFound = await waitForNewSubmissions(lastCheckNothingFound);

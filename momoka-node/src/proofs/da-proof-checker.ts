@@ -442,14 +442,14 @@ export class DaProofChecker {
   ): PromiseResult {
     const publicationVerifier = await createDAPublicationVerifier(daPublication, ethereumNode, log);
 
-    debugger;
-
     if (!publicationVerifier.verifyPublicationIdMatches()) {
       log('publicationId does not match the generated one');
       return failure(MomokaValidatorError.GENERATED_PUBLICATION_ID_MISMATCH);
     }
 
-    switch (daPublication.type) {
+    console.log('type', publicationVerifier.daPublication.type);
+
+    switch (publicationVerifier.daPublication.type) {
       case DAActionTypes.POST_CREATED:
         return checkDAPost(
           publicationVerifier as DAStructurePostVerifierV1 | DAStructurePostVerifierV2,
