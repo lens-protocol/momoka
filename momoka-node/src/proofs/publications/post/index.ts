@@ -2,7 +2,7 @@ import { LogFunctionType } from '../../../common/logger';
 import { failure, PromiseResult } from '../../../data-availability-models/da-result';
 import { MomokaValidatorError } from '../../../data-availability-models/validator-errors';
 import { DAPostVerifierV1 } from './da-post-verifier-v1';
-import { DaPostVerifierV2 } from './da-post-verifier-v2';
+import { DAPostVerifierV2 } from './da-post-verifier-v2';
 
 /**
  * Checks if the given DAPostPublication is valid by verifying the proof chain, cross-checking against the event, and
@@ -12,7 +12,7 @@ import { DaPostVerifierV2 } from './da-post-verifier-v2';
  * @returns A PromiseResult indicating success or failure, along with an optional error message.
  */
 export const checkDAPost = async (
-  daPublicationVerifier: DAPostVerifierV1 | DaPostVerifierV2,
+  daPublicationVerifier: DAPostVerifierV1 | DAPostVerifierV2,
   log: LogFunctionType
 ): PromiseResult => {
   log('check DA post');
