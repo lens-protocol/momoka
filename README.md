@@ -71,7 +71,7 @@ Here are diagrams that show how a transaction would look like on Polygon versus 
 
 <img src="./images/tech-comparison.jpg" />
 
-The reason momoka security is medium and not high is because in theory a submitter could refuse to process transactions from certain users even though validators could do this as well as we only have 1 for now the fix is more. As we increase more submitters this comes down, also the bad submitters could in theory flood the system without any slashing mechanism. This is a problem that will be solved in the future.
+The reason momoka security is medium and not high is that in theory a submitter could refuse to process transactions from certain users even though validators could do this as well as we only have 1 for now the fix is more. As we increase more submitters this comes down, also the bad submitters could in theory flood the system without any slashing mechanism. This is a problem that will be solved in the future.
 
 We'd like to emphasize that while using Momoka, you can enjoy the benefits of finality, scalability, and cost-effectiveness. However, there is a slight tradeoff in terms of security, especially until we have many verifiers and submitters in the network. This is similar to what would happen to Ethereum's security if it lost all its validators. It's a tradeoff we're willing to make for now during our beta phase. We firmly believe that the advantages of the DA outweigh the disadvantages, even though we cannot start fully decentralized. Nevertheless, we're committed to working towards that goal with momoka.
 
@@ -139,20 +139,20 @@ A reorg of the blockchain can potentially affect the signing expiry of transacti
 
 ## Future of Momoka
 
-As we said above this is very much in BETA and as we learn, shape and grow the solution we envison the architecture will end up looking something like this, with decentralised submitters and verifiers.
+As we said above this is very much in BETA and as we learn, shape and grow the solution we envision the architecture will end up looking something like this, with decentralised submitters and verifiers.
 
 <img src="./images/momoka-network.jpg" />
 
 ## DA publication metadata
 
+Momoka verifier supports both v1 and v2 publications.
 We will show you a few examples of the `DA` metadata and then explain each field.
 
-### Post example
+### Post v1 example
 
 ```js
 {
-  signature:
-    '0x87866d620636f62aa3930d8c48be37dac77f96f30a9e06748491934fef75e7884a193d59fc486da3ea35f991bbd37a04ea4997e47f191d626ad2b601e3cc57a71c',
+  signature:'0x87866d620636f62aa3930d8c48be37dac77f96f30a9e06748491934fef75e7884a193d59fc486da3ea35f991bbd37a04ea4997e47f191d626ad2b601e3cc57a71c',
   dataAvailabilityId: '951a2a24-46fd-4306-8c31-46a8318a905e',
   type: DAActionTypes.POST_CREATED,
   timestampProofs: {
@@ -251,7 +251,111 @@ We will show you a few examples of the `DA` metadata and then explain each field
 }
 ```
 
-### Comment example
+### Post v2 example
+
+```js
+{
+  signature: '0x255da3b710d96789ab4873919739fca75dbf439df42b6f4d46d25629910f6b561b3aba11533a46dc09cb577c65ecf1ac7d11cb7b5c12b002a2234ff0f7de01561b',
+  dataAvailabilityId: '43a4436d-a14f-4121-97ad-ba9f7ee43ae0',
+  type: 'POST_CREATED',
+  timestampProofs: {
+      type: 'BUNDLR',
+      hashPrefix: '1',
+      response: {
+        id: 'PIdmqKf3QKmFHkyATwEUSavyInNCFdZKL7RARgGRQoI',
+        timestamp: 1702891714460,
+        version: '1.0.0',
+        public: 'sq9JbppKLlAKtQwalfX5DagnGMlTirditXk7y4jgoeA7DEM0Z6cVPE5xMQ9kz_T9VppP6BFHtHyZCZODercEVWipzkr36tfQkR5EDGUQyLivdxUzbWgVkzw7D27PJEa4cd1Uy6r18rYLqERgbRvAZph5YJZmpSJk7r3MwnQquuktjvSpfCLFwSxP1w879-ss_JalM9ICzRi38henONio8gll6GV9-omrWwRMZer_15bspCK5txCwpY137nfKwKD5YBAuzxxcj424M7zlSHlsafBwaRwFbf8gHtW03iJER4lR4GxeY0WvnYaB3KDISHQp53a9nlbmiWO5WcHHYsR83OT2eJ0Pl3RWA-_imk_SNwGQTCjmA6tf_UVwL8HzYS2iyuu85b7iYK9ZQoh8nqbNC6qibICE4h9Fe3bN7AgitIe9XzCTOXDfMr4ahjC8kkqJ1z4zNAI6-Leei_Mgd8JtZh2vqFNZhXK0lSadFl_9Oh3AET7tUds2E7s-6zpRPd9oBZu6-kNuHDRJ6TQhZSwJ9ZO5HYsccb_G_1so72aXJymR9ggJgWr4J3bawAYYnqmvmzGklYOlE_5HVnMxf-UxpT7ztdsHbc9QEH6W2bzwxbpjTczEZs3JCCB3c-NewNHsj9PYM3b5tTlTNP9kNAwPZHWpt11t79LuNkNGt9LfOek',
+        signature: 'Ab2bHqzPmgaVPZumC1la7N7xyH6KHYh017afzJn-dUDvVE-VenvpzBTO199BslAb0-hXj7TSRHy0GXW34qzxlich9pxqdQhgwjAy_whKPkTt2ZU7i89-9sm7FOEirkxYvpqo8c2rPHKmF0nkM1aMEKbYpXAxWJp-CCdMdBQDWzKrh2fhl9BNL8wTvPjDw5QHH-kCOXrnrptbO1KZrV3n30utnjMPhyoa2_Kgr96FgrFLvNfDNBoHoOcr_Nv4VHxPjkR3Ph70dFe_U4nzdSllJgyA12EgrAh2XIqZ4qnDBRxw5CBvY5XYoK0zvj-ikTotrFxUoazva6MoBJxlLEgpKbyF-ztEcvx8xQvFEqhGtJcQVmGvpR5RlGZdliozwt2N1VX9y8-NdGDPzfyhu9c_VBgzJQAThBvVDTNUcmHTygLipkc2YjYyD0I_etXRFhPtJqgY5Z9DSohAydqZ3IUSr-QoefLtypWe_DiJJleFGRliSpU5kgUqOaIH6D82iZctmYBS7oVsPkBp-37qjBHXB5u7t6gfpA9eWyJ-UCOoGpgy-I9YqhitSosMa24JgmTDIwx8Ab9AGhJcge-qpaXvNQbEwfMEHd5awMY4BRCLKm8kH8HBsHyWZllTrqLZzP25Lly-B3mM3NodybMTAXRyeca9uWqmlgZjrhE7cvy79Ns',
+        deadlineHeight: 1328843,
+        block: 1328843,
+        validatorSignatures: [],
+    },
+  },
+  chainProofs: {
+    thisPublication: {
+        signature: '0xf4c37eda3f8ea409b6fa51f53ff2db1fe778e9000e2ebc9e0bb9a5426f6617671194e5d4069c6c868dea9c6826173184b56d4730bd18dbbf3f7037f9e2dbbfc31c',
+        signedByDelegate: true,
+        signatureDeadline: 1702891712,
+        typedData: {
+        types: {
+          Post: [{
+            type: 'uint256',
+            name: 'profileId',
+          },
+            {
+              type: 'string',
+              name: 'contentURI',
+            },
+            {
+              type: 'address[]',
+              name: 'actionModules',
+            },
+            {
+              type: 'bytes[]',
+              name: 'actionModulesInitDatas',
+            },
+            {
+              type: 'address',
+              name: 'referenceModule',
+            },
+            {
+              type: 'bytes',
+              name: 'referenceModuleInitData',
+            },
+            {
+              type: 'uint256',
+              name: 'nonce',
+            },
+            {
+              type: 'uint256',
+              name: 'deadline',
+            },
+          ],
+        },
+        domain: {
+            name: 'Lens Protocol Profiles',
+            version: '2',
+            chainId: 137,
+            verifyingContract: '0xDb46d1Dc155634FbC732f92E853b10B288AD5a1d',
+        },
+        value: {
+            profileId: '0x010ba2',
+            contentURI: 'https://data.lens.phaver.com/api/lens/posts/09e32dc3-280c-41b6-84af-adfe00b1518b',
+            actionModules: [],
+            actionModulesInitDatas: [],
+            referenceModule: '0x0000000000000000000000000000000000000000',
+            referenceModuleInitData: '0x',
+            nonce: 0,
+            deadline: 1702891712,
+        },
+      },
+      blockHash: '0x345881b9a7e9450b0d7a6a393f7d0eeaab76c638ddf1b73911bd895d904acf0f', 
+      blockNumber: 51266720,
+      blockTimestamp: 1702891712,
+    },
+    pointer: null,
+  },
+  publicationId: '0x010ba2-0x0753-DA-43a4436d',
+  event: {
+    postParams: {
+        profileId: '0x010ba2',
+        contentURI: 'https://data.lens.phaver.com/api/lens/posts/09e32dc3-280c-41b6-84af-adfe00b1518b',
+        actionModules: [],
+        actionModulesInitDatas: [],
+        referenceModule: '0x0000000000000000000000000000000000000000',
+        referenceModuleInitData: '0x',
+    },
+    pubId: '0x0753',
+    actionModulesInitReturnDatas: [],
+    referenceModuleInitReturnData: '0x',
+    transactionExecutor: '0xbb8d9991542baC0c77bF8f8E650CAb7B873c3C6D',
+    timestamp: 1702891712,
+  }
+}
+```
+
+### Comment v1 example
 
 ```js
 {
@@ -376,7 +480,145 @@ We will show you a few examples of the `DA` metadata and then explain each field
 }
 ```
 
-### Mirror example
+### Comment v2 example
+
+```js
+{
+    signature: '0x6e0e55679ca0b42dcb8fd82f8c5837088785c41de23ee3932577f5322741ebe72bc7af941aa775c86b1738ba36c904a4768806794443d9900c5274c7d156ac3c1c',
+    dataAvailabilityId: '78851796-9590-4822-97de-ceb265510b5d',
+    type: 'COMMENT_CREATED',
+    timestampProofs: {
+        type: 'BUNDLR',
+        hashPrefix: '1',
+        response: {
+            id: 'RQ8mCXnYCluZIop4Lw5oEkEGiZo3QnxJX0vJtHY0pN8',
+            timestamp: 1702891713472,
+            version: '1.0.0',
+            public: 'sq9JbppKLlAKtQwalfX5DagnGMlTirditXk7y4jgoeA7DEM0Z6cVPE5xMQ9kz_T9VppP6BFHtHyZCZODercEVWipzkr36tfQkR5EDGUQyLivdxUzbWgVkzw7D27PJEa4cd1Uy6r18rYLqERgbRvAZph5YJZmpSJk7r3MwnQquuktjvSpfCLFwSxP1w879-ss_JalM9ICzRi38henONio8gll6GV9-omrWwRMZer_15bspCK5txCwpY137nfKwKD5YBAuzxxcj424M7zlSHlsafBwaRwFbf8gHtW03iJER4lR4GxeY0WvnYaB3KDISHQp53a9nlbmiWO5WcHHYsR83OT2eJ0Pl3RWA-_imk_SNwGQTCjmA6tf_UVwL8HzYS2iyuu85b7iYK9ZQoh8nqbNC6qibICE4h9Fe3bN7AgitIe9XzCTOXDfMr4ahjC8kkqJ1z4zNAI6-Leei_Mgd8JtZh2vqFNZhXK0lSadFl_9Oh3AET7tUds2E7s-6zpRPd9oBZu6-kNuHDRJ6TQhZSwJ9ZO5HYsccb_G_1so72aXJymR9ggJgWr4J3bawAYYnqmvmzGklYOlE_5HVnMxf-UxpT7ztdsHbc9QEH6W2bzwxbpjTczEZs3JCCB3c-NewNHsj9PYM3b5tTlTNP9kNAwPZHWpt11t79LuNkNGt9LfOek',
+            signature: 'U-EnE5GqBWl9FRhckT8NO5ESjoSoGPVyysZMEKB6cciWc-3YsOUm1syC-JjKNZHqk5FhlDOChs6vpzBWFksxTxXL_dGeifWN1Vd3Adc-lPueHWsY4wi00AZPb9fkHZAJ1PTZyzNvO0sCtfIUF1KYsCU75Vq_-Eul0lfCgaHjbO91EYFeGiJmBgtqcFmCaABEcIPCgqo3B8FnzXei5FopqXaa8yEDe6mcA146SatnNRX5GB0QH7g7PFEkExizcOcKc9ELSuja84np41ouEyoInhTOVHipcuSASRTf20NgUHtZwImQF33YcjXpX9PPFVecxdslrqA83O_K0R6Y-J0mZb0ZRMdQ85DC6febn6LaMGn1-OagAisuALFrGyGcdH-1gagdsGQ9K86vE0T8n0PZapqB81qDSz7sPpGik-uqdXXJT1fGXYJzHy7QcnzLkt8RAADEmwaJfdzxECr-OpqkRxLovVuDB6C29ZrsVaXQ4iDx8FKbLjUbHrYFsOnRTLKi4b3Q-ImjvVNKm2Jur-cx3NSsC2zhdH-MWiR8D7bfVALNayU6QC0IeXGo_S0di70AqaFsjGwjv9hFIRhzxNnhR2VBGWCIuh9cD_icfabB1c6xKDaYLM4gim6q9foksHQ4bz7CEya40yKq8K2O18pA-MwLSDAzCNjj96FF-NBqeuo',
+            deadlineHeight: 1328843,
+            block: 1328843,
+            validatorSignatures: [],
+        },
+    },
+    chainProofs: {
+        thisPublication: {
+            signature: '0x5965cb73b4437e31820fc3e62fadc96b0fe885da77131b14e9d5265b1aee9cbf128dd60e36e9798640ee81c04d908d03b0d11d2114687b545bc778adba05ca1f1b',
+            signedByDelegate: true,
+            signatureDeadline: 1702891712,
+            typedData: {
+                types: {
+                    Comment: [{
+                            type: 'uint256',
+                            name: 'profileId',
+                        },
+                        {
+                            type: 'string',
+                            name: 'contentURI',
+                        },
+                        {
+                            type: 'uint256',
+                            name: 'pointedProfileId',
+                        },
+                        {
+                            type: 'uint256',
+                            name: 'pointedPubId',
+                        },
+                        {
+                            type: 'uint256[]',
+                            name: 'referrerProfileIds',
+                        },
+                        {
+                            type: 'uint256[]',
+                            name: 'referrerPubIds',
+                        },
+                        {
+                            type: 'bytes',
+                            name: 'referenceModuleData',
+                        },
+                        {
+                            type: 'address[]',
+                            name: 'actionModules',
+                        },
+                        {
+                            type: 'bytes[]',
+                            name: 'actionModulesInitDatas',
+                        },
+                        {
+                            type: 'address',
+                            name: 'referenceModule',
+                        },
+                        {
+                            type: 'bytes',
+                            name: 'referenceModuleInitData',
+                        },
+                        {
+                            type: 'uint256',
+                            name: 'nonce',
+                        },
+                        {
+                            type: 'uint256',
+                            name: 'deadline',
+                        },
+                    ],
+                },
+                domain: {
+                    name: 'Lens Protocol Profiles',
+                    version: '2',
+                    chainId: 137,
+                    verifyingContract: '0xDb46d1Dc155634FbC732f92E853b10B288AD5a1d',
+                },
+                value: {
+                    actionModules: [],
+                    actionModulesInitDatas: [],
+                    contentURI: 'https://data.lens.phaver.com/api/lens/comments/28a020f6-d3ed-40e9-86ae-9fd65e0ff762',
+                    deadline: 1702891712,
+                    nonce: 0,
+                    pointedProfileId: '0x01e949',
+                    pointedPubId: '0x02',
+                    profileId: '0x8780',
+                    referenceModule: '0x0000000000000000000000000000000000000000',
+                    referenceModuleData: '0x',
+                    referenceModuleInitData: '0x',
+                    referrerProfileIds: [],
+                    referrerPubIds: [],
+                },
+            },
+            blockHash: '0x345881b9a7e9450b0d7a6a393f7d0eeaab76c638ddf1b73911bd895d904acf0f',
+            blockNumber: 51266720,
+            blockTimestamp: 1702891712,
+        },
+        pointer: {
+            location: 'ar://KsFdzdb71cxbBCvO_yUpTAZylNjdjVXXHTl1RU0Kv_k',
+            type: 'ON_DA',
+        },
+    },
+    publicationId: '0x8780-0x0187-DA-78851796',
+    event: {
+        commentParams: {
+            profileId: '0x8780',
+            contentURI: 'https://data.lens.phaver.com/api/lens/comments/28a020f6-d3ed-40e9-86ae-9fd65e0ff762',
+            actionModules: [],
+            actionModulesInitDatas: [],
+            referenceModule: '0x0000000000000000000000000000000000000000',
+            referenceModuleInitData: '0x',
+            referenceModuleData: '0x',
+            referrerProfileIds: [],
+            referrerPubIds: [],
+            pointedProfileId: '0x01e949',
+            pointedPubId: '0x02',
+        },
+        pubId: '0x0187',
+        actionModulesInitReturnDatas: [],
+        referenceModuleReturnData: '0x',
+        referenceModuleInitReturnData: '0x',
+        transactionExecutor: '0x6FB0974523bE06231516Ee7CCEdad7e1897e8942',
+        timestamp: 1702891712,
+    }
+}
+```
+
+### Mirror v1 example
 
 ```js
 {
@@ -483,18 +725,274 @@ We will show you a few examples of the `DA` metadata and then explain each field
 }
 ```
 
+### Mirror v2 example
+
+```js
+{
+    signature: '0x4c0a44fe4b176994c8f08b1140925dc798d964924d8ef0ee2ef106ee7becfc16106a6291b2a8c5348df434a61f776c7426cce72827a997db2cad6e689f889af81b',
+    dataAvailabilityId: '07e11c4b-f941-41fa-886e-0ce80abe5ee6',
+    type: 'MIRROR_CREATED',
+    timestampProofs: {
+        type: 'BUNDLR',
+        hashPrefix: '1',
+        response: {
+            id: 'z6xdw5Z6etMF11TubShsFlcY-sVgyJDFwfnka7aZdwo',
+            timestamp: 1702891817115,
+            version: '1.0.0',
+            public: 'sq9JbppKLlAKtQwalfX5DagnGMlTirditXk7y4jgoeA7DEM0Z6cVPE5xMQ9kz_T9VppP6BFHtHyZCZODercEVWipzkr36tfQkR5EDGUQyLivdxUzbWgVkzw7D27PJEa4cd1Uy6r18rYLqERgbRvAZph5YJZmpSJk7r3MwnQquuktjvSpfCLFwSxP1w879-ss_JalM9ICzRi38henONio8gll6GV9-omrWwRMZer_15bspCK5txCwpY137nfKwKD5YBAuzxxcj424M7zlSHlsafBwaRwFbf8gHtW03iJER4lR4GxeY0WvnYaB3KDISHQp53a9nlbmiWO5WcHHYsR83OT2eJ0Pl3RWA-_imk_SNwGQTCjmA6tf_UVwL8HzYS2iyuu85b7iYK9ZQoh8nqbNC6qibICE4h9Fe3bN7AgitIe9XzCTOXDfMr4ahjC8kkqJ1z4zNAI6-Leei_Mgd8JtZh2vqFNZhXK0lSadFl_9Oh3AET7tUds2E7s-6zpRPd9oBZu6-kNuHDRJ6TQhZSwJ9ZO5HYsccb_G_1so72aXJymR9ggJgWr4J3bawAYYnqmvmzGklYOlE_5HVnMxf-UxpT7ztdsHbc9QEH6W2bzwxbpjTczEZs3JCCB3c-NewNHsj9PYM3b5tTlTNP9kNAwPZHWpt11t79LuNkNGt9LfOek',
+            signature: 'oaiXw1bYhNKnc7yDocvm6C0MCesIOLKDpBwxgDqvoLZsqA9JXuk1XZ44iQjvFYzGwAhkJWkwq1TV4NhKRaeZV3NK_IA54DSWikze1PiJ2ag7O9fvyO_NIdZNeFOoQLuKuh1ZxueaccttO0KGCxXgWBY4YGW1i-UttXDmVr9RxaQQJ_ul-vFSdjnACm8S8OzxXrc5kHRujxjnzFpcQtOD4YgWvKJ6kRgyxQIxL62bDc-Ubjwr-3Upz0wEvI2nfPlvDpZfpJVaLuSD_qd7k26ZgQjMfWKhXXVyyuszS8MElWB42YkOZQnJKPeMEdAQPrpbz3wjqNOv3uP_Y57RAIFYw1ZQIQz0cNw_L_apCuFJS5Hbv7slMkyC-6AOnZVGVsbjv0Wsk7KPWj3-UMACndw25ta2nOWewt1ubHRqvY9pWpTh0O6Y5oeCxy2H4sDw8QLMlkPC6tU4q5L_TjAkBp-SXt6wx6M8C1Ra9hLe0uN4xPG8rZdsSQEm5ueyHLV6tLiIEqsq2Vj5chJuycLHRqIqPEkeptKA4aR-JHmLn_4d2qLniDMun1n_oTjVBgypHOYvBAuPWFN4CrBHu6V8e6rf1UqSS_UB720z2NQhlZxUwbf5jjLzeAgap2v-Il9AMhH7Gleh3cQrrmM1NLr0yihR7PiCKROTFK4cqldDyi7r7Mk',
+            deadlineHeight: 1328843,
+            block: 1328843,
+            validatorSignatures: [],
+        },
+    },
+    chainProofs: {
+        thisPublication: {
+            signature: '0xc83854f2711e805a6cd761a50436a45d2ecde7ae37d4e96dd624bd44cb4daf434c7456cb90f2a5be5913f68cd9b40c3997f5aa1c676b903a3ea7c2590d24852a1b',
+            signedByDelegate: true,
+            signatureDeadline: 1702891816,
+            typedData: {
+                types: {
+                    Mirror: [{
+                            type: 'uint256',
+                            name: 'profileId',
+                        },
+                        {
+                            type: 'string',
+                            name: 'metadataURI',
+                        },
+                        {
+                            type: 'uint256',
+                            name: 'pointedProfileId',
+                        },
+                        {
+                            type: 'uint256',
+                            name: 'pointedPubId',
+                        },
+                        {
+                            type: 'uint256[]',
+                            name: 'referrerProfileIds',
+                        },
+                        {
+                            type: 'uint256[]',
+                            name: 'referrerPubIds',
+                        },
+                        {
+                            type: 'bytes',
+                            name: 'referenceModuleData',
+                        },
+                        {
+                            type: 'uint256',
+                            name: 'nonce',
+                        },
+                        {
+                            type: 'uint256',
+                            name: 'deadline',
+                        },
+                    ],
+                },
+                domain: {
+                    name: 'Lens Protocol Profiles',
+                    version: '2',
+                    chainId: 137,
+                    verifyingContract: '0xDb46d1Dc155634FbC732f92E853b10B288AD5a1d',
+                },
+                value: {
+                    deadline: 1702891816,
+                    metadataURI: '',
+                    nonce: 0,
+                    pointedProfileId: '0x01dd85',
+                    pointedPubId: '0x010d',
+                    profileId: '0x73b1',
+                    referenceModuleData: '0x',
+                    referrerProfileIds: [],
+                    referrerPubIds: [],
+                },
+            },
+            blockHash: '0xf55674ae4a179088bcbe0aa7ac340a42098fc6ed8a941d38294585408b062c69',
+            blockNumber: 51266755,
+            blockTimestamp: 1702891816,
+        },
+        pointer: {
+            location: 'ar://FnKDUBDZTGiwDR3X8isbLxMyII93jDSbLDXdiG1jElU',
+            type: 'ON_DA',
+        },
+    },
+    publicationId: '0x73b1-0x44d6-DA-07e11c4b',
+    event: {
+        mirrorParams: {
+            profileId: '0x73b1',
+            metadataURI: '',
+            referenceModuleData: '0x',
+            referrerProfileIds: [],
+            referrerPubIds: [],
+            pointedProfileId: '0x01dd85',
+            pointedPubId: '0x010d',
+        },
+        pubId: '0x44d6',
+        referenceModuleReturnData: '0x',
+        transactionExecutor: '0x3D5e9077ef8F9C6B0e10D6c62C1A022a49675Cc3',
+        timestamp: 1702891816,
+    },
+}
+```
+
+### Quote v1 metadata
+
+Quote was not supported in v1.
+
+### Quote v2 metadata
+
+```js
+{
+    signature: '0x1509b8efdaa96410fc975eaaa0f2f2cf587440c5fe6c08212d7ee2f3812adab018be0d29f4913f21f797b58b25d98e5c0b2f7aa517bade28de07c1a119a361dc1c',
+    dataAvailabilityId: 'ff75b024-8d38-4265-bfb6-75de3594696c',
+    type: 'QUOTE_CREATED',
+    timestampProofs: {
+        type: 'BUNDLR',
+        hashPrefix: '1',
+        response: {
+            id: '_s1fhwtNOc0rHtXuW5H1gybe3yKveNcDzDSqvRyHF2s',
+            timestamp: 1702892441416,
+            version: '1.0.0',
+            public: 'sq9JbppKLlAKtQwalfX5DagnGMlTirditXk7y4jgoeA7DEM0Z6cVPE5xMQ9kz_T9VppP6BFHtHyZCZODercEVWipzkr36tfQkR5EDGUQyLivdxUzbWgVkzw7D27PJEa4cd1Uy6r18rYLqERgbRvAZph5YJZmpSJk7r3MwnQquuktjvSpfCLFwSxP1w879-ss_JalM9ICzRi38henONio8gll6GV9-omrWwRMZer_15bspCK5txCwpY137nfKwKD5YBAuzxxcj424M7zlSHlsafBwaRwFbf8gHtW03iJER4lR4GxeY0WvnYaB3KDISHQp53a9nlbmiWO5WcHHYsR83OT2eJ0Pl3RWA-_imk_SNwGQTCjmA6tf_UVwL8HzYS2iyuu85b7iYK9ZQoh8nqbNC6qibICE4h9Fe3bN7AgitIe9XzCTOXDfMr4ahjC8kkqJ1z4zNAI6-Leei_Mgd8JtZh2vqFNZhXK0lSadFl_9Oh3AET7tUds2E7s-6zpRPd9oBZu6-kNuHDRJ6TQhZSwJ9ZO5HYsccb_G_1so72aXJymR9ggJgWr4J3bawAYYnqmvmzGklYOlE_5HVnMxf-UxpT7ztdsHbc9QEH6W2bzwxbpjTczEZs3JCCB3c-NewNHsj9PYM3b5tTlTNP9kNAwPZHWpt11t79LuNkNGt9LfOek',
+            signature: 'INzP87eVTYwFRZ7ujA2P9bhw87oA9TzDdOgofAxT1Nn1pQkcRlgEgNT36o0HzGCPhOszxJb74NZwNS-gFA7pKxf0DwJsPF-a3uL_hodhQXoJTsazxdl8sE5Y5bIa5R4jm2AvU_g9YDAnL9v4y7dYADhn997ozEniEt5ChVa4bxvMFQ5-cFx4tLDHQniSf-VNrUPoAFrVintbyoPCVDj_djDU2rOcfE86WNKiNg71pTBLGrJmF5xRVAbSKCDTlwzgJeIqID-IrhhcSHC2TdUXG2uBXhkt0GDsKJISuzeuFlH-atfEqqLyJcbkxWixuvJ5EpwzvNDnWq7-lFCi-yM_UbxRwwJqWgZK9abxk0Fa0LsnFUgOAkhsKqxKVzyjUuaXvryZHP61gUo6rtc6NfaKR48FTLFPNmOdzSb0gzCFRiym78S1cdL2LdmCBYNv3wft4QQ2d3RMTGie4QhC-hdsjMDqZlWIAVmTcR5TVEacW7pcC4Wrfa-dNHxIGT_bJwPeZIEXy-WUdCDMlVO4D0hh1SDvWkzFPI_0gDbxMhTPMUaf_EVSDZ7X7m3MT5gCZAzuL1Z-G9xwzupE-II8eTD_15xwmOEodpjgs_aVDsGaI1PFGgsLcOpN4xjOrQQgVOB4yFlTZvSE1Y0H4x8S4IMIdTYfMmm_Vlb0HDnX6geFHuk',
+            deadlineHeight: 1328851,
+            block: 1328851,
+            validatorSignatures: [],
+        },
+    },
+    chainProofs: {
+        thisPublication: {
+            signature: '0x56abf2084499f2cbca722894dabb3a1664f5fe4a2cabdfd2dc6a266177a3d3731acaa216869d61a1582db4165a76658af6eefce04d82bb6b2eef607bf11f4da91c',
+            signedByDelegate: true,
+            signatureDeadline: 1702892439,
+            typedData: {
+                types: {
+                    Quote: [{
+                            type: 'uint256',
+                            name: 'profileId',
+                        },
+                        {
+                            type: 'string',
+                            name: 'contentURI',
+                        },
+                        {
+                            type: 'uint256',
+                            name: 'pointedProfileId',
+                        },
+                        {
+                            type: 'uint256',
+                            name: 'pointedPubId',
+                        },
+                        {
+                            type: 'uint256[]',
+                            name: 'referrerProfileIds',
+                        },
+                        {
+                            type: 'uint256[]',
+                            name: 'referrerPubIds',
+                        },
+                        {
+                            type: 'bytes',
+                            name: 'referenceModuleData',
+                        },
+                        {
+                            type: 'address[]',
+                            name: 'actionModules',
+                        },
+                        {
+                            type: 'bytes[]',
+                            name: 'actionModulesInitDatas',
+                        },
+                        {
+                            type: 'address',
+                            name: 'referenceModule',
+                        },
+                        {
+                            type: 'bytes',
+                            name: 'referenceModuleInitData',
+                        },
+                        {
+                            type: 'uint256',
+                            name: 'nonce',
+                        },
+                        {
+                            type: 'uint256',
+                            name: 'deadline',
+                        },
+                    ],
+                },
+                domain: {
+                    name: 'Lens Protocol Profiles',
+                    version: '2',
+                    chainId: 137,
+                    verifyingContract: '0xDb46d1Dc155634FbC732f92E853b10B288AD5a1d',
+                },
+                value: {
+                    actionModules: [],
+                    actionModulesInitDatas: [],
+                    contentURI: 'ar://GbtyAwAME-RGiujxS3NLVhNQAiCbcSlZ26coVU4Kwqc',
+                    deadline: 1702892439,
+                    nonce: 0,
+                    pointedProfileId: '0x0155a4',
+                    pointedPubId: '0x0b24',
+                    profileId: '0x0155a4',
+                    referenceModule: '0x0000000000000000000000000000000000000000',
+                    referenceModuleData: '0x',
+                    referenceModuleInitData: '0x',
+                    referrerProfileIds: [],
+                    referrerPubIds: [],
+                },
+            },
+            blockHash: '0x31934ea8a4b44ab9eea34041a5d96eae9bb0dc2c41c6686afe0a8670701ac286',
+            blockNumber: 51267046,
+            blockTimestamp: 1702892439,
+        },
+        pointer: {
+            location: 'ar://H5mFMCkjaBMkoQTo6QNd0JYB5jDdxpOuHrNXkfoaaxo',
+            type: 'ON_DA',
+        },
+    },
+    publicationId: '0x0155a4-0x0b24-DA-ff75b024',
+    event: {
+        quoteParams: {
+            profileId: '0x0155a4',
+            contentURI: 'ar://GbtyAwAME-RGiujxS3NLVhNQAiCbcSlZ26coVU4Kwqc',
+            actionModules: [],
+            actionModulesInitDatas: [],
+            referenceModule: '0x0000000000000000000000000000000000000000',
+            referenceModuleInitData: '0x',
+            referenceModuleData: '0x',
+            referrerProfileIds: [],
+            referrerPubIds: [],
+            pointedProfileId: '0x0155a4',
+            pointedPubId: '0x0b24',
+        },
+        pubId: '0x0b24',
+        actionModulesInitReturnDatas: [],
+        referenceModuleReturnData: '0x',
+        referenceModuleInitReturnData: '0x',
+        transactionExecutor: '0x8D1a7BeEfCCCbaB825AB3B024A2aBf408e776100',
+        timestamp: 1702892439,
+    },
+}
+```
+
+
 ### Metadata breakdown
 
 This will explain in json schema terms what a DA publication metadata holds.
 
 #### POST_CREATED
 
-This is a DA post.
+Can hold either v1 or v2 post.
+
+##### V1 metadata
 
 ```json
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/lens-protocol/data-availability-verifier/blob/master/src/__TESTS__/mocks/post/post-created-delegate-arweave-response.mock.ts#L10",
   "title": "The data availability layer schema",
   "description": "The data availability layer schema",
   "type": "object",
@@ -714,7 +1212,7 @@ This is a DA post.
               "description": "The block number the submitter simulated this transaction on",
               "type": "number"
             },
-            "blockNumber": {
+            "blockTimestamp": {
               "description": "The block unix timestamp of the simulated transaction",
               "type": "number"
             }
@@ -796,14 +1294,335 @@ This is a DA post.
 }
 ```
 
-#### COMMENT_CREATED
-
-This is a DA comment. Very similar to DA post minus the `type`, `typedData` and some `events` properties
+##### V2 metadata
 
 ```json
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/lens-protocol/data-availability-verifier/blob/master/src/__TESTS__/mocks/comment/comment-created-delegate-arweave-response.mock.ts#L14",
+  "type": "object",
+  "title": "Momoka schema for post v2",
+  "properties": {
+    "signature": {
+      "description": "The signature of the entire payload signed by the submitter",
+      "type": "string"
+    },
+    "dataAvailabilityId": {
+      "type": "string",
+      "description": "The id of the publication on the data availability layer; it is just a GUID"
+    },
+    "type": {
+      "description": "`POST_CREATED`, `COMMENT_CREATED`, `MIRROR_CREATED` the DA action type which has been submitted",
+      "type": "POST_CREATED"
+    },
+    "timestampProofs": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "description": "`BUNDLR` - who has supplied us with the timestamp proofs",
+          "type": "string"
+        },
+        "hashPrefix": {
+          "description": "The timestamp proof hash prefix",
+          "type": "number"
+        },
+        "response": {
+          "description": "The response from the timestamp proof provider",
+          "type": "object",
+          "properties": {
+            "id": {
+              "description": "The id of the timestamp proof",
+              "type": "string"
+            },
+            "timestamp": {
+              "description": "The timestamp date in milliseconds",
+              "type": "number"
+            },
+            "version": {
+              "description": "The version of the timestamp proof",
+              "type": "string"
+            },
+            "public": {
+              "description": "The public key used sign for the timestamp proofs",
+              "type": "string"
+            },
+            "signature": {
+              "description": "The signature for the timestamp proofs",
+              "type": "string"
+            },
+            "deadlineHeight": {
+              "description": "Internal deadline height for the timestamp proof",
+              "type": "string"
+            },
+            "block": {
+              "description": "Internal block for the timestamp proof (this is not an evm block)",
+              "type": "number"
+            },
+            "validatorSignatures": {
+              "description": "Internal validator signatures for the timestamp proof (this will always be an empty array for now until Bundlr is decentralised)",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "id",
+            "timestamp",
+            "version",
+            "public",
+            "signature",
+            "deadlineHeight",
+            "block",
+            "validatorSignatures"
+          ]
+        }
+      },
+      "required": ["type", "hashPrefix", "response"]
+    },
+    "chainProofs": {
+      "description": "The proofs",
+      "type": "object",
+      "properties": {
+        "thisPublication": {
+          "type": "object",
+          "properties": {
+            "signature": {
+              "description": "The transaction signature",
+              "type": "string"
+            },
+            "signedByDelegate": {
+              "description": "If the signature was signed by a delegate/dispatcher",
+              "type": "boolean"
+            },
+            "signatureDeadline": {
+              "description": "The deadline of the signature in unix form",
+              "type": "number"
+            },
+            "typedData": {
+              "description": "The typed data of the transaction; this uses the signed typed data spec",
+              "type": "object",
+              "properties": {
+                "types": {
+                  "description": "The types of the signed typed data",
+                  "type": "object",
+                  "properties": {
+                    "Post": {
+                      "description": "The properties of the typed data",
+                      "type": "array",
+                      "items": {
+                        "description": "The name and type of the property",
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "description": "The name of typed data",
+                            "type": "string"
+                          },
+                          "type": {
+                            "description": "The type typed data",
+                            "type": "string"
+                          }
+                        },
+                        "required": ["name", "type"]
+                      }
+                    }
+                  },
+                  "required": ["types"]
+                },
+                "domain": {
+                  "description": "The domain of the signed typed data",
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "description": "The name of the signed typed data",
+                      "type": "string"
+                    },
+                    "version": {
+                      "description": "The version of the signed typed data",
+                      "type": "string"
+                    },
+                    "chainId": {
+                      "description": "The chain id of the signed typed data",
+                      "type": "number"
+                    },
+                    "verifyingContract": {
+                      "description": "The verifying contract",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "version",
+                    "chainId",
+                    "verifyingContract"
+                  ]
+                },
+                "value": {
+                  "description": "The value of the signed typed data",
+                  "type": "object",
+                  "properties": {
+                    "profileId": {
+                      "description": "The profile id doing the publication",
+                      "type": "string"
+                    },
+                    "contentURI": {
+                      "description": "The content metadata URI",
+                      "type": "string"
+                    },
+                    "actionModules": {
+                      "description": "The action modules - will always be empty for now",
+                      "type": "array"
+                    },
+                    "actionModulesInitDatas": {
+                      "description": "The action modules init datas - will always be empty for now",
+                      "type": "array"
+                    },
+                    "referenceModule": {
+                      "description": "The reference module will always be address(0) for now",
+                      "type": "string"
+                    },
+                    "referenceModuleInitData": {
+                      "description": "The reference module init data will - will always be empty bytes for now",
+                      "type": "string"
+                    },
+                    "nonce": {
+                      "description": "The signature nonce",
+                      "type": "number"
+                    },
+                    "deadline": {
+                      "description": "The signature deadline in unix form",
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "profileId",
+                    "contentURI",
+                    "collectModule",
+                    "collectModuleInitData",
+                    "referenceModule",
+                    "referenceModuleInitData",
+                    "nonce",
+                    "deadline"
+                  ]
+                }
+              },
+              "required": ["types", "domain", "value"]
+            },
+            "blockHash": {
+              "description": "The block hash the submitter simulated this transaction on",
+              "type": "string"
+            },
+            "blockNumber": {
+              "description": "The block number the submitter simulated this transaction on",
+              "type": "number"
+            },
+            "blockTimestamp": {
+              "description": "The block unix timestamp of the simulated transaction",
+              "type": "number"
+            }
+          },
+          "required": [
+            "signature",
+            "signedByDelegate",
+            "signatureDeadline",
+            "typedData",
+            "blockHash",
+            "blockNumber",
+            "blockTimestamp"
+          ]
+        }
+      },
+      "required": ["thisPublication"]
+    },
+    "publicationId": {
+      "description": "The id of the publication, which is built up of the profileId + pubId + `DA` + first eight chars of the dataAvailabilityId (so it will always be unique)",
+      "type": "string"
+    },
+    "event": {
+      "type": "object",
+      "description": "This is trying to shape what you would get within an `EVM` event so you can easily parse it and understand it. This will always be identical to the EVM event data structure.",
+      "properties": {
+        "postParams": {
+          "type": "object",
+          "properties": {
+            "profileId": {
+              "type": "string",
+              "description": "The profileId which did the publication"
+            },
+            "contentURI": {
+              "type": "string",
+              "description": "The contentURI aka metadata for the publication"
+            },
+            "actionModules": {
+              "type": "array",
+              "description": "The array of action modules, for now this will always be empty"
+            },
+            "actionModulesInitDatas": {
+              "type": "array",
+              "description": "The array of action modules init data, for now this will always be empty"
+            },
+            "referenceModule": {
+              "type": "string",
+              "description": "The reference module, will always be address(0) for now"
+            },
+            "referenceModuleInitData": {
+              "type": "string",
+              "description": "The reference module init data, will always for now be empty byte"
+            }
+          },
+          "required": [
+            "profileId",
+            "contentURI",
+            "actionModules",
+            "actionModulesInitDatas",
+            "referenceModule",
+            "referenceModuleInitData"
+          ]
+        },
+        "pubId": {
+          "type": "string",
+          "description": "The pubId for the publication"
+        },
+        "actionModulesInitReturnDatas": {
+          "type": "array",
+          "description": "The action modules init return datas, will always be empty for now"
+        },
+        "referenceModuleInitReturnData": {
+          "type": "string",
+          "description": "The reference module init return data, will always for now be empty byte"
+        },
+        "transactionExecutor": {
+          "type": "string",
+          "description": "The address who executed transaction"
+        },
+        "timestamp": {
+          "description": "The timestamp date in milliseconds",
+          "type": "number"
+        }
+      },
+      "required": [
+        "postParams",
+        "pubId",
+        "actionModulesInitReturnDatas",
+        "referenceModuleInitReturnData",
+        "transactionExecutor",
+        "timestamp"
+      ]
+    }
+  },
+  "required": ["signature", "dataAvailabilityId", "type", "timestampProofs", "chainProofs", "publicationId", "event"]
+}
+```
+
+
+#### COMMENT_CREATED
+
+This is a DA comment. Very similar to DA post minus the `type`, `typedData` and some `events` properties
+
+##### V1 metadata
+
+```json
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "The data availability layer schema",
   "description": "The data availability layer schema",
   "type": "object",
@@ -1038,7 +1857,7 @@ This is a DA comment. Very similar to DA post minus the `type`, `typedData` and 
               "description": "The block number the submitter simulated this transaction on",
               "type": "number"
             },
-            "blockNumber": {
+            "blockTimestamp": {
               "description": "The block unix timestamp of the simulated transaction",
               "type": "number"
             }
@@ -1150,14 +1969,385 @@ This is a DA comment. Very similar to DA post minus the `type`, `typedData` and 
 }
 ```
 
-#### MIRROR_CREATED
-
-This is a DA mirror. Very similar to DA post/comment minus the `type`, `typedData` and some `events` properties
+##### V2 metadata
 
 ```json
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/lens-protocol/data-availability-verifier/blob/master/src/__TESTS__/mocks/mirror/mirror-created-without-delegate-comment-arweave-response.mock.ts#L13",
+  "type": "object",
+  "title": "Momoka schema for comment v2",
+  "properties": {
+    "signature": {
+      "description": "The signature of the entire payload signed by the submitter",
+      "type": "string"
+    },
+    "dataAvailabilityId": {
+      "type": "string",
+      "description": "The id of the publication on the data availability layer; it is just a GUID"
+    },
+    "type": {
+      "description": "`POST_CREATED`, `COMMENT_CREATED`, `MIRROR_CREATED` the DA action type which has been submitted",
+      "type": "COMMENT_CREATED"
+    },
+    "timestampProofs": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "description": "`BUNDLR` - who has supplied us with the timestamp proofs",
+          "type": "string"
+        },
+        "hashPrefix": {
+          "description": "The timestamp proof hash prefix",
+          "type": "number"
+        },
+        "response": {
+          "description": "The response from the timestamp proof provider",
+          "type": "object",
+          "properties": {
+            "id": {
+              "description": "The id of the timestamp proof",
+              "type": "string"
+            },
+            "timestamp": {
+              "description": "The timestamp date in milliseconds",
+              "type": "number"
+            },
+            "version": {
+              "description": "The version of the timestamp proof",
+              "type": "string"
+            },
+            "public": {
+              "description": "The public key used sign for the timestamp proofs",
+              "type": "string"
+            },
+            "signature": {
+              "description": "The signature for the timestamp proofs",
+              "type": "string"
+            },
+            "deadlineHeight": {
+              "description": "Internal deadline height for the timestamp proof",
+              "type": "string"
+            },
+            "block": {
+              "description": "Internal block for the timestamp proof (this is not an evm block)",
+              "type": "number"
+            },
+            "validatorSignatures": {
+              "description": "Internal validator signatures for the timestamp proof (this will always be an empty array for now until Bundlr is decentralised)",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "id",
+            "timestamp",
+            "version",
+            "public",
+            "signature",
+            "deadlineHeight",
+            "block",
+            "validatorSignatures"
+          ]
+        }
+      },
+      "required": ["type", "hashPrefix", "response"]
+    },
+    "chainProofs": {
+      "description": "The proofs",
+      "type": "object",
+      "properties": {
+        "thisPublication": {
+          "type": "object",
+          "properties": {
+            "signature": {
+              "description": "The transaction signature",
+              "type": "string"
+            },
+            "signedByDelegate": {
+              "description": "If the signature was signed by a delegate/dispatcher",
+              "type": "boolean"
+            },
+            "signatureDeadline": {
+              "description": "The deadline of the signature in unix form",
+              "type": "number"
+            },
+            "typedData": {
+              "description": "The typed data of the transaction; this uses the signed typed data spec",
+              "type": "object",
+              "properties": {
+                "types": {
+                  "description": "The types of the signed typed data",
+                  "type": "object",
+                  "properties": {
+                    "Comment": {
+                      "description": "The properties of the typed data",
+                      "type": "array",
+                      "items": {
+                        "description": "The name and type of the property",
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "description": "The name of typed data",
+                            "type": "string"
+                          },
+                          "type": {
+                            "description": "The type typed data",
+                            "type": "string"
+                          }
+                        },
+                        "required": ["name", "type"]
+                      }
+                    }
+                  },
+                  "required": ["types"]
+                },
+                "domain": {
+                  "description": "The domain of the signed typed data",
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "description": "The name of the signed typed data",
+                      "type": "string"
+                    },
+                    "version": {
+                      "description": "The version of the signed typed data",
+                      "type": "string"
+                    },
+                    "chainId": {
+                      "description": "The chain id of the signed typed data",
+                      "type": "number"
+                    },
+                    "verifyingContract": {
+                      "description": "The verifying contract",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "version",
+                    "chainId",
+                    "verifyingContract"
+                  ]
+                },
+                "value": {
+                  "description": "The value of the signed typed data",
+                  "type": "object",
+                  "properties": {
+                    "profileId": {
+                      "description": "The profile id doing the publication",
+                      "type": "string"
+                    },
+                    "pointedProfileId": {
+                      "description": "The profile id which the comment is being made on",
+                      "type": "string"
+                    },
+                    "pointedPubId": {
+                      "description": "The publication id which the comment is being made on",
+                      "type": "string"
+                    },
+                    "contentURI": {
+                      "description": "The content metadata URI",
+                      "type": "string"
+                    },
+                    "actionModules": {
+                      "description": "The action modules - will always be empty for now",
+                      "type": "array"
+                    },
+                    "actionModulesInitDatas": {
+                      "description": "The action modules init datas - will always be empty for now",
+                      "type": "array"
+                    },
+                    "referenceModule": {
+                      "description": "The reference module will always be address(0) for now",
+                      "type": "string"
+                    },
+                    "referenceModuleData": {
+                      "description": "The reference module data - will always be empty bytes for now",
+                      "type": "string"
+                    },
+                    "referenceModuleInitData": {
+                      "description": "The reference module init data will - will always be empty bytes for now",
+                      "type": "string"
+                    },
+                    "referrerProfileIds": {
+                      "description": "The profile ids this publication references - will always be empty for now",
+                      "type": "array"
+                    },
+                    "referrerPubIds": {
+                      "description": "The pub ids this publication references - will always be empty for now",
+                      "type": "array"
+                    },
+                    "nonce": {
+                      "description": "The signature nonce",
+                      "type": "number"
+                    },
+                    "deadline": {
+                      "description": "The signature deadline in unix form",
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "profileId",
+                    "pointedProfileId",
+                    "pointedPubId",
+                    "contentURI",
+                    "actionModules",
+                    "actionModulesInitDatas",
+                    "referenceModule",
+                    "referenceModuleData",
+                    "referenceModuleInitData",
+                    "referrerProfileIds",
+                    "referrerPubIds",
+                    "nonce",
+                    "deadline"
+                  ]
+                }
+              },
+              "required": ["types", "domain", "value"]
+            },
+            "blockHash": {
+              "description": "The block hash the submitter simulated this transaction on",
+              "type": "string"
+            },
+            "blockNumber": {
+              "description": "The block number the submitter simulated this transaction on",
+              "type": "number"
+            },
+            "blockTimestamp": {
+              "description": "The block unix timestamp of the simulated transaction",
+              "type": "number"
+            }
+          },
+          "required": [
+            "signature",
+            "signedByDelegate",
+            "signatureDeadline",
+            "typedData",
+            "blockHash",
+            "blockNumber",
+            "blockTimestamp"
+          ]
+        }
+      },
+      "required": ["thisPublication"]
+    },
+    "publicationId": {
+      "description": "The id of the publication, which is built up of the profileId + pubId + `DA` + first eight chars of the dataAvailabilityId (so it will always be unique)",
+      "type": "string"
+    },
+    "event": {
+      "type": "object",
+      "description": "This is trying to shape what you would get within an `EVM` event so you can easily parse it and understand it. This will always be identical to the EVM event data structure.",
+      "properties": {
+        "commentParams": {
+          "type": "object",
+          "properties": {
+            "profileId": {
+              "type": "string",
+              "description": "The profileId which did the publication"
+            },
+            "contentURI": {
+              "type": "string",
+              "description": "The contentURI aka metadata for the publication"
+            },
+            "actionModules": {
+              "type": "array",
+              "description": "The array of action modules, for now this will always be empty"
+            },
+            "actionModulesInitDatas": {
+              "type": "array",
+              "description": "The array of action modules init data, for now this will always be empty"
+            },
+            "referenceModule": {
+              "type": "string",
+              "description": "The reference module, will always be address(0) for now"
+            },
+            "referenceModuleInitData": {
+              "type": "string",
+              "description": "The reference module init data, will always for now be empty byte"
+            },
+            "referrerProfileIds": {
+              "description": "The profile ids this publication references - will always be empty for now",
+              "type": "array"
+            },
+            "referrerPubIds": {
+              "description": "The pub ids this publication references - will always be empty for now",
+              "type": "array"
+            },
+
+            "pointedProfileId": {
+              "description": "The profile id of the comment is being made on",
+              "type": "string"
+            },
+            "pointedPubId": {
+              "description": "The pub ids this publication references - will always be empty for now",
+              "type": "string"
+            }
+          },
+          "required": [
+            "profileId",
+            "contentURI",
+            "actionModules",
+            "actionModulesInitDatas",
+            "referenceModule",
+            "referenceModuleInitData",
+            "referrerProfileIds",
+            "referrerPubIds",
+            "pointedProfileId",
+            "pointedPubId"
+          ]
+        },
+        "pubId": {
+          "type": "string",
+          "description": "The pubId for the publication"
+        },
+        "actionModulesInitReturnDatas": {
+          "type": "array",
+          "description": "The action modules init return datas, will always be empty for now"
+        },
+        "referenceModuleReturnData": {
+          "description": "The reference module return data, will always for now be empty byte",
+          "type": "string"
+        },
+        "referenceModuleInitReturnData": {
+          "type": "string",
+          "description": "The reference module init return data, will always for now be empty byte"
+        },
+        "transactionExecutor": {
+          "type": "string",
+          "description": "The address who executed transaction"
+        },
+        "timestamp": {
+          "description": "The timestamp date in milliseconds",
+          "type": "number"
+        }
+      },
+      "required": [
+        "commentParams",
+        "pubId",
+        "actionModulesInitReturnDatas",
+        "referenceModuleReturnData",
+        "referenceModuleInitReturnData",
+        "transactionExecutor",
+        "timestamp"
+      ]
+    }
+  },
+  "required": ["signature", "dataAvailabilityId", "type", "timestampProofs", "chainProofs", "publicationId", "event"]
+}
+```
+
+#### MIRROR_CREATED
+
+This is a DA mirror. Very similar to DA post/comment minus the `type`, `typedData` and some `events` properties
+
+##### V1 metadata
+
+```json
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "The data availability layer schema",
   "description": "The data availability layer schema",
   "type": "object",
@@ -1377,7 +2567,7 @@ This is a DA mirror. Very similar to DA post/comment minus the `type`, `typedDat
               "description": "The block number the submitter simulated this transaction on",
               "type": "number"
             },
-            "blockNumber": {
+            "blockTimestamp": {
               "description": "The block unix timestamp of the simulated transaction",
               "type": "number"
             }
@@ -1471,6 +2661,708 @@ This is a DA mirror. Very similar to DA post/comment minus the `type`, `typedDat
     "publicationId",
     "event"
   ]
+}
+```
+
+##### V2 metadata
+
+```json
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "title": "Momoka schema for mirror v2",
+  "properties": {
+    "signature": {
+      "description": "The signature of the entire payload signed by the submitter",
+      "type": "string"
+    },
+    "dataAvailabilityId": {
+      "type": "string",
+      "description": "The id of the publication on the data availability layer; it is just a GUID"
+    },
+    "type": {
+      "description": "`POST_CREATED`, `COMMENT_CREATED`, `MIRROR_CREATED` the DA action type which has been submitted",
+      "type": "MIRROR_CREATED"
+    },
+    "timestampProofs": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "description": "`BUNDLR` - who has supplied us with the timestamp proofs",
+          "type": "string"
+        },
+        "hashPrefix": {
+          "description": "The timestamp proof hash prefix",
+          "type": "number"
+        },
+        "response": {
+          "description": "The response from the timestamp proof provider",
+          "type": "object",
+          "properties": {
+            "id": {
+              "description": "The id of the timestamp proof",
+              "type": "string"
+            },
+            "timestamp": {
+              "description": "The timestamp date in milliseconds",
+              "type": "number"
+            },
+            "version": {
+              "description": "The version of the timestamp proof",
+              "type": "string"
+            },
+            "public": {
+              "description": "The public key used sign for the timestamp proofs",
+              "type": "string"
+            },
+            "signature": {
+              "description": "The signature for the timestamp proofs",
+              "type": "string"
+            },
+            "deadlineHeight": {
+              "description": "Internal deadline height for the timestamp proof",
+              "type": "string"
+            },
+            "block": {
+              "description": "Internal block for the timestamp proof (this is not an evm block)",
+              "type": "number"
+            },
+            "validatorSignatures": {
+              "description": "Internal validator signatures for the timestamp proof (this will always be an empty array for now until Bundlr is decentralised)",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "id",
+            "timestamp",
+            "version",
+            "public",
+            "signature",
+            "deadlineHeight",
+            "block",
+            "validatorSignatures"
+          ]
+        }
+      },
+      "required": ["type", "hashPrefix", "response"]
+    },
+    "chainProofs": {
+      "description": "The proofs",
+      "type": "object",
+      "properties": {
+        "thisPublication": {
+          "type": "object",
+          "properties": {
+            "signature": {
+              "description": "The transaction signature",
+              "type": "string"
+            },
+            "signedByDelegate": {
+              "description": "If the signature was signed by a delegate/dispatcher",
+              "type": "boolean"
+            },
+            "signatureDeadline": {
+              "description": "The deadline of the signature in unix form",
+              "type": "number"
+            },
+            "typedData": {
+              "description": "The typed data of the transaction; this uses the signed typed data spec",
+              "type": "object",
+              "properties": {
+                "types": {
+                  "description": "The types of the signed typed data",
+                  "type": "object",
+                  "properties": {
+                    "Mirror": {
+                      "description": "The properties of the typed data",
+                      "type": "array",
+                      "items": {
+                        "description": "The name and type of the property",
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "description": "The name of typed data",
+                            "type": "string"
+                          },
+                          "type": {
+                            "description": "The type typed data",
+                            "type": "string"
+                          }
+                        },
+                        "required": ["name", "type"]
+                      }
+                    }
+                  },
+                  "required": ["types"]
+                },
+                "domain": {
+                  "description": "The domain of the signed typed data",
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "description": "The name of the signed typed data",
+                      "type": "string"
+                    },
+                    "version": {
+                      "description": "The version of the signed typed data",
+                      "type": "string"
+                    },
+                    "chainId": {
+                      "description": "The chain id of the signed typed data",
+                      "type": "number"
+                    },
+                    "verifyingContract": {
+                      "description": "The verifying contract",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "version",
+                    "chainId",
+                    "verifyingContract"
+                  ]
+                },
+                "value": {
+                  "description": "The value of the signed typed data",
+                  "type": "object",
+                  "properties": {
+                    "metadataURI": {
+                      "description": "The metadata URI",
+                      "type": "string"
+                    },
+                    "profileId": {
+                      "description": "The profile id doing the publication",
+                      "type": "string"
+                    },
+                    "pointedProfileId": {
+                      "description": "The profile id which the publication is being made on",
+                      "type": "string"
+                    },
+                    "pointedPubId": {
+                      "description": "The publication id which the publication is being made on",
+                      "type": "string"
+                    },
+                    "referenceModuleData": {
+                      "description": "The reference module data - will always be empty bytes for now",
+                      "type": "string"
+                    },
+                    "referrerProfileIds": {
+                      "description": "The profile ids this publication references - will always be empty for now",
+                      "type": "array"
+                    },
+                    "referrerPubIds": {
+                      "description": "The pub ids this publication references - will always be empty for now",
+                      "type": "array"
+                    },
+                    "nonce": {
+                      "description": "The signature nonce",
+                      "type": "number"
+                    },
+                    "deadline": {
+                      "description": "The signature deadline in unix form",
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "profileId",
+                    "pointedProfileId",
+                    "pointedPubId",
+                    "metadataURI",
+                    "referenceModuleData",
+                    "referrerProfileIds",
+                    "referrerPubIds",
+                    "nonce",
+                    "deadline"
+                  ]
+                }
+              },
+              "required": ["types", "domain", "value"]
+            },
+            "blockHash": {
+              "description": "The block hash the submitter simulated this transaction on",
+              "type": "string"
+            },
+            "blockNumber": {
+              "description": "The block number the submitter simulated this transaction on",
+              "type": "number"
+            },
+            "blockTimestamp": {
+              "description": "The block unix timestamp of the simulated transaction",
+              "type": "number"
+            }
+          },
+          "required": [
+            "signature",
+            "signedByDelegate",
+            "signatureDeadline",
+            "typedData",
+            "blockHash",
+            "blockNumber",
+            "blockTimestamp"
+          ]
+        }
+      },
+      "required": ["thisPublication"]
+    },
+    "publicationId": {
+      "description": "The id of the publication, which is built up of the profileId + pubId + `DA` + first eight chars of the dataAvailabilityId (so it will always be unique)",
+      "type": "string"
+    },
+    "event": {
+      "type": "object",
+      "description": "This is trying to shape what you would get within an `EVM` event so you can easily parse it and understand it. This will always be identical to the EVM event data structure.",
+      "properties": {
+        "mirrorParams": {
+          "type": "object",
+          "properties": {
+            "profileId": {
+              "type": "string",
+              "description": "The profileId which did the publication"
+            },
+            "metadataURI": {
+              "type": "string",
+              "description": "The metadataURI aka metadata for the publication"
+            },
+            "referenceModuleData": {
+              "type": "string",
+              "description": "The reference module data, will always for now be empty byte"
+            },
+            "referrerProfileIds": {
+              "description": "The profile ids this publication references - will always be empty for now",
+              "type": "array"
+            },
+            "referrerPubIds": {
+              "description": "The pub ids this publication references - will always be empty for now",
+              "type": "array"
+            },
+            "pointedProfileId": {
+              "description": "The profile id of the publication is being made on",
+              "type": "string"
+            },
+            "pointedPubId": {
+              "description": "The pub ids this publication references - will always be empty for now",
+              "type": "string"
+            }
+          },
+          "required": [
+            "profileId",
+            "metadataURI",
+            "referenceModuleData",
+            "referrerProfileIds",
+            "referrerPubIds",
+            "pointedProfileId",
+            "pointedPubId"
+          ]
+        },
+        "pubId": {
+          "type": "string",
+          "description": "The pubId for the publication"
+        },
+        "referenceModuleReturnData": {
+          "description": "The reference module return data, will always for now be empty byte",
+          "type": "string"
+        },
+        "transactionExecutor": {
+          "type": "string",
+          "description": "The address who executed transaction"
+        },
+        "timestamp": {
+          "description": "The timestamp date in milliseconds",
+          "type": "number"
+        }
+      },
+      "required": [
+        "mirrorParams",
+        "pubId",
+        "actionModulesInitReturnDatas",
+        "referenceModuleReturnData",
+        "referenceModuleInitReturnData",
+        "transactionExecutor",
+        "timestamp"
+      ]
+    }
+  },
+  "required": ["signature", "dataAvailabilityId", "type", "timestampProofs", "chainProofs", "publicationId", "event"]
+}
+```
+
+#### QUOTE_CREATED
+
+This is a DA mirror. It's very similar to the DA comment.  
+
+##### V1 metadata
+Quote was not available in V1
+
+##### V2 metadata
+
+```json
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "title": "Momoka schema for quote v2",
+  "properties": {
+    "signature": {
+      "description": "The signature of the entire payload signed by the submitter",
+      "type": "string"
+    },
+    "dataAvailabilityId": {
+      "type": "string",
+      "description": "The id of the publication on the data availability layer; it is just a GUID"
+    },
+    "type": {
+      "description": "`POST_CREATED`, `COMMENT_CREATED`, `MIRROR_CREATED` the DA action type which has been submitted",
+      "type": "QUOTE_CREATED"
+    },
+    "timestampProofs": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "description": "`BUNDLR` - who has supplied us with the timestamp proofs",
+          "type": "string"
+        },
+        "hashPrefix": {
+          "description": "The timestamp proof hash prefix",
+          "type": "number"
+        },
+        "response": {
+          "description": "The response from the timestamp proof provider",
+          "type": "object",
+          "properties": {
+            "id": {
+              "description": "The id of the timestamp proof",
+              "type": "string"
+            },
+            "timestamp": {
+              "description": "The timestamp date in milliseconds",
+              "type": "number"
+            },
+            "version": {
+              "description": "The version of the timestamp proof",
+              "type": "string"
+            },
+            "public": {
+              "description": "The public key used sign for the timestamp proofs",
+              "type": "string"
+            },
+            "signature": {
+              "description": "The signature for the timestamp proofs",
+              "type": "string"
+            },
+            "deadlineHeight": {
+              "description": "Internal deadline height for the timestamp proof",
+              "type": "string"
+            },
+            "block": {
+              "description": "Internal block for the timestamp proof (this is not an evm block)",
+              "type": "number"
+            },
+            "validatorSignatures": {
+              "description": "Internal validator signatures for the timestamp proof (this will always be an empty array for now until Bundlr is decentralised)",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "id",
+            "timestamp",
+            "version",
+            "public",
+            "signature",
+            "deadlineHeight",
+            "block",
+            "validatorSignatures"
+          ]
+        }
+      },
+      "required": ["type", "hashPrefix", "response"]
+    },
+    "chainProofs": {
+      "description": "The proofs",
+      "type": "object",
+      "properties": {
+        "thisPublication": {
+          "type": "object",
+          "properties": {
+            "signature": {
+              "description": "The transaction signature",
+              "type": "string"
+            },
+            "signedByDelegate": {
+              "description": "If the signature was signed by a delegate/dispatcher",
+              "type": "boolean"
+            },
+            "signatureDeadline": {
+              "description": "The deadline of the signature in unix form",
+              "type": "number"
+            },
+            "typedData": {
+              "description": "The typed data of the transaction; this uses the signed typed data spec",
+              "type": "object",
+              "properties": {
+                "types": {
+                  "description": "The types of the signed typed data",
+                  "type": "object",
+                  "properties": {
+                    "Quote": {
+                      "description": "The properties of the typed data",
+                      "type": "array",
+                      "items": {
+                        "description": "The name and type of the property",
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "description": "The name of typed data",
+                            "type": "string"
+                          },
+                          "type": {
+                            "description": "The type typed data",
+                            "type": "string"
+                          }
+                        },
+                        "required": ["name", "type"]
+                      }
+                    }
+                  },
+                  "required": ["types"]
+                },
+                "domain": {
+                  "description": "The domain of the signed typed data",
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "description": "The name of the signed typed data",
+                      "type": "string"
+                    },
+                    "version": {
+                      "description": "The version of the signed typed data",
+                      "type": "string"
+                    },
+                    "chainId": {
+                      "description": "The chain id of the signed typed data",
+                      "type": "number"
+                    },
+                    "verifyingContract": {
+                      "description": "The verifying contract",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "version",
+                    "chainId",
+                    "verifyingContract"
+                  ]
+                },
+                "value": {
+                  "description": "The value of the signed typed data",
+                  "type": "object",
+                  "properties": {
+                    "profileId": {
+                      "description": "The profile id doing the publication",
+                      "type": "string"
+                    },
+                    "pointedProfileId": {
+                      "description": "The profile id which the quote is being made on",
+                      "type": "string"
+                    },
+                    "pointedPubId": {
+                      "description": "The publication id which the quote is being made on",
+                      "type": "string"
+                    },
+                    "contentURI": {
+                      "description": "The content metadata URI",
+                      "type": "string"
+                    },
+                    "actionModules": {
+                      "description": "The action modules - will always be empty for now",
+                      "type": "array"
+                    },
+                    "actionModulesInitDatas": {
+                      "description": "The action modules init datas - will always be empty for now",
+                      "type": "array"
+                    },
+                    "referenceModule": {
+                      "description": "The reference module will always be address(0) for now",
+                      "type": "string"
+                    },
+                    "referenceModuleData": {
+                      "description": "The reference module data - will always be empty bytes for now",
+                      "type": "string"
+                    },
+                    "referenceModuleInitData": {
+                      "description": "The reference module init data will - will always be empty bytes for now",
+                      "type": "string"
+                    },
+                    "referrerProfileIds": {
+                      "description": "The profile ids this publication references - will always be empty for now",
+                      "type": "array"
+                    },
+                    "referrerPubIds": {
+                      "description": "The pub ids this publication references - will always be empty for now",
+                      "type": "array"
+                    },
+                    "nonce": {
+                      "description": "The signature nonce",
+                      "type": "number"
+                    },
+                    "deadline": {
+                      "description": "The signature deadline in unix form",
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "profileId",
+                    "pointedProfileId",
+                    "pointedPubId",
+                    "contentURI",
+                    "actionModules",
+                    "actionModulesInitDatas",
+                    "referenceModule",
+                    "referenceModuleData",
+                    "referenceModuleInitData",
+                    "referrerProfileIds",
+                    "referrerPubIds",
+                    "nonce",
+                    "deadline"
+                  ]
+                }
+              },
+              "required": ["types", "domain", "value"]
+            },
+            "blockHash": {
+              "description": "The block hash the submitter simulated this transaction on",
+              "type": "string"
+            },
+            "blockNumber": {
+              "description": "The block number the submitter simulated this transaction on",
+              "type": "number"
+            },
+            "blockTimestamp": {
+              "description": "The block unix timestamp of the simulated transaction",
+              "type": "number"
+            }
+          },
+          "required": [
+            "signature",
+            "signedByDelegate",
+            "signatureDeadline",
+            "typedData",
+            "blockHash",
+            "blockNumber",
+            "blockTimestamp"
+          ]
+        }
+      },
+      "required": ["thisPublication"]
+    },
+    "publicationId": {
+      "description": "The id of the publication, which is built up of the profileId + pubId + `DA` + first eight chars of the dataAvailabilityId (so it will always be unique)",
+      "type": "string"
+    },
+    "event": {
+      "type": "object",
+      "description": "This is trying to shape what you would get within an `EVM` event so you can easily parse it and understand it. This will always be identical to the EVM event data structure.",
+      "properties": {
+        "quoteParams": {
+          "type": "object",
+          "properties": {
+            "profileId": {
+              "type": "string",
+              "description": "The profileId which did the publication"
+            },
+            "contentURI": {
+              "type": "string",
+              "description": "The contentURI aka metadata for the publication"
+            },
+            "actionModules": {
+              "type": "array",
+              "description": "The array of action modules, for now this will always be empty"
+            },
+            "actionModulesInitDatas": {
+              "type": "array",
+              "description": "The array of action modules init data, for now this will always be empty"
+            },
+            "referenceModule": {
+              "type": "string",
+              "description": "The reference module, will always be address(0) for now"
+            },
+            "referenceModuleInitData": {
+              "type": "string",
+              "description": "The reference module init data, will always for now be empty byte"
+            },
+            "referrerProfileIds": {
+              "description": "The profile ids this publication references - will always be empty for now",
+              "type": "array"
+            },
+            "referrerPubIds": {
+              "description": "The pub ids this publication references - will always be empty for now",
+              "type": "array"
+            },
+            "pointedProfileId": {
+              "description": "The profile id of the quote is being made on",
+              "type": "string"
+            },
+            "pointedPubId": {
+              "description": "The pub ids this quote references - will always be empty for now",
+              "type": "string"
+            }
+          },
+          "required": [
+            "profileId",
+            "contentURI",
+            "actionModules",
+            "actionModulesInitDatas",
+            "referenceModule",
+            "referenceModuleInitData",
+            "referrerProfileIds",
+            "referrerPubIds",
+            "pointedProfileId",
+            "pointedPubId"
+          ]
+        },
+        "pubId": {
+          "type": "string",
+          "description": "The pubId for the publication"
+        },
+        "actionModulesInitReturnDatas": {
+          "type": "array",
+          "description": "The action modules init return datas, will always be empty for now"
+        },
+        "referenceModuleReturnData": {
+          "description": "The reference module return data, will always for now be empty byte",
+          "type": "string"
+        },
+        "referenceModuleInitReturnData": {
+          "type": "string",
+          "description": "The reference module init return data, will always for now be empty byte"
+        },
+        "transactionExecutor": {
+          "type": "string",
+          "description": "The address who executed transaction"
+        },
+        "timestamp": {
+          "description": "The timestamp date in milliseconds",
+          "type": "number"
+        }
+      },
+      "required": [
+        "quoteParams",
+        "pubId",
+        "actionModulesInitReturnDatas",
+        "referenceModuleReturnData",
+        "referenceModuleInitReturnData",
+        "transactionExecutor",
+        "timestamp"
+      ]
+    }
+  },
+  "required": ["signature", "dataAvailabilityId", "type", "timestampProofs", "chainProofs", "publicationId", "event"]
 }
 ```
 
