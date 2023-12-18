@@ -1,12 +1,12 @@
 import { DAActionTypes } from '../../../data-availability-models/data-availability-action-types';
 import { DAProvider } from '../../../data-availability-models/data-availability-provider';
-import { CreatePostEIP712TypedData } from '../../../data-availability-models/publications/data-availability-publication-typed-data';
+import { CreatePostV1EIP712TypedData } from '../../../data-availability-models/publications/data-availability-publication-typed-data';
 import { DAStructurePublication } from '../../../data-availability-models/publications/data-availability-structure-publication';
 import { DAPostCreatedEventEmittedResponse } from '../../../data-availability-models/publications/data-availability-structure-publications-events';
 
 export const postCreatedDelegateArweaveResponse: DAStructurePublication<
   DAPostCreatedEventEmittedResponse,
-  CreatePostEIP712TypedData
+  CreatePostV1EIP712TypedData
 > = {
   signature:
     '0x42c63a72de7442c809a8db23f9994ff3c57b5a2101e8512102ea1238a78181903513c675ea35bd2e912f1a258dabe631fd22b3609e9edcd1a9df799c0ebc03621c',

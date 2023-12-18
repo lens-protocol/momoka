@@ -147,7 +147,13 @@ export enum MomokaValidatorError {
   POTENTIAL_REORG = 'POTENTIAL_REORG',
 
   /**
-   * unknown error should not happen but catch all
+   * This means there was a new version of the metadata that was not able to be processed.
+   * Update the library to the latest version.
+   */
+  PUBLICATION_NOT_RECOGNIZED = 'PUBLICATION_NOT_RECOGNIZED',
+
+  /**
+   * Unknown error should not happen but catch all
    */
   UNKNOWN = 'UNKNOWN',
 }

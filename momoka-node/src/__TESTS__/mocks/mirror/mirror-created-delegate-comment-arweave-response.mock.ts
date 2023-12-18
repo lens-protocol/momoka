@@ -1,15 +1,15 @@
 import { DAActionTypes } from '../../../data-availability-models/data-availability-action-types';
 import { DAProvider } from '../../../data-availability-models/data-availability-provider';
-import { CreateMirrorEIP712TypedData } from '../../../data-availability-models/publications/data-availability-publication-typed-data';
 import {
   DAPublicationPointerType,
   DAStructurePublication,
 } from '../../../data-availability-models/publications/data-availability-structure-publication';
 import { DAMirrorCreatedEventEmittedResponse } from '../../../data-availability-models/publications/data-availability-structure-publications-events';
+import { CreateMirrorV1EIP712TypedData } from '../../../data-availability-models/publications/data-availability-publication-typed-data';
 
 export const mirrorCreatedDelegateCommentArweaveResponse: DAStructurePublication<
   DAMirrorCreatedEventEmittedResponse,
-  CreateMirrorEIP712TypedData
+  CreateMirrorV1EIP712TypedData
 > = {
   signature:
     '0x9480369047ce27715600bdbf391dec6e4b62c36cd1840b5def450f78398ae2007f6b4c520343819bc2fe15a0e5835e4cfe577900522e8a526ae042e6186884961b',

@@ -193,7 +193,7 @@ const processPublication = async (
 
     const txValidatedResult: TxValidatedResult = buildTxValidationResult(txId, result);
 
-    saveTxDb(txId, txValidatedResult);
+    void saveTxDb(txId, txValidatedResult);
 
     if (stream) {
       // stream the result to the callback defined
@@ -232,14 +232,14 @@ const processPublication = async (
  * @param concurrency The concurrency to use < this is how many TCP it will run at
  * @param stream The callback to stream the result
  */
-const processPublications = async (
+const processPublications = (
   publications: DAPublicationWithTimestampProofsBatchResult[],
   ethereumNode: EthereumNode,
   retryAttempt: boolean,
   concurrency: number,
   stream?: StreamCallback
 ): Promise<ProofResult[]> => {
-  return await BluebirdPromise.map(
+  return BluebirdPromise.map(
     publications,
     async (publication) => {
       const log = (
@@ -267,10 +267,12 @@ const processPublications = async (
           submitter: publication.submitter,
         });
 
-        // only log out ones which do not need retrying
-        if (!shouldRetry(result.validatorError!)) {
-          log(LoggerLevelColours.ERROR, `FAILED - ${result.validatorError!}`);
-        }
+        const retriable = shouldRetry(result.validatorError!);
+
+        log(
+          LoggerLevelColours.ERROR,
+          `FAILED ${retriable ? '(RETRIABLE)' : ''} - ${result.validatorError!}`
+        );
       }
 
       return result;
@@ -328,7 +330,7 @@ export const checkDAProofsBatch = async (
     daPublications
   );
 
-  return await processPublications(
+  return processPublications(
     daPublicationsWithTimestampProofs,
     ethereumNode,
     retryAttempt,

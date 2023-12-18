@@ -4,28 +4,26 @@ import { DAPublicationPointerType } from '../../../data-availability-models/publ
 import { MomokaValidatorError } from '../../../data-availability-models/validator-errors';
 import { EthereumNode } from '../../../evm/ethereum';
 import { DaProofChecker } from '../../da-proof-checker';
-import { DAMirrorVerifierV1 } from './da-mirror-verifier-v1';
-import { DAMirrorVerifierV2 } from './da-mirror-verifier-v2';
+import { DAQuoteVerifierV2 } from './da-quote-verifier-v2';
 
 /**
- * Checks if the given DAMirrorPublication is valid by verifying the proof chain, cross-checking against the event, and
+ * Checks if the given DAQuotePublication is valid by verifying the proof chain, cross-checking against the event, and
  * validating the signature.
- * @param daPublicationVerifier The verifier for the DACommentPublication.
+ * @param daPublicationVerifier The verifier for the DAQuotePublication.
  * @param verifyPointer If true, the pointer chain will be verified before checking the publication.
  * @param ethereumNode The EthereumNode to use for fetching data from the Ethereum blockchain.
  * @param log A function used for logging output.
  * @param checker The DAProofChecker to use for checking the proof.
  * @returns A PromiseResult indicating success or failure, along with an optional error message.
  */
-export const checkDAMirror = async (
-  daPublicationVerifier: DAMirrorVerifierV1 | DAMirrorVerifierV2,
+export const checkDAQuote = async (
+  daPublicationVerifier: DAQuoteVerifierV2,
   verifyPointer: boolean,
   ethereumNode: EthereumNode,
   log: LogFunctionType,
-  // TODO: Improve that to avoid cycling dependencies
   checker: DaProofChecker
 ): PromiseResult => {
-  log('check DA mirror');
+  log('check DA quote');
 
   const publication = daPublicationVerifier.daPublication;
 
@@ -33,7 +31,6 @@ export const checkDAMirror = async (
     return failure(MomokaValidatorError.PUBLICATION_NO_POINTER);
   }
 
-  // only supports mirrors on DA at the moment
   if (publication.chainProofs.pointer.type !== DAPublicationPointerType.ON_DA) {
     return failure(MomokaValidatorError.PUBLICATION_NONE_DA);
   }
@@ -46,12 +43,11 @@ export const checkDAMirror = async (
       publication.chainProofs.pointer.location,
       ethereumNode,
       {
-        verifyPointer: false,
         byPassDb: false,
+        verifyPointer: false,
         log,
       }
     );
-
     if (pointerResult.isFailure()) {
       return failure(MomokaValidatorError.POINTER_FAILED_VERIFICATION);
     }
@@ -67,7 +63,7 @@ export const checkDAMirror = async (
     signerResult.successResult.currentPublicationId
   );
 
-  log('finished checking DA mirror');
+  log('finished checking DA quote');
 
   return eventResult;
 };

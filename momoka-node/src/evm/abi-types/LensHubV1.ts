@@ -2,7 +2,7 @@ import { EthersContractContextV5 } from 'ethereum-abi-types-generator';
 import { BigNumber, BigNumberish, BytesLike as Arrayish, ContractTransaction } from 'ethers';
 
 export type ContractContext = EthersContractContextV5<
-  LensHub,
+  LensHubV1,
   LensHubMethodNames,
   LensHubEventsContext,
   LensHubEvents
@@ -115,7 +115,6 @@ export type LensHubMethodNames =
   | 'post'
   | 'postWithSig'
   | 'postWithSig_Dispatcher'
-  | 'safeTransferFrom'
   | 'safeTransferFrom'
   | 'setApprovalForAll'
   | 'setDefaultProfile'
@@ -358,7 +357,7 @@ export interface TokendataResponse {
   mintTimestamp: BigNumber;
   1: BigNumber;
 }
-export interface LensHub {
+export interface LensHubV1 {
   /**
    * Payable: false
    * Constant: false

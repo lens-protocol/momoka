@@ -157,7 +157,7 @@ const processTransactions = async (
     .map((c) => c.txId);
 
   if (retryTxids.length > 0) {
-    retryCheckDAProofsQueue.enqueueWithDelay(
+    void retryCheckDAProofsQueue.enqueueWithDelay(
       {
         txIds: retryTxids,
         ethereumNode,

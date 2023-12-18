@@ -1,5 +1,5 @@
 import { EthersContractContextV5 } from 'ethereum-abi-types-generator';
-import { BigNumber, BigNumberish, BytesLike as Arrayish } from 'ethers';
+import { BytesLike as Arrayish, BigNumber, BigNumberish } from 'ethers';
 
 export type ContractContext = EthersContractContextV5<
   LensHubEvents,
@@ -8,12 +8,12 @@ export type ContractContext = EthersContractContextV5<
   LensHubEventsEvents
 >;
 
-export declare type EventFilter = {
+export declare interface EventFilter {
   address?: string;
   topics?: Array<string>;
   fromBlock?: string | number;
   toBlock?: string | number;
-};
+}
 
 export interface ContractTransactionOverrides {
   /**
@@ -49,30 +49,23 @@ export interface ContractCallOverrides {
   gasLimit?: number;
 }
 export type LensHubEventsEvents =
+  | 'Acted'
+  | 'ActionModuleWhitelisted'
   | 'BaseInitialized'
-  | 'CollectModuleWhitelisted'
+  | 'Blocked'
   | 'CollectNFTDeployed'
-  | 'CollectNFTInitialized'
   | 'CollectNFTTransferred'
   | 'Collected'
   | 'CommentCreated'
-  | 'DefaultProfileSet'
-  | 'DispatcherSet'
+  | 'DelegatedExecutorsConfigApplied'
+  | 'DelegatedExecutorsConfigChanged'
   | 'EmergencyAdminSet'
-  | 'FeeModuleBaseConstructed'
   | 'FollowModuleSet'
   | 'FollowModuleWhitelisted'
-  | 'FollowNFTDelegatedPowerChanged'
   | 'FollowNFTDeployed'
-  | 'FollowNFTInitialized'
-  | 'FollowNFTTransferred'
-  | 'FollowNFTURISet'
   | 'Followed'
-  | 'FollowsApproved'
-  | 'FollowsToggled'
   | 'GovernanceSet'
   | 'MirrorCreated'
-  | 'ModuleBaseConstructed'
   | 'ModuleGlobalsCurrencyWhitelisted'
   | 'ModuleGlobalsGovernanceSet'
   | 'ModuleGlobalsTreasuryFeeSet'
@@ -80,35 +73,34 @@ export type LensHubEventsEvents =
   | 'PostCreated'
   | 'ProfileCreated'
   | 'ProfileCreatorWhitelisted'
-  | 'ProfileImageURISet'
   | 'ProfileMetadataSet'
+  | 'QuoteCreated'
   | 'ReferenceModuleWhitelisted'
-  | 'StateSet';
+  | 'StateSet'
+  | 'TokenGuardianStateChanged'
+  | 'Unblocked'
+  | 'Unfollowed'
+  | 'NonceUpdated'
+  | 'LensUpgradeVersion'
+  | 'CollectedLegacy';
 export interface LensHubEventsEventsContext {
+  Acted(...parameters: any): EventFilter;
+  ActionModuleWhitelisted(...parameters: any): EventFilter;
   BaseInitialized(...parameters: any): EventFilter;
-  CollectModuleWhitelisted(...parameters: any): EventFilter;
+  Blocked(...parameters: any): EventFilter;
   CollectNFTDeployed(...parameters: any): EventFilter;
-  CollectNFTInitialized(...parameters: any): EventFilter;
   CollectNFTTransferred(...parameters: any): EventFilter;
   Collected(...parameters: any): EventFilter;
   CommentCreated(...parameters: any): EventFilter;
-  DefaultProfileSet(...parameters: any): EventFilter;
-  DispatcherSet(...parameters: any): EventFilter;
+  DelegatedExecutorsConfigApplied(...parameters: any): EventFilter;
+  DelegatedExecutorsConfigChanged(...parameters: any): EventFilter;
   EmergencyAdminSet(...parameters: any): EventFilter;
-  FeeModuleBaseConstructed(...parameters: any): EventFilter;
   FollowModuleSet(...parameters: any): EventFilter;
   FollowModuleWhitelisted(...parameters: any): EventFilter;
-  FollowNFTDelegatedPowerChanged(...parameters: any): EventFilter;
   FollowNFTDeployed(...parameters: any): EventFilter;
-  FollowNFTInitialized(...parameters: any): EventFilter;
-  FollowNFTTransferred(...parameters: any): EventFilter;
-  FollowNFTURISet(...parameters: any): EventFilter;
   Followed(...parameters: any): EventFilter;
-  FollowsApproved(...parameters: any): EventFilter;
-  FollowsToggled(...parameters: any): EventFilter;
   GovernanceSet(...parameters: any): EventFilter;
   MirrorCreated(...parameters: any): EventFilter;
-  ModuleBaseConstructed(...parameters: any): EventFilter;
   ModuleGlobalsCurrencyWhitelisted(...parameters: any): EventFilter;
   ModuleGlobalsGovernanceSet(...parameters: any): EventFilter;
   ModuleGlobalsTreasuryFeeSet(...parameters: any): EventFilter;
@@ -116,31 +108,54 @@ export interface LensHubEventsEventsContext {
   PostCreated(...parameters: any): EventFilter;
   ProfileCreated(...parameters: any): EventFilter;
   ProfileCreatorWhitelisted(...parameters: any): EventFilter;
-  ProfileImageURISet(...parameters: any): EventFilter;
   ProfileMetadataSet(...parameters: any): EventFilter;
+  QuoteCreated(...parameters: any): EventFilter;
   ReferenceModuleWhitelisted(...parameters: any): EventFilter;
   StateSet(...parameters: any): EventFilter;
+  TokenGuardianStateChanged(...parameters: any): EventFilter;
+  Unblocked(...parameters: any): EventFilter;
+  Unfollowed(...parameters: any): EventFilter;
+  NonceUpdated(...parameters: any): EventFilter;
+  LensUpgradeVersion(...parameters: any): EventFilter;
+  CollectedLegacy(...parameters: any): EventFilter;
 }
 export type LensHubEventsMethodNames = undefined;
+export interface PublicationActionParamsEventEmittedResponse {
+  publicationActedProfileId: BigNumberish;
+  publicationActedId: BigNumberish;
+  actorProfileId: BigNumberish;
+  referrerProfileIds: BigNumberish[];
+  referrerPubIds: BigNumberish[];
+  actionModuleAddress: string;
+  actionModuleData: Arrayish;
+}
+export interface ActedEventEmittedResponse {
+  publicationActionParams: PublicationActionParamsEventEmittedResponse;
+  actionModuleReturnData: Arrayish;
+  transactionExecutor: string;
+  timestamp: BigNumberish;
+}
+export interface ActionModuleWhitelistedEventEmittedResponse {
+  actionModule: string;
+  id: BigNumberish;
+  whitelisted: boolean;
+  timestamp: BigNumberish;
+}
 export interface BaseInitializedEventEmittedResponse {
   name: string;
   symbol: string;
   timestamp: BigNumberish;
 }
-export interface CollectModuleWhitelistedEventEmittedResponse {
-  collectModule: string;
-  whitelisted: boolean;
+export interface BlockedEventEmittedResponse {
+  byProfileId: BigNumberish;
+  idOfProfileBlocked: BigNumberish;
+  transactionExecutor: string;
   timestamp: BigNumberish;
 }
 export interface CollectNFTDeployedEventEmittedResponse {
   profileId: BigNumberish;
   pubId: BigNumberish;
   collectNFT: string;
-  timestamp: BigNumberish;
-}
-export interface CollectNFTInitializedEventEmittedResponse {
-  profileId: BigNumberish;
-  pubId: BigNumberish;
   timestamp: BigNumberish;
 }
 export interface CollectNFTTransferredEventEmittedResponse {
@@ -152,35 +167,49 @@ export interface CollectNFTTransferredEventEmittedResponse {
   timestamp: BigNumberish;
 }
 export interface CollectedEventEmittedResponse {
-  collector: string;
-  profileId: BigNumberish;
-  pubId: BigNumberish;
-  rootProfileId: BigNumberish;
-  rootPubId: BigNumberish;
-  collectModuleData: Arrayish;
+  collectedProfileId: BigNumberish;
+  collectedPubId: BigNumberish;
+  collectorProfileId: BigNumberish;
+  nftRecipient: string;
+  collectActionData: Arrayish;
+  collectActionResult: Arrayish;
+  collectNFT: string;
+  tokenId: BigNumberish;
+  transactionExecutor: string;
   timestamp: BigNumberish;
+}
+export interface CommentParamsEventEmittedResponse {
+  profileId: BigNumberish;
+  contentURI: string;
+  pointedProfileId: BigNumberish;
+  pointedPubId: BigNumberish;
+  referrerProfileIds: BigNumberish[];
+  referrerPubIds: BigNumberish[];
+  referenceModuleData: Arrayish;
+  actionModules: string[];
+  actionModulesInitDatas: Arrayish[];
+  referenceModule: string;
+  referenceModuleInitData: Arrayish;
 }
 export interface CommentCreatedEventEmittedResponse {
-  profileId: BigNumberish;
+  commentParams: CommentParamsEventEmittedResponse;
   pubId: BigNumberish;
-  contentURI: string;
-  profileIdPointed: BigNumberish;
-  pubIdPointed: BigNumberish;
-  referenceModuleData: Arrayish;
-  collectModule: string;
-  collectModuleReturnData: Arrayish;
-  referenceModule: string;
   referenceModuleReturnData: Arrayish;
+  actionModulesInitReturnDatas: Arrayish[];
+  referenceModuleInitReturnData: Arrayish;
+  transactionExecutor: string;
   timestamp: BigNumberish;
 }
-export interface DefaultProfileSetEventEmittedResponse {
-  wallet: string;
-  profileId: BigNumberish;
+export interface DelegatedExecutorsConfigAppliedEventEmittedResponse {
+  delegatorProfileId: BigNumberish;
+  configNumber: BigNumberish;
   timestamp: BigNumberish;
 }
-export interface DispatcherSetEventEmittedResponse {
-  profileId: BigNumberish;
-  dispatcher: string;
+export interface DelegatedExecutorsConfigChangedEventEmittedResponse {
+  delegatorProfileId: BigNumberish;
+  configNumber: BigNumberish;
+  delegatedExecutors: string[];
+  approvals: boolean[];
   timestamp: BigNumberish;
 }
 export interface EmergencyAdminSetEventEmittedResponse {
@@ -189,14 +218,12 @@ export interface EmergencyAdminSetEventEmittedResponse {
   newEmergencyAdmin: string;
   timestamp: BigNumberish;
 }
-export interface FeeModuleBaseConstructedEventEmittedResponse {
-  moduleGlobals: string;
-  timestamp: BigNumberish;
-}
 export interface FollowModuleSetEventEmittedResponse {
   profileId: BigNumberish;
   followModule: string;
+  followModuleInitData: Arrayish;
   followModuleReturnData: Arrayish;
+  transactionExecutor: string;
   timestamp: BigNumberish;
 }
 export interface FollowModuleWhitelistedEventEmittedResponse {
@@ -204,49 +231,18 @@ export interface FollowModuleWhitelistedEventEmittedResponse {
   whitelisted: boolean;
   timestamp: BigNumberish;
 }
-export interface FollowNFTDelegatedPowerChangedEventEmittedResponse {
-  delegate: string;
-  newPower: BigNumberish;
-  timestamp: BigNumberish;
-}
 export interface FollowNFTDeployedEventEmittedResponse {
   profileId: BigNumberish;
   followNFT: string;
   timestamp: BigNumberish;
 }
-export interface FollowNFTInitializedEventEmittedResponse {
-  profileId: BigNumberish;
-  timestamp: BigNumberish;
-}
-export interface FollowNFTTransferredEventEmittedResponse {
-  profileId: BigNumberish;
-  followNFTId: BigNumberish;
-  from: string;
-  to: string;
-  timestamp: BigNumberish;
-}
-export interface FollowNFTURISetEventEmittedResponse {
-  profileId: BigNumberish;
-  followNFTURI: string;
-  timestamp: BigNumberish;
-}
 export interface FollowedEventEmittedResponse {
-  follower: string;
-  profileIds: BigNumberish[];
-  followModuleDatas: Arrayish[];
-  timestamp: BigNumberish;
-}
-export interface FollowsApprovedEventEmittedResponse {
-  owner: string;
-  profileId: BigNumberish;
-  addresses: string[];
-  approved: boolean[];
-  timestamp: BigNumberish;
-}
-export interface FollowsToggledEventEmittedResponse {
-  owner: string;
-  profileIds: BigNumberish[];
-  enabled: boolean[];
+  followerProfileId: BigNumberish;
+  idOfProfileFollowed: BigNumberish;
+  followTokenIdAssigned: BigNumberish;
+  followModuleData: Arrayish;
+  processFollowModuleReturnData: Arrayish;
+  transactionExecutor: string;
   timestamp: BigNumberish;
 }
 export interface GovernanceSetEventEmittedResponse {
@@ -255,18 +251,20 @@ export interface GovernanceSetEventEmittedResponse {
   newGovernance: string;
   timestamp: BigNumberish;
 }
-export interface MirrorCreatedEventEmittedResponse {
+export interface MirrorParamsEventEmittedResponse {
   profileId: BigNumberish;
-  pubId: BigNumberish;
-  profileIdPointed: BigNumberish;
-  pubIdPointed: BigNumberish;
+  metadataURI: string;
+  pointedProfileId: BigNumberish;
+  pointedPubId: BigNumberish;
+  referrerProfileIds: BigNumberish[];
+  referrerPubIds: BigNumberish[];
   referenceModuleData: Arrayish;
-  referenceModule: string;
-  referenceModuleReturnData: Arrayish;
-  timestamp: BigNumberish;
 }
-export interface ModuleBaseConstructedEventEmittedResponse {
-  hub: string;
+export interface MirrorCreatedEventEmittedResponse {
+  mirrorParams: MirrorParamsEventEmittedResponse;
+  pubId: BigNumberish;
+  referenceModuleReturnData: Arrayish;
+  transactionExecutor: string;
   timestamp: BigNumberish;
 }
 export interface ModuleGlobalsCurrencyWhitelistedEventEmittedResponse {
@@ -290,25 +288,26 @@ export interface ModuleGlobalsTreasurySetEventEmittedResponse {
   newTreasury: string;
   timestamp: BigNumberish;
 }
-export interface PostCreatedEventEmittedResponse {
+export interface PostParamsEventEmittedResponse {
   profileId: BigNumberish;
-  pubId: BigNumberish;
   contentURI: string;
-  collectModule: string;
-  collectModuleReturnData: Arrayish;
+  actionModules: string[];
+  actionModulesInitDatas: Arrayish[];
   referenceModule: string;
-  referenceModuleReturnData: Arrayish;
+  referenceModuleInitData: Arrayish;
+}
+export interface PostCreatedEventEmittedResponse {
+  postParams: PostParamsEventEmittedResponse;
+  pubId: BigNumberish;
+  actionModulesInitReturnDatas: Arrayish[];
+  referenceModuleInitReturnData: Arrayish;
+  transactionExecutor: string;
   timestamp: BigNumberish;
 }
 export interface ProfileCreatedEventEmittedResponse {
   profileId: BigNumberish;
   creator: string;
   to: string;
-  handle: string;
-  imageURI: string;
-  followModule: string;
-  followModuleReturnData: Arrayish;
-  followNFTURI: string;
   timestamp: BigNumberish;
 }
 export interface ProfileCreatorWhitelistedEventEmittedResponse {
@@ -316,14 +315,32 @@ export interface ProfileCreatorWhitelistedEventEmittedResponse {
   whitelisted: boolean;
   timestamp: BigNumberish;
 }
-export interface ProfileImageURISetEventEmittedResponse {
-  profileId: BigNumberish;
-  imageURI: string;
-  timestamp: BigNumberish;
-}
 export interface ProfileMetadataSetEventEmittedResponse {
   profileId: BigNumberish;
   metadata: string;
+  transactionExecutor: string;
+  timestamp: BigNumberish;
+}
+export interface QuoteParamsEventEmittedResponse {
+  profileId: BigNumberish;
+  contentURI: string;
+  pointedProfileId: BigNumberish;
+  pointedPubId: BigNumberish;
+  referrerProfileIds: BigNumberish[];
+  referrerPubIds: BigNumberish[];
+  referenceModuleData: Arrayish;
+  actionModules: string[];
+  actionModulesInitDatas: Arrayish[];
+  referenceModule: string;
+  referenceModuleInitData: Arrayish;
+}
+export interface QuoteCreatedEventEmittedResponse {
+  quoteParams: QuoteParamsEventEmittedResponse;
+  pubId: BigNumberish;
+  referenceModuleReturnData: Arrayish;
+  actionModulesInitReturnDatas: Arrayish[];
+  referenceModuleInitReturnData: Arrayish;
+  transactionExecutor: string;
   timestamp: BigNumberish;
 }
 export interface ReferenceModuleWhitelistedEventEmittedResponse {
@@ -335,6 +352,47 @@ export interface StateSetEventEmittedResponse {
   caller: string;
   prevState: BigNumberish;
   newState: BigNumberish;
+  timestamp: BigNumberish;
+}
+export interface TokenGuardianStateChangedEventEmittedResponse {
+  wallet: string;
+  enabled: boolean;
+  tokenGuardianDisablingTimestamp: BigNumberish;
+  timestamp: BigNumberish;
+}
+export interface UnblockedEventEmittedResponse {
+  byProfileId: BigNumberish;
+  idOfProfileUnblocked: BigNumberish;
+  transactionExecutor: string;
+  timestamp: BigNumberish;
+}
+export interface UnfollowedEventEmittedResponse {
+  unfollowerProfileId: BigNumberish;
+  idOfProfileUnfollowed: BigNumberish;
+  transactionExecutor: string;
+  timestamp: BigNumberish;
+}
+export interface NonceUpdatedEventEmittedResponse {
+  signer: string;
+  nonce: BigNumberish;
+  timestamp: BigNumberish;
+}
+export interface LensUpgradeVersionEventEmittedResponse {
+  implementation: string;
+  version: string;
+  gitCommit: Arrayish;
+  timestamp: BigNumberish;
+}
+export interface CollectedLegacyEventEmittedResponse {
+  publicationCollectedProfileId: BigNumberish;
+  publicationCollectedId: BigNumberish;
+  collectorProfileId: BigNumberish;
+  transactionExecutor: string;
+  referrerProfileId: BigNumberish;
+  referrerPubId: BigNumberish;
+  collectModule: string;
+  collectModuleData: Arrayish;
+  tokenId: BigNumberish;
   timestamp: BigNumberish;
 }
 export interface LensHubEvents {}

@@ -1,4 +1,4 @@
-export const LENS_HUB_ABI = [
+export const LENS_HUB_V1_ABI = [
   {
     inputs: [
       { internalType: 'address', name: 'followNFTImpl', type: 'address' },
