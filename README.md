@@ -330,7 +330,7 @@ We will show you a few examples of the `DA` metadata and then explain each field
             deadline: 1702891712,
         },
       },
-      blockHash: '0x345881b9a7e9450b0d7a6a393f7d0eeaab76c638ddf1b73911bd895d904acf0f', 
+      blockHash: '0x345881b9a7e9450b0d7a6a393f7d0eeaab76c638ddf1b73911bd895d904acf0f',
       blockNumber: 51266720,
       blockTimestamp: 1702891712,
     },
@@ -979,7 +979,6 @@ Quote was not supported in v1.
 }
 ```
 
-
 ### Metadata breakdown
 
 This will explain in json schema terms what a DA publication metadata holds.
@@ -1609,10 +1608,17 @@ Can hold either v1 or v2 post.
       ]
     }
   },
-  "required": ["signature", "dataAvailabilityId", "type", "timestampProofs", "chainProofs", "publicationId", "event"]
+  "required": [
+    "signature",
+    "dataAvailabilityId",
+    "type",
+    "timestampProofs",
+    "chainProofs",
+    "publicationId",
+    "event"
+  ]
 }
 ```
-
 
 #### COMMENT_CREATED
 
@@ -2335,7 +2341,15 @@ This is a DA comment. Very similar to DA post minus the `type`, `typedData` and 
       ]
     }
   },
-  "required": ["signature", "dataAvailabilityId", "type", "timestampProofs", "chainProofs", "publicationId", "event"]
+  "required": [
+    "signature",
+    "dataAvailabilityId",
+    "type",
+    "timestampProofs",
+    "chainProofs",
+    "publicationId",
+    "event"
+  ]
 }
 ```
 
@@ -2986,15 +3000,24 @@ This is a DA mirror. Very similar to DA post/comment minus the `type`, `typedDat
       ]
     }
   },
-  "required": ["signature", "dataAvailabilityId", "type", "timestampProofs", "chainProofs", "publicationId", "event"]
+  "required": [
+    "signature",
+    "dataAvailabilityId",
+    "type",
+    "timestampProofs",
+    "chainProofs",
+    "publicationId",
+    "event"
+  ]
 }
 ```
 
 #### QUOTE_CREATED
 
-This is a DA mirror. It's very similar to the DA comment.  
+This is a DA mirror. It's very similar to the DA comment.
 
 ##### V1 metadata
+
 Quote was not available in V1
 
 ##### V2 metadata
@@ -3362,7 +3385,15 @@ Quote was not available in V1
       ]
     }
   },
-  "required": ["signature", "dataAvailabilityId", "type", "timestampProofs", "chainProofs", "publicationId", "event"]
+  "required": [
+    "signature",
+    "dataAvailabilityId",
+    "type",
+    "timestampProofs",
+    "chainProofs",
+    "publicationId",
+    "event"
+  ]
 }
 ```
 
@@ -3371,7 +3402,7 @@ Quote was not available in V1
 We have 2 implementations of momoka one in node which supports browsers also and one in rust:
 
 - [momoka-node](./momoka-node/) - you can run the node verifier very easily and it also have indexer tools. Alongside this it has packages to run the verifier on the client side.
-- [momoka-rust](./momoka-rs/) - this is currently in beta stage but will be the main implementation going forward to grow momoka as a protocol
+- [momoka-rust](./momoka-rs/) - this is currently only supported lens v1 and will be migrated to lens v2 soon. Rust is the beta client verifier and eventually we like the rust client to be the main client.
 
 ## Acknowledgements
 

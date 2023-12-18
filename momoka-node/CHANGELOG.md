@@ -1,8 +1,5 @@
 # unreleased - fill in any changes you do here!
 
-- feat: add support for lens v2 publications
-- fix: export MomokaProvider and MomokaActionTypes
-
 ## Features
 
 ## Bug fixes
@@ -10,6 +7,13 @@
 ## Breaking changes
 
 ###################################################################
+
+# 1.1.3 - 18th December 2023
+
+# Features
+
+- feat: add support for lens v2 publications
+- fix: export MomokaProvider and MomokaActionTypes
 
 # 1.1.2 - 24th May 2023
 

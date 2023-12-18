@@ -1,5 +1,7 @@
 # momoka_rs
 
+THIS ONLY SUPPORTS LENS V1 PUBLICATIONS AND HAS NOT BEEN MIGRATED TO LENS V2 SUPPORT YET.
+
 This is the rust implementation of the momoka library. It is currently beta and still recommended you use the momoka-node for now. The rust library will be the main client in the future, the node and client verifier logic will always be supported and maintained so people can verify client side.
 
 ## Installing
