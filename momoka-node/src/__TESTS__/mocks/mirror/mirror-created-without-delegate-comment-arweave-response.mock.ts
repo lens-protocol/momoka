@@ -1,5 +1,5 @@
-import { DAActionTypes } from '../../../data-availability-models/data-availability-action-types';
-import { DAProvider } from '../../../data-availability-models/data-availability-provider';
+import { MomokaActionTypes } from '../../../data-availability-models/data-availability-action-types';
+import { MomokaProvider } from '../../../data-availability-models/data-availability-provider';
 import { CreateMirrorV1EIP712TypedData } from '../../../data-availability-models/publications/data-availability-publication-typed-data';
 import {
   DAPublicationPointerType,
@@ -14,9 +14,9 @@ export const mirrorCreatedWithoutDelegateCommentArweaveResponse: DAStructurePubl
   signature:
     '0x9a80809f6db6f28a96e14ec588125ceecf4824a65c2e7ca748f8de7fd1531c696cb119eb5027fc09d02c8eb64700e8d470302c328780a12767da3696d69d46d81c',
   dataAvailabilityId: 'b812eb36-30d8-4657-bd42-b239621b8696',
-  type: DAActionTypes.MIRROR_CREATED,
+  type: MomokaActionTypes.MIRROR_CREATED,
   timestampProofs: {
-    type: DAProvider.BUNDLR,
+    type: MomokaProvider.BUNDLR,
     hashPrefix: '1',
     response: {
       id: 'YfgVWKZ4jV19_IhFucPKIjjgyCJLcKfxH7Q1SUbRSWM',

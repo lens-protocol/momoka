@@ -1,4 +1,4 @@
-import { DAActionTypes } from './data-availability-action-types';
+import { MomokaActionTypes } from './data-availability-action-types';
 import { DATimestampProofs } from './data-availability-timestamp-proofs';
 
 export interface DAStructureBase {
@@ -15,7 +15,7 @@ export interface DAStructureBase {
   /**
    * The DA action type
    */
-  type: DAActionTypes;
+  type: MomokaActionTypes;
 
   /**
    * The timestamp proofs

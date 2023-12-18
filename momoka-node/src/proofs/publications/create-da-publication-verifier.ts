@@ -1,5 +1,5 @@
 import { DAStructurePublication } from '../../data-availability-models/publications/data-availability-structure-publication';
-import { DAActionTypes } from '../../data-availability-models/data-availability-action-types';
+import { MomokaActionTypes } from '../../data-availability-models/data-availability-action-types';
 import { DACommentVerifierV1, isDACommentPublicationV1 } from './comment/da-comment-verifier-v1';
 import { DACommentVerifierV2, isDACommentPublicationV2 } from './comment/da-comment-verifier-v2';
 import { LogFunctionType } from '../../common/logger';
@@ -27,7 +27,7 @@ export const createDAPublicationVerifier = (
   log: LogFunctionType
 ): PromiseResult<DAPublicationVerifier> => {
   switch (daPublication.type) {
-    case DAActionTypes.POST_CREATED:
+    case MomokaActionTypes.POST_CREATED:
       if (isDAPostPublicationV1(daPublication)) {
         log('verifying post v1');
         return Promise.resolve(success(new DAPostVerifierV1(daPublication, ethereumNode, log)));
@@ -42,7 +42,7 @@ export const createDAPublicationVerifier = (
       log('post was not recognized as v1 or v2');
 
       return Promise.resolve(failure(MomokaValidatorError.PUBLICATION_NOT_RECOGNIZED));
-    case DAActionTypes.COMMENT_CREATED:
+    case MomokaActionTypes.COMMENT_CREATED:
       if (isDACommentPublicationV1(daPublication)) {
         log('verifying comment v1');
 
@@ -58,7 +58,7 @@ export const createDAPublicationVerifier = (
       log('comment was not recognized as v1 or v2');
 
       return Promise.resolve(failure(MomokaValidatorError.PUBLICATION_NOT_RECOGNIZED));
-    case DAActionTypes.MIRROR_CREATED:
+    case MomokaActionTypes.MIRROR_CREATED:
       if (isDAMirrorPublicationV1(daPublication)) {
         log('verifying mirror v1');
 
@@ -73,7 +73,7 @@ export const createDAPublicationVerifier = (
       log('mirror was not recognized as v1 or v2');
 
       return Promise.resolve(failure(MomokaValidatorError.PUBLICATION_NOT_RECOGNIZED));
-    case DAActionTypes.QUOTE_CREATED:
+    case MomokaActionTypes.QUOTE_CREATED:
       if (isDAQuotePublicationV2(daPublication)) {
         log('verifying quote v2');
 

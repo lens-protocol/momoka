@@ -1,3 +1,3 @@
-export enum DAProvider {
+export enum MomokaProvider {
   BUNDLR = 'BUNDLR',
 }

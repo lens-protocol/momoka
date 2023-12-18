@@ -154,9 +154,9 @@ We will show you a few examples of the `DA` metadata and then explain each field
 {
   signature:'0x87866d620636f62aa3930d8c48be37dac77f96f30a9e06748491934fef75e7884a193d59fc486da3ea35f991bbd37a04ea4997e47f191d626ad2b601e3cc57a71c',
   dataAvailabilityId: '951a2a24-46fd-4306-8c31-46a8318a905e',
-  type: DAActionTypes.POST_CREATED,
+  type: MomokaActionTypes.POST_CREATED,
   timestampProofs: {
-    type: DAProvider.BUNDLR,
+    type: MomokaProvider.BUNDLR,
     hashPrefix: '1',
     response: {
       id: 'f7_YMkEqiALN9PCtK5LXxFDlc3EEi20-DWl57KxDMbw',
@@ -362,9 +362,9 @@ We will show you a few examples of the `DA` metadata and then explain each field
   signature:
     '0xcd9824d89bd3b237ed1230cf914630d756cae83904d835a1e85d37c11dbfab5e42c1f02042469ab29a3ccbd428c9a64576ad77f5876130b9c2bd49e0a83e9b7c1c',
   dataAvailabilityId: '9a0b1d2b-e36e-48fc-87b4-b5f3f509b494',
-  type: DAActionTypes.COMMENT_CREATED,
+  type: MomokaActionTypes.COMMENT_CREATED,
   timestampProofs: {
-    type: DAProvider.BUNDLR,
+    type: MomokaProvider.BUNDLR,
     hashPrefix: '1',
     response: {
       id: 'xtVsUj5j1T4T86IQlJk2u-KubGD5oKIXOJQlU3KyGR0',
@@ -625,9 +625,9 @@ We will show you a few examples of the `DA` metadata and then explain each field
   signature:
     '0x1683ef107f09a291ebbe8f4bfc4f628ff9be10f661d0d18048c31a8b1ca981d948ef12c591e5d762e952bc287e57838b031a6451f2b8a58cfc5cedb565c742661b',
   dataAvailabilityId: '538ca9c4-682b-41d2-9b8a-52ede43728d7',
-  type: DAActionTypes.MIRROR_CREATED,
+  type: MomokaActionTypes.MIRROR_CREATED,
   timestampProofs: {
-    type: DAProvider.BUNDLR,
+    type: MomokaProvider.BUNDLR,
     hashPrefix: '1',
     response: {
       id: 'zdkCXuVzawg3KipWCRVK2fo-yIUoj5IMuIYyFPGA55o',

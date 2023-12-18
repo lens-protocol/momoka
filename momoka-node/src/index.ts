@@ -19,3 +19,5 @@ export {
   startDATrustingIndexing,
 } from './watchers/trusting-indexing.watcher';
 export { startDAVerifierNode } from './watchers/verifier.watcher';
+export { MomokaActionTypes } from './data-availability-models/data-availability-action-types';
+export { MomokaProvider } from './data-availability-models/data-availability-provider';
