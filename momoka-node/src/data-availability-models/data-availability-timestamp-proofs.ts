@@ -1,5 +1,5 @@
-import { DAActionTypes } from './data-availability-action-types';
-import { DAProvider } from './data-availability-provider';
+import { MomokaActionTypes } from './data-availability-action-types';
+import { MomokaProvider } from './data-availability-provider';
 import { DAPublicationsBatchResult } from './publications/data-availability-structure-publication';
 
 export type DATimestampProofs = BundlrTimestampProofs;
@@ -26,7 +26,7 @@ export interface BundlrTimestampProofs {
   /**
    * The proofs type
    */
-  type: DAProvider.BUNDLR;
+  type: MomokaProvider.BUNDLR;
 
   /**
    * The hash prefix may not change for 10 years but good to know!
@@ -39,7 +39,7 @@ export interface BundlrTimestampProofs {
 }
 
 export interface DATimestampProofsResponse {
-  type: DAActionTypes;
+  type: MomokaActionTypes;
   dataAvailabilityId: string;
 }
 
