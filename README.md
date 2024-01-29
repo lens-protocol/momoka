@@ -18,17 +18,6 @@ The Momoka Verifier enables you to operate a trustless verifier node that valida
 
 For information on how to run this software, please refer to the [Technical code and how to run a verifier](#technical-code-and-how-to-run-a-verifier) section.
 
-## What is Momoka technical definition?
-
-Momoka, a term we've due to lens brand, refers to an Optimistic L3 - a hybrid by taking best from both - Optimistic Rollups and L3 technologies. We've chosen this approach for several reasons:
-
-- Optimistic Rollup is a technique that processes transactions off-chain for enhanced scalability and reduced fees. It typically compresses these transactions back to the main chain, but we've excluded this final step in our implementation.
-- L3, while having various definitions, generally involves technology built on top of Layer 2 (L2). Despite some considering Polygon a combination of side-chain and L2, we utilize the Polygon EVM chain to enable transaction proofs, improving the user experience (UX/UI) and overall experience for LENS users. This is why we designate it as L3.
-
-We describe Momoka long form name as an "Optimistic Hybrid-settlement L3" because, in most cases, settlement refers to both storage and verification. However, in this instance, the storage layer is provided by the Data Availability (DA) provider, and the settlement, or proof verification, is conducted using the Polygon chain.
-
-As we continue to refine this technology, the technical name may evolve, but we wanted to clarify the rationale behind the current terminology.
-
 ## What is DA?
 
 DA stands for Data Availability. It refers to the concept of storing data in a decentralized availability layer, which is more cost-effective than storing it on an EVM chain. The DA has no latency, meaning the data is produced and queryable instantly, in contrast to IPFS and EVM chains, which always have latency until they are considered complete. We utilize Arweave and Bundlr for this purpose. Arweave is a decentralized, permanent storage network with over 100 nodes in operation (as writing this documentation); it is being increasingly adopted by various NFT projects. Bundlr enhances Arweave's scalability while providing DA guarantees, enabling the use of EVM wallets to save DA logic and serving as a tool to rapidly push data to Arweave. DA can be used to store actions like posts, comments, mirrors, and more; initially, we are focusing on publications. The goal is to keep the DA layer affordable and scalable while still verifying transactions on Polygon using EVM simulations. DA requires a one-time payment for data storage and is backed by mathematical and hardware history guarantees.
