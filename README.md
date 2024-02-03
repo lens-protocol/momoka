@@ -1876,7 +1876,7 @@ This is a DA comment. Very similar to DA post minus the `type`, `typedData` and 
               "type": "string"
             },
             "type": {
-              "description": "the type of the publication on the data availability layer `ON_DA` or `ON_EVM_CHAIN` - for now you can not do a DA publication on a on-chain publication so will always be `ON_DA`",
+              "description": "the type of the publication on the data availability layer `ON_DA` or `ON_EVM_CHAIN` - for now you can not do a DA publication on an on-chain publication so will always be `ON_DA`",
               "type": "string"
             }
           },
