@@ -29,13 +29,13 @@ $ npm i @lens-protocol/momoka -g
 then you can just run:
 
 ```bash
-$ momoka --node 'YOUR_NODE' --environment='MUMBAI|POLYGON' --concurrency=20
+$ momoka --node 'YOUR_NODE' --environment='MUMBAI|AMOY|POLYGON' --concurrency=20
 ```
 
 you can also just run with npx:
 
 ```bash
-$ npx @lens-protocol/momoka --node 'YOUR_NODE' --environment='MUMBAI|POLYGON' --concurrency=20
+$ npx @lens-protocol/momoka --node 'YOUR_NODE' --environment='MUMBAI|AMOY|POLYGON' --concurrency=20
 ```
 
 By default it will not resync all the data, it just start verifying from this point onwards unless you add the parameter `--resync=true` which will start from block 0 and resync all the data.
@@ -51,7 +51,7 @@ A few environment variables are required for it to work, which you can set howev
 ### Parameter meanings
 
 - `--node` - this is the URI of the Polygon archive node you wish to connect to, this can be a free node or a paid node, it is recommended to use a paid node for the best performance. you can get up and running with a node using Alchemy, Infura, or any other similar infrastructure provider
-- `--environment` - this is the environment you wish to run the verifier on, this can be `MUMBAI` or `POLYGON`
+- `--environment` - this is the environment you wish to run the verifier on, this can be `MUMBAI` `AMOY` or `POLYGON`
 - `--concurrency` - this is the concurrency you wish to run the verifier on, which was talked in depth above
 - `--resync` - this is a boolean value, which if set to true will start the verifier from the block 0 and resync all transactions from the past, if set to false it will start verifying from this moment onwards.
 
@@ -251,11 +251,11 @@ $ pnpm build
 
 To run the tests:
 
-create an `.env.test` file with the following (you need to add a mumbai node url)
+create an `.env.test` file with the following (you need to add a AMOY node url)
 
 ```bash
-ETHEREUM_NETWORK=MUMBAI
-NODE_URL=MUMBAI_NODE_URL
+ETHEREUM_NETWORK=AMOY
+NODE_URL=AMOY_NODE_URL
 DEPLOYMENT=PRODUCTION
 CONCURRENCY=10
 ```

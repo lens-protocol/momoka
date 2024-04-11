@@ -40,7 +40,7 @@ if (!nodeUrl) {
   console.log('No node url specified');
   process.exit(1);
 }
-const environment = (args.options.environment as Environment) || Environment.MUMBAI;
+const environment = (args.options.environment as Environment) || Environment.POLYGON;
 const deployment = (args.options.deployment as Deployment) || Deployment.PRODUCTION;
 
 const concurrencyRaw = args.options.concurrency;

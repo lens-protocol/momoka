@@ -48,6 +48,7 @@ pub struct EnvironmentInfo {
 pub enum Environment {
     Polygon,
     Mumbai,
+    Amoy,
     Sandbox,
 }
 
@@ -67,6 +68,7 @@ impl FromStr for Environment {
         match s.to_lowercase().as_str() {
             "polygon" => Ok(Environment::Polygon),
             "mumbai" => Ok(Environment::Mumbai),
+            "amoy" => Ok(Environment::Amoy),
             "sandbox" => Ok(Environment::Sandbox),
             _ => Err(()),
         }
@@ -91,6 +93,7 @@ pub fn environment_to_chain_id(environment: Environment) -> Result<u32, &'static
     match environment {
         Environment::Polygon => Ok(137),
         Environment::Mumbai | Environment::Sandbox => Ok(80001),
+        Environment::Amoy => Ok(80002),
         _ => Err("Invalid environment"),
     }
 }
@@ -118,6 +121,9 @@ pub fn environment_to_lens_hub_contract(
         }
         Environment::Mumbai => {
             Ok(Address::from_str("0x60Ae865ee4C725cd04353b5AAb364553f56ceF82").unwrap())
+        }
+        Environment::Amoy => {
+            Ok(Address::from_str("0xA2574D9DdB6A325Ad2Be838Bd854228B80215148").unwrap())
         }
         Environment::Sandbox => {
             Ok(Address::from_str("0x7582177F9E536aB0b6c721e11f383C326F2Ad1D5").unwrap())

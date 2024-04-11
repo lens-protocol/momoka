@@ -4,6 +4,7 @@
 export enum Environment {
   POLYGON = 'POLYGON',
   MUMBAI = 'MUMBAI',
+  AMOY = 'AMOY',
 }
 
 /**
@@ -21,12 +22,14 @@ export enum Deployment {
  * @returns The chain ID corresponding to the provided Ethereum environment.
  * @throws An error if the provided environment is invalid.
  */
-export const environmentToChainId = (environment: Environment): 137 | 80001 => {
+export const environmentToChainId = (environment: Environment): 137 | 80001 | 80002 => {
   switch (environment) {
     case Environment.POLYGON:
       return 137;
     case Environment.MUMBAI:
       return 80001;
+    case Environment.AMOY:
+      return 80002;
     default:
       throw new Error('Invalid environment');
   }
@@ -44,6 +47,8 @@ export const environmentToLensHubContract = (environment: Environment): string =
       return '0xDb46d1Dc155634FbC732f92E853b10B288AD5a1d';
     case Environment.MUMBAI:
       return '0x60Ae865ee4C725cd04353b5AAb364553f56ceF82';
+    case Environment.AMOY:
+      return '0xA2574D9DdB6A325Ad2Be838Bd854228B80215148';
     default:
       throw new Error('Invalid environment');
   }
