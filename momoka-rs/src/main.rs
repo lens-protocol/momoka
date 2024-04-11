@@ -14,6 +14,7 @@ use clap::{arg, Parser};
 use environment::{Deployment, Environment};
 use evm::ProviderContext;
 use logger::Logger;
+use core::panic;
 use std::collections::HashSet;
 use std::process::exit;
 use std::{str::FromStr, thread::sleep, time::Duration};
@@ -135,6 +136,9 @@ async fn main() {
                     "POLYGON" => {
                         "https://polygon-mainnet.g.alchemy.com/v2/yzw8av5xB7xEAJLyoSLRYqKIaxbJ-mby"
                             .to_string()
+                    }
+                    "AMOY" => {
+                        panic!("No shared node setup for amoy please use your own")
                     }
                     _ => {
                         Logger.error("Invalid value for ENVIRONMENT");

@@ -17,7 +17,7 @@ Usage: momoka [OPTIONS]
 ```bash
 Options:
   -n <NODE>             The URL of the node
-  -e <ENVIRONMENT>      The environment (e.g., "MUMBAI" or "POLYGON")
+  -e <ENVIRONMENT>      The environment (e.g., "MUMBAI", "AMOY" or "POLYGON")
   -d <DEPLOYMENT>       The deployment (e.g., "PRODUCTION")
   -t <TX_ID>            The transaction ID to check proof for
   -r                    Flag indicating whether to perform a resync

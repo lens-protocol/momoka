@@ -33,6 +33,9 @@ pub fn get_submitters(environment: &Environment, deployment: &Deployment) -> Vec
             Environment::Mumbai => {
                 vec![Address::from_str("0xEE3E8f53df70C3A3eeDA2076CDCa17c451aa8F96").unwrap()]
             }
+            Environment::Amoy => {
+                vec![Address::from_str("0x085be9a079aB75608fB794f2D288A375856e3f60").unwrap()]
+            }
             Environment::Sandbox => panic!("Not Supported"),
         },
         Deployment::Staging => match environment {
@@ -40,12 +43,18 @@ pub fn get_submitters(environment: &Environment, deployment: &Deployment) -> Vec
             Environment::Mumbai => {
                 vec![Address::from_str("0x122938FE0d1fC6e00EF1b814cD7e44677e99b4f7").unwrap()]
             }
+            Environment::Amoy => {
+                vec![Address::from_str("0xC1b3BF1D611f1148F1799E90f7342860499Ba9D9").unwrap()]
+            }
             Environment::Sandbox => panic!("Not Supported"),
         },
         Deployment::Local => match environment {
             Environment::Polygon => panic!("Not Supported"),
             Environment::Mumbai => {
                 vec![Address::from_str("0x8Fc176aA6FC843D3422f0C1832f1b9E17be00C1c").unwrap()]
+            }
+            Environment::Amoy => {
+                vec![Address::from_str("0xcD7739d0b2ceFAb809FEF4e839a55b2627B60205").unwrap()]
             }
             Environment::Sandbox => panic!("Not Supported"),
         },

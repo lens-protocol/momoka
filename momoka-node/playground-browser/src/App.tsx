@@ -7,7 +7,7 @@ import {
 import './App.css';
 
 const ethereumNode: EthereumNode = {
-  environment: Environment.MUMBAI,
+  environment: Environment.AMOY,
   nodeUrl: 'INSERT_NODE_URL_HERE',
   deployment: Deployment.STAGING,
 };
