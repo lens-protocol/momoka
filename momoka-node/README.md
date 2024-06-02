@@ -14,7 +14,7 @@ The verifier is designed for optimal speed, with performance determined by its c
 
 The default concurrency is 100, which typically requires a paid archive node. If you prefer using a free node, the verifier will be slower, but it will still work effectively. For a free node, you can set the concurrency between 1 and 3. For example, at LENS, we have set the concurrency at 120, which enables our verifier to run very quickly.
 
-## Running straight out the box
+## Running straight out of the box
 
 Currently, you have two options to run it directly. Either by using the npm `momoka` package, or through Docker.
 
@@ -38,7 +38,7 @@ you can also just run with npx:
 $ npx @lens-protocol/momoka --node 'YOUR_NODE' --environment='MUMBAI|AMOY|POLYGON' --concurrency=20
 ```
 
-By default it will not resync all the data, it just start verifying from this point onwards unless you add the parameter `--resync=true` which will start from block 0 and resync all the data.
+By default it will not resync all the data, it just starts verifying from this point onwards unless you add the parameter `--resync=true` which will start from block 0 and resync all the data.
 
 ### Running from Docker
 
@@ -65,7 +65,7 @@ $ npm i @lens-protocol/momoka
 
 <b>Do not use if you do not know what you are doing the basic config works for all production apps</b>
 
-Please note if you wish to use a different deployment then `PRODUCTION` you will need to make sure you put `deployment: STAGING` or `deployment: LOCAL` in the `EthereumNode` object. This for most will not be the case.
+Please note if you wish to use a different deployment than `PRODUCTION` you will need to make sure you put `deployment: STAGING` or `deployment: LOCAL` in the `EthereumNode` object. This for most will not be the case.
 
 ### Client usage
 
@@ -140,7 +140,7 @@ startDAVerifierNode(ethereumNode, concurrency);
 
 #### startDAVerifierNode - Stream with proofs verified
 
-If you wish to index the data yourself, you can use the `startDAVerifierNode` and stream the data out to your own DB using the `StreamCallback`. This will run the verifier node and check the proofs as every new one comes in. By default it will not resync all the data, it just start verifying from this point onwards unless you add the parameter which is defined below.
+If you wish to index the data yourself, you can use the `startDAVerifierNode` and stream the data out to your own DB using the `StreamCallback`. This will run the verifier node and check the proofs as every new one comes in. By default it will not resync all the data, it just starts verifying from this point onwards unless you add the parameter which is defined below.
 
 ```ts
 import { startDAVerifierNode, StreamResult, EthereumNode } from '@lens-protocol/momoka';
@@ -154,8 +154,8 @@ const stream = (result: StreamResult) => {
   } else {
     // failure reason
     console.log('reason', result.failureReason);
-    // this will expose the submisson if it could be read
-    console.log('submisson', result.dataAvailabilityResult);
+    // this will expose the submission if it could be read
+    console.log('submission', result.dataAvailabilityResult);
   }
 };
 
@@ -167,7 +167,7 @@ const ethereumNode: EthereumNode = {
 // you should read up on section "Being as fast as possible - Concurrency"
 const concurrency = 100;
 
-// it run forever and log out to the terminal
+// it runs forever and logs out to the terminal
 startDAVerifierNode(ethereumNode, concurrency, { stream });
 ```
 
@@ -186,7 +186,7 @@ const ethereumNode: EthereumNode = {
 // you should read up on section "Being as fast as possible - Concurrency"
 const concurrency = 100;
 
-// it run forever and log out to the terminal
+// it runs forever and logs out to the terminal
 startDAVerifierNode(ethereumNode, concurrency, { resync: true });
 ```
 
@@ -210,8 +210,8 @@ const stream = (result: StreamResult) => {
   } else {
     // failure reason
     console.log('reason', result.failureReason);
-    // this will expose the submisson if it could be read
-    console.log('submisson', result.dataAvailabilityResult);
+    // this will expose the submission if it could be read
+    console.log('submission', result.dataAvailabilityResult);
   }
 };
 
@@ -220,7 +220,7 @@ const request: StartDATrustingIndexingRequest = {
   stream,
 };
 
-// it run forever and stream data as it comes in
+// it runs forever and streams data as it comes in
 startDATrustingIndexing(request);
 ```
 
@@ -435,18 +435,18 @@ export enum MomokaValidatorError {
   TIMESTAMP_PROOF_NOT_SUBMITTER = 'TIMESTAMP_PROOF_NOT_SUBMITTER',
 
   /**
-   * We tried to call them 5 times and its errored out - this is not a bad proof but bundlr/arweave are having issues
+   * We tried to call them 5 times and it's errored out - this is not a bad proof but bundlr/arweave are having issues
    */
   CAN_NOT_CONNECT_TO_BUNDLR = 'CAN_NOT_CONNECT_TO_BUNDLR',
 
   /**
    * The DA tx could not be found or invalid on the bundlr/arweave nodes
-   * can happened if pasted it in wrong
+   * can happen if pasted it in wrong
    */
   INVALID_TX_ID = 'INVALID_TX_ID',
 
   /**
-   * This the typed data format is invalid (aka a invalid address type etc)
+   * This typed data format is invalid (aka an invalid address type etc)
    */
   INVALID_FORMATTED_TYPED_DATA = 'INVALID_FORMATTED_TYPED_DATA',
 
@@ -462,7 +462,7 @@ export enum MomokaValidatorError {
 
   /**
    * This means the simulation was not able to be ran on the node, this does not mean
-   * that it would fail on chain, it means the nodes may of been down and needs rechecking
+   * that it would fail on chain, it means the nodes may have been down and needs rechecking
    */
   SIMULATION_NODE_COULD_NOT_RUN = 'SIMULATION_NODE_COULD_NOT_RUN',
 
@@ -531,7 +531,7 @@ export enum MomokaValidatorError {
   PUBLICATION_NONCE_INVALID = 'PUBLICATION_NONCE_INVALID',
 
   /**
-   * This means the publication submisson was signed by a wallet that is not allowed
+   * This means the publication submission was signed by a wallet that is not allowed
    */
   PUBLICATION_SIGNER_NOT_ALLOWED = 'PUBLICATION_SIGNER_NOT_ALLOWED',
 
@@ -541,7 +541,7 @@ export enum MomokaValidatorError {
   CHAIN_SIGNATURE_ALREADY_USED = 'CHAIN_SIGNATURE_ALREADY_USED',
 
   /**
-   * This means the publication submisson could not pass potentional due to a reorg
+   * This means the publication submission could not pass potential due to a reorg
    */
   POTENTIAL_REORG = 'POTENTIAL_REORG',
 
